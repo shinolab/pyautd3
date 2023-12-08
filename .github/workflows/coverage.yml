@@ -18,6 +18,8 @@ jobs:
         with:
           files: |
             .github/workflows/coverage.yml
+            setup.cfg.template
+            MANIFEST.in
             ./pyautd3/*.py
             ./pyautd3/**/*.py
             ./tests/*.py
@@ -35,7 +37,6 @@ jobs:
         with:
           python-version: 3.12
       - name: Install packaging
-        shell: bash
         run: |
           python3 -m pip install -U packaging requests
 
