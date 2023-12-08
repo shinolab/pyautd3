@@ -44,7 +44,7 @@ jobs:
         run: |
           python3 -m pip install -U pytest pytest-asyncio pytest-cov
           python3 -m pip install -U numpy
-          python3 x.py python cov --cov_report=xml
+          python3 x.py cov --cov_report=xml
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
