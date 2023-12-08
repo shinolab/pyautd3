@@ -1,0 +1,64 @@
+name: build
+
+on:
+  push:
+    branches:
+      - 'develop'
+  pull_request:
+    types: [opened, reopened, review_requested]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    name: check if files changed
+    outputs:
+      status: ${{ steps.changed-files.outputs.modified_files }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: tj-actions/changed-files@v40
+        id: changed-files
+        with:
+          files: |
+            .github/workflows/build.yml
+            ./pyautd3/*.py
+            ./pyautd3/**/*.py
+            ./tests/*.py
+            ./tests/**/*.py
+
+  build:
+    needs: check
+    name: build-python-${{ matrix.os }}-${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        if: needs.check.outputs.status && !(matrix.os == 'macos-latest' && matrix.python-version == '3.10')
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install packaging
+        shell: bash
+        run: |
+          python3 -m pip install -U packaging requests
+
+      - name: Install tools
+        if: needs.check.outputs.status && !(matrix.os == 'macos-latest' && matrix.python-version == '3.10')
+        run: |
+          python3 -m pip install -U mypy numpy build wheel pytest pytest-asyncio
+
+      - name: Build python library on ${{ matrix.os }}
+        if: needs.check.outputs.status && !(matrix.os == 'macos-latest' && matrix.python-version == '3.10')
+        run: |
+          python3 x.py build --no-install
+
+      - name: Test python library on ${{ matrix.os }}
+        if: needs.check.outputs.status && !(matrix.os == 'macos-latest' && matrix.python-version == '3.10')
+        run: |
+          python3 x.py test
