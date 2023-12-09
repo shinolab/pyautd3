@@ -35,7 +35,7 @@ sudo setcap cap_net_raw,cap_net_admin=eip <your python path>
 
 ## LICENSE
 
-MIT
+See [LICENSE](./LICENSE) and [ThirdPartyNotice](./ThirdPartyNotice.txt).
 
 # Author
 
