@@ -147,3 +147,6 @@ ThirdPartyNotice.txt
 setup.cfg
 *.png
 VERSION
+*.zip
+*.tar.gz
+

@@ -218,6 +218,7 @@ def copy_dll(config: Config):
     with open("pyautd3/__init__.py", "r") as f:
         content = f.read()
         version = re.search(r'__version__ = "(.*)"', content).group(1)
+        version = ".".join(version.split(".")[:3])
 
     if not should_update_dll(config, version):
         return
