@@ -2,7 +2,19 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import BackendPtr, EmissionConstraintPtr, GainPtr
+from pyautd3.native_methods.autd3capi_def import GainPtr
+
+
+class BackendPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class EmissionConstraintPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class ResultBackend(ctypes.Structure):
+    _fields_ = [("result", BackendPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
 class Singleton(type):

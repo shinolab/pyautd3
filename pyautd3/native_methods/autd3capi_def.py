@@ -84,14 +84,6 @@ class STMPropsPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class BackendPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class EmissionConstraintPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
 class GroupGainMapPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
@@ -114,10 +106,6 @@ class ResultGainCalcDrivesMap(ctypes.Structure):
 
 class ResultModulation(ctypes.Structure):
     _fields_ = [("result", ModulationPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-class ResultBackend(ctypes.Structure):
-    _fields_ = [("result", BackendPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
 class ResultDatagram(ctypes.Structure):
