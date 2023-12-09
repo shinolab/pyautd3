@@ -29,6 +29,28 @@ import requests
 from packaging import version
 
 
+def fetch_submodule():
+    if shutil.which("git") is not None:
+        with working_dir(os.path.dirname(os.path.abspath(__file__))):
+            subprocess.run(["git", "submodule", "update", "--init", "--recursive"]).check_returncode()
+    else:
+        err("git is not installed. Skip fetching submodules.")
+
+
+def generate_wrapper():
+    if shutil.which("cargo") is not None:
+        with working_dir(os.path.dirname(os.path.abspath(__file__))):
+            with working_dir("tools/wrapper-generator"):
+                subprocess.run(
+                    [
+                        "cargo",
+                        "run",
+                    ],
+                ).check_returncode()
+    else:
+        err("cargo is not installed. Skip generating wrapper.")
+
+
 def err(msg: str):
     print("\033[91mERR \033[0m: " + msg)
 
@@ -196,6 +218,7 @@ def copy_dll(config: Config):
     with open("pyautd3/__init__.py", "r") as f:
         content = f.read()
         version = re.search(r'__version__ = "(.*)"', content).group(1)
+        version = ".".join(version.split(".")[:3])
 
     if not should_update_dll(config, version):
         return
@@ -370,6 +393,9 @@ def command_help(args):
 
 
 if __name__ == "__main__":
+    fetch_submodule()
+    generate_wrapper()
+
     with working_dir(os.path.dirname(os.path.abspath(__file__))):
         parser = argparse.ArgumentParser(description="pyautd3 build script")
         subparsers = parser.add_subparsers()

@@ -1,0 +1,14 @@
+[package]
+name = "wrapper-generator"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glob = "0.3.1"
+anyhow = "1.0.75"
+syn = { version = "2.0.18", features = ["parsing", "full"] }
+convert_case = "0.6.0"
+cargo_metadata = "0.18.1"
+itertools = "0.12.0"

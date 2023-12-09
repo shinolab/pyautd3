@@ -15,7 +15,8 @@ from abc import ABCMeta, abstractmethod
 from ctypes import Array, c_double
 
 from pyautd3.gain.holo.constraint import EmissionConstraint
-from pyautd3.native_methods.autd3capi_def import BackendPtr, GainPtr
+from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr
 
 
 class Backend(metaclass=ABCMeta):
