@@ -32,10 +32,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
       - name: Install packaging
         run: |
           python3 -m pip install -U packaging requests
@@ -58,7 +54,7 @@ jobs:
       - name: Generate code coverage for python
         run: |
           python3 -m pip install -U pytest pytest-asyncio pytest-cov
-          python3 -m pip install -U numpy
+          python3 -m pip install -U numpy matplotlib
           python3 x.py cov --cov_report=xml
 
       - name: Upload coverage to Codecov
