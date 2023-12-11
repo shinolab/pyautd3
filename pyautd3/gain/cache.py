@@ -4,7 +4,7 @@ Project: gain
 Created Date: 10/10/2023
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 11/12/2023
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -20,9 +20,8 @@ import numpy as np
 from pyautd3.geometry import Geometry
 from pyautd3.internal.gain import IGain
 from pyautd3.internal.utils import _validate_ptr
-from pyautd3.native_methods.autd3capi import Drive
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_def import Drive, GainPtr
 
 G = TypeVar("G", bound=IGain)
 

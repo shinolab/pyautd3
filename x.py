@@ -136,6 +136,9 @@ class Config:
     def is_linux(self):
         return self._platform == "Linux"
 
+    def is_cuda_available(self):
+        return shutil.which("nvcc") is not None
+
     def is_pcap_available(self):
         if not self.is_windows():
             return True
@@ -328,6 +331,8 @@ def py_test(args):
         command.append("pytest")
         if config.is_pcap_available():
             command.append("--soem")
+        if config.is_cuda_available():
+            command.append("--cuda")
         subprocess.run(command).check_returncode()
 
 
@@ -346,6 +351,8 @@ def py_cov(args):
         command.append("pytest")
         if config.is_pcap_available():
             command.append("--soem")
+        if config.is_cuda_available():
+            command.append("--cuda")
         command.append("--cov-config=.coveragerc")
         command.append("--cov=pyautd3")
         command.append("--cov-branch")

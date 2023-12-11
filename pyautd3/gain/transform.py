@@ -1,10 +1,10 @@
 """
 File: transform.py
 Project: gain
-Created Date: 10/10/2023
+Created Date: 17/10/2023
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 11/12/2023
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -23,8 +23,8 @@ from pyautd3.drive import Drive
 from pyautd3.geometry import Device, Geometry, Transducer
 from pyautd3.internal.gain import IGain
 from pyautd3.internal.utils import _validate_ptr
-from pyautd3.native_methods.autd3capi import Drive as _Drive
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi_def import Drive as _Drive
 from pyautd3.native_methods.autd3capi_def import GainPtr
 from pyautd3.phase import Phase
 

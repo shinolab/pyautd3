@@ -4,7 +4,7 @@ Project: pyautd3
 Created Date: 28/05/2023
 Author: Shun Suzuki
 -----
-Last Modified: 27/10/2023
+Last Modified: 11/12/2023
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -48,3 +48,10 @@ class InvalidDatagramTypeError(AUTDError):
 
     def __init__(self: "InvalidDatagramTypeError") -> None:
         super().__init__("Invalid datagram type")
+
+
+class InvalidPlotConfigError(AUTDError):
+    """Exception class for invalid plot config."""
+
+    def __init__(self: "InvalidPlotConfigError") -> None:
+        super().__init__("Invalid plot config type")
