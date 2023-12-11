@@ -328,7 +328,7 @@ class Visualizer(Link):
         def _resolve_link(self: "Visualizer._Builder", ptr: ControllerPtr) -> "Visualizer":
             return Visualizer(Base().link_get(ptr), self._backend, self._directivity)
 
-        def with_gpu(self: "Visualizer._Builder", gpu_idx: int) -> "Visualizer._Builder":
+        def with_gpu(self: "Visualizer._Builder", gpu_idx: int) -> "Visualizer._Builder":  # pragma: no cover
             """Set GPU index.
 
             Arguments:

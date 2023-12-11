@@ -139,9 +139,6 @@ class Config:
     def is_cuda_available(self):
         return shutil.which("nvcc") is not None
 
-    def is_vulkan_available(self):
-        return shutil.which("vulkaninfo") is not None
-
     def is_pcap_available(self):
         if not self.is_windows():
             return True
@@ -336,8 +333,6 @@ def py_test(args):
             command.append("--soem")
         if config.is_cuda_available():
             command.append("--cuda")
-        if config.is_vulkan_available():
-            command.append("--gpu")
         subprocess.run(command).check_returncode()
 
 
@@ -358,8 +353,6 @@ def py_cov(args):
             command.append("--soem")
         if config.is_cuda_available():
             command.append("--cuda")
-        if config.is_vulkan_available():
-            command.append("--gpu")
         command.append("--cov-config=.coveragerc")
         command.append("--cov=pyautd3")
         command.append("--cov-branch")
