@@ -4,7 +4,7 @@
  * Created Date: 25/05/2022
  * Author: Shun Suzuki
  * -----
- * Last Modified: 09/12/2023
+ * Last Modified: 11/12/2023
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2022 Shun Suzuki. All rights reserved.
@@ -280,12 +280,69 @@ import os"
             })
             .collect();
 
-        if crate_name != "autd3capi-def" && !used_ty.is_empty() {
+        let def_ty = vec![
+            "GainPtr",
+            "ModulationPtr",
+            "LinkPtr",
+            "ControllerPtr",
+            "STMPropsPtr",
+            "ResultSamplingConfig",
+            "LinkBuilderPtr",
+            "CachePtr",
+            "ResultI32",
+            "SamplingConfiguration",
+            "GroupKVMapPtr",
+            "ResultDatagram",
+            "TransducerPtr",
+            "GeometryPtr",
+            "DatagramSpecialPtr",
+            "DatagramPtr",
+            "TimerStrategy",
+            "ResultModulation",
+            "FirmwareInfoListPtr",
+            "ResultController",
+            "DevicePtr",
+            "GainCalcDrivesMapPtr",
+            "ResultGainCalcDrivesMap",
+            "GroupGainMapPtr",
+            "GainSTMMode",
+            "Drive",
+        ];
+        let holo_ty = vec!["ResultBackend", "BackendPtr", "EmissionConstraintPtr"];
+        if crate_name != "autd3capi-def"
+            && used_ty
+                .iter()
+                .filter(|ty| def_ty.contains(&ty.as_str()))
+                .next()
+                .is_some()
+        {
             writeln!(
                 w,
                 r"from pyautd3.native_methods.autd3capi_def import {}
 ",
-                used_ty.iter().sorted().join(", ")
+                used_ty
+                    .iter()
+                    .filter(|ty| def_ty.contains(&ty.as_str()))
+                    .sorted()
+                    .join(", ")
+            )?;
+        }
+        if crate_name != "autd3capi-gain-holo"
+            && used_ty
+                .iter()
+                .filter(|ty| holo_ty.contains(&ty.as_str()))
+                .next()
+                .is_some()
+        {
+            writeln!(
+                w,
+                r"from pyautd3.native_methods.autd3capi_gain_holo import {}
+",
+                used_ty
+                    .iter()
+                    .filter(|ty| holo_ty.contains(&ty.as_str()))
+                    .sorted()
+                    .join(", ")
             )?;
         }
 

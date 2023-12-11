@@ -19,3 +19,4 @@ exclude_lines =
 [run]
 omit =
     */native_methods/*
+    pyautd3/gain/holo/backend_cuda.py
