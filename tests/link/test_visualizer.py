@@ -143,12 +143,20 @@ def test_visualizer_python():
 
 def test_visualizer_null():
     with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()).with_gpu(-1),
+        Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()),
     ) as autd:
         visualizer_test_with(autd, NullPlotConfig())
 
     with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.null().with_directivity(T4010A1()).with_gpu(-1),
+        Visualizer.null().with_directivity(T4010A1()),
+    ) as autd:
+        visualizer_test_with(autd, NullPlotConfig())
+
+
+@pytest.mark.gpu()
+def test_visualizer_gpu():
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
+        Visualizer.null().with_gpu(-1),
     ) as autd:
         visualizer_test_with(autd, NullPlotConfig())
 

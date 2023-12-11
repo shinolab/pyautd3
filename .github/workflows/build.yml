@@ -54,7 +54,7 @@ jobs:
       - name: Install tools
         if: needs.check.outputs.status && !(matrix.os == 'macos-latest' && matrix.python-version == '3.10')
         run: |
-          python3 -m pip install -U mypy numpy build wheel pytest pytest-asyncio
+          python3 -m pip install -U mypy numpy build wheel pytest pytest-asyncio matplotlib
 
       - name: Build python library on ${{ matrix.os }}
         if: needs.check.outputs.status && !(matrix.os == 'macos-latest' && matrix.python-version == '3.10')
