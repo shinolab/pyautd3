@@ -21,7 +21,6 @@ from pyautd3.autd import (
     Controller,
     FirmwareInfo,
     Silencer,
-    Stop,
     Synchronize,
 )
 from pyautd3.drive import Drive
@@ -46,11 +45,10 @@ __all__ = [
     "Clear",
     "Synchronize",
     "ConfigureModDelay",
-    "Stop",
     "TimerStrategy",
     "ConfigureDebugOutputIdx",
     "ConfigureReadsFPGAInfo",
     "ConfigureForceFan",
 ]
 
-__version__ = "19.0.0.2"
+__version__ = "19.1.0"

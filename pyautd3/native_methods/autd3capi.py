@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import CachePtr, ControllerPtr, DatagramPtr, DatagramSpecialPtr, DevicePtr, Drive, FirmwareInfoListPtr, GainCalcDrivesMapPtr, GainPtr, GainSTMMode, GeometryPtr, GroupGainMapPtr, GroupKVMapPtr, LinkBuilderPtr, LinkPtr, ModulationPtr, ResultController, ResultDatagram, ResultGainCalcDrivesMap, ResultI32, ResultSamplingConfig, STMPropsPtr, SamplingConfiguration, TransducerPtr
+from pyautd3.native_methods.autd3capi_def import CachePtr, ControllerPtr, DatagramPtr, DevicePtr, Drive, FirmwareInfoListPtr, GainCalcDrivesMapPtr, GainPtr, GainSTMMode, GeometryPtr, GroupGainMapPtr, GroupKVMapPtr, LinkBuilderPtr, LinkPtr, ModulationPtr, ResultController, ResultDatagram, ResultGainCalcDrivesMap, ResultI32, ResultSamplingConfig, STMPropsPtr, SamplingConfiguration, TransducerPtr
 
 from enum import IntEnum
 
@@ -221,9 +221,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramClear.argtypes = [] 
         self.dll.AUTDDatagramClear.restype = DatagramPtr
 
-        self.dll.AUTDDatagramStop.argtypes = [] 
-        self.dll.AUTDDatagramStop.restype = DatagramSpecialPtr
-
         self.dll.AUTDDatagramConfigureModDelay.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDDatagramConfigureModDelay.restype = DatagramPtr
 
@@ -242,17 +239,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
         self.dll.AUTDControllerSend.restype = ResultI32
 
-        self.dll.AUTDControllerSendSpecial.argtypes = [ControllerPtr, DatagramSpecialPtr, ctypes.c_int64]  # type: ignore 
-        self.dll.AUTDControllerSendSpecial.restype = ResultI32
-
         self.dll.AUTDControllerGroupCreateKVMap.argtypes = [] 
         self.dll.AUTDControllerGroupCreateKVMap.restype = GroupKVMapPtr
 
         self.dll.AUTDControllerGroupKVMapSet.argtypes = [GroupKVMapPtr, ctypes.c_int32, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
         self.dll.AUTDControllerGroupKVMapSet.restype = ResultGroupKVMap
-
-        self.dll.AUTDControllerGroupKVMapSetSpecial.argtypes = [GroupKVMapPtr, ctypes.c_int32, DatagramSpecialPtr, ctypes.c_int64]  # type: ignore 
-        self.dll.AUTDControllerGroupKVMapSetSpecial.restype = ResultGroupKVMap
 
         self.dll.AUTDControllerGroup.argtypes = [ControllerPtr, ctypes.POINTER(ctypes.c_int32), GroupKVMapPtr]  # type: ignore 
         self.dll.AUTDControllerGroup.restype = ResultI32
@@ -644,9 +635,6 @@ class NativeMethods(metaclass=Singleton):
     def datagram_clear(self) -> DatagramPtr:
         return self.dll.AUTDDatagramClear()
 
-    def datagram_stop(self) -> DatagramSpecialPtr:
-        return self.dll.AUTDDatagramStop()
-
     def datagram_configure_mod_delay(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramConfigureModDelay(f, context, geometry)
 
@@ -665,17 +653,11 @@ class NativeMethods(metaclass=Singleton):
     def controller_send(self, cnt: ControllerPtr, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultI32:
         return self.dll.AUTDControllerSend(cnt, d1, d2, timeout_ns)
 
-    def controller_send_special(self, cnt: ControllerPtr, special: DatagramSpecialPtr, timeout_ns: int) -> ResultI32:
-        return self.dll.AUTDControllerSendSpecial(cnt, special, timeout_ns)
-
     def controller_group_create_kv_map(self) -> GroupKVMapPtr:
         return self.dll.AUTDControllerGroupCreateKVMap()
 
     def controller_group_kv_map_set(self, map: GroupKVMapPtr, key: int, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultGroupKVMap:
         return self.dll.AUTDControllerGroupKVMapSet(map, key, d1, d2, timeout_ns)
-
-    def controller_group_kv_map_set_special(self, map: GroupKVMapPtr, key: int, special: DatagramSpecialPtr, timeout_ns: int) -> ResultGroupKVMap:
-        return self.dll.AUTDControllerGroupKVMapSetSpecial(map, key, special, timeout_ns)
 
     def controller_group(self, cnt: ControllerPtr, map: ctypes.Array[ctypes.c_int32] | None, kv_map: GroupKVMapPtr) -> ResultI32:
         return self.dll.AUTDControllerGroup(cnt, map, kv_map)

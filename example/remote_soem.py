@@ -14,19 +14,15 @@ Copyright (c) 2023 Shun Suzuki. All rights reserved.
 
 import asyncio
 
-from samples import runner  # type: ignore[import-not-found]
+from samples import runner  # type: ignore[import,import-not-found]
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.link.soem import RemoteSOEM
 
 
 async def main() -> None:
-    with await (
-        Controller.builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open_with_async(
-            RemoteSOEM.builder("127.0.0.1:8080"),
-        )
+    with await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(
+        RemoteSOEM.builder("127.0.0.1:8080"),
     ) as autd:  # type: Controller
         await runner.run(autd)
 

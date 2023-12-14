@@ -11,7 +11,8 @@ Copyright (c) 2020 Shun Suzuki. All rights reserved.
 
 """
 
-from pyautd3 import Controller, Stop
+from pyautd3 import Controller, Silencer
+from pyautd3.gain import Null
 
 from . import bessel, custom, flag, focus, group, holo, plane, stm, transtest, wav
 
@@ -55,6 +56,6 @@ async def run(autd: Controller) -> None:
         _ = input()
 
         print("finish.")
-        await autd.send_async(Stop())
+        await autd.send_async(Silencer(), Null())
 
     await autd.close_async()

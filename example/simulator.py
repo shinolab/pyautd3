@@ -13,18 +13,15 @@ Copyright (c) 2023 Shun Suzuki. All rights reserved.
 
 import asyncio
 
-from samples import runner  # type: ignore[import-not-found]
+from samples import runner  # type: ignore[import,import-not-found]
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.link.simulator import Simulator
 
 
 async def main() -> None:
-    with await (
-        Controller.builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .add_device(AUTD3([AUTD3.device_width(), 0.0, 0.0]))
-        .open_with_async(Simulator.builder(8080))
+    with await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).add_device(AUTD3([AUTD3.device_width(), 0.0, 0.0])).open_with_async(
+        Simulator.builder(8080)
     ) as autd:  # type: Controller
         await runner.run(autd)
 

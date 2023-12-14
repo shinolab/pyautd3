@@ -22,7 +22,7 @@ import numpy as np
 
 from .autd_error import InvalidDatagramTypeError, KeyAlreadyExistsError
 from .geometry import AUTD3, Device, Geometry, Transducer
-from .internal.datagram import Datagram, SpecialDatagram
+from .internal.datagram import Datagram
 from .internal.link import Link, LinkBuilder
 from .internal.utils import _validate_int, _validate_ptr
 from .native_methods.autd3capi import ControllerBuilderPtr
@@ -31,7 +31,6 @@ from .native_methods.autd3capi_def import (
     AUTD3_TRUE,
     ControllerPtr,
     DatagramPtr,
-    DatagramSpecialPtr,
     GeometryPtr,
     GroupKVMapPtr,
 )
@@ -292,7 +291,7 @@ class Controller(Generic[L]):
 
     async def send_async(
         self: "Controller",
-        d1: SpecialDatagram | Datagram | tuple[Datagram, Datagram],
+        d1: Datagram | tuple[Datagram, Datagram],
         d2: Datagram | None = None,
         *,
         timeout: timedelta | None = None,
@@ -318,17 +317,6 @@ class Controller(Generic[L]):
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         match (d1, d2):
-            case (SpecialDatagram(), None):
-                ds_ptr = d1._special_datagram_ptr()  # type: ignore[union-attr]
-                loop.call_soon(
-                    lambda *_: future.set_result(
-                        Base().controller_send_special(
-                            self._ptr,
-                            ds_ptr,
-                            timeout_,
-                        ),
-                    ),
-                )
             case (Datagram(), None):
                 d_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
                 loop.call_soon(
@@ -375,7 +363,7 @@ class Controller(Generic[L]):
 
     def send(
         self: "Controller",
-        d1: SpecialDatagram | Datagram | tuple[Datagram, Datagram],
+        d1: Datagram | tuple[Datagram, Datagram],
         d2: Datagram | None = None,
         *,
         timeout: timedelta | None = None,
@@ -400,15 +388,6 @@ class Controller(Generic[L]):
         timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         res: int
         match (d1, d2):
-            case (SpecialDatagram(), None):
-                ds_ptr = d1._special_datagram_ptr()  # type: ignore[union-attr]
-                res = _validate_int(
-                    Base().controller_send_special(
-                        self._ptr,
-                        ds_ptr,
-                        timeout_,
-                    ),
-                )
             case (Datagram(), None):
                 d_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
                 res = _validate_int(
@@ -463,7 +442,7 @@ class Controller(Generic[L]):
         def set_data(
             self: "Controller._GroupGuard",
             key: K,
-            d1: SpecialDatagram | Datagram | tuple[Datagram, Datagram],
+            d1: Datagram | tuple[Datagram, Datagram],
             d2: Datagram | None = None,
             *,
             timeout: timedelta | None = None,
@@ -475,15 +454,6 @@ class Controller(Generic[L]):
             timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
 
             match (d1, d2):
-                case (SpecialDatagram(), None):
-                    self._kv_map = _validate_ptr(
-                        Base().controller_group_kv_map_set_special(
-                            self._kv_map,
-                            self._k,
-                            d1._special_datagram_ptr(),  # type: ignore[union-attr]
-                            timeout_ns,
-                        ),
-                    )
                 case (Datagram(), None):
                     self._kv_map = _validate_ptr(
                         Base().controller_group_kv_map_set(
@@ -569,16 +539,6 @@ class Clear(Datagram):
 
     def _datagram_ptr(self: "Clear", _: Geometry) -> DatagramPtr:
         return Base().datagram_clear()
-
-
-class Stop(SpecialDatagram):
-    """Datagram to stop output."""
-
-    def __init__(self: "Stop") -> None:
-        super().__init__()
-
-    def _special_datagram_ptr(self: "Stop") -> DatagramSpecialPtr:
-        return Base().datagram_stop()
 
 
 class Synchronize(Datagram):

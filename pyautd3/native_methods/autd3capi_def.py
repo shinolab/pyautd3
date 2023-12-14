@@ -64,10 +64,6 @@ class DatagramPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class DatagramSpecialPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
 class GainPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
