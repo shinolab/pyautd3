@@ -19,6 +19,7 @@ jobs:
         id: changed-files
         with:
           files: |
+            x.py
             .github/workflows/build.yml
             setup.cfg.template
             MANIFEST.in
