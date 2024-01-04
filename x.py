@@ -248,12 +248,15 @@ def copy_dll(config: Config):
     if not should_update_dll(config, version):
         return
 
+    os.makedirs("pyautd3/bin", exist_ok=True)
     if config.is_windows():
         url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64.zip"
         with open("tmp.zip", mode="wb") as f:
             f.write(requests.get(url).content)
         shutil.unpack_archive("tmp.zip", ".")
-        rm_f("tmp.zip")
+        rm_f("tmp.zip")        
+        for dll in glob.glob("bin/*.dll"):
+            shutil.copy(dll, "pyautd3/bin")
     elif config.is_macos():
         url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-macos-universal.tar.gz"
         with open("tmp.tar.gz", mode="wb") as f:
@@ -261,6 +264,8 @@ def copy_dll(config: Config):
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
             tar.extractall()
         rm_f("tmp.tar.gz")
+        for dll in glob.glob("bin/*.dylib"):
+            shutil.copy(dll, "pyautd3/bin")
     elif config.is_linux():
         url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-x64.tar.gz"
         with open("tmp.tar.gz", mode="wb") as f:
@@ -268,10 +273,9 @@ def copy_dll(config: Config):
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
             tar.extractall()
         rm_f("tmp.tar.gz")
+        for dll in glob.glob("bin/*.so"):
+            shutil.copy(dll, "pyautd3/bin")
 
-    os.makedirs("pyautd3/bin", exist_ok=True)
-    for dll in glob.glob("bin/*.dll"):
-        shutil.copy(dll, "pyautd3/bin")
     shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
     shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
 
