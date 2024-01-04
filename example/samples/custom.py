@@ -15,7 +15,7 @@ Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3 import Controller, Drive, EmitIntensity, Geometry, Phase, SamplingConfiguration, Silencer
+from pyautd3 import ConfigureSilencer, Controller, Drive, EmitIntensity, Geometry, Phase, SamplingConfiguration
 from pyautd3.gain import Gain
 from pyautd3.modulation import Modulation
 
@@ -48,7 +48,7 @@ class Burst(Modulation):
 
 
 async def custom(autd: Controller) -> None:
-    config = Silencer()
+    config = ConfigureSilencer()
     await autd.send_async(config)
 
     f = Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))

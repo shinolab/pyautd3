@@ -14,13 +14,13 @@ Copyright (c) 2023 Shun Suzuki. All rights reserved.
 
 import numpy as np
 
-from pyautd3 import Controller, Device, Silencer
+from pyautd3 import ConfigureSilencer, Controller, Device
 from pyautd3.gain import Focus, Group, Null
 from pyautd3.modulation import Sine, Static
 
 
 async def group_by_device(autd: Controller) -> None:
-    config = Silencer()
+    config = ConfigureSilencer()
     await autd.send_async(config)
 
     def grouping(dev: Device) -> str | None:
@@ -45,7 +45,7 @@ async def group_by_device(autd: Controller) -> None:
 
 
 async def group_by_transducer(autd: Controller) -> None:
-    config = Silencer()
+    config = ConfigureSilencer()
     await autd.send_async(config)
 
     cx = autd.geometry.center[0]

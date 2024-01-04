@@ -77,7 +77,7 @@ class STM(Datagram, metaclass=ABCMeta):
     def _props(self: "STM") -> STMPropsPtr:
         ptr: STMPropsPtr
         if self._freq is not None:
-            ptr = Base().stm_props_new(self._freq)
+            ptr = Base().stm_props_from_freq(self._freq)
         if self._period is not None:
             ptr = Base().stm_props_from_period(int(self._period.total_seconds() * 1000 * 1000 * 1000))
         if self._sampling_config is not None:
@@ -110,8 +110,8 @@ class FocusSTM(STM):
 
     def __init__(
         self: "FocusSTM",
-        freq: float | None,
         *,
+        freq: float | None = None,
         period: timedelta | None = None,
         sampling_config: SamplingConfiguration | None = None,
     ) -> None:
@@ -140,6 +140,16 @@ class FocusSTM(STM):
         )
 
     @staticmethod
+    def from_freq(freq: float) -> "FocusSTM":
+        """Constructor.
+
+        Arguments:
+        ---------
+            freq: freq.
+        """
+        return FocusSTM(freq=freq)
+
+    @staticmethod
     def from_period(period: timedelta) -> "FocusSTM":
         """Constructor.
 
@@ -147,7 +157,7 @@ class FocusSTM(STM):
         ---------
             period: Period.
         """
-        return FocusSTM(None, period=period)
+        return FocusSTM(period=period)
 
     @staticmethod
     def from_sampling_config(config: SamplingConfiguration) -> "FocusSTM":
@@ -157,10 +167,7 @@ class FocusSTM(STM):
         ---------
             config: Sampling configuration
         """
-        return FocusSTM(
-            None,
-            sampling_config=config,
-        )
+        return FocusSTM(sampling_config=config)
 
     def add_focus(self: "FocusSTM", point: ArrayLike, intensity: EmitIntensity | None = None) -> "FocusSTM":
         """Add focus.
@@ -234,8 +241,8 @@ class GainSTM(STM):
 
     def __init__(
         self: "GainSTM",
-        freq: float | None,
         *,
+        freq: float | None = None,
         period: timedelta | None = None,
         sampling_config: SamplingConfiguration | None = None,
     ) -> None:
@@ -265,6 +272,16 @@ class GainSTM(STM):
         )
 
     @staticmethod
+    def from_freq(freq: float) -> "GainSTM":
+        """Constructor.
+
+        Arguments:
+        ---------
+            freq: freq
+        """
+        return GainSTM(freq=freq)
+
+    @staticmethod
     def from_sampling_config(config: SamplingConfiguration) -> "GainSTM":
         """Constructor.
 
@@ -272,7 +289,7 @@ class GainSTM(STM):
         ---------
             config: Sampling configuration
         """
-        return GainSTM(None, sampling_config=config)
+        return GainSTM(sampling_config=config)
 
     @staticmethod
     def from_period(period: timedelta) -> "GainSTM":
@@ -282,7 +299,7 @@ class GainSTM(STM):
         ---------
             period: Period.
         """
-        return GainSTM(None, period=period)
+        return GainSTM(period=period)
 
     def add_gain(self: "GainSTM", gain: IGain) -> "GainSTM":
         """Add gain.

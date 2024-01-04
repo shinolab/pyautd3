@@ -16,13 +16,13 @@ from pathlib import Path
 
 import numpy as np
 
-from pyautd3 import Controller, Silencer
+from pyautd3 import ConfigureSilencer, Controller
 from pyautd3.gain import Focus
 from pyautd3.modulation.audio_file import Wav
 
 
 async def wav(autd: Controller) -> None:
-    config = Silencer()
+    config = ConfigureSilencer()
     await autd.send_async(config)
 
     f = Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))

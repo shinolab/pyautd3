@@ -63,20 +63,26 @@ class Audit(Link):
     def last_timeout_ns(self: "Audit") -> int:
         return int(LinkAudit().link_audit_last_timeout_ns(self._ptr))
 
-    def up(self: "Audit") -> None:
-        LinkAudit().link_audit_up(self._ptr)
-
     def break_down(self: "Audit") -> None:
         LinkAudit().link_audit_break_down(self._ptr)
 
     def update(self: "Audit", idx: int) -> None:
         LinkAudit().link_audit_cpu_update(self._ptr, idx)
 
-    def silencer_step_intensity(self: "Audit", idx: int) -> int:
-        return int(LinkAudit().link_audit_fpga_silencer_step_intensity(self._ptr, idx))
+    def silencer_update_rate_intensity(self: "Audit", idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_silencer_update_rate_intensity(self._ptr, idx))
 
-    def silencer_step_phase(self: "Audit", idx: int) -> int:
-        return int(LinkAudit().link_audit_fpga_silencer_step_phase(self._ptr, idx))
+    def silencer_update_rate_phase(self: "Audit", idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_silencer_update_rate_phase(self._ptr, idx))
+
+    def silencer_completion_steps_intensity(self: "Audit", idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_silencer_completion_steps_intensity(self._ptr, idx))
+
+    def silencer_completion_steps_phase(self: "Audit", idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_silencer_completion_steps_phase(self._ptr, idx))
+
+    def silencer_fixed_completion_steps_mode(self: "Audit", idx: int) -> bool:
+        return bool(LinkAudit().link_audit_fpga_silencer_fixed_completion_steps_mode(self._ptr, idx))
 
     def debug_output_idx(self: "Audit", idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_debug_output_idx(self._ptr, idx))

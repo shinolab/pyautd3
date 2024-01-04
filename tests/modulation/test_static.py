@@ -29,4 +29,4 @@ async def test_static():
         mod = autd.link.modulation(dev.idx)
         mod_expect = [0x80] * 2
         assert np.array_equal(mod, mod_expect)
-        assert autd.link.modulation_frequency_division(dev.idx) == 5120
+        assert autd.link.modulation_frequency_division(dev.idx) == 0xFFFFFFFF

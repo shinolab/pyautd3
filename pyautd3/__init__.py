@@ -18,9 +18,9 @@ from pyautd3.autd import (
     ConfigureForceFan,
     ConfigureModDelay,
     ConfigureReadsFPGAInfo,
+    ConfigureSilencer,
     Controller,
     FirmwareInfo,
-    Silencer,
     Synchronize,
 )
 from pyautd3.drive import Drive
@@ -34,7 +34,7 @@ __all__ = [
     "Phase",
     "EmitIntensity",
     "SamplingConfiguration",
-    "Silencer",
+    "ConfigureSilencer",
     "Controller",
     "AUTD3",
     "Geometry",
@@ -51,4 +51,4 @@ __all__ = [
     "ConfigureForceFan",
 ]
 
-__version__ = "19.1.0"
+__version__ = "20.0.0"

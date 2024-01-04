@@ -233,8 +233,14 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramConfigureReadsFPGAInfo.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDDatagramConfigureReadsFPGAInfo.restype = DatagramPtr
 
-        self.dll.AUTDDatagramSilencer.argtypes = [ctypes.c_uint16, ctypes.c_uint16] 
-        self.dll.AUTDDatagramSilencer.restype = ResultDatagram
+        self.dll.AUTDDatagramSilencerFixedUpdateRate.argtypes = [ctypes.c_uint16, ctypes.c_uint16] 
+        self.dll.AUTDDatagramSilencerFixedUpdateRate.restype = ResultDatagram
+
+        self.dll.AUTDDatagramSilencerFixedCompletionSteps.argtypes = [ctypes.c_uint16, ctypes.c_uint16] 
+        self.dll.AUTDDatagramSilencerFixedCompletionSteps.restype = ResultDatagram
+
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsWithStrictMode.argtypes = [DatagramPtr, ctypes.c_bool]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsWithStrictMode.restype = DatagramPtr
 
         self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
         self.dll.AUTDControllerSend.restype = ResultI32
@@ -308,11 +314,20 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaIsStmGainMode.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaIsStmGainMode.restype = ctypes.c_bool
 
-        self.dll.AUTDLinkAuditFpgaSilencerStepIntensity.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaSilencerStepIntensity.restype = ctypes.c_uint16
+        self.dll.AUTDLinkAuditFpgaSilencerUpdateRateIntensity.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaSilencerUpdateRateIntensity.restype = ctypes.c_uint16
 
-        self.dll.AUTDLinkAuditFpgaSilencerStepPhase.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaSilencerStepPhase.restype = ctypes.c_uint16
+        self.dll.AUTDLinkAuditFpgaSilencerUpdateRatePhase.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaSilencerUpdateRatePhase.restype = ctypes.c_uint16
+
+        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity.restype = ctypes.c_uint16
+
+        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase.restype = ctypes.c_uint16
+
+        self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.restype = ctypes.c_bool
 
         self.dll.AUTDLinkAuditFpgaDebugOutputIdx.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaDebugOutputIdx.restype = ctypes.c_uint8
@@ -428,7 +443,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationStatic.argtypes = [] 
         self.dll.AUTDModulationStatic.restype = ModulationPtr
 
-        self.dll.AUTDModulationStaticWithIntensity.argtypes = [ModulationPtr, ctypes.c_uint8]  # type: ignore 
+        self.dll.AUTDModulationStaticWithIntensity.argtypes = [ctypes.c_uint8] 
         self.dll.AUTDModulationStaticWithIntensity.restype = ModulationPtr
 
         self.dll.AUTDModulationWithTransform.argtypes = [ModulationPtr, ctypes.c_void_p, ctypes.c_void_p]  # type: ignore 
@@ -443,8 +458,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMGainAddGain.argtypes = [DatagramPtr, GainPtr]  # type: ignore 
         self.dll.AUTDSTMGainAddGain.restype = ResultDatagram
 
-        self.dll.AUTDSTMPropsNew.argtypes = [ctypes.c_double] 
-        self.dll.AUTDSTMPropsNew.restype = STMPropsPtr
+        self.dll.AUTDSTMPropsFromFreq.argtypes = [ctypes.c_double] 
+        self.dll.AUTDSTMPropsFromFreq.restype = STMPropsPtr
 
         self.dll.AUTDSTMPropsFromPeriod.argtypes = [ctypes.c_uint64] 
         self.dll.AUTDSTMPropsFromPeriod.restype = STMPropsPtr
@@ -647,8 +662,14 @@ class NativeMethods(metaclass=Singleton):
     def datagram_configure_reads_fpga_info(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramConfigureReadsFPGAInfo(f, context, geometry)
 
-    def datagram_silencer(self, step_intensity: int, step_phase: int) -> ResultDatagram:
-        return self.dll.AUTDDatagramSilencer(step_intensity, step_phase)
+    def datagram_silencer_fixed_update_rate(self, value_intensity: int, value_phase: int) -> ResultDatagram:
+        return self.dll.AUTDDatagramSilencerFixedUpdateRate(value_intensity, value_phase)
+
+    def datagram_silencer_fixed_completion_steps(self, value_intensity: int, value_phase: int) -> ResultDatagram:
+        return self.dll.AUTDDatagramSilencerFixedCompletionSteps(value_intensity, value_phase)
+
+    def datagram_silencer_fixed_completion_steps_with_strict_mode(self, silcenr: DatagramPtr, mode: bool) -> DatagramPtr:
+        return self.dll.AUTDDatagramSilencerFixedCompletionStepsWithStrictMode(silcenr, mode)
 
     def controller_send(self, cnt: ControllerPtr, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultI32:
         return self.dll.AUTDControllerSend(cnt, d1, d2, timeout_ns)
@@ -722,11 +743,20 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_is_stm_gain_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
         return self.dll.AUTDLinkAuditFpgaIsStmGainMode(audit, idx)
 
-    def link_audit_fpga_silencer_step_intensity(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
-        return self.dll.AUTDLinkAuditFpgaSilencerStepIntensity(audit, idx)
+    def link_audit_fpga_silencer_update_rate_intensity(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
+        return self.dll.AUTDLinkAuditFpgaSilencerUpdateRateIntensity(audit, idx)
 
-    def link_audit_fpga_silencer_step_phase(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
-        return self.dll.AUTDLinkAuditFpgaSilencerStepPhase(audit, idx)
+    def link_audit_fpga_silencer_update_rate_phase(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
+        return self.dll.AUTDLinkAuditFpgaSilencerUpdateRatePhase(audit, idx)
+
+    def link_audit_fpga_silencer_completion_steps_intensity(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
+        return self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity(audit, idx)
+
+    def link_audit_fpga_silencer_completion_steps_phase(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
+        return self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase(audit, idx)
+
+    def link_audit_fpga_silencer_fixed_completion_steps_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
+        return self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode(audit, idx)
 
     def link_audit_fpga_debug_output_idx(self, audit: LinkPtr, idx: int) -> ctypes.c_uint8:
         return self.dll.AUTDLinkAuditFpgaDebugOutputIdx(audit, idx)
@@ -842,8 +872,8 @@ class NativeMethods(metaclass=Singleton):
     def modulation_static(self) -> ModulationPtr:
         return self.dll.AUTDModulationStatic()
 
-    def modulation_static_with_intensity(self, m: ModulationPtr, intensity: int) -> ModulationPtr:
-        return self.dll.AUTDModulationStaticWithIntensity(m, intensity)
+    def modulation_static_with_intensity(self, intensity: int) -> ModulationPtr:
+        return self.dll.AUTDModulationStaticWithIntensity(intensity)
 
     def modulation_with_transform(self, m: ModulationPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None) -> ModulationPtr:
         return self.dll.AUTDModulationWithTransform(m, f, context)
@@ -857,8 +887,8 @@ class NativeMethods(metaclass=Singleton):
     def stm_gain_add_gain(self, stm: DatagramPtr, gain: GainPtr) -> ResultDatagram:
         return self.dll.AUTDSTMGainAddGain(stm, gain)
 
-    def stm_props_new(self, freq: float) -> STMPropsPtr:
-        return self.dll.AUTDSTMPropsNew(freq)
+    def stm_props_from_freq(self, freq: float) -> STMPropsPtr:
+        return self.dll.AUTDSTMPropsFromFreq(freq)
 
     def stm_props_from_period(self, p: int) -> STMPropsPtr:
         return self.dll.AUTDSTMPropsFromPeriod(p)

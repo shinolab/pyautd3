@@ -90,6 +90,28 @@ def rmtree_f(path):
         pass
 
 
+def glob_norm(path, recursive):
+    return [os.path.normpath(p) for p in glob.glob(path, recursive=recursive)]
+
+
+def rm_glob_f(path, exclude=None, recursive=True):
+    if exclude is not None:
+        for f in list(set(glob_norm(path, recursive=recursive)) - set(glob_norm(exclude, recursive=recursive))):
+            rm_f(f)
+    else:
+        for f in glob.glob(path, recursive=recursive):
+            rm_f(f)
+
+
+def rmtree_glob_f(path, exclude=None, recursive=True):
+    if exclude is not None:
+        for f in list(set(glob_norm(path, recursive=recursive)) - set(glob_norm(exclude, recursive=recursive))):
+            rmtree_f(f)
+    else:
+        for f in glob.glob(path, recursive=recursive):
+            rmtree_f(f)
+
+
 @contextlib.contextmanager
 def working_dir(path):
     cwd = os.getcwd()
@@ -248,7 +270,7 @@ def copy_dll(config: Config):
         rm_f("tmp.tar.gz")
 
     os.makedirs("pyautd3/bin", exist_ok=True)
-    for dll in glob.glob("bin/*"):
+    for dll in glob.glob("bin/*.dll"):
         shutil.copy(dll, "pyautd3/bin")
     shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
     shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
@@ -362,15 +384,20 @@ def py_cov(args):
 
 def py_clear(_):
     with working_dir("."):
+        rm_glob_f("*.png")
         rm_f("setup.cfg")
+        rm_f(".coverage")
+        rm_f("coverage.xml")
+        rm_f("ThirdPartyNotice.txt")
+        rm_f("VERSION")
         rmtree_f("dist")
         rmtree_f("build")
         rmtree_f("pyautd3.egg-info")
         rmtree_f("pyautd3/bin")
         rmtree_f(".mypy_cache")
-        rmtree_f(".pytest_cache")
-        rmtree_f("pyautd3/__pycache__")
-        rmtree_f("tests/__pycache__")
+        rmtree_f("htmlcov")
+        rmtree_glob_f("./**/__pycache__/**/")
+        rmtree_f("tools/wrapper-generator/target")
 
 
 def util_update_ver(args):

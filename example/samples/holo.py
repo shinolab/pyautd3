@@ -14,13 +14,13 @@ Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
 
 import numpy as np
 
-from pyautd3 import Controller, Silencer
+from pyautd3 import ConfigureSilencer, Controller
 from pyautd3.gain.holo import GSPAT, NalgebraBackend, pascal
 from pyautd3.modulation import Sine
 
 
 async def holo(autd: Controller) -> None:
-    config = Silencer()
+    config = ConfigureSilencer()
     await autd.send_async(config)
 
     center = autd.geometry.center + np.array([0.0, 0.0, 150.0])

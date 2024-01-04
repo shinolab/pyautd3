@@ -22,22 +22,22 @@ class Static(IModulation):
 
     _intensity: EmitIntensity | None
 
-    def __init__(self: "Static") -> None:
+    def __init__(self: "Static", intensity: int | EmitIntensity | None = None) -> None:
         super().__init__()
-        self._intensity = None
+        self._intensity = intensity if intensity is None else EmitIntensity._cast(intensity)
 
-    def with_intensity(self: "Static", intensity: int | EmitIntensity) -> "Static":
-        """Set intensity.
+    @staticmethod
+    def with_intensity(intensity: int | EmitIntensity) -> "Static":
+        """Static with intensity.
 
         Arguments:
         ---------
             intensity: Emission intensity
         """
-        self._intensity = EmitIntensity._cast(intensity)
-        return self
+        return Static(intensity)
 
     def _modulation_ptr(self: "Static") -> ModulationPtr:
-        ptr = Base().modulation_static()
         if self._intensity is not None:
-            ptr = Base().modulation_static_with_intensity(ptr, self._intensity.value)
-        return ptr
+            return Base().modulation_static_with_intensity(self._intensity.value)
+        else:
+            return Base().modulation_static()

@@ -4,7 +4,7 @@
  * Created Date: 25/05/2022
  * Author: Shun Suzuki
  * -----
- * Last Modified: 09/12/2023
+ * Last Modified: 04/01/2024
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2022 Shun Suzuki. All rights reserved.
@@ -64,46 +64,61 @@ where
 
     let syntax_tree = syn::parse_file(&contents)?;
 
+    let parse_fn = |item_fn: syn::ItemFn| {
+        let docs = item_fn
+            .attrs
+            .iter()
+            .filter(|attr| attr.path().is_ident("doc"))
+            .map(|attr| {
+                attr.meta
+                    .require_name_value()
+                    .unwrap()
+                    .value
+                    .clone()
+                    .into_token_stream()
+                    .to_string()
+                    .trim()
+                    .to_string()
+            })
+            .collect();
+
+        let name = item_fn.sig.ident.to_string();
+        let return_ty = Type::parse_return(item_fn.sig.output);
+        let args = item_fn
+            .sig
+            .inputs
+            .into_iter()
+            .map(|i| Type::parse_arg(i))
+            .collect::<Vec<_>>();
+
+        Function {
+            docs,
+            name,
+            return_ty,
+            args,
+        }
+    };
+
     Ok(syntax_tree
         .items
         .into_iter()
         .filter_map(|item| match item {
-            syn::Item::Fn(item_fn) => {
-                let docs = item_fn
-                    .attrs
-                    .iter()
-                    .filter(|attr| attr.path().is_ident("doc"))
-                    .map(|attr| {
-                        attr.meta
-                            .require_name_value()
-                            .unwrap()
-                            .value
-                            .clone()
-                            .into_token_stream()
-                            .to_string()
-                            .trim()
-                            .to_string()
-                    })
-                    .collect();
-
-                let name = item_fn.sig.ident.to_string();
-                let return_ty = Type::parse_return(item_fn.sig.output);
-                let args = item_fn
-                    .sig
-                    .inputs
-                    .into_iter()
-                    .map(|i| Type::parse_arg(i))
-                    .collect::<Vec<_>>();
-
-                Some(Function {
-                    docs,
-                    name,
-                    return_ty,
-                    args,
-                })
-            }
+            syn::Item::Fn(item_fn) => Some(vec![parse_fn(item_fn)]),
+            syn::Item::Mod(item_mod) => match item_mod.content {
+                Some((_, items)) => Some(
+                    items
+                        .into_iter()
+                        .filter_map(|item| match item {
+                            syn::Item::Fn(item_fn) => Some(parse_fn(item_fn)),
+                            _ => None,
+                        })
+                        .collect(),
+                ),
+                None => None,
+            },
             _ => None,
         })
+        .flatten()
         .collect())
 }
 

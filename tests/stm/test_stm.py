@@ -16,7 +16,7 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from pyautd3 import AUTD3, Controller, SamplingConfiguration
+from pyautd3 import AUTD3, ConfigureSilencer, Controller, SamplingConfiguration
 from pyautd3.gain import Uniform
 from pyautd3.link.audit import Audit
 from pyautd3.stm import FocusSTM, GainSTM, GainSTMMode
@@ -27,10 +27,12 @@ from tests.test_autd import create_controller
 async def test_focus_stm():
     autd = await create_controller()
 
+    assert await autd.send_async(ConfigureSilencer.disable())
+
     radius = 30.0
     size = 2
     center = np.array([0.0, 0.0, 150.0])
-    stm = FocusSTM(1.0).add_foci_from_iter(
+    stm = FocusSTM.from_freq(1.0).add_foci_from_iter(
         center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))
     )
     assert await autd.send_async(stm)
@@ -122,8 +124,10 @@ async def test_gain_stm():
         await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder())
     )
 
+    assert await autd.send_async(ConfigureSilencer.disable())
+
     size = 2
-    stm = GainSTM(1.0).add_gains_from_iter(Uniform(0xFF // (i + 1)) for i in range(size))
+    stm = GainSTM.from_freq(1.0).add_gains_from_iter(Uniform(0xFF // (i + 1)) for i in range(size))
     assert await autd.send_async(stm)
     for dev in autd.geometry:
         assert autd.link.is_stm_gain_mode(dev.idx)

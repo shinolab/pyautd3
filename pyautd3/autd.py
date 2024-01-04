@@ -43,31 +43,98 @@ LogOutputFunc = ctypes.CFUNCTYPE(None, ctypes.c_char_p)
 LogFlushFunc = ctypes.CFUNCTYPE(None)
 
 
-class Silencer(Datagram):
+class ConfigureSilencer(Datagram):
     """Datagram for configure silencer."""
 
-    _step_intensity: int
-    _step_phase: int
+    def __init__(self: "ConfigureSilencer") -> None:
+        pass
 
-    def __init__(self: "Silencer", step_intensity: int = 256, step_phase: int = 256) -> None:
-        """Constructor.
+    class FixedUpdateRate(Datagram):
+        """Datagram for configure silencer with fixed update rate."""
+
+        _value_intensity: int
+        _value_phase: int
+
+        def __init__(self: "ConfigureSilencer.FixedUpdateRate", value_intensity: int, value_phase: int) -> None:
+            """Constructor.
+
+            Arguments:
+            ---------
+                value_intensity: The intensity update rate of silencer. The lower the value, the stronger the silencer effect.
+                value_phase: The phase update rate of silencer. The lower the value, the stronger the silencer effect.
+            """
+            super().__init__()
+            self._value_intensity = value_intensity
+            self._value_phase = value_phase
+
+        def _datagram_ptr(self: "ConfigureSilencer.FixedUpdateRate", _: Geometry) -> DatagramPtr:
+            return _validate_ptr(Base().datagram_silencer_fixed_update_rate(self._value_intensity, self._value_phase))
+
+    class FixedCompletionSteps(Datagram):
+        """Datagram for configure silencer with fixed completion steps."""
+
+        _value_intensity: int
+        _value_phase: int
+        _strict_mode: bool | None
+
+        def __init__(self: "ConfigureSilencer.FixedCompletionSteps", value_intensity: int, value_phase: int) -> None:
+            """Constructor.
+
+            Arguments:
+            ---------
+                value_intensity: The intensity completion steps of silencer. The larger the value, the stronger the silencer effect.
+                value_phase: The phase completion steps of silencer. The larger the value, the stronger the silencer effect.
+            """
+            super().__init__()
+            self._value_intensity = value_intensity
+            self._value_phase = value_phase
+            self._strict_mode = None
+
+        def with_strict_mode(self: "ConfigureSilencer.FixedCompletionSteps", strict_mode: bool) -> "ConfigureSilencer.FixedCompletionSteps":
+            """Set strict mode.
+
+            Arguments:
+            ---------
+                strict_mode: If true, the invalid completion steps will cause an error.
+            """
+            self._strict_mode = strict_mode
+            return self
+
+        def _datagram_ptr(self: "ConfigureSilencer.FixedCompletionSteps", _: Geometry) -> DatagramPtr:
+            ptr = _validate_ptr(Base().datagram_silencer_fixed_completion_steps(self._value_intensity, self._value_phase))
+            if self._strict_mode is not None:
+                ptr = Base().datagram_silencer_fixed_completion_steps_with_strict_mode(ptr, self._strict_mode)
+            return ptr
+
+    @staticmethod
+    def fixed_update_rate(value_intensity: int, value_phase: int) -> "FixedUpdateRate":
+        """Fixed update rate silencer.
 
         Arguments:
         ---------
-            step_intensity: The intensity update step of silencer. The lower the value, the stronger the silencer effect.
-            step_phase: The phase update step of silencer. The lower the value, the stronger the silencer effect.
+            value_intensity: The intensity update rate of silencer. The lower the value, the stronger the silencer effect.
+            value_phase: The phase update rate of silencer. The lower the value, the stronger the silencer effect.
         """
-        super().__init__()
-        self._step_intensity = step_intensity
-        self._step_phase = step_phase
+        return ConfigureSilencer.FixedUpdateRate(value_intensity, value_phase)
 
     @staticmethod
-    def disable() -> "Silencer":
-        """Disable silencer."""
-        return Silencer(0xFFFF, 0xFFFF)
+    def fixed_completion_steps(value_intensity: int, value_phase: int) -> "FixedCompletionSteps":
+        """Fixed completion steps silencer.
 
-    def _datagram_ptr(self: "Silencer", _: Geometry) -> DatagramPtr:
-        return _validate_ptr(Base().datagram_silencer(self._step_intensity, self._step_phase))
+        Arguments:
+        ---------
+            value_intensity: The intensity completion steps of silencer. The larger the value, the stronger the silencer effect.
+            value_phase: The phase completion steps of silencer. The larger the value, the stronger the silencer effect.
+        """
+        return ConfigureSilencer.FixedCompletionSteps(value_intensity, value_phase)
+
+    @staticmethod
+    def disable() -> "FixedCompletionSteps":
+        """Disable silencer."""
+        return ConfigureSilencer.fixed_completion_steps(1, 1)
+
+    def _datagram_ptr(self: "ConfigureSilencer", _: Geometry) -> DatagramPtr:
+        return _validate_ptr(Base().datagram_silencer_fixed_completion_steps(10, 40))
 
 
 class FPGAInfo:

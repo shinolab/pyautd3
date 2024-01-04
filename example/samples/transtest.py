@@ -12,13 +12,13 @@ Copyright (c) 2023 Shun Suzuki. All rights reserved.
 """
 
 
-from pyautd3 import Controller, Device, Drive, EmitIntensity, Phase, Silencer, Transducer
+from pyautd3 import ConfigureSilencer, Controller, Device, Drive, EmitIntensity, Phase, Transducer
 from pyautd3.gain import TransducerTest
 from pyautd3.modulation import Sine
 
 
 async def transtest(autd: Controller) -> None:
-    config = Silencer()
+    config = ConfigureSilencer()
     await autd.send_async(config)
 
     def f(dev: Device, tr: Transducer) -> Drive | None:

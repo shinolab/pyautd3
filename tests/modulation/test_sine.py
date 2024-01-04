@@ -118,11 +118,11 @@ async def test_sine():
 
     assert await autd.send_async(
         Sine(150).with_sampling_config(
-            SamplingConfiguration.from_frequency_division(512),
+            SamplingConfiguration.from_frequency_division(10240),
         ),
     )
     for dev in autd.geometry:
-        assert autd.link.modulation_frequency_division(dev.idx) == 512
+        assert autd.link.modulation_frequency_division(dev.idx) == 10240
 
 
 @pytest.mark.asyncio()
