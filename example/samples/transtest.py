@@ -18,7 +18,7 @@ from pyautd3.modulation import Sine
 
 
 async def transtest(autd: Controller) -> None:
-    config = ConfigureSilencer()
+    config = ConfigureSilencer.default()
     await autd.send_async(config)
 
     def f(dev: Device, tr: Transducer) -> Drive | None:

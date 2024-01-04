@@ -20,7 +20,7 @@ from pyautd3.modulation import Sine, Static
 
 
 async def group_by_device(autd: Controller) -> None:
-    config = ConfigureSilencer()
+    config = ConfigureSilencer.default()
     await autd.send_async(config)
 
     def grouping(dev: Device) -> str | None:
@@ -45,7 +45,7 @@ async def group_by_device(autd: Controller) -> None:
 
 
 async def group_by_transducer(autd: Controller) -> None:
-    config = ConfigureSilencer()
+    config = ConfigureSilencer.default()
     await autd.send_async(config)
 
     cx = autd.geometry.center[0]

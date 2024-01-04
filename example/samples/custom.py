@@ -48,7 +48,7 @@ class Burst(Modulation):
 
 
 async def custom(autd: Controller) -> None:
-    config = ConfigureSilencer()
+    config = ConfigureSilencer.default()
     await autd.send_async(config)
 
     f = Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))

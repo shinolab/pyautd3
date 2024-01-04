@@ -46,9 +46,6 @@ LogFlushFunc = ctypes.CFUNCTYPE(None)
 class ConfigureSilencer(Datagram):
     """Datagram for configure silencer."""
 
-    def __init__(self: "ConfigureSilencer") -> None:
-        pass
-
     class FixedUpdateRate(Datagram):
         """Datagram for configure silencer with fixed update rate."""
 
@@ -133,8 +130,10 @@ class ConfigureSilencer(Datagram):
         """Disable silencer."""
         return ConfigureSilencer.fixed_completion_steps(1, 1)
 
-    def _datagram_ptr(self: "ConfigureSilencer", _: Geometry) -> DatagramPtr:
-        return _validate_ptr(Base().datagram_silencer_fixed_completion_steps(10, 40))
+    @staticmethod
+    def default() -> "FixedCompletionSteps":
+        """Default silencer."""
+        return ConfigureSilencer.fixed_completion_steps(10, 40)
 
 
 class FPGAInfo:

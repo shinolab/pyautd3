@@ -56,6 +56,6 @@ async def run(autd: Controller) -> None:
         _ = input()
 
         print("finish.")
-        await autd.send_async(ConfigureSilencer(), Null())
+        await autd.send_async(ConfigureSilencer.default(), Null())
 
     await autd.close_async()

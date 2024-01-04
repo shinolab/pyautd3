@@ -68,7 +68,7 @@ async def test_silencer_fixed_completion_steps():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 1
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        await autd.send_async(ConfigureSilencer())
+        await autd.send_async(ConfigureSilencer.default())
 
         for dev in autd.geometry:
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
