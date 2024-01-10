@@ -143,7 +143,7 @@ class PlotRange:
     def observe_points(self: "PlotRange") -> list[np.ndarray]:
         """Get observe points."""
         plot_range = self._ptr()
-        points_len = LinkVisualizer().link_visualizer_plot_range_observe_points_len(plot_range)
+        points_len = int(LinkVisualizer().link_visualizer_plot_range_observe_points_len(plot_range))
         buf = np.zeros(3 * points_len).astype(ctypes.c_double)
         LinkVisualizer().link_visualizer_plot_range_observe_points(plot_range, np.ctypeslib.as_ctypes(buf))
         return [np.array([buf[3 * i], buf[3 * i + 1], buf[3 * i + 2]]) for i in range(points_len)]
