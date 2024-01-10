@@ -30,6 +30,7 @@ from pyautd3.native_methods.autd3capi_link_visualizer import (
     ConfigPtr,
     Directivity,
     LinkBuilderPtr,
+    PlotRangePtr,
 )
 from pyautd3.native_methods.autd3capi_link_visualizer import (
     NativeMethods as LinkVisualizer,
@@ -127,6 +128,25 @@ class PlotRange:
         self.z_start = z_start
         self.z_end = z_end
         self.resolution = resolution
+
+    def _ptr(self: "PlotRange") -> PlotRangePtr:
+        return LinkVisualizer().link_visualizer_plot_range(
+            self.x_start,
+            self.x_end,
+            self.y_start,
+            self.y_end,
+            self.z_start,
+            self.z_end,
+            self.resolution,
+        )
+
+    def observe_points(self: "PlotRange") -> list[np.ndarray]:
+        """Get observe points."""
+        plot_range = self._ptr()
+        points_len = LinkVisualizer().link_visualizer_plot_range_observe_points_len(plot_range)
+        buf = np.zeros(3 * points_len).astype(ctypes.c_double)
+        LinkVisualizer().link_visualizer_plot_range_observe_points(plot_range, np.ctypeslib.as_ctypes(buf))
+        return [np.array([buf[3 * i], buf[3 * i + 1], buf[3 * i + 2]]) for i in range(points_len)]
 
 
 class IPlotConfig(metaclass=ABCMeta):
@@ -446,15 +466,7 @@ class Visualizer(Link):
                 self._backend,
                 self._directivity,
                 config._config_ptr(),
-                LinkVisualizer().link_visualizer_plot_range(
-                    plot_range.x_start,
-                    plot_range.x_end,
-                    plot_range.y_start,
-                    plot_range.y_end,
-                    plot_range.z_start,
-                    plot_range.z_end,
-                    plot_range.resolution,
-                ),
+                plot_range._ptr(),
                 geometry._geometry_ptr(),
                 idx,
             ),

@@ -85,6 +85,23 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     autd.close()
 
 
+def test_plot_range():
+    plot_range = PlotRange(
+        x_start=-20,
+        x_end=20,
+        y_start=-30,
+        y_end=30,
+        z_start=0,
+        z_end=0,
+        resolution=1,
+    )
+    points = plot_range.observe_points()
+    assert len(points) == 41 * 61
+    assert np.array_equal(points[0], [-20, -30, 0])
+    assert np.array_equal(points[1], [-19, -30, 0])
+    assert np.array_equal(points[-1], [20, 30, 0])
+
+
 def test_visualizer_plotters():
     with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
         Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),
