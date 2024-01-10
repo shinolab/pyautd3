@@ -96,6 +96,12 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerPlotRange.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double] 
         self.dll.AUTDLinkVisualizerPlotRange.restype = PlotRangePtr
 
+        self.dll.AUTDLinkVisualizerPlotRangeObservePointsLen.argtypes = [PlotRangePtr]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotRangeObservePointsLen.restype = ctypes.c_uint64
+
+        self.dll.AUTDLinkVisualizerPlotRangeObservePoints.argtypes = [PlotRangePtr, ctypes.POINTER(ctypes.c_double)]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotRangeObservePoints.restype = None
+
         self.dll.AUTDLinkVisualizerPhasesOf.argtypes = [LinkPtr, Backend, Directivity, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkVisualizerPhasesOf.restype = ctypes.c_uint32
 
@@ -200,6 +206,12 @@ class NativeMethods(metaclass=Singleton):
 
     def link_visualizer_plot_range(self, x_min: float, x_max: float, y_min: float, y_max: float, z_min: float, z_max: float, resolution: float) -> PlotRangePtr:
         return self.dll.AUTDLinkVisualizerPlotRange(x_min, x_max, y_min, y_max, z_min, z_max, resolution)
+
+    def link_visualizer_plot_range_observe_points_len(self, range: PlotRangePtr) -> ctypes.c_uint64:
+        return self.dll.AUTDLinkVisualizerPlotRangeObservePointsLen(range)
+
+    def link_visualizer_plot_range_observe_points(self, range: PlotRangePtr, points: ctypes.Array[ctypes.c_double] | None) -> None:
+        return self.dll.AUTDLinkVisualizerPlotRangeObservePoints(range, points)
 
     def link_visualizer_phases_of(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, idx: int, buf: ctypes.Array[ctypes.c_uint8] | None) -> ctypes.c_uint32:
         return self.dll.AUTDLinkVisualizerPhasesOf(visualizer, backend, directivity, idx, buf)

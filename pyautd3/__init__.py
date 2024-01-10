@@ -51,4 +51,4 @@ __all__ = [
     "ConfigureForceFan",
 ]
 
-__version__ = "20.0.0"
+__version__ = "20.0.3"

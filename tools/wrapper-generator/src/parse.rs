@@ -4,7 +4,7 @@
  * Created Date: 25/05/2022
  * Author: Shun Suzuki
  * -----
- * Last Modified: 04/01/2024
+ * Last Modified: 10/01/2024
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2022 Shun Suzuki. All rights reserved.
@@ -104,18 +104,24 @@ where
         .into_iter()
         .filter_map(|item| match item {
             syn::Item::Fn(item_fn) => Some(vec![parse_fn(item_fn)]),
-            syn::Item::Mod(item_mod) => match item_mod.content {
-                Some((_, items)) => Some(
-                    items
-                        .into_iter()
-                        .filter_map(|item| match item {
-                            syn::Item::Fn(item_fn) => Some(parse_fn(item_fn)),
-                            _ => None,
-                        })
-                        .collect(),
-                ),
-                None => None,
-            },
+            syn::Item::Mod(item_mod) => {
+                if item_mod.ident == "tests" {
+                    None
+                } else {
+                    match item_mod.content {
+                        Some((_, items)) => Some(
+                            items
+                                .into_iter()
+                                .filter_map(|item| match item {
+                                    syn::Item::Fn(item_fn) => Some(parse_fn(item_fn)),
+                                    _ => None,
+                                })
+                                .collect(),
+                        ),
+                        None => None,
+                    }
+                }
+            }
             _ => None,
         })
         .flatten()
