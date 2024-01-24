@@ -1,3 +1,6 @@
+import contextlib
+from collections.abc import AsyncIterator
+
 import numpy as np
 import pytest
 from numpy.typing import ArrayLike
@@ -30,36 +33,37 @@ def test_angle_ctr():
 
 @pytest.mark.asyncio()
 async def test_with_rotation():
-    async def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
+    @contextlib.asynccontextmanager
+    async def open_with_rotation(q: ArrayLike) -> AsyncIterator[Controller[Audit]]:
         async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q)).open_with_async(
             Audit.builder(),
         ) as autd:  # type: Controller[Audit]
-            return autd
+            yield autd
 
-    autd = await open_with_rotation(EulerAngles.from_zyz(90 * deg, 0 * deg, 0 * deg))
-    assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
+    async with open_with_rotation(EulerAngles.from_zyz(90 * deg, 0 * deg, 0 * deg)) as autd:
+        assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
 
-    autd = await open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 0 * deg))
-    assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
-    assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 1.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
+    async with open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 0 * deg)) as autd:
+        assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
+        assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
 
-    autd = await open_with_rotation(EulerAngles.from_zyz(0 * deg, 0 * deg, 90 * deg))
-    assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
+    async with open_with_rotation(EulerAngles.from_zyz(0 * deg, 0 * deg, 90 * deg)) as autd:
+        assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
 
-    autd = await open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 90 * deg))
-    assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 0.0, 1.0])
-    assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
+    async with open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 90 * deg)) as autd:
+        assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 0.0, 1.0])
+        assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
 
-    autd = await open_with_rotation(EulerAngles.from_zyz(90 * deg, 90 * deg, 0 * deg))
-    assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
-    assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
-    assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 1.0, 0.0])
+    async with open_with_rotation(EulerAngles.from_zyz(90 * deg, 90 * deg, 0 * deg)) as autd:
+        assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
+        assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 1.0, 0.0])
 
 
 def test_autd3_props():
