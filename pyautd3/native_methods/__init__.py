@@ -1,16 +1,3 @@
-'''
-File: __init__.py
-Project: native_methods
-Created Date: 09/10/2022
-Author: Shun Suzuki
------
-Last Modified: 11/12/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
-
-'''
-
 import os
 import os.path
 import platform

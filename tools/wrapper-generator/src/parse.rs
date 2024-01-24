@@ -1,16 +1,3 @@
-/*
- * File: parse.rs
- * Project: src
- * Created Date: 25/05/2022
- * Author: Shun Suzuki
- * -----
- * Last Modified: 24/01/2024
- * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
- * -----
- * Copyright (c) 2022 Shun Suzuki. All rights reserved.
- *
- */
-
 use std::{fs::File, io::Read, path::Path};
 
 use anyhow::Result;
