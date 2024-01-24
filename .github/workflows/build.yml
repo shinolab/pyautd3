@@ -61,7 +61,7 @@ jobs:
       - name: Install tools
         if: needs.check.outputs.status
         run: |
-          python3 -m pip install -U mypy numpy build wheel pytest pytest-asyncio matplotlib
+          python3 -m pip install -U mypy numpy build wheel pytest pytest-asyncio matplotlib ruff
 
       - name: Build python library on ${{ matrix.os-and-python.os }}
         if: needs.check.outputs.status
