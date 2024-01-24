@@ -2,8 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller
-from pyautd3.gain import Focus
+from pyautd3 import ConfigureSilencer, Controller, Focus
 from pyautd3.modulation.audio_file import Wav
 
 

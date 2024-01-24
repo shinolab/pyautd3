@@ -2,8 +2,8 @@ import ctypes
 
 import numpy as np
 
-from pyautd3.emit_intensity import EmitIntensity
-from pyautd3.geometry import Geometry
+from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_def import GainPtr
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 

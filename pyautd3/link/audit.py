@@ -2,7 +2,7 @@ import ctypes
 
 import numpy as np
 
-from pyautd3.internal.link import Link, LinkBuilder
+from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import LinkAuditBuilderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
 from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr

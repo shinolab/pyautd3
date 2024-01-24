@@ -5,9 +5,8 @@ from collections.abc import Iterable
 import numpy as np
 
 from pyautd3.autd_error import InvalidPlotConfigError
-from pyautd3.geometry import Geometry
-from pyautd3.internal.link import Link, LinkBuilder
-from pyautd3.internal.utils import _validate_int, _validate_ptr
+from pyautd3.driver.geometry import Geometry
+from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_visualizer import (
@@ -21,6 +20,7 @@ from pyautd3.native_methods.autd3capi_link_visualizer import (
 from pyautd3.native_methods.autd3capi_link_visualizer import (
     NativeMethods as LinkVisualizer,
 )
+from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
 __all__ = [
     "PlottersBackend",

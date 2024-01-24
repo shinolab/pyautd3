@@ -3,9 +3,7 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from pyautd3 import ConfigureSilencer, SamplingConfiguration
-from pyautd3.gain import Uniform
-from pyautd3.stm import FocusSTM, GainSTM, GainSTMMode
+from pyautd3 import ConfigureSilencer, FocusSTM, GainSTM, GainSTMMode, SamplingConfiguration, Uniform
 from tests.test_autd import create_controller
 
 

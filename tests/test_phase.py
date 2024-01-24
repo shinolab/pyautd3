@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyautd3.phase import Phase, rad
+from pyautd3.driver.common.phase import Phase, rad
 
 
 def test_phase():

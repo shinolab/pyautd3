@@ -1,9 +1,6 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller
-from pyautd3.gain import Focus
-from pyautd3.modulation import Static
-from pyautd3.stm import FocusSTM, GainSTM
+from pyautd3 import ConfigureSilencer, Controller, Focus, FocusSTM, GainSTM, Static
 
 
 async def stm_focus(autd: Controller) -> None:

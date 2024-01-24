@@ -1,8 +1,6 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller
-from pyautd3.gain import Bessel
-from pyautd3.modulation import Sine
+from pyautd3 import Bessel, ConfigureSilencer, Controller, Sine
 
 
 async def bessel(autd: Controller) -> None:

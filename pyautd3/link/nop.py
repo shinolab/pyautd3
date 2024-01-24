@@ -1,4 +1,4 @@
-from pyautd3.internal.link import Link, LinkBuilder
+from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as LinkNop,
 )

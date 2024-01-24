@@ -1,6 +1,6 @@
 from abc import ABCMeta, abstractmethod
 
-from pyautd3.geometry import Geometry
+from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_def import DatagramPtr
 
 __all__ = []  # type: ignore[var-annotated]

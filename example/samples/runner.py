@@ -1,5 +1,4 @@
-from pyautd3 import ConfigureSilencer, Controller
-from pyautd3.gain import Null
+from pyautd3 import ConfigureSilencer, Controller, Null
 
 from . import bessel, custom, flag, focus, group, holo, plane, stm, transtest, wav
 

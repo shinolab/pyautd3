@@ -1,8 +1,6 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller
-from pyautd3.gain import Focus
-from pyautd3.modulation import Sine
+from pyautd3 import ConfigureSilencer, Controller, Focus, Sine
 
 
 async def simple(autd: Controller) -> None:

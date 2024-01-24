@@ -1,8 +1,7 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller
+from pyautd3 import ConfigureSilencer, Controller, Sine
 from pyautd3.gain.holo import GSPAT, NalgebraBackend, pascal
-from pyautd3.modulation import Sine
 
 
 async def holo(autd: Controller) -> None:

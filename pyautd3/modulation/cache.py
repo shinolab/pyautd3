@@ -3,12 +3,12 @@ from typing import Generic, TypeVar
 
 import numpy as np
 
-from pyautd3.emit_intensity import EmitIntensity
-from pyautd3.internal.modulation import IModulation
-from pyautd3.internal.utils import _validate_ptr
+from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.modulation import IModulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
-from pyautd3.sampling_config import SamplingConfiguration
+from pyautd3.native_methods.utils import _validate_ptr
 
 M = TypeVar("M", bound=IModulation)
 

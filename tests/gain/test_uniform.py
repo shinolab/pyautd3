@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
+from pyautd3.driver.common.phase import Phase
 from pyautd3.gain import Uniform
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.phase import Phase
 from tests.test_autd import create_controller
 
 

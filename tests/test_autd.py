@@ -11,16 +11,16 @@ from pyautd3 import (
     ConfigureSilencer,
     Controller,
     Device,
-    FirmwareInfo,
+    GainSTM,
     Phase,
     SamplingConfiguration,
-    Synchronize,
 )
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
+from pyautd3.driver.datagram import Synchronize
+from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.gain import Null, Uniform
 from pyautd3.link.audit import Audit
 from pyautd3.modulation import Sine, Static
-from pyautd3.stm import GainSTM
 
 
 async def create_controller() -> Controller[Audit]:

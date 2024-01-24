@@ -1,10 +1,10 @@
 from ctypes import Array, c_double
 
-from pyautd3.internal.utils import _validate_ptr
 from pyautd3.native_methods.autd3capi_backend_cuda import (
     NativeMethods as AUTD3BackendCUDA,
 )
 from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.utils import _validate_ptr
 
 from .backend import Backend
 from .constraint import EmissionConstraint

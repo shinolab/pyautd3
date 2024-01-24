@@ -1,4 +1,4 @@
-from pyautd3.emit_intensity import EmitIntensity
+from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintPtr
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 

@@ -1,8 +1,8 @@
 from datetime import timedelta
 
-from .internal.utils import _validate_sampling_config
-from .native_methods.autd3capi_def import NativeMethods as Def
-from .native_methods.autd3capi_def import SamplingConfiguration as _SamplingConfiguration
+from pyautd3.native_methods.autd3capi_def import NativeMethods as Def
+from pyautd3.native_methods.autd3capi_def import SamplingConfiguration as _SamplingConfiguration
+from pyautd3.native_methods.utils import _validate_sampling_config
 
 
 class SamplingConfiguration:

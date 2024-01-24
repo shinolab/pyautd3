@@ -1,8 +1,6 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller, Device
-from pyautd3.gain import Focus, Group, Null
-from pyautd3.modulation import Sine, Static
+from pyautd3 import ConfigureSilencer, Controller, Device, Focus, Group, Null, Sine, Static
 
 
 async def group_by_device(autd: Controller) -> None:

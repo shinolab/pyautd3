@@ -1,7 +1,7 @@
 from ctypes import c_uint8
 
-from .native_methods.autd3capi_def import DEFAULT_CORRECTED_ALPHA
-from .native_methods.autd3capi_def import NativeMethods as Def
+from pyautd3.native_methods.autd3capi_def import DEFAULT_CORRECTED_ALPHA
+from pyautd3.native_methods.autd3capi_def import NativeMethods as Def
 
 
 class EmitIntensity:

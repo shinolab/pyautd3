@@ -1,12 +1,12 @@
 from pathlib import Path
 
-from pyautd3.internal.modulation import IModulationWithSamplingConfig
-from pyautd3.internal.utils import _validate_ptr
+from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.modulation import IModulationWithSamplingConfig
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
 )
-from pyautd3.sampling_config import SamplingConfiguration
+from pyautd3.native_methods.utils import _validate_ptr
 
 
 class RawPCM(IModulationWithSamplingConfig):

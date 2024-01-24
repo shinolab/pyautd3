@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
 
-from pyautd3.drive import Drive
+from pyautd3.driver.common.drive import Drive
+from pyautd3.driver.common.phase import Phase
+from pyautd3.driver.geometry import Device, Transducer
 from pyautd3.gain import TransducerTest
-from pyautd3.geometry import Device, Transducer
-from pyautd3.phase import Phase
 from tests.test_autd import create_controller
 
 

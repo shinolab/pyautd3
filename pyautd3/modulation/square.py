@@ -1,9 +1,9 @@
-from pyautd3.emit_intensity import EmitIntensity
-from pyautd3.internal.modulation import IModulationWithSamplingConfig
+from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.modulation import IModulationWithSamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SamplingMode
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
-from pyautd3.sampling_config import SamplingConfiguration
 
 
 class Square(IModulationWithSamplingConfig):

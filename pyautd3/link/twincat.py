@@ -1,13 +1,13 @@
 from datetime import timedelta
 
-from pyautd3.internal.link import Link, LinkBuilder
-from pyautd3.internal.utils import _validate_ptr
+from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
 from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_twincat import LinkRemoteTwinCATBuilderPtr, LinkTwinCATBuilderPtr
 from pyautd3.native_methods.autd3capi_link_twincat import NativeMethods as LinkTwinCAT
+from pyautd3.native_methods.utils import _validate_ptr
 
 
 class TwinCAT(Link):

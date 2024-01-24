@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 from numpy.typing import ArrayLike
 
-from pyautd3 import AUTD3, Controller
-from pyautd3.geometry import Angle, EulerAngles, deg, rad
+from pyautd3 import AUTD3, Controller, EulerAngles, deg, rad
+from pyautd3.driver.geometry.rotation import Angle
 from pyautd3.link.audit import Audit
 
 from .test_autd import create_controller

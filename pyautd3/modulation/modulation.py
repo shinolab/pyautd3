@@ -3,10 +3,10 @@ from ctypes import POINTER, c_uint8
 
 import numpy as np
 
-from pyautd3.internal.modulation import IModulation
+from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.modulation import IModulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
-from pyautd3.sampling_config import SamplingConfiguration
 
 
 class Modulation(IModulation, metaclass=ABCMeta):

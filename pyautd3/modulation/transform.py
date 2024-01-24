@@ -2,8 +2,8 @@ import ctypes
 from collections.abc import Callable
 from typing import Generic, TypeVar
 
-from pyautd3.emit_intensity import EmitIntensity
-from pyautd3.internal.modulation import IModulation
+from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.datagram.modulation import IModulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 

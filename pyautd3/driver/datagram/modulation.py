@@ -2,13 +2,13 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable
 from typing import TYPE_CHECKING, TypeVar
 
-from pyautd3.emit_intensity import EmitIntensity
-from pyautd3.geometry import Geometry
-from pyautd3.internal.datagram import Datagram
-from pyautd3.internal.utils import _validate_int
+from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram import Datagram
+from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import DatagramPtr, ModulationPtr
-from pyautd3.sampling_config import SamplingConfiguration
+from pyautd3.native_methods.utils import _validate_int
 
 if TYPE_CHECKING:
     from pyautd3.modulation.cache import Cache

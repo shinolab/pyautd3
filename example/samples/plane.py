@@ -1,8 +1,6 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller
-from pyautd3.gain import Plane
-from pyautd3.modulation import Sine
+from pyautd3 import ConfigureSilencer, Controller, Plane, Sine
 
 
 async def plane(autd: Controller) -> None:

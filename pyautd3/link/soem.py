@@ -1,14 +1,14 @@
 import ctypes
 from datetime import timedelta
 
-from pyautd3.internal.link import Link, LinkBuilder
-from pyautd3.internal.utils import _validate_ptr
+from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
 from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr, TimerStrategy
 from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, SyncMode
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
+from pyautd3.native_methods.utils import _validate_ptr
 
 OnErrFunc = ctypes.CFUNCTYPE(None, ctypes.c_char_p)
 

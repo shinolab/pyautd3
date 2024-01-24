@@ -5,8 +5,8 @@ from typing import Generic, TypeVar
 import numpy as np
 
 from pyautd3.autd_error import UnknownGroupKeyError
-from pyautd3.geometry import Device, Geometry, Transducer
-from pyautd3.internal.gain import IGain
+from pyautd3.driver.datagram.gain import IGain
+from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import GainPtr
 
