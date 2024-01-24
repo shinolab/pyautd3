@@ -1,16 +1,3 @@
-"""
-File: simulator.py
-Project: example
-Created Date: 29/08/2023
-Author: Shun Suzuki
------
-Last Modified: 23/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
 import asyncio
 
 from samples import runner  # type: ignore[import,import-not-found]

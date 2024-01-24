@@ -1,17 +1,3 @@
-"""
-File: debug copy.py
-Project: link
-Created Date: 18/09/2023
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import ctypes
 
 import numpy as np

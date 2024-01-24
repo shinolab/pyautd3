@@ -1,17 +1,3 @@
-"""
-File: flag.py
-Project: samples
-Created Date: 14/09/2023
-Author: Shun Suzuki
------
-Last Modified: 23/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import threading
 
 from pyautd3 import ConfigureForceFan, ConfigureReadsFPGAState, Controller

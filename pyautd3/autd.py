@@ -1,23 +1,9 @@
-"""
-File: autd.py
-Project: pyautd3
-Created Date: 24/05/2021
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import asyncio
 import ctypes
-from collections.abc import Callable
+from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from datetime import timedelta
-from typing import AsyncIterator, Generic, Iterator, TypeVar
+from typing import Generic, TypeVar
 
 import numpy as np
 

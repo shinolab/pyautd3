@@ -1,17 +1,3 @@
-"""
-File: constraint.py
-Project: holo
-Created Date: 25/10/2022
-Author: Shun Suzuki
------
-Last Modified: 29/09/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 from pyautd3.emit_intensity import EmitIntensity
 from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintPtr
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo

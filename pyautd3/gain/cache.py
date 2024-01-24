@@ -1,16 +1,3 @@
-"""
-File: cache.py
-Project: gain
-Created Date: 10/10/2023
-Author: Shun Suzuki
------
-Last Modified: 11/12/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
 from ctypes import POINTER
 from functools import reduce
 from typing import Generic, TypeVar

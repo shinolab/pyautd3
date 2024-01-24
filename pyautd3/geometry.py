@@ -1,17 +1,3 @@
-"""
-File: geometry.py
-Project: pyautd3
-Created Date: 05/06/2023
-Author: Shun Suzuki
------
-Last Modified: 04/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 from collections.abc import Iterator
 from ctypes import c_double
 from functools import reduce

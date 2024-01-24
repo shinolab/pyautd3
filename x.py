@@ -1,17 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-File: x.py
-Project: autd3
-Created Date: 16/10/2023
-Author: Shun Suzuki
------
-Last Modified: 19/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
 
 import argparse
 import contextlib
@@ -254,7 +242,7 @@ def copy_dll(config: Config):
         with open("tmp.zip", mode="wb") as f:
             f.write(requests.get(url).content)
         shutil.unpack_archive("tmp.zip", ".")
-        rm_f("tmp.zip")        
+        rm_f("tmp.zip")
         for dll in glob.glob("bin/*.dll"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_macos():
@@ -346,6 +334,19 @@ def py_test(args):
         command.append("mypy")
         command.append("pyautd3")
         command.append("example")
+        command.append("tests")
+        subprocess.run(command).check_returncode()
+
+        command = []
+        if config.is_windows():
+            command.append("python")
+        else:
+            command.append("python3")
+        command.append("-m")
+        command.append("ruff")
+        command.append("pyautd3")
+        command.append("example")
+        command.append("tests")
         subprocess.run(command).check_returncode()
 
         command = []

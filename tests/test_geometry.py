@@ -1,17 +1,3 @@
-"""
-File: test_geometry.py
-Project: tests
-Created Date: 18/09/2023
-Author: Shun Suzuki
------
-Last Modified: 23/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import numpy as np
 import pytest
 from numpy.typing import ArrayLike
@@ -45,7 +31,9 @@ def test_angle_ctr():
 @pytest.mark.asyncio()
 async def test_with_rotation():
     async def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
-        async with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q)).open_with_async(Audit.builder()) as autd:
+        async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q)).open_with_async(
+            Audit.builder(),
+        ) as autd:  # type: Controller[Audit]
             return autd
 
     autd = await open_with_rotation(EulerAngles.from_zyz(90 * deg, 0 * deg, 0 * deg))

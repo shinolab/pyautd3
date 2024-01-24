@@ -1,17 +1,3 @@
-"""
-File: group.py
-Project: gain
-Created Date: 14/09/2023
-Author: Shun Suzuki
------
-Last Modified: 27/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 from collections.abc import Callable
 from ctypes import POINTER, c_int32, c_uint32
 from typing import Generic, TypeVar

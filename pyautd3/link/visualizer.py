@@ -1,17 +1,3 @@
-"""
-File: visualizer.py
-Project: link
-Created Date: 11/12/2023
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import ctypes
 from abc import ABCMeta, abstractmethod
 from collections.abc import Iterable

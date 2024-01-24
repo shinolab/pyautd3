@@ -1,16 +1,3 @@
-"""
-File: static.py
-Project: modulation
-Created Date: 14/09/2023
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
 from pyautd3.emit_intensity import EmitIntensity
 from pyautd3.internal.modulation import IModulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base

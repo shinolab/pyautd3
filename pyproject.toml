@@ -3,8 +3,8 @@ requires = ["wheel", "setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.ruff]
+ignore = ["SLF001", "C901", "D100", "D104", "D105", "D107", "D203", "D205", "D212", "D213", "D401", "PLR0913"]
 select = ["ALL"]
-ignore = ["SLF001", "C901", "D105", "D107", "D203", "D205", "D212", "D213", "D401", "PLR0913"]
 fixable = ["ALL"]
 target-version = "py310"
 line-length = 150

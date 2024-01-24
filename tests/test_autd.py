@@ -1,19 +1,5 @@
-"""
-File: test_autd.py
-Project: tests
-Created Date: 18/09/2023
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
+from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
-from typing import AsyncIterator, Iterator
 
 import numpy as np
 import pytest
@@ -42,17 +28,17 @@ from pyautd3.stm import GainSTM
 
 @asynccontextmanager
 async def create_controller() -> AsyncIterator[Controller[Audit]]:
-    async with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(
+    async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(
         Audit.builder(),
-    ) as autd:
+    ) as autd:  # type: Controller[Audit]
         yield autd
 
 
 @contextmanager
 def create_controller_sync() -> Iterator[Controller[Audit]]:
-    with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
+    with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
         Audit.builder(),
-    ) as autd:
+    ) as autd:  # type: Controller[Audit]
         yield autd
 
 

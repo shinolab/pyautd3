@@ -1,17 +1,3 @@
-"""
-File: radiation_pressure.py
-Project: modulation
-Created Date: 10/10/2023
-Author: Shun Suzuki
------
-Last Modified: 27/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 from typing import Generic, TypeVar
 
 from pyautd3.internal.modulation import IModulation

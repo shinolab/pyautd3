@@ -1,17 +1,3 @@
-"""
-File: soem.py
-Project: example
-Created Date: 30/12/2020
-Author: Shun Suzuki
------
-Last Modified: 23/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2020 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import asyncio
 
 from samples import runner  # type: ignore[import,import-not-found]

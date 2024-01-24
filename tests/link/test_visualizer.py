@@ -1,17 +1,3 @@
-"""
-File: test_visualizer.py
-Project: link
-Created Date: 11/12/2023
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import numpy as np
 import pytest
 
@@ -76,8 +62,7 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     assert np.array_equal(intensities, [0x80] * autd.geometry.num_transducers)
     phases = autd.link.phases()
     assert np.array_equal(phases, [0x81] * autd.geometry.num_transducers)
-    m = autd.link.modulation()
-    assert np.array_equal(m, [0x82] * 2)
+    assert np.array_equal(autd.link.modulation(), [0x82] * 2)
 
     points = [center]
     autd.link.calc_field(points, autd.geometry)

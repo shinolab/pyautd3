@@ -1,17 +1,3 @@
-"""
-File: fourier.py
-Project: modulation
-Created Date: 14/09/2023
-Author: Shun Suzuki
------
-Last Modified: 27/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import functools
 from collections.abc import Iterable
 from functools import reduce

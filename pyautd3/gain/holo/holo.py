@@ -1,17 +1,3 @@
-"""
-File: holo.py
-Project: holo
-Created Date: 10/10/2023
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import functools
 from collections.abc import Iterable
 from typing import TypeVar

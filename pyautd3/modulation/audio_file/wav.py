@@ -1,16 +1,3 @@
-"""
-File: audio_file.py
-Project: modulation
-Created Date: 21/10/2022
-Author: Shun Suzuki
------
-Last Modified: 24/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
-
-"""
-
 from pathlib import Path
 
 from pyautd3.internal.modulation import IModulationWithSamplingConfig

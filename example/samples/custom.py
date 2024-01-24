@@ -1,17 +1,3 @@
-"""
-File: custom.py
-Project: samples
-Created Date: 11/10/2021
-Author: Shun Suzuki
------
-Last Modified: 21/09/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import numpy as np
 from numpy.typing import ArrayLike
 

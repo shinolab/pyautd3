@@ -1,17 +1,3 @@
-"""
-File: modulation.py
-Project: modulation
-Created Date: 14/09/2023
-Author: Shun Suzuki
------
-Last Modified: 27/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 from abc import ABCMeta, abstractmethod
 from ctypes import POINTER, c_uint8
 

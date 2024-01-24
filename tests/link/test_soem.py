@@ -1,17 +1,3 @@
-"""
-File: test_soem.py
-Project: link
-Created Date: 17/10/2023
-Author: Shun Suzuki
------
-Last Modified: 23/01/2024
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 import ctypes
 import os
 from datetime import timedelta
@@ -31,12 +17,14 @@ def test_soem_adapers():
 
 
 def on_lost_f(msg: ctypes.c_char_p):
-    print(msg.value.decode("utf-8"), end="")
+    if msg.value is not None:
+        print(msg.value.decode("utf-8"), end="")
     os._exit(-1)
 
 
 def on_err_f(msg: ctypes.c_char_p):
-    print(msg.value.decode("utf-8"), end="")
+    if msg.value is not None:
+        print(msg.value.decode("utf-8"), end="")
 
 
 @pytest.mark.soem()

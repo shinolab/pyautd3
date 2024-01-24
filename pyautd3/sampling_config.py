@@ -1,17 +1,3 @@
-"""
-File: sampling_config.py
-Project: pyautd3
-Created Date: 22/11/2023
-Author: Shun Suzuki
------
-Last Modified: 22/11/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2023 Shun Suzuki. All rights reserved.
-
-"""
-
-
 from datetime import timedelta
 
 from .internal.utils import _validate_sampling_config

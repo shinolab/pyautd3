@@ -1,16 +1,3 @@
-"""
-File: runner.py
-Project: samples
-Created Date: 30/12/2020
-Author: Shun Suzuki
------
-Last Modified: 25/10/2023
-Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
------
-Copyright (c) 2020 Shun Suzuki. All rights reserved.
-
-"""
-
 from pyautd3 import ConfigureSilencer, Controller
 from pyautd3.gain import Null
 
