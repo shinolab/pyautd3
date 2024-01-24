@@ -9,7 +9,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_uniform():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(Uniform(0x80).with_phase(Phase(0x90)))
 
         for dev in autd.geometry:

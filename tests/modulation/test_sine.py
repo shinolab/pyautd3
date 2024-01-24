@@ -11,7 +11,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_sine():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(
             Sine(150).with_intensity(EmitIntensity.maximum() // 2).with_offset(EmitIntensity.maximum() // 4).with_phase(Phase.from_rad(np.pi / 2)),
         )
@@ -114,7 +114,7 @@ async def test_sine():
 
 @pytest.mark.asyncio()
 async def test_sine_mode():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(Sine(150).with_mode(SamplingMode.SizeOptimized))
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx)

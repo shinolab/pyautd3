@@ -10,7 +10,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_transtest():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
 
         def f(dev: Device, tr: Transducer) -> Drive | None:
             if dev.idx == 0 and tr.idx == 0:

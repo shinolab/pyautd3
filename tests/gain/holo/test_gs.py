@@ -9,7 +9,7 @@ from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
 
 @pytest.mark.asyncio()
 async def test_gs():
-    async with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
+    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
         backend = NalgebraBackend()
         g = (
             GS(backend)
@@ -41,7 +41,7 @@ async def test_gs():
 async def test_gs_cuda():
     from pyautd3.gain.holo.backend_cuda import CUDABackend
 
-    async with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
+    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
         backend = CUDABackend()
         g = (
             GS(backend)

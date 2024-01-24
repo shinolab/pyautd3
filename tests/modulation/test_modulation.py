@@ -18,7 +18,7 @@ class Burst(Modulation):
 
 @pytest.mark.asyncio()
 async def test_modulation():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         m = Burst()
 
         assert m.sampling_config.frequency == 4e3

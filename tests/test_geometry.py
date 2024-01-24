@@ -1,6 +1,3 @@
-import contextlib
-from collections.abc import AsyncIterator
-
 import numpy as np
 import pytest
 from numpy.typing import ArrayLike
@@ -33,34 +30,36 @@ def test_angle_ctr():
 
 @pytest.mark.asyncio()
 async def test_with_rotation():
-    @contextlib.asynccontextmanager
-    async def open_with_rotation(q: ArrayLike) -> AsyncIterator[Controller[Audit]]:
-        async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q)).open_with_async(
-            Audit.builder(),
-        ) as autd:  # type: Controller[Audit]
-            yield autd
+    async def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
+        return await (
+            Controller.builder()
+            .add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q))
+            .open_with_async(
+                Audit.builder(),
+            )
+        )
 
-    async with open_with_rotation(EulerAngles.from_zyz(90 * deg, 0 * deg, 0 * deg)) as autd:
+    with await open_with_rotation(EulerAngles.from_zyz(90 * deg, 0 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
 
-    async with open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 0 * deg)) as autd:
+    with await open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
 
-    async with open_with_rotation(EulerAngles.from_zyz(0 * deg, 0 * deg, 90 * deg)) as autd:
+    with await open_with_rotation(EulerAngles.from_zyz(0 * deg, 0 * deg, 90 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
 
-    async with open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 90 * deg)) as autd:
+    with await open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 90 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 0.0, 1.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
 
-    async with open_with_rotation(EulerAngles.from_zyz(90 * deg, 90 * deg, 0 * deg)) as autd:
+    with await open_with_rotation(EulerAngles.from_zyz(90 * deg, 90 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 1.0, 0.0])
@@ -78,13 +77,13 @@ def test_autd3_props():
 
 @pytest.mark.asyncio()
 async def test_geometry_num_devices():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert autd.geometry.num_devices == 2
 
 
 @pytest.mark.asyncio()
 async def test_geometry_center():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         center = autd.geometry.center
         assert len(center) == 3
         assert center[0] == 86.62522088353406
@@ -94,14 +93,14 @@ async def test_geometry_center():
 
 @pytest.mark.asyncio()
 async def test_device_idx():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert autd.geometry[0].idx == 0
         assert autd.geometry[1].idx == 1
 
 
 @pytest.mark.asyncio()
 async def test_device_sound_speed():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             assert dev.sound_speed == 340e3
             dev.sound_speed = 350e3
@@ -110,7 +109,7 @@ async def test_device_sound_speed():
 
 @pytest.mark.asyncio()
 async def test_device_set_sound_speed_from_temp():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             dev.set_sound_speed_from_temp(15)
             assert dev.sound_speed == 340.2952640537549e3
@@ -126,7 +125,7 @@ async def test_device_set_sound_speed_from_temp():
 
 @pytest.mark.asyncio()
 async def test_device_attenuation():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             assert dev.attenuation == 0.0
             dev.attenuation = 1.0
@@ -135,7 +134,7 @@ async def test_device_attenuation():
 
 @pytest.mark.asyncio()
 async def test_device_enable():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             assert dev.enable
             dev.enable = False
@@ -144,7 +143,7 @@ async def test_device_enable():
 
 @pytest.mark.asyncio()
 async def test_device_num_transducers():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert autd.geometry.num_transducers == 249 * autd.geometry.num_devices
         for dev in autd.geometry:
             assert dev.num_transducers == 249
@@ -152,7 +151,7 @@ async def test_device_num_transducers():
 
 @pytest.mark.asyncio()
 async def test_device_center():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             center = dev.center
             assert len(center) == 3
@@ -163,7 +162,7 @@ async def test_device_center():
 
 @pytest.mark.asyncio()
 async def test_device_translate():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             original_pos = [tr.position for tr in dev]
             t = [1, 2, 3]
@@ -174,7 +173,7 @@ async def test_device_translate():
 
 @pytest.mark.asyncio()
 async def test_device_rotate():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             r = [0.70710678, 0.0, 0.0, 0.70710678]
             dev.rotate(r)
@@ -184,7 +183,7 @@ async def test_device_rotate():
 
 @pytest.mark.asyncio()
 async def test_device_affine():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             original_pos = [tr.position for tr in dev]
             t = [1, 2, 3]
@@ -199,7 +198,7 @@ async def test_device_affine():
 
 @pytest.mark.asyncio()
 async def test_transducer_idx():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for i, tr in enumerate(dev):
                 assert tr.idx == i
@@ -207,7 +206,7 @@ async def test_transducer_idx():
 
 @pytest.mark.asyncio()
 async def test_transducer_position():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert np.allclose(autd.geometry[0][0].position, [0.0, 0.0, 0.0])
         assert np.allclose(
             autd.geometry[0][-1].position,
@@ -223,7 +222,7 @@ async def test_transducer_position():
 
 @pytest.mark.asyncio()
 async def test_transducer_rotation():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for tr in dev:
                 assert np.allclose(tr.rotation, [1.0, 0.0, 0.0, 0.0])
@@ -231,7 +230,7 @@ async def test_transducer_rotation():
 
 @pytest.mark.asyncio()
 async def test_transducer_x_direction():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for tr in dev:
                 assert np.allclose(tr.x_direction, [1.0, 0.0, 0.0])
@@ -239,7 +238,7 @@ async def test_transducer_x_direction():
 
 @pytest.mark.asyncio()
 async def test_transducer_y_direction():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for tr in dev:
                 assert np.allclose(tr.y_direction, [0.0, 1.0, 0.0])
@@ -247,7 +246,7 @@ async def test_transducer_y_direction():
 
 @pytest.mark.asyncio()
 async def test_transducer_z_direction():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for tr in dev:
                 assert np.allclose(tr.z_direction, [0.0, 0.0, 1.0])
@@ -255,7 +254,7 @@ async def test_transducer_z_direction():
 
 @pytest.mark.asyncio()
 async def test_transducer_wavelength():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for tr in dev:
                 assert tr.wavelength(340e3) == 340e3 / 40e3
@@ -263,7 +262,7 @@ async def test_transducer_wavelength():
 
 @pytest.mark.asyncio()
 async def test_transducer_wavenum():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         for dev in autd.geometry:
             for tr in dev:
                 assert tr.wavenumber(340e3) == 2.0 * np.pi * 40e3 / 340e3

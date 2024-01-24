@@ -11,7 +11,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_square():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(Square(200).with_low(32).with_high(85).with_duty(0.1))
 
         for dev in autd.geometry:
@@ -31,7 +31,7 @@ async def test_square():
 
 @pytest.mark.asyncio()
 async def test_square_mode():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(Square(150).with_mode(SamplingMode.SizeOptimized))
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx)

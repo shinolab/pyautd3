@@ -23,8 +23,12 @@ def on_err(msg: ctypes.c_char_p) -> None:
 async def main() -> None:
     on_lost_func = OnErrFunc(on_lost)
     on_err_func = OnErrFunc(on_err)
-    async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(
-        SOEM.builder().with_on_lost(on_lost_func).with_on_err(on_err_func),
+    with await (
+        Controller.builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open_with_async(
+            SOEM.builder().with_on_lost(on_lost_func).with_on_err(on_err_func),
+        )
     ) as autd:  # type: Controller
         await runner.run(autd)
 

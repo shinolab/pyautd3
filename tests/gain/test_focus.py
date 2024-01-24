@@ -8,7 +8,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_focus():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(Focus(autd.geometry.center))
         for dev in autd.geometry:
             intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)

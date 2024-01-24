@@ -9,7 +9,7 @@ from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
 
 @pytest.mark.asyncio()
 async def test_greedy():
-    async with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
+    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
         g = (
             Greedy()
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)

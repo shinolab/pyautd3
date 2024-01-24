@@ -1,8 +1,8 @@
 import asyncio
 import ctypes
-from collections.abc import AsyncIterator, Callable, Iterator
-from contextlib import asynccontextmanager, contextmanager
+from collections.abc import Callable
 from datetime import timedelta
+from types import TracebackType
 from typing import Generic, TypeVar
 
 import numpy as np
@@ -191,33 +191,23 @@ class _Builder(Generic[L]):
         )
         return self
 
-    @asynccontextmanager
-    async def open_with_async(self: "_Builder[L]", link: LinkBuilder[L]) -> AsyncIterator["Controller[L]"]:
+    async def open_with_async(self: "_Builder[L]", link: LinkBuilder[L]) -> "Controller[L]":
         """Open controller.
 
         Arguments:
         ---------
             link: LinkBuilder
         """
-        cnt = await Controller._open_impl_async(self._ptr, link)
-        try:
-            yield cnt
-        finally:
-            cnt._dispose()
+        return await Controller._open_impl_async(self._ptr, link)
 
-    @contextmanager
-    def open_with(self: "_Builder[L]", link: LinkBuilder[L]) -> Iterator["Controller[L]"]:
+    def open_with(self: "_Builder[L]", link: LinkBuilder[L]) -> "Controller[L]":
         """Open controller.
 
         Arguments:
         ---------
             link: LinkBuilder
         """
-        cnt = Controller._open_impl(self._ptr, link)
-        try:
-            yield cnt
-        finally:
-            cnt._dispose()
+        return Controller._open_impl(self._ptr, link)
 
 
 class Controller(Generic[L]):
@@ -244,6 +234,17 @@ class Controller(Generic[L]):
         if self._ptr._0 is not None:
             Base().controller_delete(self._ptr)
             self._ptr._0 = None
+
+    def __enter__(self: "Controller") -> "Controller":
+        return self
+
+    def __exit__(
+        self: "Controller",
+        _exc_type: type[BaseException] | None,
+        _exc_value: BaseException | None,
+        _traceback: TracebackType | None,
+    ) -> None:
+        self._dispose()
 
     @property
     def geometry(self: "Controller") -> Geometry:

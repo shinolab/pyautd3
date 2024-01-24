@@ -8,7 +8,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_cache():
-    async with create_controller() as autd1, create_controller() as autd2:
+    with await create_controller() as autd1, await create_controller() as autd2:
         m1 = Sine(150)
         m2 = Sine(150).with_cache()
         assert m2.buffer is None
@@ -41,7 +41,7 @@ class CacheTest(Modulation):
 
 @pytest.mark.asyncio()
 async def test_cache_check_once():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         m = CacheTest()
         assert await autd.send_async(m)
         assert m.calc_cnt == 1
@@ -59,7 +59,7 @@ async def test_cache_check_once():
 
 @pytest.mark.asyncio()
 async def test_transform():
-    async with create_controller() as autd1, create_controller() as autd2:
+    with await create_controller() as autd1, await create_controller() as autd2:
         m1 = Sine(150)
         m2 = Sine(150).with_transform(lambda _i, v: EmitIntensity(v.value // 2))
 
@@ -76,7 +76,7 @@ async def test_transform():
 
 @pytest.mark.asyncio()
 async def test_radiation_pressure():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         m = Sine(150).with_radiation_pressure()
 
         assert await autd.send_async(m)

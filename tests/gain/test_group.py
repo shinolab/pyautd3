@@ -9,7 +9,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_group():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         cx = autd.geometry.center[0]
 
         assert await autd.send_async(
@@ -43,21 +43,19 @@ async def test_group():
 
 @pytest.mark.asyncio()
 async def test_group_unknown_key():
-    async with create_controller() as autd:
-        with pytest.raises(AUTDError, match="Unknown group key"):
-            await autd.send_async(Group(lambda _, _tr: "null").set_gain("uniform", Uniform(0x80).with_phase(Phase(0x90))).set_gain("null", Null()))
+    with await create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
+        await autd.send_async(Group(lambda _, _tr: "null").set_gain("uniform", Uniform(0x80).with_phase(Phase(0x90))).set_gain("null", Null()))
 
 
 @pytest.mark.asyncio()
 async def test_group_unspecified_key():
-    async with create_controller() as autd:
-        with pytest.raises(AUTDError, match="Unspecified group key"):
-            await autd.send_async(Group(lambda _, _tr: "null"))
+    with await create_controller() as autd, pytest.raises(AUTDError, match="Unspecified group key"):
+        await autd.send_async(Group(lambda _, _tr: "null"))
 
 
 @pytest.mark.asyncio()
 async def test_group_check_only_for_enabled():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         autd.geometry[0].enable = False
 
         check = np.zeros(autd.geometry.num_devices, dtype=bool)

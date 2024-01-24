@@ -7,7 +7,7 @@ from pyautd3.link.simulator import Simulator
 
 
 async def main() -> None:
-    async with (
+    with await (
         Controller[Simulator]
         .builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))

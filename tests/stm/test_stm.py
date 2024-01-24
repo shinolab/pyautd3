@@ -11,7 +11,7 @@ from tests.test_autd import create_controller
 
 @pytest.mark.asyncio()
 async def test_focus_stm():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(ConfigureSilencer.disable())
 
         radius = 30.0
@@ -105,7 +105,7 @@ async def test_focus_stm():
 
 @pytest.mark.asyncio()
 async def test_gain_stm():
-    async with create_controller() as autd:
+    with await create_controller() as autd:
         assert await autd.send_async(ConfigureSilencer.disable())
 
         size = 2

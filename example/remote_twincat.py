@@ -11,7 +11,7 @@ async def main() -> None:
     remore_ams_net_id = "remote ams net id"
     local_ams_net_id = "local ams net is"
 
-    async with (
+    with await (
         Controller.builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
         .open_with_async(RemoteTwinCAT.builder(remore_ams_net_id).with_server_ip(remote_ip_addr).with_client_ams_net_id(local_ams_net_id))
