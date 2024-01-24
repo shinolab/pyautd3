@@ -4,7 +4,7 @@ Project: modulation
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -17,16 +17,17 @@ from pyautd3.internal.modulation import IModulationWithSamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SamplingMode
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
+from pyautd3.sampling_config import SamplingConfiguration
 
 
 class Square(IModulationWithSamplingConfig):
     """Square wave modulation."""
 
     _freq: float
-    _low: EmitIntensity | None
-    _high: EmitIntensity | None
-    _duty: float | None
-    _mode: SamplingMode | None
+    _low: EmitIntensity
+    _high: EmitIntensity
+    _duty: float
+    _mode: SamplingMode
 
     def __init__(self: "Square", freq: float) -> None:
         """Constructor.
@@ -35,12 +36,16 @@ class Square(IModulationWithSamplingConfig):
         ---------
             freq: Frequency (Hz)
         """
-        super().__init__()
+        super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._freq = freq
-        self._low = None
-        self._high = None
-        self._duty = None
-        self._mode = None
+        self._low = EmitIntensity.minimum()
+        self._high = EmitIntensity.maximum()
+        self._duty = 0.5
+        self._mode = SamplingMode.ExactFrequency
+
+    def freq(self: "Square") -> float:
+        """Get frequency."""
+        return self._freq
 
     def with_low(self: "Square", low: int | EmitIntensity) -> "Square":
         """Set low level intensity.
@@ -52,6 +57,10 @@ class Square(IModulationWithSamplingConfig):
         self._low = EmitIntensity._cast(low)
         return self
 
+    def low(self: "Square") -> EmitIntensity:
+        """Get low level intensity."""
+        return self._low
+
     def with_high(self: "Square", high: int | EmitIntensity) -> "Square":
         """Set high level intensity.
 
@@ -61,6 +70,10 @@ class Square(IModulationWithSamplingConfig):
         """
         self._high = EmitIntensity._cast(high)
         return self
+
+    def high(self: "Square") -> EmitIntensity:
+        """Get high level intensity."""
+        return self._high
 
     def with_duty(self: "Square", duty: float) -> "Square":
         """Set duty ratio which is defined as `Th / (Th + Tl)`, where `Th` is high level duration and `Tl` is low level duration.
@@ -72,6 +85,10 @@ class Square(IModulationWithSamplingConfig):
         self._duty = duty
         return self
 
+    def duty(self: "Square") -> float:
+        """Get duty ratio."""
+        return self._duty
+
     def with_mode(self: "Square", mode: SamplingMode) -> "Square":
         """Set sampling mode.
 
@@ -82,16 +99,16 @@ class Square(IModulationWithSamplingConfig):
         self._mode = mode
         return self
 
+    def mode(self: "Square") -> SamplingMode:
+        """Get sampling mode."""
+        return self._mode
+
     def _modulation_ptr(self: "Square") -> ModulationPtr:
-        ptr = Base().modulation_square(self._freq)
-        if self._low is not None:
-            ptr = Base().modulation_square_with_low(ptr, self._low.value)
-        if self._high is not None:
-            ptr = Base().modulation_square_with_high(ptr, self._high.value)
-        if self._duty is not None:
-            ptr = Base().modulation_square_with_duty(ptr, self._duty)
-        if self._config is not None:
-            ptr = Base().modulation_square_with_sampling_config(ptr, self._config._internal)
-        if self._mode is not None:
-            ptr = Base().modulation_square_with_mode(ptr, self._mode)
-        return ptr
+        return Base().modulation_square(
+            self._freq,
+            self._config._internal,
+            self._low.value,
+            self._high.value,
+            self._duty,
+            self._mode,
+        )

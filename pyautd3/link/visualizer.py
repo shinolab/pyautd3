@@ -4,7 +4,7 @@ Project: link
 Created Date: 11/12/2023
 Author: Shun Suzuki
 -----
-Last Modified: 11/12/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -162,14 +162,14 @@ class IPlotConfig(metaclass=ABCMeta):
 class PlotConfig(IPlotConfig):
     """Plot config for PlottersBackend."""
 
-    figsize: tuple[int, int] | None
-    cbar_size: float | None
-    font_size: int | None
-    label_area_size: int | None
-    margin: int | None
-    ticks_step: float | None
-    cmap: CMap | None
-    fname: str | None
+    figsize: tuple[int, int]
+    cbar_size: float
+    font_size: int
+    label_area_size: int
+    margin: int
+    ticks_step: float
+    cmap: CMap
+    fname: str
 
     def __init__(
         self: "PlotConfig",
@@ -181,35 +181,31 @@ class PlotConfig(IPlotConfig):
         margin: int | None = None,
         ticks_step: float | None = None,
         cmap: CMap | None = None,
-        fname: str | None = None,
+        fname: str,
     ) -> None:
-        self.figsize = figsize
-        self.cbar_size = cbar_size
-        self.font_size = font_size
-        self.label_area_size = label_area_size
-        self.margin = margin
-        self.ticks_step = ticks_step
-        self.cmap = cmap
+        self.figsize = figsize if figsize is not None else (960, 640)
+        self.cbar_size = cbar_size if cbar_size is not None else 0.15
+        self.font_size = font_size if font_size is not None else 24
+        self.label_area_size = label_area_size if label_area_size is not None else 80
+        self.margin = margin if margin is not None else 10
+        self.ticks_step = ticks_step if ticks_step is not None else 10
+        self.cmap = cmap if cmap is not None else CMap.Jet
         self.fname = fname
 
     def _config_ptr(self: "PlotConfig") -> ConfigPtr:
-        ptr = LinkVisualizer().link_visualizer_plot_config_default()
-        if self.figsize is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_fig_size(ptr, self.figsize[0], self.figsize[1])
-        if self.cbar_size is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_c_bar_size(ptr, self.cbar_size)
-        if self.font_size is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_font_size(ptr, self.font_size)
-        if self.label_area_size is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_label_area_size(ptr, self.label_area_size)
-        if self.margin is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_margin(ptr, self.margin)
-        if self.ticks_step is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_ticks_step(ptr, self.ticks_step)
-        if self.cmap is not None:
-            ptr = LinkVisualizer().link_visualizer_plot_config_with_c_map(ptr, self.cmap)
-        if self.fname is not None:
-            ptr = _validate_ptr(LinkVisualizer().link_visualizer_plot_config_with_f_name(ptr, self.fname.encode("utf-8")))
+        ptr = _validate_ptr(
+            LinkVisualizer().link_visualizer_plot_config(
+                self.figsize[0],
+                self.figsize[1],
+                self.cbar_size,
+                self.font_size,
+                self.label_area_size,
+                self.margin,
+                self.ticks_step,
+                self.cmap,
+                self.fname.encode("utf-8"),
+            ),
+        )
         return ConfigPtr(ptr._0)
 
     def _backend(self: "PlotConfig") -> Backend:
@@ -219,16 +215,16 @@ class PlotConfig(IPlotConfig):
 class PyPlotConfig(IPlotConfig):
     """Plot config for PythonBackend."""
 
-    figsize: tuple[int, int] | None
-    dpi: int | None
-    cbar_position: str | None
-    cbar_size: str | None
-    cbar_pad: str | None
-    fontsize: int | None
-    ticks_step: float | None
-    cmap: str | None
-    show: bool | None
-    fname: str | None
+    figsize: tuple[int, int]
+    dpi: int
+    cbar_position: str
+    cbar_size: str
+    cbar_pad: str
+    fontsize: int
+    ticks_step: float
+    cmap: str
+    show: bool
+    fname: str
 
     def __init__(
         self: "PyPlotConfig",
@@ -242,41 +238,35 @@ class PyPlotConfig(IPlotConfig):
         ticks_step: float | None = None,
         cmap: str | None = None,
         show: bool | None = None,
-        fname: str | None = None,
+        fname: str,
     ) -> None:
-        self.figsize = figsize
-        self.dpi = dpi
-        self.cbar_position = cbar_position
-        self.cbar_size = cbar_size
-        self.cbar_pad = cbar_pad
-        self.fontsize = fontsize
-        self.ticks_step = ticks_step
-        self.cmap = cmap
-        self.show = show
+        self.figsize = figsize if figsize is not None else (8, 6)
+        self.dpi = dpi if dpi is not None else 72
+        self.cbar_position = cbar_position if cbar_position is not None else "right"
+        self.cbar_size = cbar_size if cbar_size is not None else "5%"
+        self.cbar_pad = cbar_pad if cbar_pad is not None else "3%"
+        self.fontsize = fontsize if fontsize is not None else 12
+        self.ticks_step = ticks_step if ticks_step is not None else 10
+        self.cmap = cmap if cmap is not None else "jet"
+        self.show = show if show is not None else False
         self.fname = fname
 
     def _config_ptr(self: "PyPlotConfig") -> ConfigPtr:
-        ptr = LinkVisualizer().link_visualizer_py_plot_config_default()
-        if self.figsize is not None:
-            ptr = LinkVisualizer().link_visualizer_py_plot_config_with_fig_size(ptr, self.figsize[0], self.figsize[1])
-        if self.dpi is not None:
-            ptr = LinkVisualizer().link_visualizer_py_plot_config_with_dpi(ptr, self.dpi)
-        if self.cbar_position is not None:
-            ptr = _validate_ptr(LinkVisualizer().link_visualizer_py_plot_config_with_c_bar_position(ptr, self.cbar_position.encode("utf-8")))
-        if self.cbar_size is not None:
-            ptr = _validate_ptr(LinkVisualizer().link_visualizer_py_plot_config_with_c_bar_size(ptr, self.cbar_size.encode("utf-8")))
-        if self.cbar_pad is not None:
-            ptr = _validate_ptr(LinkVisualizer().link_visualizer_py_plot_config_with_c_bar_pad(ptr, self.cbar_pad.encode("utf-8")))
-        if self.fontsize is not None:
-            ptr = LinkVisualizer().link_visualizer_py_plot_config_with_font_size(ptr, self.fontsize)
-        if self.ticks_step is not None:
-            ptr = LinkVisualizer().link_visualizer_py_plot_config_with_ticks_step(ptr, self.ticks_step)
-        if self.cmap is not None:
-            ptr = _validate_ptr(LinkVisualizer().link_visualizer_py_plot_config_with_c_map(ptr, self.cmap.encode("utf-8")))
-        if self.show is not None:
-            ptr = LinkVisualizer().link_visualizer_py_plot_config_with_show(ptr, self.show)
-        if self.fname is not None:
-            ptr = _validate_ptr(LinkVisualizer().link_visualizer_py_plot_config_with_f_name(ptr, self.fname.encode("utf-8")))
+        ptr = _validate_ptr(
+            LinkVisualizer().link_visualizer_py_plot_config(
+                self.figsize[0],
+                self.figsize[1],
+                self.dpi,
+                self.cbar_position.encode("utf-8"),
+                self.cbar_size.encode("utf-8"),
+                self.cbar_pad.encode("utf-8"),
+                self.fontsize,
+                self.ticks_step,
+                self.cmap.encode("utf-8"),
+                self.show,
+                self.fname.encode("utf-8"),
+            ),
+        )
         return ConfigPtr(ptr._0)
 
     def _backend(self: "PyPlotConfig") -> Backend:

@@ -4,7 +4,7 @@ Project: gain
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 02/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -28,22 +28,34 @@ class Bessel(IGain):
     _p: np.ndarray
     _d: np.ndarray
     _theta: float
-    _intensity: EmitIntensity | None
+    _intensity: EmitIntensity
 
-    def __init__(self: "Bessel", pos: ArrayLike, direction: ArrayLike, theta_z: float) -> None:
+    def __init__(self: "Bessel", pos: ArrayLike, direction: ArrayLike, theta: float) -> None:
         """Constructor.
 
         Arguments:
         ---------
             pos: Start point of the beam (the apex of the conical wavefront of the beam)
             direction: Direction of the beam
-            theta_z: Angle between the conical wavefront of the beam and the plane normal to `dir`
+            theta: Angle between the conical wavefront of the beam and the plane normal to `dir`
         """
         super().__init__()
         self._p = np.array(pos)
         self._d = np.array(direction)
-        self._theta = theta_z
-        self._intensity = None
+        self._theta = theta
+        self._intensity = EmitIntensity.maximum()
+
+    def pos(self: "Bessel") -> np.ndarray:
+        """Get start point of the beam."""
+        return self._p
+
+    def dir(self: "Bessel") -> np.ndarray:
+        """Get direction of the beam."""
+        return self._d
+
+    def theta(self: "Bessel") -> float:
+        """Get angle between the conical wavefront of the beam and the plane normal to `dir`."""
+        return self._theta
 
     def with_intensity(self: "Bessel", intensity: int | EmitIntensity) -> "Bessel":
         """Set amplitude.
@@ -55,8 +67,12 @@ class Bessel(IGain):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    def intensity(self: "Bessel") -> EmitIntensity:
+        """Get emission intensity."""
+        return self._intensity
+
     def _gain_ptr(self: "Bessel", _: Geometry) -> GainPtr:
-        ptr = Base().gain_bessel(
+        return Base().gain_bessel(
             self._p[0],
             self._p[1],
             self._p[2],
@@ -64,7 +80,5 @@ class Bessel(IGain):
             self._d[1],
             self._d[2],
             self._theta,
+            self._intensity.value,
         )
-        if self._intensity is not None:
-            ptr = Base().gain_bessel_with_intensity(ptr, self._intensity.value)
-        return ptr

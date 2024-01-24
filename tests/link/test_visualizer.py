@@ -4,7 +4,7 @@ Project: link
 Created Date: 11/12/2023
 Author: Shun Suzuki
 -----
-Last Modified: 11/12/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -108,7 +108,7 @@ def test_visualizer_plotters():
     ) as autd:
         visualizer_test_with(
             autd,
-            PlotConfig(),
+            PlotConfig(fname="test.png"),
         )
 
     with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
@@ -135,7 +135,7 @@ def test_visualizer_python():
     ) as autd:
         visualizer_test_with(
             autd,
-            PyPlotConfig(),
+            PyPlotConfig(fname="test.png"),
         )
 
     with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
@@ -179,30 +179,30 @@ def test_visualizer_gpu():
 
 
 def test_visualizer_invalid_config():
-    autd = (
+    with (
         Controller[Visualizer]
         .builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
         .open_with(
             Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),
         )
-    )
-    center = autd.geometry.center + np.array([0, 0, 150])
-    with pytest.raises(InvalidPlotConfigError):
-        autd.link.plot_field(
-            PyPlotConfig(fname="test.png"),
-            PlotRange(
-                x_start=center[0] - 20,
-                x_end=center[0] + 20,
-                y_start=center[1] - 30,
-                y_end=center[1] + 30,
-                z_start=center[2],
-                z_end=center[2],
-                resolution=1,
-            ),
-            autd.geometry,
-        )
-    with pytest.raises(InvalidPlotConfigError):
-        autd.link.plot_phase(PyPlotConfig(fname="test.png"), autd.geometry)
-    with pytest.raises(InvalidPlotConfigError):
-        autd.link.plot_modulation(NullPlotConfig())
+    ) as autd:
+        center = autd.geometry.center + np.array([0, 0, 150])
+        with pytest.raises(InvalidPlotConfigError):
+            autd.link.plot_field(
+                PyPlotConfig(fname="test.png"),
+                PlotRange(
+                    x_start=center[0] - 20,
+                    x_end=center[0] + 20,
+                    y_start=center[1] - 30,
+                    y_end=center[1] + 30,
+                    z_start=center[2],
+                    z_end=center[2],
+                    resolution=1,
+                ),
+                autd.geometry,
+            )
+        with pytest.raises(InvalidPlotConfigError):
+            autd.link.plot_phase(PyPlotConfig(fname="test.png"), autd.geometry)
+        with pytest.raises(InvalidPlotConfigError):
+            autd.link.plot_modulation(NullPlotConfig())

@@ -4,7 +4,7 @@ Project: gain
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 29/09/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -24,7 +24,7 @@ class Uniform(IGain):
     """Gain with uniform amplitude and phase."""
 
     _intensity: EmitIntensity
-    _phase: Phase | None
+    _phase: Phase
 
     def __init__(self: "Uniform", intensity: int | EmitIntensity) -> None:
         """Constructor.
@@ -35,7 +35,11 @@ class Uniform(IGain):
         """
         super().__init__()
         self._intensity = EmitIntensity._cast(intensity)
-        self._phase = None
+        self._phase = Phase(0)
+
+    def intensity(self: "Uniform") -> EmitIntensity:
+        """Get emission intensity."""
+        return self._intensity
 
     def with_phase(self: "Uniform", phase: Phase) -> "Uniform":
         """Set phase.
@@ -47,8 +51,9 @@ class Uniform(IGain):
         self._phase = phase
         return self
 
+    def phase(self: "Uniform") -> Phase:
+        """Get phase."""
+        return self._phase
+
     def _gain_ptr(self: "Uniform", _: Geometry) -> GainPtr:
-        ptr = Base().gain_uniform(self._intensity.value)
-        if self._phase is not None:
-            ptr = Base().gain_uniform_with_phase(ptr, self._phase.value)
-        return ptr
+        return Base().gain_uniform(self._intensity.value, self._phase.value)

@@ -17,7 +17,7 @@ from pyautd3.autd import (
     ConfigureDebugOutputIdx,
     ConfigureForceFan,
     ConfigureModDelay,
-    ConfigureReadsFPGAInfo,
+    ConfigureReadsFPGAState,
     ConfigureSilencer,
     Controller,
     FirmwareInfo,
@@ -47,8 +47,8 @@ __all__ = [
     "ConfigureModDelay",
     "TimerStrategy",
     "ConfigureDebugOutputIdx",
-    "ConfigureReadsFPGAInfo",
+    "ConfigureReadsFPGAState",
     "ConfigureForceFan",
 ]
 
-__version__ = "20.0.3"
+__version__ = "21.0.0"

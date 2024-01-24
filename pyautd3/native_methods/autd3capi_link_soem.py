@@ -15,6 +15,10 @@ class SyncMode(IntEnum):
         return int(obj)
 
 
+class EthernetAdaptersPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
 class LinkSOEMBuilderPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
@@ -48,15 +52,15 @@ class NativeMethods(metaclass=Singleton):
             return
 
         self.dll.AUTDAdapterPointer.argtypes = [] 
-        self.dll.AUTDAdapterPointer.restype = ctypes.c_void_p
+        self.dll.AUTDAdapterPointer.restype = EthernetAdaptersPtr
 
-        self.dll.AUTDAdapterGetSize.argtypes = [ctypes.c_void_p] 
+        self.dll.AUTDAdapterGetSize.argtypes = [EthernetAdaptersPtr]  # type: ignore 
         self.dll.AUTDAdapterGetSize.restype = ctypes.c_uint32
 
-        self.dll.AUTDAdapterGetAdapter.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_char_p] 
+        self.dll.AUTDAdapterGetAdapter.argtypes = [EthernetAdaptersPtr, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_char_p]  # type: ignore 
         self.dll.AUTDAdapterGetAdapter.restype = None
 
-        self.dll.AUTDAdapterPointerDelete.argtypes = [ctypes.c_void_p] 
+        self.dll.AUTDAdapterPointerDelete.argtypes = [EthernetAdaptersPtr]  # type: ignore 
         self.dll.AUTDAdapterPointerDelete.restype = None
 
         self.dll.AUTDLinkSOEM.argtypes = [] 
@@ -104,16 +108,16 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.argtypes = [LinkRemoteSOEMBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.restype = LinkBuilderPtr
 
-    def adapter_pointer(self) -> ctypes.c_void_p:
+    def adapter_pointer(self) -> EthernetAdaptersPtr:
         return self.dll.AUTDAdapterPointer()
 
-    def adapter_get_size(self, adapters: ctypes.c_void_p | None) -> ctypes.c_uint32:
+    def adapter_get_size(self, adapters: EthernetAdaptersPtr) -> ctypes.c_uint32:
         return self.dll.AUTDAdapterGetSize(adapters)
 
-    def adapter_get_adapter(self, adapters: ctypes.c_void_p | None, idx: int, desc: ctypes.Array[ctypes.c_char] | None, name: ctypes.Array[ctypes.c_char] | None) -> None:
+    def adapter_get_adapter(self, adapters: EthernetAdaptersPtr, idx: int, desc: ctypes.Array[ctypes.c_char] | None, name: ctypes.Array[ctypes.c_char] | None) -> None:
         return self.dll.AUTDAdapterGetAdapter(adapters, idx, desc, name)
 
-    def adapter_pointer_delete(self, adapters: ctypes.c_void_p | None) -> None:
+    def adapter_pointer_delete(self, adapters: EthernetAdaptersPtr) -> None:
         return self.dll.AUTDAdapterPointerDelete(adapters)
 
     def link_soem(self) -> LinkSOEMBuilderPtr:

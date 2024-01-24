@@ -4,7 +4,7 @@ Project: gain
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 02/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -26,7 +26,7 @@ class Focus(IGain):
     """Gain to produce a focal point."""
 
     _p: np.ndarray
-    _intensity: EmitIntensity | None
+    _intensity: EmitIntensity
 
     def __init__(self: "Focus", pos: ArrayLike) -> None:
         """Constructor.
@@ -37,7 +37,11 @@ class Focus(IGain):
         """
         super().__init__()
         self._p = np.array(pos)
-        self._intensity = None
+        self._intensity = EmitIntensity.maximum()
+
+    def pos(self: "Focus") -> np.ndarray:
+        """Get position of the focal point."""
+        return self._p
 
     def with_intensity(self: "Focus", intensity: int | EmitIntensity) -> "Focus":
         """Set amplitude.
@@ -49,8 +53,9 @@ class Focus(IGain):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    def intensity(self: "Focus") -> EmitIntensity:
+        """Get emission intensity."""
+        return self._intensity
+
     def _gain_ptr(self: "Focus", _: Geometry) -> GainPtr:
-        ptr = Base().gain_focus(self._p[0], self._p[1], self._p[2])
-        if self._intensity is not None:
-            ptr = Base().gain_focus_with_intensity(ptr, self._intensity.value)
-        return ptr
+        return Base().gain_focus(self._p[0], self._p[1], self._p[2], self._intensity.value)

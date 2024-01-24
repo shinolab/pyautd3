@@ -4,7 +4,7 @@ Project: modulation
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -16,16 +16,18 @@ from pyautd3.internal.modulation import IModulationWithSamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SamplingMode
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
+from pyautd3.phase import Phase
+from pyautd3.sampling_config import SamplingConfiguration
 
 
 class Sine(IModulationWithSamplingConfig):
     """Sine wave modulation."""
 
     _freq: float
-    _intensity: EmitIntensity | None
-    _offset: EmitIntensity | None
-    _phase: float | None
-    _mode: SamplingMode | None
+    _intensity: EmitIntensity
+    _offset: EmitIntensity
+    _phase: Phase
+    _mode: SamplingMode
 
     def __init__(self: "Sine", freq: float) -> None:
         """Constructor.
@@ -37,12 +39,16 @@ class Sine(IModulationWithSamplingConfig):
         ---------
             freq: Frequency (Hz)
         """
-        super().__init__()
+        super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._freq = freq
-        self._intensity = None
-        self._offset = None
-        self._phase = None
-        self._mode = None
+        self._intensity = EmitIntensity.maximum()
+        self._offset = EmitIntensity.maximum() // 2
+        self._phase = Phase(0)
+        self._mode = SamplingMode.ExactFrequency
+
+    def freq(self: "Sine") -> float:
+        """Get frequency."""
+        return self._freq
 
     def with_intensity(self: "Sine", intensity: int | EmitIntensity) -> "Sine":
         """Set intensity.
@@ -54,6 +60,10 @@ class Sine(IModulationWithSamplingConfig):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    def intensity(self: "Sine") -> EmitIntensity:
+        """Get intensity."""
+        return self._intensity
+
     def with_offset(self: "Sine", offset: int | EmitIntensity) -> "Sine":
         """Set offset.
 
@@ -64,15 +74,23 @@ class Sine(IModulationWithSamplingConfig):
         self._offset = EmitIntensity._cast(offset)
         return self
 
-    def with_phase(self: "Sine", phase: float) -> "Sine":
+    def offset(self: "Sine") -> EmitIntensity:
+        """Get offset."""
+        return self._offset
+
+    def with_phase(self: "Sine", phase: Phase) -> "Sine":
         """Set phase.
 
         Arguments:
         ---------
-            phase: Phase (from 0 to 2π)
+            phase: Phase
         """
         self._phase = phase
         return self
+
+    def phase(self: "Sine") -> Phase:
+        """Get phase."""
+        return self._phase
 
     def with_mode(self: "Sine", mode: SamplingMode) -> "Sine":
         """Set sampling mode.
@@ -84,16 +102,16 @@ class Sine(IModulationWithSamplingConfig):
         self._mode = mode
         return self
 
+    def mode(self: "Sine") -> SamplingMode:
+        """Get sampling mode."""
+        return self._mode
+
     def _modulation_ptr(self: "Sine") -> ModulationPtr:
-        ptr = Base().modulation_sine(self._freq)
-        if self._intensity is not None:
-            ptr = Base().modulation_sine_with_intensity(ptr, self._intensity.value)
-        if self._offset is not None:
-            ptr = Base().modulation_sine_with_offset(ptr, self._offset.value)
-        if self._phase is not None:
-            ptr = Base().modulation_sine_with_phase(ptr, self._phase)
-        if self._config is not None:
-            ptr = Base().modulation_sine_with_sampling_config(ptr, self._config._internal)
-        if self._mode is not None:
-            ptr = Base().modulation_sine_with_mode(ptr, self._mode)
-        return ptr
+        return Base().modulation_sine(
+            self._freq,
+            self._config._internal,
+            self._intensity.value,
+            self._offset.value,
+            self._phase.value,
+            self._mode,
+        )

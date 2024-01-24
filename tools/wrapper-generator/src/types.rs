@@ -4,7 +4,7 @@
  * Created Date: 25/05/2022
  * Author: Shun Suzuki
  * -----
- * Last Modified: 09/12/2023
+ * Last Modified: 22/01/2024
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2022 Shun Suzuki. All rights reserved.
@@ -78,7 +78,7 @@ impl Type {
         match i {
             syn::FnArg::Receiver(_) => panic!("self is not allowed!"),
             syn::FnArg::Typed(pat) => {
-                let name = pat.pat.into_token_stream().to_string();
+                let name = pat.pat.into_token_stream().to_string().replace("mut ", "");
                 match *pat.ty {
                     syn::Type::Path(path) => {
                         return Arg {

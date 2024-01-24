@@ -4,7 +4,7 @@ Project: example
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 23/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -21,7 +21,7 @@ from pyautd3.link.soem import RemoteSOEM
 
 
 async def main() -> None:
-    with await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(
+    async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(
         RemoteSOEM.builder("127.0.0.1:8080"),
     ) as autd:  # type: Controller
         await runner.run(autd)

@@ -4,7 +4,7 @@ Project: modulation
 Created Date: 21/10/2022
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
@@ -19,6 +19,7 @@ from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
 )
+from pyautd3.sampling_config import SamplingConfiguration
 
 
 class Wav(IModulationWithSamplingConfig):
@@ -36,11 +37,13 @@ class Wav(IModulationWithSamplingConfig):
         ---------
             path: Path to the wav file
         """
-        super().__init__()
+        super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._path = path
 
     def _modulation_ptr(self: "Wav") -> ModulationPtr:
-        ptr = _validate_ptr(ModulationAudioFile().modulation_wav(str(self._path).encode("utf-8")))
-        if self._config is not None:
-            ptr = ModulationAudioFile().modulation_wav_with_sampling_config(ptr, self._config._internal)
-        return ptr
+        return _validate_ptr(
+            ModulationAudioFile().modulation_wav(
+                str(self._path).encode("utf-8"),
+                self._config._internal,
+            ),
+        )

@@ -4,7 +4,7 @@ Project: holo
 Created Date: 10/10/2023
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -34,14 +34,12 @@ H = TypeVar("H", bound="Holo")
 class Holo(IGain):
     _foci: list[float]
     _amps: list[Amplitude]
-    _repeat: int | None
-    _constraint: EmissionConstraint | None
+    _constraint: EmissionConstraint
 
-    def __init__(self: "Holo") -> None:
+    def __init__(self: "Holo", constraint: EmissionConstraint) -> None:
         self._foci = []
         self._amps = []
-        self._repeat = None
-        self._constraint = None
+        self._constraint = constraint
 
     def add_focus(self: H, focus: ArrayLike, amp: Amplitude) -> H:
         """Add focus.
@@ -81,10 +79,14 @@ class Holo(IGain):
         self._constraint = constraint
         return self
 
+    def constraint(self: H) -> EmissionConstraint:
+        """Get emission constraint."""
+        return self._constraint
+
 
 class HoloWithBackend(Holo):
     _backend: Backend
 
-    def __init__(self: "HoloWithBackend", backend: Backend) -> None:
-        super().__init__()
+    def __init__(self: "HoloWithBackend", constraint: EmissionConstraint, backend: Backend) -> None:
+        super().__init__(constraint)
         self._backend = backend

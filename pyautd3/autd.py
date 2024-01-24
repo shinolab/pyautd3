@@ -4,7 +4,7 @@ Project: pyautd3
 Created Date: 24/05/2021
 Author: Shun Suzuki
 -----
-Last Modified: 25/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
@@ -15,8 +15,9 @@ Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
 import asyncio
 import ctypes
 from collections.abc import Callable
+from contextlib import asynccontextmanager, contextmanager
 from datetime import timedelta
-from typing import Generic, TypeVar
+from typing import AsyncIterator, Generic, Iterator, TypeVar
 
 import numpy as np
 
@@ -25,14 +26,13 @@ from .geometry import AUTD3, Device, Geometry, Transducer
 from .internal.datagram import Datagram
 from .internal.link import Link, LinkBuilder
 from .internal.utils import _validate_int, _validate_ptr
-from .native_methods.autd3capi import ControllerBuilderPtr
+from .native_methods.autd3capi import ControllerBuilderPtr, GroupKVMapPtr
 from .native_methods.autd3capi import NativeMethods as Base
 from .native_methods.autd3capi_def import (
     AUTD3_TRUE,
     ControllerPtr,
     DatagramPtr,
     GeometryPtr,
-    GroupKVMapPtr,
 )
 
 K = TypeVar("K")
@@ -72,7 +72,7 @@ class ConfigureSilencer(Datagram):
 
         _value_intensity: int
         _value_phase: int
-        _strict_mode: bool | None
+        _strict_mode: bool
 
         def __init__(self: "ConfigureSilencer.FixedCompletionSteps", value_intensity: int, value_phase: int) -> None:
             """Constructor.
@@ -85,23 +85,26 @@ class ConfigureSilencer(Datagram):
             super().__init__()
             self._value_intensity = value_intensity
             self._value_phase = value_phase
-            self._strict_mode = None
+            self._strict_mode = True
 
-        def with_strict_mode(self: "ConfigureSilencer.FixedCompletionSteps", strict_mode: bool) -> "ConfigureSilencer.FixedCompletionSteps":
+        def with_strict_mode(self: "ConfigureSilencer.FixedCompletionSteps", *, mode: bool) -> "ConfigureSilencer.FixedCompletionSteps":
             """Set strict mode.
 
             Arguments:
             ---------
-                strict_mode: If true, the invalid completion steps will cause an error.
+                mode: If true, the invalid completion steps will cause an error.
             """
-            self._strict_mode = strict_mode
+            self._strict_mode = mode
             return self
 
         def _datagram_ptr(self: "ConfigureSilencer.FixedCompletionSteps", _: Geometry) -> DatagramPtr:
-            ptr = _validate_ptr(Base().datagram_silencer_fixed_completion_steps(self._value_intensity, self._value_phase))
-            if self._strict_mode is not None:
-                ptr = Base().datagram_silencer_fixed_completion_steps_with_strict_mode(ptr, self._strict_mode)
-            return ptr
+            return _validate_ptr(
+                Base().datagram_silencer_fixed_completion_steps(
+                    self._value_intensity,
+                    self._value_phase,
+                    self._strict_mode,
+                ),
+            )
 
     @staticmethod
     def fixed_update_rate(value_intensity: int, value_phase: int) -> "FixedUpdateRate":
@@ -202,23 +205,33 @@ class _Builder(Generic[L]):
         )
         return self
 
-    async def open_with_async(self: "_Builder[L]", link: LinkBuilder[L]) -> "Controller[L]":
+    @asynccontextmanager
+    async def open_with_async(self: "_Builder[L]", link: LinkBuilder[L]) -> AsyncIterator["Controller[L]"]:
         """Open controller.
 
         Arguments:
         ---------
             link: LinkBuilder
         """
-        return await Controller._open_impl_async(self._ptr, link)
+        cnt = await Controller._open_impl_async(self._ptr, link)
+        try:
+            yield cnt
+        finally:
+            cnt._dispose()
 
-    def open_with(self: "_Builder[L]", link: LinkBuilder[L]) -> "Controller[L]":
+    @contextmanager
+    def open_with(self: "_Builder[L]", link: LinkBuilder[L]) -> Iterator["Controller[L]"]:
         """Open controller.
 
         Arguments:
         ---------
             link: LinkBuilder
         """
-        return Controller._open_impl(self._ptr, link)
+        cnt = Controller._open_impl(self._ptr, link)
+        try:
+            yield cnt
+        finally:
+            cnt._dispose()
 
 
 class Controller(Generic[L]):
@@ -245,12 +258,6 @@ class Controller(Generic[L]):
         if self._ptr._0 is not None:
             Base().controller_delete(self._ptr)
             self._ptr._0 = None
-
-    def __enter__(self: "Controller[L]") -> "Controller[L]":
-        return self
-
-    def __exit__(self: "Controller[L]", *args: object) -> None:
-        self._dispose()
 
     @property
     def geometry(self: "Controller") -> Geometry:
@@ -325,9 +332,7 @@ class Controller(Generic[L]):
         loop = asyncio.get_event_loop()
         loop.call_soon(
             lambda *_: future.set_result(
-                Base().controller_close(
-                    self._ptr,
-                ),
+                Base().controller_close(self._ptr),
             ),
         )
         return _validate_int(await future) == AUTD3_TRUE
@@ -336,24 +341,24 @@ class Controller(Generic[L]):
         """Close controller."""
         return _validate_int(Base().controller_close(self._ptr)) == AUTD3_TRUE
 
-    async def fpga_info_async(self: "Controller") -> list[FPGAInfo]:
+    async def fpga_state_async(self: "Controller") -> list[FPGAInfo | None]:
         """Get FPGA information list."""
-        infos = np.zeros([self.geometry.num_devices]).astype(ctypes.c_uint8)
+        infos = np.zeros([self.geometry.num_devices]).astype(ctypes.c_int32)
         pinfos = np.ctypeslib.as_ctypes(infos)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         loop.call_soon(
-            lambda *_: future.set_result(Base().controller_fpga_info(self._ptr, pinfos)),
+            lambda *_: future.set_result(Base().controller_fpga_state(self._ptr, pinfos)),
         )
         _validate_int(await future)
-        return [FPGAInfo(x) for x in infos]
+        return [None if x == -1 else FPGAInfo(x) for x in infos]
 
-    def fpga_info(self: "Controller") -> list[FPGAInfo]:
+    def fpga_state(self: "Controller") -> list[FPGAInfo | None]:
         """Get FPGA information list."""
-        infos = np.zeros([self.geometry.num_devices]).astype(ctypes.c_uint8)
+        infos = np.zeros([self.geometry.num_devices]).astype(ctypes.c_int32)
         pinfos = np.ctypeslib.as_ctypes(infos)
-        _validate_int(Base().controller_fpga_info(self._ptr, pinfos))
-        return [FPGAInfo(x) for x in infos]
+        _validate_int(Base().controller_fpga_state(self._ptr, pinfos))
+        return [None if x == -1 else FPGAInfo(x) for x in infos]
 
     async def send_async(
         self: "Controller",
@@ -665,10 +670,10 @@ class ConfigureForceFan(Datagram):
         return Base().datagram_configure_force_fan(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
 
 
-class ConfigureReadsFPGAInfo(Datagram):
-    """Datagram to configure reads FPGA info."""
+class ConfigureReadsFPGAState(Datagram):
+    """Datagram to configure reads FPGA state."""
 
-    def __init__(self: "ConfigureReadsFPGAInfo", f: Callable[[Device], bool]) -> None:
+    def __init__(self: "ConfigureReadsFPGAState", f: Callable[[Device], bool]) -> None:
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> bool:
@@ -676,5 +681,5 @@ class ConfigureReadsFPGAInfo(Datagram):
 
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, GeometryPtr, ctypes.c_uint32)(f_native)
 
-    def _datagram_ptr(self: "ConfigureReadsFPGAInfo", geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_configure_reads_fpga_info(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
+    def _datagram_ptr(self: "ConfigureReadsFPGAState", geometry: Geometry) -> DatagramPtr:
+        return Base().datagram_configure_reads_fpga_state(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]

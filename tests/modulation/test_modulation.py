@@ -4,7 +4,7 @@ Project: modulation
 Created Date: 20/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 11/10/2023
+Last Modified: 23/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -32,18 +32,17 @@ class Burst(Modulation):
 
 @pytest.mark.asyncio()
 async def test_modulation():
-    autd = await create_controller()
+    async with create_controller() as autd:
+        m = Burst()
 
-    m = Burst()
+        assert m.sampling_config.frequency == 4e3
+        assert len(m) == 10
 
-    assert m.sampling_config.frequency == 4e3
-    assert len(m) == 10
+        assert await autd.send_async(m)
 
-    assert await autd.send_async(m)
-
-    for dev in autd.geometry:
-        mod = autd.link.modulation(dev.idx)
-        assert len(mod) == 10
-        assert mod[0] == 0xFF
-        assert np.all(mod[1:] == 0)
-        assert autd.link.modulation_frequency_division(dev.idx) == 5120
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx)
+            assert len(mod) == 10
+            assert mod[0] == 0xFF
+            assert np.all(mod[1:] == 0)
+            assert autd.link.modulation_frequency_division(dev.idx) == 5120

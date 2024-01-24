@@ -4,7 +4,7 @@
  * Created Date: 25/05/2022
  * Author: Shun Suzuki
  * -----
- * Last Modified: 11/12/2023
+ * Last Modified: 23/01/2024
  * Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
  * -----
  * Copyright (c) 2022 Shun Suzuki. All rights reserved.
@@ -227,8 +227,14 @@ impl PythonGenerator {
                     | "DynamicConfigureModDelayOp"
                     | "DynamicConfigureForceFan"
                     | "DynamicConfigureForceFanOp"
-                    | "DynamicConfigureReadsFPGAInfo"
-                    | "DynamicConfigureReadsFPGAInfoOp"
+                    | "DynamicConfigureReadsFPGAState"
+                    | "DynamicConfigureReadsFPGAStateOp"
+                    | "SyncGroupGuard"
+                    | "SyncController"
+                    | "SyncControllerBuilder"
+                    | "FutureWrapper" // TODO: Remove
+                    | "SyncLink"
+                    | "SyncLinkBuilder"
             )
         }));
         self
@@ -281,6 +287,7 @@ import os"
             .collect();
 
         let def_ty = vec![
+            "RuntimePtr",
             "GainPtr",
             "ModulationPtr",
             "LinkPtr",
@@ -293,6 +300,8 @@ import os"
             "SamplingConfiguration",
             "GroupKVMapPtr",
             "ResultDatagram",
+            "ResultModulationCalc",
+            "ModulationCalcPtr",
             "TransducerPtr",
             "GeometryPtr",
             "DatagramSpecialPtr",

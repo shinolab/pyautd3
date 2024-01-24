@@ -28,30 +28,6 @@ class ControllerPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class FirmwareInfoListPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class GroupKVMapPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class GainCalcDrivesMapPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class GeometryPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class DevicePtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class TransducerPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
 class LinkBuilderPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
@@ -68,19 +44,19 @@ class GainPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
+class GeometryPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class DevicePtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class TransducerPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
 class ModulationPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class CachePtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class STMPropsPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class GroupGainMapPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -90,14 +66,6 @@ class Drive(ctypes.Structure):
 
 class ResultI32(ctypes.Structure):
     _fields_ = [("result", ctypes.c_int32), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-class ResultController(ctypes.Structure):
-    _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-class ResultGainCalcDrivesMap(ctypes.Structure):
-    _fields_ = [("result", GainCalcDrivesMapPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
 class ResultModulation(ctypes.Structure):
@@ -114,6 +82,10 @@ class SamplingConfiguration(ctypes.Structure):
 
 class ResultSamplingConfig(ctypes.Structure):
     _fields_ = [("result", SamplingConfiguration), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+class ResultController(ctypes.Structure):
+    _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
 DEFAULT_CORRECTED_ALPHA: float = 0.803
@@ -179,6 +151,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSamplingConfigPeriod.argtypes = [SamplingConfiguration]  # type: ignore 
         self.dll.AUTDSamplingConfigPeriod.restype = ctypes.c_uint64
 
+        self.dll.AUTDSamplingConfigEq.argtypes = [SamplingConfiguration, SamplingConfiguration]  # type: ignore 
+        self.dll.AUTDSamplingConfigEq.restype = ctypes.c_bool
+
     def emit_intensity_with_correction_alpha(self, value: int, alpha: float) -> ctypes.c_uint8:
         return self.dll.AUTDEmitIntensityWithCorrectionAlpha(value, alpha)
 
@@ -208,3 +183,6 @@ class NativeMethods(metaclass=Singleton):
 
     def sampling_config_period(self, config: SamplingConfiguration) -> ctypes.c_uint64:
         return self.dll.AUTDSamplingConfigPeriod(config)
+
+    def sampling_config_eq(self, a: SamplingConfiguration, b: SamplingConfiguration) -> ctypes.c_bool:
+        return self.dll.AUTDSamplingConfigEq(a, b)

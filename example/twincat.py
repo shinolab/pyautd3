@@ -4,7 +4,7 @@ Project: example
 Created Date: 30/12/2020
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 23/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2020 Shun Suzuki. All rights reserved.
@@ -21,7 +21,7 @@ from pyautd3.link.twincat import TwinCAT
 
 
 async def main() -> None:
-    with await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(TwinCAT.builder()) as autd:  # type: Controller
+    async with Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(TwinCAT.builder()) as autd:  # type: Controller
         await runner.run(autd)
 
 

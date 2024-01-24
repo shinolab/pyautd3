@@ -4,7 +4,7 @@ Project: stm
 Created Date: 21/10/2022
 Author: Shun Suzuki
 -----
-Last Modified: 10/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2022-2023 Shun Suzuki. All rights reserved.
@@ -27,11 +27,11 @@ from pyautd3.geometry import Geometry
 from pyautd3.internal.datagram import Datagram
 from pyautd3.internal.utils import _validate_ptr, _validate_sampling_config
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi import STMPropsPtr
 from pyautd3.native_methods.autd3capi_def import (
     DatagramPtr,
     GainPtr,
     GainSTMMode,
-    STMPropsPtr,
 )
 from pyautd3.sampling_config import SamplingConfiguration
 

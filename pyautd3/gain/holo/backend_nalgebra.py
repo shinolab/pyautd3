@@ -4,7 +4,7 @@ Project: holo
 Created Date: 27/10/2023
 Author: Shun Suzuki
 -----
-Last Modified: 27/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -31,62 +31,57 @@ class NalgebraBackend(Backend):
             GainHolo().delete_nalgebra_backend(self._ptr)
             self._ptr._0 = None
 
-    def _sdp(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int) -> GainPtr:
-        return GainHolo().gain_holo_sdp(self._backend_ptr(), foci, amps, size)
+    def _sdp(
+        self: "NalgebraBackend",
+        foci: Array[c_double],
+        amps: Array[c_double],
+        size: int,
+        alpha: float,
+        lambda_: float,
+        repeat: int,
+        constraint: EmissionConstraint,
+    ) -> GainPtr:
+        return GainHolo().gain_holo_sdp(self._backend_ptr(), foci, amps, size, alpha, lambda_, repeat, constraint._constraint_ptr())
 
-    def _sdp_with_alpha(self: "NalgebraBackend", ptr: GainPtr, v: float) -> GainPtr:
-        return GainHolo().gain_holo_sdp_with_alpha(ptr, v)
+    def _gs(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraint) -> GainPtr:
+        return GainHolo().gain_holo_gs(self._backend_ptr(), foci, amps, size, repeat, constraint._constraint_ptr())
 
-    def _sdp_with_repeat(self: "NalgebraBackend", ptr: GainPtr, v: int) -> GainPtr:
-        return GainHolo().gain_holo_sdp_with_repeat(ptr, v)
+    def _gspat(
+        self: "NalgebraBackend",
+        foci: Array[c_double],
+        amps: Array[c_double],
+        size: int,
+        repeat: int,
+        constraint: EmissionConstraint,
+    ) -> GainPtr:
+        return GainHolo().gain_holo_gspat(self._backend_ptr(), foci, amps, size, repeat, constraint._constraint_ptr())
 
-    def _sdp_with_lambda(self: "NalgebraBackend", ptr: GainPtr, v: float) -> GainPtr:
-        return GainHolo().gain_holo_sdp_with_lambda(ptr, v)
+    def _naive(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: EmissionConstraint) -> GainPtr:
+        return GainHolo().gain_holo_naive(self._backend_ptr(), foci, amps, size, constraint._constraint_ptr())
 
-    def _sdp_with_constraint(self: "NalgebraBackend", ptr: GainPtr, v: EmissionConstraint) -> GainPtr:
-        return GainHolo().gain_holo_sdp_with_constraint(ptr, v._constraint_ptr())
-
-    def _gs(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int) -> GainPtr:
-        return GainHolo().gain_holo_gs(self._backend_ptr(), foci, amps, size)
-
-    def _gs_with_repeat(self: "NalgebraBackend", ptr: GainPtr, v: int) -> GainPtr:
-        return GainHolo().gain_holo_gs_with_repeat(ptr, v)
-
-    def _gs_with_constraint(self: "NalgebraBackend", ptr: GainPtr, v: EmissionConstraint) -> GainPtr:
-        return GainHolo().gain_holo_gs_with_constraint(ptr, v._constraint_ptr())
-
-    def _gspat(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int) -> GainPtr:
-        return GainHolo().gain_holo_gspat(self._backend_ptr(), foci, amps, size)
-
-    def _gspat_with_repeat(self: "NalgebraBackend", ptr: GainPtr, v: int) -> GainPtr:
-        return GainHolo().gain_holo_gspat_with_repeat(ptr, v)
-
-    def _gspat_with_constraint(self: "NalgebraBackend", ptr: GainPtr, v: EmissionConstraint) -> GainPtr:
-        return GainHolo().gain_holo_gspat_with_constraint(ptr, v._constraint_ptr())
-
-    def _naive(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int) -> GainPtr:
-        return GainHolo().gain_holo_naive(self._backend_ptr(), foci, amps, size)
-
-    def _naive_with_constraint(self: "NalgebraBackend", ptr: GainPtr, v: EmissionConstraint) -> GainPtr:
-        return GainHolo().gain_holo_naive_with_constraint(ptr, v._constraint_ptr())
-
-    def _lm(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int) -> GainPtr:
-        return GainHolo().gain_holo_lm(self._backend_ptr(), foci, amps, size)
-
-    def _lm_with_eps1(self: "NalgebraBackend", ptr: GainPtr, v: float) -> GainPtr:
-        return GainHolo().gain_holo_lm_with_eps_1(ptr, v)
-
-    def _lm_with_eps2(self: "NalgebraBackend", ptr: GainPtr, v: float) -> GainPtr:
-        return GainHolo().gain_holo_lm_with_eps_2(ptr, v)
-
-    def _lm_with_tau(self: "NalgebraBackend", ptr: GainPtr, v: float) -> GainPtr:
-        return GainHolo().gain_holo_lm_with_tau(ptr, v)
-
-    def _lm_with_kmax(self: "NalgebraBackend", ptr: GainPtr, v: int) -> GainPtr:
-        return GainHolo().gain_holo_lm_with_k_max(ptr, v)
-
-    def _lm_with_initial(self: "NalgebraBackend", ptr: GainPtr, v: Array[c_double], size: int) -> GainPtr:
-        return GainHolo().gain_holo_lm_with_initial(ptr, v, size)
-
-    def _lm_with_constraint(self: "NalgebraBackend", ptr: GainPtr, v: EmissionConstraint) -> GainPtr:
-        return GainHolo().gain_holo_lm_with_constraint(ptr, v._constraint_ptr())
+    def _lm(
+        self: "NalgebraBackend",
+        foci: Array[c_double],
+        amps: Array[c_double],
+        size: int,
+        eps1: float,
+        eps2: float,
+        tau: float,
+        kmax: int,
+        initial: Array[c_double],
+        initial_size: int,
+        constraint: EmissionConstraint,
+    ) -> GainPtr:
+        return GainHolo().gain_holo_lm(
+            self._backend_ptr(),
+            foci,
+            amps,
+            size,
+            eps1,
+            eps2,
+            tau,
+            kmax,
+            initial,
+            initial_size,
+            constraint._constraint_ptr(),
+        )

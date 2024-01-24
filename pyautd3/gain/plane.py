@@ -4,7 +4,7 @@ Project: gain
 Created Date: 14/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 02/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -20,13 +20,15 @@ from pyautd3.geometry import Geometry
 from pyautd3.internal.gain import IGain
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.phase import Phase
 
 
 class Plane(IGain):
     """Gain to produce a plane wave."""
 
     _d: np.ndarray
-    _intensity: EmitIntensity | None
+    _intensity: EmitIntensity
+    _phase: Phase
 
     def __init__(self: "Plane", direction: ArrayLike) -> None:
         """Constructor.
@@ -37,7 +39,12 @@ class Plane(IGain):
         """
         super().__init__()
         self._d = np.array(direction)
-        self._intensity = None
+        self._intensity = EmitIntensity.maximum()
+        self._phase = Phase(0)
+
+    def dir(self: "Plane") -> np.ndarray:
+        """Get direction of the plane wave."""
+        return self._d
 
     def with_intensity(self: "Plane", intensity: int | EmitIntensity) -> "Plane":
         """Set amplitude.
@@ -49,8 +56,23 @@ class Plane(IGain):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    def intensity(self: "Plane") -> EmitIntensity:
+        """Get emission intensity."""
+        return self._intensity
+
+    def with_phase(self: "Plane", phase: Phase) -> "Plane":
+        """Set phase.
+
+        Arguments:
+        ---------
+            phase: Phase
+        """
+        self._phase = phase
+        return self
+
+    def phase(self: "Plane") -> Phase:
+        """Get phase."""
+        return self._phase
+
     def _gain_ptr(self: "Plane", _: Geometry) -> GainPtr:
-        ptr = Base().gain_plane(self._d[0], self._d[1], self._d[2])
-        if self._intensity is not None:
-            ptr = Base().gain_plane_with_intensity(ptr, self._intensity.value)
-        return ptr
+        return Base().gain_plane(self._d[0], self._d[1], self._d[2], self._intensity.value, self._phase.value)

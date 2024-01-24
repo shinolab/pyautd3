@@ -4,7 +4,7 @@ Project: link
 Created Date: 18/09/2023
 Author: Shun Suzuki
 -----
-Last Modified: 11/10/2023
+Last Modified: 24/01/2024
 Modified By: Shun Suzuki (suzuki@hapis.k.u-tokyo.ac.jp)
 -----
 Copyright (c) 2023 Shun Suzuki. All rights reserved.
@@ -13,7 +13,6 @@ Copyright (c) 2023 Shun Suzuki. All rights reserved.
 
 
 import ctypes
-from datetime import timedelta
 
 import numpy as np
 
@@ -33,10 +32,6 @@ class Audit(Link):
 
         def __init__(self: "Audit._Builder") -> None:
             self._builder = LinkAudit().link_audit()
-
-        def with_timeout(self: "Audit._Builder", timeout: timedelta) -> "Audit._Builder":
-            self._builder = LinkAudit().link_audit_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
-            return self
 
         def _link_builder_ptr(self: "Audit._Builder") -> LinkBuilderPtr:
             return LinkAudit().link_audit_into_builder(self._builder)
@@ -59,9 +54,6 @@ class Audit(Link):
 
     def is_force_fan(self: "Audit", idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_is_force_fan(self._ptr, idx))
-
-    def last_timeout_ns(self: "Audit") -> int:
-        return int(LinkAudit().link_audit_last_timeout_ns(self._ptr))
 
     def break_down(self: "Audit") -> None:
         LinkAudit().link_audit_break_down(self._ptr)
