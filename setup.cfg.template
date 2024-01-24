@@ -9,7 +9,7 @@ license_files =
     ThirdPartyNotice.txt
 author = Shun Suzuki
 author_email = suzuki@hapis.k.u-tokyo.ac.jp
-url = https://github.com/shinolab/autd3
+url = https://github.com/shinolab/pyautd3
 classifiers =
     Programming Language :: Python :: 3
     ${classifiers_os}
@@ -19,14 +19,20 @@ classifiers =
 packages = 
     pyautd3
     pyautd3.bin
+    pyautd3.controller
+    pyautd3.driver
+    pyautd3.driver.common
+    pyautd3.driver.datagram
+    pyautd3.driver.datagram.stm
+    pyautd3.driver.fpga
+    pyautd3.driver.fpga.defined
+    pyautd3.driver.geometry
     pyautd3.gain
     pyautd3.gain.holo
-    pyautd3.internal
     pyautd3.link
     pyautd3.modulation
     pyautd3.modulation.audio_file
     pyautd3.native_methods
-    pyautd3.stm
 python_requires = >=3.10
 include_package_data = True
 install_requires =
