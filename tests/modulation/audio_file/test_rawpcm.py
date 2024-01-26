@@ -5,6 +5,7 @@ import pytest
 
 from pyautd3 import SamplingConfiguration
 from pyautd3.modulation.audio_file import RawPCM
+from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 from tests.test_autd import create_controller
 
 
@@ -107,3 +108,8 @@ async def test_rawpcm():
         )
         for dev in autd.geometry:
             assert autd.link.modulation_frequency_division(dev.idx) == 10240
+
+
+def test_rawpcm_default():
+    m = RawPCM("", 4000)
+    assert AudioFile().modulation_raw_pcm_is_default(m._modulation_ptr())

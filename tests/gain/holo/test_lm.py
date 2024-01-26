@@ -80,9 +80,4 @@ async def test_lm_cuda():
 
 def test_gspat_default():
     g = LM(NalgebraBackend())
-    assert g.eps1() == Holo().gain_holo_lm_default_eps_1()
-    assert g.eps2() == Holo().gain_holo_lm_default_eps_2()
-    assert g.tau() == Holo().gain_holo_lm_default_tau()
-    assert g.kmax() == Holo().gain_holo_lm_default_k_max()
-    assert g.initial() == []
-    assert Holo().gain_holo_constraint_eq(g.constraint()._constraint_ptr(), Holo().gain_holo_lm_default_constraint())
+    assert Holo().gain_lm_is_default(g._gain_ptr(0))

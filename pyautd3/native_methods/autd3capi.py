@@ -90,8 +90,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainBessel.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8] 
         self.dll.AUTDGainBessel.restype = GainPtr
 
-        self.dll.AUTDGainBesselDefaultIntensity.argtypes = [] 
-        self.dll.AUTDGainBesselDefaultIntensity.restype = ctypes.c_uint8
+        self.dll.AUTDGainBesselIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainBesselIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainCustom.argtypes = [] 
         self.dll.AUTDGainCustom.restype = GainPtr
@@ -102,8 +102,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainFocus.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8] 
         self.dll.AUTDGainFocus.restype = GainPtr
 
-        self.dll.AUTDGainFocusDefaultIntensity.argtypes = [] 
-        self.dll.AUTDGainFocusDefaultIntensity.restype = ctypes.c_uint8
+        self.dll.AUTDGainFocusIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainFocusIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainGroupCreateMap.argtypes = [ctypes.POINTER(ctypes.c_uint32), ctypes.c_uint32] 
         self.dll.AUTDGainGroupCreateMap.restype = GroupGainMapPtr
@@ -132,11 +132,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainPlane.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainPlane.restype = GainPtr
 
-        self.dll.AUTDGainPlaneDefaultIntensity.argtypes = [] 
-        self.dll.AUTDGainPlaneDefaultIntensity.restype = ctypes.c_uint8
-
-        self.dll.AUTDGainPlaneDefaultPhase.argtypes = [] 
-        self.dll.AUTDGainPlaneDefaultPhase.restype = ctypes.c_uint8
+        self.dll.AUTDGainPlanelIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainPlanelIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainTransducerTest.argtypes = [ctypes.c_void_p, ContextPtr, GeometryPtr]  # type: ignore 
         self.dll.AUTDGainTransducerTest.restype = GainPtr
@@ -144,8 +141,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainUniform.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainUniform.restype = GainPtr
 
-        self.dll.AUTDGainUniformDefaultPhase.argtypes = [] 
-        self.dll.AUTDGainUniformDefaultPhase.restype = ctypes.c_uint8
+        self.dll.AUTDGainUniformIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainUniformIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDDevice.argtypes = [GeometryPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDDevice.restype = DevicePtr
@@ -270,8 +267,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSilencerFixedCompletionSteps.argtypes = [ctypes.c_uint16, ctypes.c_uint16, ctypes.c_bool] 
         self.dll.AUTDDatagramSilencerFixedCompletionSteps.restype = ResultDatagram
 
-        self.dll.AUTDDatagramSilencerFixedCompletionStepsDefaultStrictMode.argtypes = [] 
-        self.dll.AUTDDatagramSilencerFixedCompletionStepsDefaultStrictMode.restype = ctypes.c_bool
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.argtypes = [DatagramPtr]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
         self.dll.AUTDControllerSend.restype = ResultI32
@@ -429,44 +426,20 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationSine.argtypes = [ctypes.c_double, SamplingConfiguration, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_uint8, SamplingMode]  # type: ignore 
         self.dll.AUTDModulationSine.restype = ModulationPtr
 
-        self.dll.AUTDModulationSineDefaultSamplingConfig.argtypes = [] 
-        self.dll.AUTDModulationSineDefaultSamplingConfig.restype = SamplingConfiguration
-
-        self.dll.AUTDModulationSineDefaultIntensity.argtypes = [] 
-        self.dll.AUTDModulationSineDefaultIntensity.restype = ctypes.c_uint8
-
-        self.dll.AUTDModulationSineDefaultPhase.argtypes = [] 
-        self.dll.AUTDModulationSineDefaultPhase.restype = ctypes.c_uint8
-
-        self.dll.AUTDModulationSineDefaultOffset.argtypes = [] 
-        self.dll.AUTDModulationSineDefaultOffset.restype = ctypes.c_uint8
-
-        self.dll.AUTDModulationSineDefaultMode.argtypes = [] 
-        self.dll.AUTDModulationSineDefaultMode.restype = SamplingMode
+        self.dll.AUTDModulationSineIsDefault.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSineIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDModulationSquare.argtypes = [ctypes.c_double, SamplingConfiguration, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, SamplingMode]  # type: ignore 
         self.dll.AUTDModulationSquare.restype = ModulationPtr
 
-        self.dll.AUTDModulationSquareDefaultLow.argtypes = [] 
-        self.dll.AUTDModulationSquareDefaultLow.restype = ctypes.c_uint8
-
-        self.dll.AUTDModulationSquareDefaultHigh.argtypes = [] 
-        self.dll.AUTDModulationSquareDefaultHigh.restype = ctypes.c_uint8
-
-        self.dll.AUTDModulationSquareDefaultDuty.argtypes = [] 
-        self.dll.AUTDModulationSquareDefaultDuty.restype = ctypes.c_double
-
-        self.dll.AUTDModulationSquareDefaultSamplingConfig.argtypes = [] 
-        self.dll.AUTDModulationSquareDefaultSamplingConfig.restype = SamplingConfiguration
-
-        self.dll.AUTDModulationSquareDefaultMode.argtypes = [] 
-        self.dll.AUTDModulationSquareDefaultMode.restype = SamplingMode
+        self.dll.AUTDModulationSquareIsDefault.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSquareIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDModulationStatic.argtypes = [ctypes.c_uint8] 
         self.dll.AUTDModulationStatic.restype = ModulationPtr
 
-        self.dll.AUTDModulationStaticDefaultIntensity.argtypes = [] 
-        self.dll.AUTDModulationStaticDefaultIntensity.restype = ctypes.c_uint8
+        self.dll.AUTDModulationStaticIsDefault.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationStaticIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDModulationWithTransform.argtypes = [ModulationPtr, ctypes.c_void_p, ctypes.c_void_p]  # type: ignore 
         self.dll.AUTDModulationWithTransform.restype = ModulationPtr
@@ -513,8 +486,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_bessel(self, x: float, y: float, z: float, nx: float, ny: float, nz: float, theta_z: float, intensity: int) -> GainPtr:
         return self.dll.AUTDGainBessel(x, y, z, nx, ny, nz, theta_z, intensity)
 
-    def gain_bessel_default_intensity(self) -> ctypes.c_uint8:
-        return self.dll.AUTDGainBesselDefaultIntensity()
+    def gain_bessel_is_default(self, bessel: GainPtr) -> ctypes.c_bool:
+        return self.dll.AUTDGainBesselIsDefault(bessel)
 
     def gain_custom(self) -> GainPtr:
         return self.dll.AUTDGainCustom()
@@ -525,8 +498,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_focus(self, x: float, y: float, z: float, intensity: int) -> GainPtr:
         return self.dll.AUTDGainFocus(x, y, z, intensity)
 
-    def gain_focus_default_intensity(self) -> ctypes.c_uint8:
-        return self.dll.AUTDGainFocusDefaultIntensity()
+    def gain_focus_is_default(self, focus: GainPtr) -> ctypes.c_bool:
+        return self.dll.AUTDGainFocusIsDefault(focus)
 
     def gain_group_create_map(self, device_indices_ptr: ctypes.Array[ctypes.c_uint32] | None, num_devices: int) -> GroupGainMapPtr:
         return self.dll.AUTDGainGroupCreateMap(device_indices_ptr, num_devices)
@@ -555,11 +528,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_plane(self, nx: float, ny: float, nz: float, intensity: int, phase: int) -> GainPtr:
         return self.dll.AUTDGainPlane(nx, ny, nz, intensity, phase)
 
-    def gain_plane_default_intensity(self) -> ctypes.c_uint8:
-        return self.dll.AUTDGainPlaneDefaultIntensity()
-
-    def gain_plane_default_phase(self) -> ctypes.c_uint8:
-        return self.dll.AUTDGainPlaneDefaultPhase()
+    def gain_planel_is_default(self, plane: GainPtr) -> ctypes.c_bool:
+        return self.dll.AUTDGainPlanelIsDefault(plane)
 
     def gain_transducer_test(self, f: ctypes.c_void_p | None, context: ContextPtr, geometry: GeometryPtr) -> GainPtr:
         return self.dll.AUTDGainTransducerTest(f, context, geometry)
@@ -567,8 +537,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_uniform(self, intensity: int, phase: int) -> GainPtr:
         return self.dll.AUTDGainUniform(intensity, phase)
 
-    def gain_uniform_default_phase(self) -> ctypes.c_uint8:
-        return self.dll.AUTDGainUniformDefaultPhase()
+    def gain_uniform_is_default(self, uniform: GainPtr) -> ctypes.c_bool:
+        return self.dll.AUTDGainUniformIsDefault(uniform)
 
     def device(self, geo: GeometryPtr, dev_idx: int) -> DevicePtr:
         return self.dll.AUTDDevice(geo, dev_idx)
@@ -693,8 +663,8 @@ class NativeMethods(metaclass=Singleton):
     def datagram_silencer_fixed_completion_steps(self, value_intensity: int, value_phase: int, strict_mode: bool) -> ResultDatagram:
         return self.dll.AUTDDatagramSilencerFixedCompletionSteps(value_intensity, value_phase, strict_mode)
 
-    def datagram_silencer_fixed_completion_steps_default_strict_mode(self) -> ctypes.c_bool:
-        return self.dll.AUTDDatagramSilencerFixedCompletionStepsDefaultStrictMode()
+    def datagram_silencer_fixed_completion_steps_is_default(self, silencer: DatagramPtr) -> ctypes.c_bool:
+        return self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault(silencer)
 
     def controller_send(self, cnt: ControllerPtr, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultI32:
         return self.dll.AUTDControllerSend(cnt, d1, d2, timeout_ns)
@@ -852,44 +822,20 @@ class NativeMethods(metaclass=Singleton):
     def modulation_sine(self, freq: float, config: SamplingConfiguration, intensity: int, offset: int, phase: int, mode: SamplingMode) -> ModulationPtr:
         return self.dll.AUTDModulationSine(freq, config, intensity, offset, phase, mode)
 
-    def modulation_sine_default_sampling_config(self) -> SamplingConfiguration:
-        return self.dll.AUTDModulationSineDefaultSamplingConfig()
-
-    def modulation_sine_default_intensity(self) -> ctypes.c_uint8:
-        return self.dll.AUTDModulationSineDefaultIntensity()
-
-    def modulation_sine_default_phase(self) -> ctypes.c_uint8:
-        return self.dll.AUTDModulationSineDefaultPhase()
-
-    def modulation_sine_default_offset(self) -> ctypes.c_uint8:
-        return self.dll.AUTDModulationSineDefaultOffset()
-
-    def modulation_sine_default_mode(self) -> SamplingMode:
-        return self.dll.AUTDModulationSineDefaultMode()
+    def modulation_sine_is_default(self, sine: ModulationPtr) -> ctypes.c_bool:
+        return self.dll.AUTDModulationSineIsDefault(sine)
 
     def modulation_square(self, freq: float, config: SamplingConfiguration, low: int, high: int, duty: float, mode: SamplingMode) -> ModulationPtr:
         return self.dll.AUTDModulationSquare(freq, config, low, high, duty, mode)
 
-    def modulation_square_default_low(self) -> ctypes.c_uint8:
-        return self.dll.AUTDModulationSquareDefaultLow()
-
-    def modulation_square_default_high(self) -> ctypes.c_uint8:
-        return self.dll.AUTDModulationSquareDefaultHigh()
-
-    def modulation_square_default_duty(self) -> ctypes.c_double:
-        return self.dll.AUTDModulationSquareDefaultDuty()
-
-    def modulation_square_default_sampling_config(self) -> SamplingConfiguration:
-        return self.dll.AUTDModulationSquareDefaultSamplingConfig()
-
-    def modulation_square_default_mode(self) -> SamplingMode:
-        return self.dll.AUTDModulationSquareDefaultMode()
+    def modulation_square_is_default(self, square: ModulationPtr) -> ctypes.c_bool:
+        return self.dll.AUTDModulationSquareIsDefault(square)
 
     def modulation_static(self, intensity: int) -> ModulationPtr:
         return self.dll.AUTDModulationStatic(intensity)
 
-    def modulation_static_default_intensity(self) -> ctypes.c_uint8:
-        return self.dll.AUTDModulationStaticDefaultIntensity()
+    def modulation_static_is_default(self, s: ModulationPtr) -> ctypes.c_bool:
+        return self.dll.AUTDModulationStaticIsDefault(s)
 
     def modulation_with_transform(self, m: ModulationPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None) -> ModulationPtr:
         return self.dll.AUTDModulationWithTransform(m, f, context)

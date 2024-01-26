@@ -70,5 +70,4 @@ async def test_gspat_cuda():
 
 def test_gspat_default():
     g = GSPAT(NalgebraBackend())
-    assert g.repeat() == Holo().gain_holo_gspat_default_repeat()
-    assert Holo().gain_holo_constraint_eq(g.constraint()._constraint_ptr(), Holo().gain_holo_gspat_default_constraint())
+    assert Holo().gain_gspat_is_default(g._gain_ptr(0))

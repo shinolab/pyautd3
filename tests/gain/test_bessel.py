@@ -27,4 +27,4 @@ def test_bessel_default():
     assert np.array_equal(g.pos(), [0, 0, 0])
     assert np.array_equal(g.dir(), [0, 0, 1])
     assert g.theta() == np.pi / 4
-    assert g.intensity().value == Base().gain_bessel_default_intensity()
+    assert Base().gain_bessel_is_default(g._gain_ptr(0))

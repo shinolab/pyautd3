@@ -15,7 +15,9 @@ from pyautd3.native_methods.autd3capi_link_visualizer import (
     ConfigPtr,
     Directivity,
     LinkBuilderPtr,
+    PlotConfigPtr,
     PlotRangePtr,
+    PyPlotConfigPtr,
 )
 from pyautd3.native_methods.autd3capi_link_visualizer import (
     NativeMethods as LinkVisualizer,
@@ -178,8 +180,8 @@ class PlotConfig(IPlotConfig):
         self.cmap = cmap if cmap is not None else CMap.Jet
         self.fname = fname
 
-    def _config_ptr(self: "PlotConfig") -> ConfigPtr:
-        ptr = _validate_ptr(
+    def _raw_ptr(self: "PlotConfig") -> PlotConfigPtr:
+        return _validate_ptr(
             LinkVisualizer().link_visualizer_plot_config(
                 self.figsize[0],
                 self.figsize[1],
@@ -192,7 +194,9 @@ class PlotConfig(IPlotConfig):
                 self.fname.encode("utf-8"),
             ),
         )
-        return ConfigPtr(ptr._0)
+
+    def _config_ptr(self: "PlotConfig") -> ConfigPtr:
+        return ConfigPtr(self._raw_ptr()._0)
 
     def _backend(self: "PlotConfig") -> Backend:
         return Backend.Plotters
@@ -237,8 +241,8 @@ class PyPlotConfig(IPlotConfig):
         self.show = show if show is not None else False
         self.fname = fname
 
-    def _config_ptr(self: "PyPlotConfig") -> ConfigPtr:
-        ptr = _validate_ptr(
+    def _raw_ptr(self: "PyPlotConfig") -> PyPlotConfigPtr:
+        return _validate_ptr(
             LinkVisualizer().link_visualizer_py_plot_config(
                 self.figsize[0],
                 self.figsize[1],
@@ -253,7 +257,9 @@ class PyPlotConfig(IPlotConfig):
                 self.fname.encode("utf-8"),
             ),
         )
-        return ConfigPtr(ptr._0)
+
+    def _config_ptr(self: "PyPlotConfig") -> ConfigPtr:
+        return ConfigPtr(self._raw_ptr()._0)
 
     def _backend(self: "PyPlotConfig") -> Backend:
         return Backend.Python
@@ -263,7 +269,7 @@ class NullPlotConfig(IPlotConfig):
     """Plot config for NullBackend."""
 
     def _config_ptr(self: "NullPlotConfig") -> ConfigPtr:
-        return ConfigPtr(LinkVisualizer().link_visualizer_null_plot_config_default()._0)
+        return ConfigPtr(LinkVisualizer().link_visualizer_null_plot_config()._0)
 
     def _backend(self: "NullPlotConfig") -> Backend:
         return Backend.Null

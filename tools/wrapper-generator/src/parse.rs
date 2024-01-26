@@ -198,23 +198,6 @@ where
         .items
         .into_iter()
         .filter_map(|item| match item {
-            syn::Item::Macro(item_macro) => {
-                let syn::ItemMacro { mac, .. } = item_macro;
-                let syn::Macro { path, tokens, .. } = mac;
-                let path = path.into_token_stream().to_string();
-                let tokens = tokens
-                    .into_iter()
-                    .map(|token| token.into_token_stream().to_string())
-                    .collect::<Vec<_>>();
-                if path == "impl_ptr" {
-                    Some(Struct {
-                        name: tokens[0].to_string(),
-                        fields: vec![(Type::VoidPtr, "0".to_string())],
-                    })
-                } else {
-                    None
-                }
-            }
             syn::Item::Struct(item_struct) => match item_struct.vis {
                 syn::Visibility::Public(_) => {
                     let name = item_struct.ident.to_string();

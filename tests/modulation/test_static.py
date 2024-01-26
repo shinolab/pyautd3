@@ -20,4 +20,4 @@ async def test_static():
 
 def test_static_default():
     m = Static()
-    assert m.intensity().value == Base().modulation_static_default_intensity()
+    assert Base().modulation_static_is_default(m._modulation_ptr())

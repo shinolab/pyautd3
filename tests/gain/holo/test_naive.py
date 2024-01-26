@@ -70,4 +70,4 @@ async def test_naive_cuda():
 
 def test_naive_default():
     g = Naive(NalgebraBackend())
-    assert Holo().gain_holo_constraint_eq(g.constraint()._constraint_ptr(), Holo().gain_holo_naive_default_constraint())
+    assert Holo().gain_naive_is_default(g._gain_ptr(0))

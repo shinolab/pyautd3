@@ -151,9 +151,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSamplingConfigPeriod.argtypes = [SamplingConfiguration]  # type: ignore 
         self.dll.AUTDSamplingConfigPeriod.restype = ctypes.c_uint64
 
-        self.dll.AUTDSamplingConfigEq.argtypes = [SamplingConfiguration, SamplingConfiguration]  # type: ignore 
-        self.dll.AUTDSamplingConfigEq.restype = ctypes.c_bool
-
     def emit_intensity_with_correction_alpha(self, value: int, alpha: float) -> ctypes.c_uint8:
         return self.dll.AUTDEmitIntensityWithCorrectionAlpha(value, alpha)
 
@@ -183,6 +180,3 @@ class NativeMethods(metaclass=Singleton):
 
     def sampling_config_period(self, config: SamplingConfiguration) -> ctypes.c_uint64:
         return self.dll.AUTDSamplingConfigPeriod(config)
-
-    def sampling_config_eq(self, a: SamplingConfiguration, b: SamplingConfiguration) -> ctypes.c_bool:
-        return self.dll.AUTDSamplingConfigEq(a, b)

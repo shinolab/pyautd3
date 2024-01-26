@@ -19,6 +19,7 @@ from pyautd3.link.visualizer import (
     Visualizer,
 )
 from pyautd3.modulation import Static
+from pyautd3.native_methods.autd3capi_link_visualizer import NativeMethods as Vis
 
 
 def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
@@ -191,3 +192,13 @@ def test_visualizer_invalid_config():
             autd.link.plot_phase(PyPlotConfig(fname="test.png"), autd.geometry)
         with pytest.raises(InvalidPlotConfigError):
             autd.link.plot_modulation(NullPlotConfig())
+
+
+def test_visualizer_config_default():
+    m = PlotConfig(fname="")
+    assert Vis().link_visualizer_plot_config_is_default(m._raw_ptr())
+
+
+def test_visualizer_pyconfig_default():
+    m = PyPlotConfig(fname="fig.png")
+    assert Vis().link_visualizer_py_plot_config_is_default(m._raw_ptr())

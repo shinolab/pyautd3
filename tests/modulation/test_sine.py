@@ -5,7 +5,6 @@ from pyautd3 import EmitIntensity, Phase, SamplingConfiguration
 from pyautd3.autd_error import AUTDError
 from pyautd3.modulation import SamplingMode, Sine
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import NativeMethods as Def
 from tests.test_autd import create_controller
 
 
@@ -130,11 +129,4 @@ async def test_sine_mode():
 def test_sine_default():
     m = Sine(150.0)
     assert m.freq() == 150.0
-    assert m.intensity().value == Base().modulation_sine_default_intensity()
-    assert m.offset().value == Base().modulation_sine_default_offset()
-    assert m.phase().value == Base().modulation_sine_default_phase()
-    assert m.mode().value == Base().modulation_sine_default_mode()
-    assert Def().sampling_config_eq(
-        m.sampling_config._internal,
-        Base().modulation_sine_default_sampling_config(),
-    )
+    assert Base().modulation_sine_is_default(m._modulation_ptr())

@@ -25,4 +25,4 @@ async def test_focus():
 def test_focus_default():
     g = Focus([0, 0, 0])
     assert np.array_equal(g.pos(), [0, 0, 0])
-    assert g.intensity().value == Base().gain_focus_default_intensity()
+    assert Base().gain_focus_is_default(g._gain_ptr(0))

@@ -129,8 +129,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerT4010A1Null.argtypes = [ctypes.c_bool, ctypes.c_int32] 
         self.dll.AUTDLinkVisualizerT4010A1Null.restype = LinkBuilderPtr
 
-        self.dll.AUTDLinkVisualizerNullPlotConfigDefault.argtypes = [] 
-        self.dll.AUTDLinkVisualizerNullPlotConfigDefault.restype = NullPlotConfigPtr
+        self.dll.AUTDLinkVisualizerNullPlotConfig.argtypes = [] 
+        self.dll.AUTDLinkVisualizerNullPlotConfig.restype = NullPlotConfigPtr
 
         self.dll.AUTDLinkVisualizerSpherePlotters.argtypes = [ctypes.c_bool, ctypes.c_int32] 
         self.dll.AUTDLinkVisualizerSpherePlotters.restype = LinkBuilderPtr
@@ -141,29 +141,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerPlotConfig.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_double, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_double, CMap, ctypes.c_char_p]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotConfig.restype = ResultPlotConfig
 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultFigSizeWidth.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultFigSizeWidth.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultFigSizeHeight.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultFigSizeHeight.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultCBarSize.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultCBarSize.restype = ctypes.c_double
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultFontSize.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultFontSize.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultLabelAreaSize.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultLabelAreaSize.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultMargin.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultMargin.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultTicksStep.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultTicksStep.restype = ctypes.c_double
-
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultCMap.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPlotConfigDefaultCMap.restype = CMap
+        self.dll.AUTDLinkVisualizerPlotConfigIsDefault.argtypes = [PlotConfigPtr]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotConfigIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDLinkVisualizerSpherePython.argtypes = [ctypes.c_bool, ctypes.c_int32] 
         self.dll.AUTDLinkVisualizerSpherePython.restype = LinkBuilderPtr
@@ -174,35 +153,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerPyPlotConfig.argtypes = [ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int32, ctypes.c_double, ctypes.c_char_p, ctypes.c_bool, ctypes.c_char_p] 
         self.dll.AUTDLinkVisualizerPyPlotConfig.restype = ResultPyPlotConfig
 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFigSizeWidth.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFigSizeWidth.restype = ctypes.c_int32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFigSizeHeight.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFigSizeHeight.restype = ctypes.c_int32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultDPI.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultDPI.restype = ctypes.c_int32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarPosition.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarPosition.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarSize.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarSize.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarPad.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarPad.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFontSize.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFontSize.restype = ctypes.c_int32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultTicksStep.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultTicksStep.restype = ctypes.c_double
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCMap.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCMap.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultShow.argtypes = [] 
-        self.dll.AUTDLinkVisualizerPyPlotConfigDefaultShow.restype = ctypes.c_bool
+        self.dll.AUTDLinkVisualizerPyPlotConfigIsDefault.argtypes = [PyPlotConfigPtr]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPyPlotConfigIsDefault.restype = ctypes.c_bool
 
     def link_visualizer_plot_range(self, x_min: float, x_max: float, y_min: float, y_max: float, z_min: float, z_max: float, resolution: float) -> PlotRangePtr:
         return self.dll.AUTDLinkVisualizerPlotRange(x_min, x_max, y_min, y_max, z_min, z_max, resolution)
@@ -240,8 +192,8 @@ class NativeMethods(metaclass=Singleton):
     def link_visualizer_t_4010_a_1_null(self, use_gpu: bool, gpu_idx: int) -> LinkBuilderPtr:
         return self.dll.AUTDLinkVisualizerT4010A1Null(use_gpu, gpu_idx)
 
-    def link_visualizer_null_plot_config_default(self) -> NullPlotConfigPtr:
-        return self.dll.AUTDLinkVisualizerNullPlotConfigDefault()
+    def link_visualizer_null_plot_config(self) -> NullPlotConfigPtr:
+        return self.dll.AUTDLinkVisualizerNullPlotConfig()
 
     def link_visualizer_sphere_plotters(self, use_gpu: bool, gpu_idx: int) -> LinkBuilderPtr:
         return self.dll.AUTDLinkVisualizerSpherePlotters(use_gpu, gpu_idx)
@@ -252,29 +204,8 @@ class NativeMethods(metaclass=Singleton):
     def link_visualizer_plot_config(self, width: int, height: int, cbar_size: float, font_size: int, label_area_size: int, margin: int, ticks_step: float, cmap: CMap, fname: bytes) -> ResultPlotConfig:
         return self.dll.AUTDLinkVisualizerPlotConfig(width, height, cbar_size, font_size, label_area_size, margin, ticks_step, cmap, fname)
 
-    def link_visualizer_plot_config_default_fig_size_width(self) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultFigSizeWidth()
-
-    def link_visualizer_plot_config_default_fig_size_height(self) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultFigSizeHeight()
-
-    def link_visualizer_plot_config_default_c_bar_size(self) -> ctypes.c_double:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultCBarSize()
-
-    def link_visualizer_plot_config_default_font_size(self) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultFontSize()
-
-    def link_visualizer_plot_config_default_label_area_size(self) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultLabelAreaSize()
-
-    def link_visualizer_plot_config_default_margin(self) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultMargin()
-
-    def link_visualizer_plot_config_default_ticks_step(self) -> ctypes.c_double:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultTicksStep()
-
-    def link_visualizer_plot_config_default_c_map(self) -> CMap:
-        return self.dll.AUTDLinkVisualizerPlotConfigDefaultCMap()
+    def link_visualizer_plot_config_is_default(self, config: PlotConfigPtr) -> ctypes.c_bool:
+        return self.dll.AUTDLinkVisualizerPlotConfigIsDefault(config)
 
     def link_visualizer_sphere_python(self, use_gpu: bool, gpu_idx: int) -> LinkBuilderPtr:
         return self.dll.AUTDLinkVisualizerSpherePython(use_gpu, gpu_idx)
@@ -285,32 +216,5 @@ class NativeMethods(metaclass=Singleton):
     def link_visualizer_py_plot_config(self, width: int, height: int, dpi: int, cbar_position: bytes, cbar_size: bytes, cbar_pad: bytes, fontsize: int, ticks_step: float, cmap: bytes, show: bool, fname: bytes) -> ResultPyPlotConfig:
         return self.dll.AUTDLinkVisualizerPyPlotConfig(width, height, dpi, cbar_position, cbar_size, cbar_pad, fontsize, ticks_step, cmap, show, fname)
 
-    def link_visualizer_py_plot_config_default_fig_size_width(self) -> ctypes.c_int32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFigSizeWidth()
-
-    def link_visualizer_py_plot_config_default_fig_size_height(self) -> ctypes.c_int32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFigSizeHeight()
-
-    def link_visualizer_py_plot_config_default_dpi(self) -> ctypes.c_int32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultDPI()
-
-    def link_visualizer_py_plot_config_default_c_bar_position(self, cbar: ctypes.Array[ctypes.c_char] | None) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarPosition(cbar)
-
-    def link_visualizer_py_plot_config_default_c_bar_size(self, cbar: ctypes.Array[ctypes.c_char] | None) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarSize(cbar)
-
-    def link_visualizer_py_plot_config_default_c_bar_pad(self, cbar: ctypes.Array[ctypes.c_char] | None) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCBarPad(cbar)
-
-    def link_visualizer_py_plot_config_default_font_size(self) -> ctypes.c_int32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultFontSize()
-
-    def link_visualizer_py_plot_config_default_ticks_step(self) -> ctypes.c_double:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultTicksStep()
-
-    def link_visualizer_py_plot_config_default_c_map(self, cmap: ctypes.Array[ctypes.c_char] | None) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultCMap(cmap)
-
-    def link_visualizer_py_plot_config_default_show(self) -> ctypes.c_bool:
-        return self.dll.AUTDLinkVisualizerPyPlotConfigDefaultShow()
+    def link_visualizer_py_plot_config_is_default(self, config: PyPlotConfigPtr) -> ctypes.c_bool:
+        return self.dll.AUTDLinkVisualizerPyPlotConfigIsDefault(config)

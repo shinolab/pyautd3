@@ -37,5 +37,4 @@ async def test_greedy():
 
 def test_greedy_default():
     g = Greedy()
-    assert g.phase_div() == Holo().gain_holo_greedy_default_phase_div()
-    assert Holo().gain_holo_constraint_eq(g.constraint()._constraint_ptr(), Holo().gain_holo_greedy_default_constraint())
+    assert Holo().gain_greedy_is_default(g._gain_ptr(0))

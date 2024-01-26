@@ -76,7 +76,4 @@ async def test_sdp_cuda():
 
 def test_sdp_default():
     g = SDP(NalgebraBackend())
-    assert g.alpha() == Holo().gain_holo_sdp_default_alpha()
-    assert g.lambda_() == Holo().gain_holo_sdp_default_lambda()
-    assert g.repeat() == Holo().gain_holo_sdp_default_repeat()
-    assert Holo().gain_holo_constraint_eq(g.constraint()._constraint_ptr(), Holo().gain_holo_sdp_default_constraint())
+    assert Holo().gain_sdp_is_default(g._gain_ptr(0))

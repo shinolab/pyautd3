@@ -21,4 +21,4 @@ async def test_uniform():
 def test_bessel_default():
     g = Uniform(0x00)
     assert g.intensity().value == 0x00
-    assert g.phase().value == Base().gain_uniform_default_phase()
+    assert Base().gain_uniform_is_default(g._gain_ptr(0))

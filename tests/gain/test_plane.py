@@ -26,5 +26,4 @@ async def test_plane():
 def test_plane_default():
     g = Plane([0, 0, 1])
     assert np.array_equal(g.dir(), [0, 0, 1])
-    assert g.intensity().value == Base().gain_plane_default_intensity()
-    assert g.phase().value == Base().gain_plane_default_phase()
+    assert Base().gain_planel_is_default(g._gain_ptr(0))

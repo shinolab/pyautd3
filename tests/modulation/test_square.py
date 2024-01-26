@@ -5,7 +5,6 @@ from pyautd3 import SamplingConfiguration
 from pyautd3.autd_error import AUTDError
 from pyautd3.modulation import SamplingMode, Square
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import NativeMethods as Def
 from tests.test_autd import create_controller
 
 
@@ -47,11 +46,4 @@ async def test_square_mode():
 def test_square_default():
     m = Square(150.0)
     assert m.freq() == 150.0
-    assert m.low().value == Base().modulation_square_default_low()
-    assert m.high().value == Base().modulation_square_default_high()
-    assert m.duty() == Base().modulation_square_default_duty()
-    assert m.mode().value == Base().modulation_sine_default_mode()
-    assert Def().sampling_config_eq(
-        m.sampling_config._internal,
-        Base().modulation_square_default_sampling_config(),
-    )
+    assert Base().modulation_square_is_default(m._modulation_ptr())

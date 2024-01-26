@@ -70,5 +70,4 @@ async def test_gs_cuda():
 
 def test_gs_default():
     g = GS(NalgebraBackend())
-    assert g.repeat() == Holo().gain_holo_gs_default_repeat()
-    assert Holo().gain_holo_constraint_eq(g.constraint()._constraint_ptr(), Holo().gain_holo_gs_default_constraint())
+    assert Holo().gain_gs_is_default(g._gain_ptr(0))
