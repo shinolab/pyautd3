@@ -14,8 +14,8 @@ jobs:
     outputs:
       status: ${{ steps.changed-files.outputs.modified_files }}
     steps:
-      - uses: actions/checkout@v3
-      - uses: tj-actions/changed-files@v40
+      - uses: actions/checkout@v4
+      - uses: tj-actions/changed-files@v42
         id: changed-files
         with:
           files: |
@@ -45,11 +45,11 @@ jobs:
         ]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.os-and-python.python-version }}
         if: needs.check.outputs.status
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.os-and-python.python-version }}
       - name: Install packaging

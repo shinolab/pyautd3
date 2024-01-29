@@ -1,12 +1,10 @@
-import ctypes
-import os
 from datetime import timedelta
 
 import pytest
 
 from pyautd3 import AUTD3, Controller, TimerStrategy
 from pyautd3.autd_error import AUTDError
-from pyautd3.link.soem import SOEM, OnErrFunc, RemoteSOEM, SyncMode
+from pyautd3.link.soem import SOEM, RemoteSOEM, Status, SyncMode
 
 
 @pytest.mark.soem()
@@ -16,21 +14,12 @@ def test_soem_adapers():
         print(adapter)
 
 
-def on_lost_f(msg: ctypes.c_char_p):
-    if msg.value is not None:
-        print(msg.value.decode("utf-8"), end="")
-    os._exit(-1)
-
-
-def on_err_f(msg: ctypes.c_char_p):
-    if msg.value is not None:
-        print(msg.value.decode("utf-8"), end="")
+def err_handler(slave: int, status: Status, msg: str) -> None:
+    print(f"slave: {slave}, status: {status}, msg: {msg}")
 
 
 @pytest.mark.soem()
 def test_soem():
-    on_lost = OnErrFunc(on_lost_f)
-    on_err = OnErrFunc(on_err_f)
     with pytest.raises(AUTDError) as _, (
         Controller.builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
@@ -40,8 +29,7 @@ def test_soem():
             .with_buf_size(32)
             .with_send_cycle(2)
             .with_sync0_cycle(2)
-            .with_on_lost(on_lost)
-            .with_on_err(on_err)
+            .with_err_handler(err_handler)
             .with_timer_strategy(TimerStrategy.Sleep)
             .with_sync_mode(SyncMode.FreeRun)
             .with_state_check_interval(timedelta(milliseconds=100))

@@ -1,4 +1,5 @@
 import ctypes
+from collections.abc import Callable
 from datetime import timedelta
 
 from pyautd3.driver.link import Link, LinkBuilder
@@ -6,11 +7,11 @@ from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
 from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr, TimerStrategy
-from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, SyncMode
+from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, Status, SyncMode
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
 from pyautd3.native_methods.utils import _validate_ptr
 
-OnErrFunc = ctypes.CFUNCTYPE(None, ctypes.c_char_p)
+ErrHandlerFunc = ctypes.CFUNCTYPE(None, ctypes.c_uint32, ctypes.c_uint8, ctypes.c_char_p)  # type: ignore[arg-type]
 
 
 class EtherCATAdapter:
@@ -80,24 +81,19 @@ class SOEM(Link):
             self._builder = LinkSOEM().link_soem_with_sync_0_cycle(self._builder, cycle)
             return self
 
-        def with_on_lost(self: "SOEM._Builder", handle) -> "SOEM._Builder":  # noqa: ANN001
-            """Set callback function when the link is lost.
-
-            Arguments:
-            ---------
-                handle: Callback function
-            """
-            self._builder = LinkSOEM().link_soem_with_on_lost(self._builder, handle)  # type: ignore[arg-type]
-            return self
-
-        def with_on_err(self: "SOEM._Builder", handle) -> "SOEM._Builder":  # noqa: ANN001
+        def with_err_handler(self: "SOEM._Builder", handler: Callable[[int, Status, str], None]) -> "SOEM._Builder":
             """Set callback function when some error occurs.
 
             Arguments:
             ---------
-                handle: Callback function
+                handler: Callback function
             """
-            self._builder = LinkSOEM().link_soem_with_on_err(self._builder, handle)  # type: ignore[arg-type]
+
+            def callback_native(slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
+                handler(int(slave), Status(status), p_msg.decode("utf-8"))
+
+            self._err_handler = ErrHandlerFunc(callback_native)
+            self._builder = LinkSOEM().link_soem_with_err_handler(self._builder, self._err_handler)  # type: ignore[arg-type]
             return self
 
         def with_timer_strategy(self: "SOEM._Builder", strategy: TimerStrategy) -> "SOEM._Builder":
@@ -146,7 +142,7 @@ class SOEM(Link):
             return LinkSOEM().link_soem_into_builder(self._builder)
 
         def _resolve_link(self: "SOEM._Builder", _ptr: ControllerPtr) -> "SOEM":
-            return SOEM(Base().link_get(_ptr))
+            return SOEM(Base().link_get(_ptr), self._err_handler)
 
     @staticmethod
     def enumerate_adapters() -> list[EtherCATAdapter]:
@@ -166,8 +162,9 @@ class SOEM(Link):
 
         return res
 
-    def __init__(self: "SOEM", ptr: LinkPtr) -> None:
+    def __init__(self: "SOEM", ptr: LinkPtr, err_handler) -> None:  # noqa: ANN001
         super().__init__(ptr)  # pragma: no cover
+        self._err_handler = err_handler  # pragma: no cover
 
     @staticmethod
     def builder() -> _Builder:

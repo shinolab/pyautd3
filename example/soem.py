@@ -1,33 +1,30 @@
 import asyncio
-import ctypes
 import os
-from typing import NoReturn
 
 from samples import runner  # type: ignore[import,import-not-found]
 
 from pyautd3 import AUTD3, Controller
-from pyautd3.link.soem import SOEM, OnErrFunc
+from pyautd3.link.soem import SOEM, Status
 
 
-def on_lost(msg: ctypes.c_char_p) -> NoReturn:
-    if msg.value is not None:
-        print(msg.value.decode("utf-8"), end="")
-    os._exit(-1)
-
-
-def on_err(msg: ctypes.c_char_p) -> None:
-    if msg.value is not None:
-        print(msg.value.decode("utf-8"), end="")
+def err_handler(slave: int, status: Status, msg: str) -> None:
+    match status:
+        case Status.Error:
+            print(f"Error [{slave}]: {msg}")
+        case Status.Lost:
+            print(f"Lost [{slave}]: {msg}")
+            # You can also wait for the link to recover, without exitting the process
+            os._exit(-1)
+        case Status.StateChanged:
+            print(f"StateChanged  [{slave}]: {msg}")
 
 
 async def main() -> None:
-    on_lost_func = OnErrFunc(on_lost)
-    on_err_func = OnErrFunc(on_err)
     with await (
         Controller.builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
         .open_with_async(
-            SOEM.builder().with_on_lost(on_lost_func).with_on_err(on_err_func),
+            SOEM.builder().with_err_handler(err_handler),
         )
     ) as autd:  # type: Controller
         await runner.run(autd)

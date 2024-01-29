@@ -15,6 +15,16 @@ class SyncMode(IntEnum):
         return int(obj)
 
 
+class Status(IntEnum):
+    Error = 0
+    StateChanged = 1
+    Lost = 2
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)
+
+
 class EthernetAdaptersPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
@@ -87,11 +97,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithStateCheckInterval.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkSOEMWithStateCheckInterval.restype = LinkSOEMBuilderPtr
 
-        self.dll.AUTDLinkSOEMWithOnLost.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p]  # type: ignore 
-        self.dll.AUTDLinkSOEMWithOnLost.restype = LinkSOEMBuilderPtr
-
-        self.dll.AUTDLinkSOEMWithOnErr.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p]  # type: ignore 
-        self.dll.AUTDLinkSOEMWithOnErr.restype = LinkSOEMBuilderPtr
+        self.dll.AUTDLinkSOEMWithErrHandler.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithErrHandler.restype = LinkSOEMBuilderPtr
 
         self.dll.AUTDLinkSOEMWithTimeout.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDLinkSOEMWithTimeout.restype = LinkSOEMBuilderPtr
@@ -144,11 +151,8 @@ class NativeMethods(metaclass=Singleton):
     def link_soem_with_state_check_interval(self, soem: LinkSOEMBuilderPtr, interval_ms: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithStateCheckInterval(soem, interval_ms)
 
-    def link_soem_with_on_lost(self, soem: LinkSOEMBuilderPtr, on_lost_func: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:
-        return self.dll.AUTDLinkSOEMWithOnLost(soem, on_lost_func)
-
-    def link_soem_with_on_err(self, soem: LinkSOEMBuilderPtr, on_err_func: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:
-        return self.dll.AUTDLinkSOEMWithOnErr(soem, on_err_func)
+    def link_soem_with_err_handler(self, soem: LinkSOEMBuilderPtr, handler: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithErrHandler(soem, handler)
 
     def link_soem_with_timeout(self, soem: LinkSOEMBuilderPtr, timeout_ns: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithTimeout(soem, timeout_ns)
