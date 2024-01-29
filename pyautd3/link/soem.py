@@ -90,7 +90,7 @@ class SOEM(Link):
             """
 
             def callback_native(slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
-                handler(int(slave), Status(status), p_msg.decode("utf-8"))
+                handler(int(slave), Status(int(status)), p_msg.decode("utf-8"))
 
             self._err_handler = ErrHandlerFunc(callback_native)
             self._builder = LinkSOEM().link_soem_with_err_handler(self._builder, self._err_handler)  # type: ignore[arg-type]
