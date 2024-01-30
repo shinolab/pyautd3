@@ -11,7 +11,7 @@ from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr,
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
 from pyautd3.native_methods.utils import _validate_ptr
 
-ErrHandlerFunc = ctypes.CFUNCTYPE(None, ctypes.c_uint32, ctypes.c_uint8, ctypes.c_char_p)  # type: ignore[arg-type]
+ErrHandlerFunc = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint8, ctypes.c_char_p)  # type: ignore[arg-type]
 
 
 class EtherCATAdapter:
@@ -89,11 +89,11 @@ class SOEM(Link):
                 handler: Callback function
             """
 
-            def callback_native(slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
+            def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
                 handler(int(slave), Status(int(status)), p_msg.decode("utf-8"))
 
             self._err_handler = ErrHandlerFunc(callback_native)
-            self._builder = LinkSOEM().link_soem_with_err_handler(self._builder, self._err_handler)  # type: ignore[arg-type]
+            self._builder = LinkSOEM().link_soem_with_err_handler(self._builder, self._err_handler, None)  # type: ignore[arg-type]
             return self
 
         def with_timer_strategy(self: "SOEM._Builder", strategy: TimerStrategy) -> "SOEM._Builder":

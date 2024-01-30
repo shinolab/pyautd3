@@ -97,7 +97,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithStateCheckInterval.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkSOEMWithStateCheckInterval.restype = LinkSOEMBuilderPtr
 
-        self.dll.AUTDLinkSOEMWithErrHandler.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithErrHandler.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p, ctypes.c_void_p]  # type: ignore 
         self.dll.AUTDLinkSOEMWithErrHandler.restype = LinkSOEMBuilderPtr
 
         self.dll.AUTDLinkSOEMWithTimeout.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint64]  # type: ignore 
@@ -151,8 +151,8 @@ class NativeMethods(metaclass=Singleton):
     def link_soem_with_state_check_interval(self, soem: LinkSOEMBuilderPtr, interval_ms: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithStateCheckInterval(soem, interval_ms)
 
-    def link_soem_with_err_handler(self, soem: LinkSOEMBuilderPtr, handler: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:
-        return self.dll.AUTDLinkSOEMWithErrHandler(soem, handler)
+    def link_soem_with_err_handler(self, soem: LinkSOEMBuilderPtr, handler: ctypes.c_void_p | None, context: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithErrHandler(soem, handler, context)
 
     def link_soem_with_timeout(self, soem: LinkSOEMBuilderPtr, timeout_ns: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithTimeout(soem, timeout_ns)
