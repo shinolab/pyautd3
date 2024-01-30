@@ -25,6 +25,7 @@ class Group(IGain, Generic[K]):
         Arguments:
         ---------
             f: Function to get key from device and transducer
+
         """
         super().__init__()
         self._map = {}
@@ -37,6 +38,7 @@ class Group(IGain, Generic[K]):
         ---------
             key: Key
             gain: Gain
+
         """
         self._map[key] = gain
         return self

@@ -62,6 +62,7 @@ def __with_transform(self: G, f: Callable[[Device, Transducer, Drive], Drive]) -
     ---------
         self: Gain
         f: Transform function. The first argument is device, the second is transducer, and the third is the original drive data.
+
     """
     return Transform(self, f)
 

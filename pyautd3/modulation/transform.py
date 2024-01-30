@@ -35,6 +35,7 @@ def __with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) 
     ---------
         self: Modulation
         f: Transform function. The first argument is the index of the modulation data, and the second is the original data.
+
     """
     return Transform(self, f)
 

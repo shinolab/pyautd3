@@ -67,6 +67,7 @@ class Geometry:
             k: Ratio of specific heats
             r: Specific gas constant
             m: Molecular mass
+
         """
         for d in self.devices():
             d.set_sound_speed_from_temp(temp, k, r, m)
@@ -80,6 +81,7 @@ class Geometry:
         Arguments:
         ---------
             c: Speed of sound [mm/s]
+
         """
         for d in self.devices():
             d.sound_speed = c

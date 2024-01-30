@@ -20,6 +20,7 @@ class Static(IModulation):
         Arguments:
         ---------
             intensity: Emission intensity
+
         """
         return Static(intensity)
 

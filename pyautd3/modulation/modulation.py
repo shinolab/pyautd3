@@ -20,6 +20,7 @@ class Modulation(IModulation, metaclass=ABCMeta):
         Arguments:
         ---------
             config: sampling configuration
+
         """
         super().__init__()
         self._config = config

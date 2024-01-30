@@ -47,6 +47,7 @@ class SOEM(Link):
             ---------
                 ifname: Network interface name (e.g. "eth0").
                         If empty, this link will automatically find the network interface that is connected to AUTD3 devices.
+
             """
             self._builder = LinkSOEM().link_soem_with_ifname(self._builder, ifname.encode("utf-8"))
             return self
@@ -57,6 +58,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 size: Send buffer size
+
             """
             self._builder = LinkSOEM().link_soem_with_buf_size(self._builder, size)
             return self
@@ -67,6 +69,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 cycle: Send cycle (the unit is 500us)
+
             """
             self._builder = LinkSOEM().link_soem_with_send_cycle(self._builder, cycle)
             return self
@@ -77,6 +80,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 cycle: Sync0 cycle (the unit is 500us)
+
             """
             self._builder = LinkSOEM().link_soem_with_sync_0_cycle(self._builder, cycle)
             return self
@@ -87,6 +91,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 handler: Callback function
+
             """
 
             def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
@@ -102,6 +107,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 strategy: Timer strategy
+
             """
             self._builder = LinkSOEM().link_soem_with_timer_strategy(self._builder, strategy)
             return self
@@ -114,6 +120,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 mode: Sync mode
+
             """
             self._builder = LinkSOEM().link_soem_with_sync_mode(self._builder, mode)
             return self
@@ -124,6 +131,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 interval: State check interval
+
             """
             self._builder = LinkSOEM().link_soem_with_state_check_interval(self._builder, int(interval.total_seconds() / 1000))
             return self
@@ -134,6 +142,7 @@ class SOEM(Link):
             Arguments:
             ---------
                 timeout: Timeout
+
             """
             self._builder = LinkSOEM().link_soem_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
@@ -187,6 +196,7 @@ class RemoteSOEM(Link):
             Arguments:
             ---------
                 timeout: Timeout
+
             """
             self._builder = LinkSOEM().link_remote_soem_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
@@ -207,5 +217,6 @@ class RemoteSOEM(Link):
         Arguments:
         ---------
             addr: IP address and port of SOEMServer (e.g. "127.0.0.1:8080")
+
         """
         return RemoteSOEM._Builder(addr)

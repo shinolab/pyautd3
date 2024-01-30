@@ -53,6 +53,7 @@ class Device:
             k: Ratio of specific heats
             r: Specific gas constant
             m: Molecular mass
+
         """
         Base().device_set_sound_speed_from_temp(self._ptr, temp, k, r, m)
 
@@ -93,6 +94,7 @@ class Device:
         Arguments:
         ---------
             t: Translation vector
+
         """
         t = np.array(t)
         Base().device_translate(self._ptr, t[0], t[1], t[2])
@@ -103,6 +105,7 @@ class Device:
         Arguments:
         ---------
             r: Rotation quaternion
+
         """
         r = np.array(r)
         Base().device_rotate(self._ptr, r[0], r[1], r[2], r[3])
@@ -114,6 +117,7 @@ class Device:
         ---------
             t: Translation vector
             r: Rotation quaternion
+
         """
         t = np.array(t)
         r = np.array(r)

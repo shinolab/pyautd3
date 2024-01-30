@@ -28,6 +28,7 @@ class EmissionConstraint:
         Arguments:
         ---------
             value: emission intensity
+
         """
         return EmissionConstraint(GainHolo().gain_holo_constraint_uniform(EmitIntensity._cast(value).value))
 
@@ -39,6 +40,7 @@ class EmissionConstraint:
         ---------
             min_v: minimum emission intensity
             max_v: maximum emission intensity
+
         """
         return EmissionConstraint(
             GainHolo().gain_holo_constraint_clamp(

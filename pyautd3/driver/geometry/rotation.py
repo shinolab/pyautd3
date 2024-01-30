@@ -80,6 +80,7 @@ class EulerAngles:
             z1: First rotation angle
             y: Second rotation angle
             z2: Third rotation angle
+
         """
         v = np.zeros([4]).astype(c_double)
         vp = np.ctypeslib.as_ctypes(v)

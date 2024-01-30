@@ -30,6 +30,7 @@ class GSPAT(HoloWithBackend):
         Arguments:
         ---------
             value: parameter
+
         """
         self._repeat = value
         return self

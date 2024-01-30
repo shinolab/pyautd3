@@ -24,6 +24,7 @@ class Bessel(IGain):
             pos: Start point of the beam (the apex of the conical wavefront of the beam)
             direction: Direction of the beam
             theta: Angle between the conical wavefront of the beam and the plane normal to `dir`
+
         """
         super().__init__()
         self._p = np.array(pos)
@@ -49,6 +50,7 @@ class Bessel(IGain):
         Arguments:
         ---------
             intensity: Emission intensity
+
         """
         self._intensity = EmitIntensity._cast(intensity)
         return self

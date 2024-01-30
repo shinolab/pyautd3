@@ -336,6 +336,7 @@ class Visualizer(Link):
             Arguments:
             ---------
                 gpu_idx: GPU index
+
             """
             self._gpu_idx = gpu_idx
             return self
@@ -346,6 +347,7 @@ class Visualizer(Link):
             Arguments:
             ---------
                 backend: Backend
+
             """
             self._backend = backend._backend
             return self
@@ -356,6 +358,7 @@ class Visualizer(Link):
             Arguments:
             ---------
                 directivity: Directivity
+
             """
             self._directivity = directivity._directivity
             return self

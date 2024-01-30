@@ -46,6 +46,7 @@ class FocusSTM(_STM):
             freq: Frequency of STM [Hz]. The frequency closest to `freq` from the possible frequencies is set.
             period: only for internal use.
             sampling_config: only for internal use.
+
         """
         super().__init__(freq, period, sampling_config)
         self._points = []
@@ -70,6 +71,7 @@ class FocusSTM(_STM):
         Arguments:
         ---------
             freq: freq.
+
         """
         return FocusSTM(freq=freq)
 
@@ -80,6 +82,7 @@ class FocusSTM(_STM):
         Arguments:
         ---------
             period: Period.
+
         """
         return FocusSTM(period=period)
 
@@ -90,6 +93,7 @@ class FocusSTM(_STM):
         Arguments:
         ---------
             config: Sampling configuration
+
         """
         return FocusSTM(sampling_config=config)
 
@@ -100,6 +104,7 @@ class FocusSTM(_STM):
         ---------
             point: Focal point
             intensity: Emission intensity
+
         """
         point = np.array(point)
         self._points.append(point[0])
@@ -114,6 +119,7 @@ class FocusSTM(_STM):
         Arguments:
         ---------
             iterable: Iterable of focal points or tuples of focal points and duty shifts.
+
         """
         return functools.reduce(
             lambda acc, x: acc.add_focus(x) if isinstance(x, np.ndarray) else acc.add_focus(x[0], x[1]),
@@ -142,6 +148,7 @@ class FocusSTM(_STM):
         Arguments:
         ---------
             value: Start index of STM.
+
         """
         self._start_idx = -1 if value is None else value
         return self
@@ -152,6 +159,7 @@ class FocusSTM(_STM):
         Arguments:
         ---------
             value: Finish index of STM.
+
         """
         self._finish_idx = -1 if value is None else value
         return self

@@ -24,6 +24,7 @@ class Fourier(IModulation):
         Arguments:
         ---------
             component: `Sine` modulation
+
         """
         self._components.append(component)
         return self
@@ -34,6 +35,7 @@ class Fourier(IModulation):
         Arguments:
         ---------
             components: Iterable of `Sine` modulations
+
         """
         return functools.reduce(lambda acc, x: acc.add_component(x), components, self)
 
@@ -43,6 +45,7 @@ class Fourier(IModulation):
         Arguments:
         ---------
             rhs: `Sine` modulation
+
         """
         return self.add_component(rhs)
 

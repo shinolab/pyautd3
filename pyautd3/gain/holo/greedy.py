@@ -17,6 +17,7 @@ class Greedy(Holo):
     ----------
     - Suzuki, Shun, et al. "Radiation pressure field reconstruction for ultrasound midair haptics by Greedy algorithm with brute-force search,"
         IEEE Transactions on Haptics 14.4 (2021): 914-921.
+
     """
 
     _div: int
@@ -31,6 +32,7 @@ class Greedy(Holo):
         Arguments:
         ---------
             div: parameter
+
         """
         self._div = div
         return self

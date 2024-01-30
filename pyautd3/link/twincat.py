@@ -25,6 +25,7 @@ class TwinCAT(Link):
             Arguments:
             ---------
                 timeout: Timeout
+
             """
             self._builder = LinkTwinCAT().link_twin_cat_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
@@ -59,6 +60,7 @@ class RemoteTwinCAT(Link):
             Arguments:
             ---------
                 ip: Server IP address
+
             """
             self._builder = LinkTwinCAT().link_remote_twin_cat_with_server_ip(self._builder, ip.encode("utf-8"))
             return self
@@ -69,6 +71,7 @@ class RemoteTwinCAT(Link):
             Arguments:
             ---------
                 ams_net_id: Client AMS Net ID
+
             """
             self._builder = LinkTwinCAT().link_remote_twin_cat_with_client_ams_net_id(self._builder, ams_net_id.encode("utf-8"))
             return self
@@ -79,6 +82,7 @@ class RemoteTwinCAT(Link):
             Arguments:
             ---------
                 timeout: Timeout
+
             """
             self._builder = LinkTwinCAT().link_remote_twin_cat_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
@@ -99,5 +103,6 @@ class RemoteTwinCAT(Link):
         Arguments:
         ---------
             server_ams_net_id: Server AMS Net ID
+
         """
         return RemoteTwinCAT._Builder(server_ams_net_id)

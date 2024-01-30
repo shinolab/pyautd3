@@ -18,6 +18,7 @@ class Uniform(IGain):
         Arguments:
         ---------
             intensity: Emission intensity
+
         """
         super().__init__()
         self._intensity = EmitIntensity._cast(intensity)
@@ -33,6 +34,7 @@ class Uniform(IGain):
         Arguments:
         ---------
             phase: Phase
+
         """
         self._phase = phase
         return self

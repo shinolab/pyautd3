@@ -16,6 +16,7 @@ class SDP(HoloWithBackend):
     ----------
     - Inoue, Seki, Yasutoshi Makino, and Hiroyuki Shinoda. "Active touch perception produced by airborne ultrasonic haptic hologram,"
         2015 IEEE World Haptics Conference (WHC). IEEE, 2015.
+
     """
 
     _alpha: float
@@ -34,6 +35,7 @@ class SDP(HoloWithBackend):
         Arguments:
         ---------
             alpha: parameter
+
         """
         self._alpha = alpha
         return self
@@ -48,6 +50,7 @@ class SDP(HoloWithBackend):
         Arguments:
         ---------
             lambda_: parameter
+
         """
         self._lambda = lambda_
         return self
@@ -62,6 +65,7 @@ class SDP(HoloWithBackend):
         Arguments:
         ---------
             repeat: parameter
+
         """
         self._repeat = repeat
         return self

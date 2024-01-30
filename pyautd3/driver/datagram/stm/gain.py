@@ -38,6 +38,7 @@ class GainSTM(_STM):
             freq: Frequency of STM [Hz]. The frequency closest to `freq` from the possible frequencies is set.
             period: only for internal use.
             sampling_config: only for internal use.
+
         """
         super().__init__(freq, period, sampling_config)
         self._gains = []
@@ -63,6 +64,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             freq: freq
+
         """
         return GainSTM(freq=freq)
 
@@ -73,6 +75,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             config: Sampling configuration
+
         """
         return GainSTM(sampling_config=config)
 
@@ -83,6 +86,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             period: Period.
+
         """
         return GainSTM(period=period)
 
@@ -92,6 +96,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             gain: Gain
+
         """
         self._gains.append(gain)
         return self
@@ -102,6 +107,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             iterable: Iterable of gains
+
         """
         self._gains.extend(iterable)
         return self
@@ -127,6 +133,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             mode: GainSTMMode
+
         """
         self._mode = mode
         return self
@@ -137,6 +144,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             value: Start index of STM.
+
         """
         self._start_idx = -1 if value is None else value
         return self
@@ -147,6 +155,7 @@ class GainSTM(_STM):
         Arguments:
         ---------
             value: Finish index of STM.
+
         """
         self._finish_idx = -1 if value is None else value
         return self

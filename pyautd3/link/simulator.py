@@ -32,6 +32,7 @@ class Simulator(Link):
             Arguments:
             ---------
                 addr: Server IP address
+
             """
             self._builder = _validate_ptr(LinkSimulator().link_simulator_with_addr(self._builder, addr.encode("utf-8")))
             return self
@@ -42,6 +43,7 @@ class Simulator(Link):
             Arguments:
             ---------
                 timeout: Timeout
+
             """
             self._builder = LinkSimulator().link_simulator_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self

@@ -22,6 +22,7 @@ class ConfigureSilencer(Datagram):
             ---------
                 value_intensity: The intensity update rate of silencer. The lower the value, the stronger the silencer effect.
                 value_phase: The phase update rate of silencer. The lower the value, the stronger the silencer effect.
+
             """
             super().__init__()
             self._value_intensity = value_intensity
@@ -44,6 +45,7 @@ class ConfigureSilencer(Datagram):
             ---------
                 value_intensity: The intensity completion steps of silencer. The larger the value, the stronger the silencer effect.
                 value_phase: The phase completion steps of silencer. The larger the value, the stronger the silencer effect.
+
             """
             super().__init__()
             self._value_intensity = value_intensity
@@ -56,6 +58,7 @@ class ConfigureSilencer(Datagram):
             Arguments:
             ---------
                 mode: If true, the invalid completion steps will cause an error.
+
             """
             self._strict_mode = mode
             return self
@@ -77,6 +80,7 @@ class ConfigureSilencer(Datagram):
         ---------
             value_intensity: The intensity update rate of silencer. The lower the value, the stronger the silencer effect.
             value_phase: The phase update rate of silencer. The lower the value, the stronger the silencer effect.
+
         """
         return ConfigureSilencer.FixedUpdateRate(value_intensity, value_phase)
 
@@ -88,6 +92,7 @@ class ConfigureSilencer(Datagram):
         ---------
             value_intensity: The intensity completion steps of silencer. The larger the value, the stronger the silencer effect.
             value_phase: The phase completion steps of silencer. The larger the value, the stronger the silencer effect.
+
         """
         return ConfigureSilencer.FixedCompletionSteps(value_intensity, value_phase)
 

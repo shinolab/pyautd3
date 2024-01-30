@@ -24,6 +24,7 @@ class AUTD3:
         Arguments:
         ---------
             pos: Position of the device
+
         """
         self._pos = np.array(pos)
         self._rot = None
@@ -34,6 +35,7 @@ class AUTD3:
         Arguments:
         ---------
             rot: Rotation of the device in quaternion
+
         """
         self._rot = np.array(rot)
         return self

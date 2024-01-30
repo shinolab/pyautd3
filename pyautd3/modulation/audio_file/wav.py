@@ -23,6 +23,7 @@ class Wav(IModulationWithSamplingConfig):
         Arguments:
         ---------
             path: Path to the wav file
+
         """
         super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._path = path

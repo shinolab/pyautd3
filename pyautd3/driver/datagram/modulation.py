@@ -65,6 +65,7 @@ class IModulationWithSamplingConfig(IModulation):
         Arguments:
         ---------
             config: Sampling frequency configuration.
+
         """
         self._config = config
         return self

@@ -34,6 +34,7 @@ class Holo(IGain):
         ---------
             focus: Focus point
             amp: Focus amplitude
+
         """
         focus = np.array(focus)
         self._foci.append(focus[0])
@@ -48,6 +49,7 @@ class Holo(IGain):
         Arguments:
         ---------
             iterable: Iterable of focus point and amplitude.
+
         """
         return functools.reduce(
             lambda acc, x: acc.add_focus(x[0], x[1]),
@@ -61,6 +63,7 @@ class Holo(IGain):
         Arguments:
         ---------
             constraint: Amplitude constraint
+
         """
         self._constraint = constraint
         return self

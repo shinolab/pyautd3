@@ -25,6 +25,7 @@ class Sine(IModulationWithSamplingConfig):
         Arguments:
         ---------
             freq: Frequency (Hz)
+
         """
         super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._freq = freq
@@ -43,6 +44,7 @@ class Sine(IModulationWithSamplingConfig):
         Arguments:
         ---------
             intensity: Intensity
+
         """
         self._intensity = EmitIntensity._cast(intensity)
         return self
@@ -57,6 +59,7 @@ class Sine(IModulationWithSamplingConfig):
         Arguments:
         ---------
             offset: Offset
+
         """
         self._offset = EmitIntensity._cast(offset)
         return self
@@ -71,6 +74,7 @@ class Sine(IModulationWithSamplingConfig):
         Arguments:
         ---------
             phase: Phase
+
         """
         self._phase = phase
         return self
@@ -85,6 +89,7 @@ class Sine(IModulationWithSamplingConfig):
         Arguments:
         ---------
             mode: Sampling mode
+
         """
         self._mode = mode
         return self

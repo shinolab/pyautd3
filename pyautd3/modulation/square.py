@@ -21,6 +21,7 @@ class Square(IModulationWithSamplingConfig):
         Arguments:
         ---------
             freq: Frequency (Hz)
+
         """
         super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._freq = freq
@@ -39,6 +40,7 @@ class Square(IModulationWithSamplingConfig):
         Arguments:
         ---------
             low: Low level intensity
+
         """
         self._low = EmitIntensity._cast(low)
         return self
@@ -53,6 +55,7 @@ class Square(IModulationWithSamplingConfig):
         Arguments:
         ---------
             high: High level intensity
+
         """
         self._high = EmitIntensity._cast(high)
         return self
@@ -67,6 +70,7 @@ class Square(IModulationWithSamplingConfig):
         Arguments:
         ---------
             duty: Duty ratio (from 0 to 1)
+
         """
         self._duty = duty
         return self
@@ -81,6 +85,7 @@ class Square(IModulationWithSamplingConfig):
         Arguments:
         ---------
             mode: Sampling mode
+
         """
         self._mode = mode
         return self

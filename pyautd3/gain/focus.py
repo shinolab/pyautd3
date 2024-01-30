@@ -20,6 +20,7 @@ class Focus(IGain):
         Arguments:
         ---------
             pos: Position of the focal point
+
         """
         super().__init__()
         self._p = np.array(pos)
@@ -35,6 +36,7 @@ class Focus(IGain):
         Arguments:
         ---------
             intensity: Emission intensity
+
         """
         self._intensity = EmitIntensity._cast(intensity)
         return self

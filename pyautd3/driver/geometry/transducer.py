@@ -70,6 +70,7 @@ class Transducer:
         Arguments:
         ---------
             sound_speed: Sound speed [mm/s]
+
         """
         return float(Base().transducer_wavelength(self._ptr, sound_speed))
 
@@ -79,5 +80,6 @@ class Transducer:
         Arguments:
         ---------
             sound_speed: Sound speed [mm/s]
+
         """
         return 2.0 * np.pi / self.wavelength(sound_speed)

@@ -39,6 +39,7 @@ class _Builder(Generic[L]):
         Arguments:
         ---------
             device: Device to add
+
         """
         q = device._rot if device._rot is not None else np.array([1.0, 0.0, 0.0, 0.0])
         self._ptr = Base().controller_builder_add_device(
@@ -59,6 +60,7 @@ class _Builder(Generic[L]):
         Arguments:
         ---------
             link: LinkBuilder
+
         """
         return await Controller._open_impl_async(self._ptr, link)
 
@@ -68,6 +70,7 @@ class _Builder(Generic[L]):
         Arguments:
         ---------
             link: LinkBuilder
+
         """
         return Controller._open_impl(self._ptr, link)
 
@@ -334,6 +337,7 @@ class Controller(Generic[L]):
         Raises:
         ------
             AUTDError: If an error occurs
+
         """
         timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         future: asyncio.Future = asyncio.Future()
@@ -406,6 +410,7 @@ class Controller(Generic[L]):
         Raises:
         ------
             AUTDError: If an error occurs
+
         """
         timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         res: int

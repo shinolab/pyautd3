@@ -27,6 +27,7 @@ class RawPCM(IModulationWithSamplingConfig):
         ---------
             path: Path to the raw PCM data
             sample_rate: Sampling frequency of the raw PCM data
+
         """
         super().__init__(SamplingConfiguration.from_frequency(4e3))
         self._path = path

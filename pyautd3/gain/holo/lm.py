@@ -19,6 +19,7 @@ class LM(HoloWithBackend):
     - Marquardt, Donald W. "An algorithm for least-squares estimation of nonlinear parameters,"
         Journal of the society for Industrial and Applied Mathematics 11.2 (1963): 431-441.
     - K.Madsen, H.Nielsen, and O.Tingleff, “Methods for non-linear least squares problems (2nd ed.),” 2004.
+
     """
 
     _eps1: float
@@ -41,6 +42,7 @@ class LM(HoloWithBackend):
         Arguments:
         ---------
             eps1: parameter
+
         """
         self._eps1 = eps1
         return self
@@ -55,6 +57,7 @@ class LM(HoloWithBackend):
         Arguments:
         ---------
             eps2: parameter
+
         """
         self._eps2 = eps2
         return self
@@ -69,6 +72,7 @@ class LM(HoloWithBackend):
         Arguments:
         ---------
             tau: parameter
+
         """
         self._tau = tau
         return self
@@ -83,6 +87,7 @@ class LM(HoloWithBackend):
         Arguments:
         ---------
             kmax: parameter
+
         """
         self._kmax = kmax
         return self
@@ -97,6 +102,7 @@ class LM(HoloWithBackend):
         Arguments:
         ---------
             initial: parameter
+
         """
         self._initial = initial
         return self

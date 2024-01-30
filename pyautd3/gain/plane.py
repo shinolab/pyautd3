@@ -22,6 +22,7 @@ class Plane(IGain):
         Arguments:
         ---------
             direction: Direction of the plane wave
+
         """
         super().__init__()
         self._d = np.array(direction)
@@ -38,6 +39,7 @@ class Plane(IGain):
         Arguments:
         ---------
             intensity: Emission intensity
+
         """
         self._intensity = EmitIntensity._cast(intensity)
         return self
@@ -52,6 +54,7 @@ class Plane(IGain):
         Arguments:
         ---------
             phase: Phase
+
         """
         self._phase = phase
         return self
