@@ -427,14 +427,16 @@ def util_update_ver(args):
             f.write(content)
 
 
+def util_generate_wrapper(_):
+    fetch_submodule()
+    generate_wrapper()
+
+
 def command_help(args):
     print(parser.parse_args([args.command, "--help"]))
 
 
 if __name__ == "__main__":
-    fetch_submodule()
-    generate_wrapper()
-
     with working_dir(os.path.dirname(os.path.abspath(__file__))):
         parser = argparse.ArgumentParser(description="pyautd3 build script")
         subparsers = parser.add_subparsers()
@@ -466,6 +468,10 @@ if __name__ == "__main__":
         parser_util_upver = subparsers_util.add_parser("upver", help="see `util upver -h`")
         parser_util_upver.add_argument("version", help="version")
         parser_util_upver.set_defaults(handler=util_update_ver)
+
+        # util generate wrapper
+        parser_util_gen_wrapper = subparsers_util.add_parser("gen_wrap", help="see `util gen_wrap -h`")
+        parser_util_gen_wrapper.set_defaults(handler=util_generate_wrapper)
 
         # help
         parser_help = subparsers.add_parser("help", help="see `help -h`")
