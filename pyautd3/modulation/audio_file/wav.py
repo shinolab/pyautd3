@@ -1,7 +1,13 @@
 from pathlib import Path
 
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.modulation import IModulationWithLoopBehavior, IModulationWithSamplingConfig
+from pyautd3.driver.datagram import (
+    IModulationWithCache,
+    IModulationWithLoopBehavior,
+    IModulationWithRadiationPressure,
+    IModulationWithSamplingConfig,
+    IModulationWithTransform,
+)
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
@@ -9,7 +15,13 @@ from pyautd3.native_methods.autd3capi_modulation_audio_file import (
 from pyautd3.native_methods.utils import _validate_ptr
 
 
-class Wav(IModulationWithSamplingConfig, IModulationWithLoopBehavior):
+class Wav(
+    IModulationWithCache,
+    IModulationWithRadiationPressure,
+    IModulationWithTransform,
+    IModulationWithSamplingConfig,
+    IModulationWithLoopBehavior,
+):
     """Modulation constructed from a wav file.
 
     The data is resampled to the sampling frequency of the Modulation.

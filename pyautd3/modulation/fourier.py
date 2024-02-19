@@ -2,14 +2,24 @@ import functools
 from collections.abc import Iterable
 from functools import reduce
 
-from pyautd3.driver.datagram.modulation import IModulation
+from pyautd3.driver.datagram import (
+    IModulationWithCache,
+    IModulationWithLoopBehavior,
+    IModulationWithRadiationPressure,
+    IModulationWithTransform,
+)
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 
 from .sine import Sine
 
 
-class Fourier(IModulation):
+class Fourier(
+    IModulationWithCache,
+    IModulationWithRadiationPressure,
+    IModulationWithTransform,
+    IModulationWithLoopBehavior,
+):
     """Multi-frequency sine wave modulation."""
 
     _components: list[Sine]

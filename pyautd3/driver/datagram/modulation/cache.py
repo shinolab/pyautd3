@@ -5,7 +5,7 @@ import numpy as np
 
 from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.modulation import IModulation, IModulationWithLoopBehavior
+from pyautd3.driver.datagram.modulation.modulation import IModulation, IModulationWithLoopBehavior
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.utils import _validate_ptr
@@ -20,14 +20,14 @@ class Cache(IModulationWithLoopBehavior, IModulation, Generic[M]):
     _cache: np.ndarray | None
     _sampling_config: SamplingConfiguration | None
 
-    def __init__(self: "Cache", m: M) -> None:
+    def __init__(self: "Cache[M]", m: M) -> None:
         super().__init__()
         self._m = m
         self._cache = None
         self._sampling_config = None
         self._loop_behavior = m._loop_behavior
 
-    def _init(self: "Cache") -> np.ndarray:
+    def _init(self: "Cache[M]") -> np.ndarray:
         if self._cache is None:
             ptr = Base().modulation_calc(self._m._modulation_ptr())
             res = _validate_ptr(ptr)
@@ -41,7 +41,7 @@ class Cache(IModulationWithLoopBehavior, IModulation, Generic[M]):
         """Calculate modulation."""
         return self._init()
 
-    def _modulation_ptr(self: "Cache") -> ModulationPtr:
+    def _modulation_ptr(self: "Cache[M]") -> ModulationPtr:
         data = np.fromiter((m.value for m in self.calc()), dtype=c_uint8)
         size = len(data)
         return Base().modulation_custom(
@@ -52,14 +52,14 @@ class Cache(IModulationWithLoopBehavior, IModulation, Generic[M]):
         )
 
     @property
-    def buffer(self: "Cache") -> np.ndarray | None:
+    def buffer(self: "Cache[M]") -> np.ndarray | None:
         """Get cached data."""
         return self._cache
 
 
-def __with_cache(self: M) -> Cache:
-    """Cache the result of calculation."""
-    return Cache(self)
+class IModulationWithCache(IModulation):
+    """Modulation interface of Cache."""
 
-
-IModulation.with_cache = __with_cache  # type: ignore[method-assign]
+    def with_cache(self: M) -> "Cache[M]":
+        """Cache the result of calculation."""
+        return Cache(self)

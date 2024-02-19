@@ -4,7 +4,7 @@ from ctypes import POINTER, c_uint8
 import numpy as np
 
 from pyautd3.driver.common import LoopBehavior, SamplingConfiguration
-from pyautd3.driver.datagram.modulation import IModulation
+from pyautd3.driver.datagram.modulation.modulation import IModulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 

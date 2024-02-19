@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import Controller, EmitIntensity, LoopBehavior, SamplingConfiguration, Segment
+from pyautd3.driver.datagram.modulation import IModulationWithCache
 from pyautd3.modulation import Modulation, Sine
 from tests.test_autd import create_controller
 
@@ -35,7 +36,7 @@ async def test_cache():
         assert np.array_equal(buf, mod_expect)
 
 
-class CacheTest(Modulation):
+class CacheTest(IModulationWithCache, Modulation):
     calc_cnt: int
 
     def __init__(self: "CacheTest") -> None:
@@ -73,6 +74,7 @@ async def test_transform():
     with await create_controller() as autd1, await create_controller() as autd2:
         m1 = Sine(150)
         m2 = Sine(150).with_transform(lambda _i, v: EmitIntensity(v.value // 2))
+        print(m2)
 
         assert await autd1.send_async(m1)
         assert await autd2.send_async(m2)

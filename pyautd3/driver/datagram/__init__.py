@@ -3,7 +3,14 @@ from .datagram import Datagram
 from .debug import ConfigureDebugOutputIdx
 from .force_fan import ConfigureForceFan
 from .gain import IGain
-from .modulation import IModulation, IModulationWithSamplingConfig
+from .modulation import (
+    IModulation,
+    IModulationWithCache,
+    IModulationWithLoopBehavior,
+    IModulationWithRadiationPressure,
+    IModulationWithSamplingConfig,
+    IModulationWithTransform,
+)
 from .reads_fpga_state import ConfigureReadsFPGAState
 from .silencer import ConfigureSilencer
 from .stm import FocusSTM, GainSTM, GainSTMMode
@@ -18,6 +25,10 @@ __all__ = [
     "IGain",
     "IModulation",
     "IModulationWithSamplingConfig",
+    "IModulationWithLoopBehavior",
+    "IModulationWithTransform",
+    "IModulationWithRadiationPressure",
+    "IModulationWithCache",
     "Datagram",
     "Synchronize",
     "GainSTM",

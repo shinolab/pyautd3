@@ -1,18 +1,12 @@
 from abc import ABCMeta, abstractmethod
-from collections.abc import Callable
-from typing import TYPE_CHECKING, TypeVar
+from typing import TypeVar
 
-from pyautd3.driver.common import EmitIntensity, LoopBehavior, SamplingConfiguration
+from pyautd3.driver.common import LoopBehavior, SamplingConfiguration
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import DatagramPtr, ModulationPtr
 from pyautd3.native_methods.utils import _validate_int
-
-if TYPE_CHECKING:
-    from pyautd3.modulation.cache import Cache
-    from pyautd3.modulation.radiation_pressure import RadiationPressure
-    from pyautd3.modulation.transform import Transform
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -39,18 +33,6 @@ class IModulation(Datagram, metaclass=ABCMeta):
 
     @abstractmethod
     def _modulation_ptr(self: "IModulation") -> ModulationPtr:
-        pass
-
-    def with_cache(self: M) -> "Cache":  # type: ignore[empty-body]
-        # This function is implemented in cache.py
-        pass
-
-    def with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> "Transform":  # type: ignore[empty-body]
-        # This function is implemented in transform.py
-        pass
-
-    def with_radiation_pressure(self: M) -> "RadiationPressure":  # type: ignore[empty-body]
-        # This function is implemented in radiation_pressure.py
         pass
 
 
