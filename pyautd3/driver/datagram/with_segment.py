@@ -21,7 +21,6 @@ class DatagramWithSegment(
     _segment: Segment
     _update_segment: bool
 
-    @abstractmethod
     def __init__(self: "DatagramWithSegment[DS]", datagram: DS, segment: Segment, *, update_segment: bool = True) -> None:
         self._datagram = datagram
         self._segment = segment
@@ -29,7 +28,7 @@ class DatagramWithSegment(
 
     def _datagram_ptr(self: "DatagramWithSegment[DS]", geometry: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._raw_ptr(geometry)
-        return self._datagram._into_segment(raw_ptr, self._segment, self._update_segment)
+        return self._datagram._into_segment(raw_ptr, self._segment, update_segment=self._update_segment)
 
 
 class DatagramS(Datagram, Generic[DS, P], metaclass=ABCMeta):

@@ -57,7 +57,7 @@ class Transform(IGainWithCache, IGain, Generic[G]):
         )
 
 
-class IGainWithTransform:
+class IGainWithTransform(IGain):
     """Gain interface of Transform."""
 
     def with_transform(self: G, f: Callable[[Device, Transducer, Drive], Drive]) -> Transform:

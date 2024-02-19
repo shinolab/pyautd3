@@ -54,7 +54,7 @@ class Cache(IGain, Generic[G]):
         return self._cache
 
 
-class IGainWithCache:
+class IGainWithCache(IGain):
     """Gain interface of Cache."""
 
     def with_cache(self: G) -> "Cache[G]":

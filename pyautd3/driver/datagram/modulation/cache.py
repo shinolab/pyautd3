@@ -57,7 +57,7 @@ class Cache(IModulationWithLoopBehavior, IModulation, Generic[M]):
         return self._cache
 
 
-class IModulationWithCache:
+class IModulationWithCache(IModulation):
     """Modulation interface of Cache."""
 
     def with_cache(self: M) -> "Cache[M]":

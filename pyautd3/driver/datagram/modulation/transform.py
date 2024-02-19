@@ -10,7 +10,7 @@ from .cache import IModulationWithCache
 from .modulation import IModulation
 from .radiation_pressure import IModulationWithRadiationPressure
 
-M = TypeVar("M", bound=IModulation)
+M = TypeVar("M", bound="IModulation")
 
 
 class Transform(IModulationWithCache, IModulationWithRadiationPressure, IModulation, Generic[M]):
@@ -31,7 +31,7 @@ class Transform(IModulationWithCache, IModulationWithRadiationPressure, IModulat
         return Base().modulation_with_transform(self._m._modulation_ptr(), self._f_native, None)  # type: ignore[arg-type]
 
 
-class IModulationWithTransform:
+class IModulationWithTransform(IModulation):
     """Modulation interface of Transform."""
 
     def with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> "Transform[M]":

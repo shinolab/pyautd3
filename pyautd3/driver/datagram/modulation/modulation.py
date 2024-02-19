@@ -22,13 +22,13 @@ class IModulation(DatagramS["IModulation", ModulationPtr], metaclass=ABCMeta):
         super().__init__()
 
     def _raw_ptr(self: "IModulation", _: Geometry) -> ModulationPtr:
-        self._modulation_ptr()
+        return self._modulation_ptr()
 
     def _into_segment(self: "IModulation", ptr: ModulationPtr, segment: Segment, *, update_segment: bool) -> DatagramPtr:
         return Base().modulation_into_datagram_with_segment(ptr, segment, update_segment)
 
-    def _datagram_ptr(self: "IModulation", _: Geometry) -> DatagramPtr:
-        return Base().modulation_into_datagram(self._modulation_ptr())
+    def _datagram_ptr(self: "IModulation", geometry: Geometry) -> DatagramPtr:
+        return Base().modulation_into_datagram(self._raw_ptr(geometry))
 
     @property
     def sampling_config(self: "IModulation") -> SamplingConfiguration:
