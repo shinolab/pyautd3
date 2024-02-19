@@ -4,6 +4,7 @@ from datetime import timedelta
 
 import numpy as np
 
+from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.gain import IGain
@@ -12,6 +13,7 @@ from pyautd3.native_methods.autd3capi_def import (
     DatagramPtr,
     GainPtr,
     GainSTMMode,
+    GainSTMPtr,
 )
 from pyautd3.native_methods.utils import _validate_ptr
 
@@ -48,7 +50,7 @@ class GainSTM(_STM):
         gains: np.ndarray = np.ndarray(len(self._gains), dtype=GainPtr)
         for i, g in enumerate(self._gains):
             gains[i]["_0"] = g._gain_ptr(geometry)._0
-        return _validate_ptr(
+        res: GainSTMPtr = _validate_ptr(
             Base().stm_gain(
                 self._props(),
                 gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
@@ -56,6 +58,7 @@ class GainSTM(_STM):
                 self._mode,
             ),
         )
+        return Base().stm_gain_into_datagram(res)
 
     @staticmethod
     def from_freq(freq: float) -> "GainSTM":
@@ -138,24 +141,18 @@ class GainSTM(_STM):
         self._mode = mode
         return self
 
-    def with_start_idx(self: "GainSTM", value: int | None) -> "GainSTM":
-        """Set the start index of STM.
+    @property
+    def mode(self: "GainSTM") -> GainSTMMode:
+        """GainSTMMode."""
+        return self._mode
+
+    def with_loop_behavior(self: "GainSTM", value: LoopBehavior) -> "GainSTM":
+        """Set loop behavior.
 
         Arguments:
         ---------
-            value: Start index of STM.
+            value: LoopBehavior.
 
         """
-        self._start_idx = -1 if value is None else value
-        return self
-
-    def with_finish_idx(self: "GainSTM", value: int | None) -> "GainSTM":
-        """Set the finish index of STM.
-
-        Arguments:
-        ---------
-            value: Finish index of STM.
-
-        """
-        self._finish_idx = -1 if value is None else value
+        self._loop_behavior = value
         return self

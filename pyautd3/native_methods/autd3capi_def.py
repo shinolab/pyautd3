@@ -14,6 +14,15 @@ class GainSTMMode(IntEnum):
         return int(obj)
 
 
+class Segment(IntEnum):
+    S0 = 0
+    S1 = 1
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)
+
+
 class TimerStrategy(IntEnum):
     Sleep = 0
     BusyWait = 1
@@ -60,8 +69,20 @@ class ModulationPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
+class FocusSTMPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class GainSTMPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
 class Drive(ctypes.Structure):
     _fields_ = [("phase", ctypes.c_uint8), ("intensity", ctypes.c_uint8)]
+
+
+class LoopBehavior(ctypes.Structure):
+    _fields_ = [("rep", ctypes.c_uint32)]
 
 
 class ResultI32(ctypes.Structure):
@@ -74,6 +95,14 @@ class ResultModulation(ctypes.Structure):
 
 class ResultDatagram(ctypes.Structure):
     _fields_ = [("result", DatagramPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+class ResultFocusSTM(ctypes.Structure):
+    _fields_ = [("result", FocusSTMPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+class ResultGainSTM(ctypes.Structure):
+    _fields_ = [("result", GainSTMPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
 class SamplingConfiguration(ctypes.Structure):
@@ -130,6 +159,15 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDPhaseToRad.argtypes = [ctypes.c_uint8] 
         self.dll.AUTDPhaseToRad.restype = ctypes.c_double
 
+        self.dll.AUTDLoopBehaviorInfinite.argtypes = [] 
+        self.dll.AUTDLoopBehaviorInfinite.restype = LoopBehavior
+
+        self.dll.AUTDLoopBehaviorFinite.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDLoopBehaviorFinite.restype = LoopBehavior
+
+        self.dll.AUTDLoopBehaviorOnce.argtypes = [] 
+        self.dll.AUTDLoopBehaviorOnce.restype = LoopBehavior
+
         self.dll.AUTDGetErr.argtypes = [ctypes.c_void_p, ctypes.c_char_p] 
         self.dll.AUTDGetErr.restype = None
 
@@ -159,6 +197,15 @@ class NativeMethods(metaclass=Singleton):
 
     def phase_to_rad(self, value: int) -> ctypes.c_double:
         return self.dll.AUTDPhaseToRad(value)
+
+    def loop_behavior_infinite(self) -> LoopBehavior:
+        return self.dll.AUTDLoopBehaviorInfinite()
+
+    def loop_behavior_finite(self, v: int) -> LoopBehavior:
+        return self.dll.AUTDLoopBehaviorFinite(v)
+
+    def loop_behavior_once(self) -> LoopBehavior:
+        return self.dll.AUTDLoopBehaviorOnce()
 
     def get_err(self, src: ctypes.c_void_p | None, dst: ctypes.Array[ctypes.c_char] | None) -> None:
         return self.dll.AUTDGetErr(src, dst)

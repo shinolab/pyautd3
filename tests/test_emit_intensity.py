@@ -30,5 +30,5 @@ def test_emit_intensity_cast():
     assert intensity.value == 0x80
 
     with pytest.raises(TypeError) as e:
-        intensity = EmitIntensity._cast(0.0)
+        intensity = EmitIntensity._cast(0.0)  # type: ignore[arg-type]
     assert str(e.value) == "Invalid type: <class 'float'>"

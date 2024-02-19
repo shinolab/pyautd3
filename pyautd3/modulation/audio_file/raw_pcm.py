@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.modulation import IModulationWithSamplingConfig
+from pyautd3.driver.datagram.modulation import IModulationWithLoopBehavior, IModulationWithSamplingConfig
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
@@ -9,7 +9,7 @@ from pyautd3.native_methods.autd3capi_modulation_audio_file import (
 from pyautd3.native_methods.utils import _validate_ptr
 
 
-class RawPCM(IModulationWithSamplingConfig):
+class RawPCM(IModulationWithSamplingConfig, IModulationWithLoopBehavior):
     """Modulation constructed from a raw PCM data.
 
     The data must be 8bit unsinged integer.
@@ -39,5 +39,6 @@ class RawPCM(IModulationWithSamplingConfig):
                 str(self._path).encode("utf-8"),
                 self._sample_rate,
                 self._config._internal,
+                self._loop_behavior._internal,
             ),
         )

@@ -1,20 +1,24 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 
-from pyautd3 import Device, Drive, Geometry, Transducer
-from pyautd3.driver.common.emit_intensity import EmitIntensity
-from pyautd3.driver.common.phase import Phase
+from pyautd3 import Controller, Device, Drive, EmitIntensity, Geometry, Phase, Segment, Transducer
 from pyautd3.gain import Gain, Uniform
 from tests.test_autd import create_controller
+
+if TYPE_CHECKING:
+    from pyautd3.link.audit import Audit
 
 
 @pytest.mark.asyncio()
 async def test_cache():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         assert await autd.send_async(Uniform(0x80).with_phase(Phase(0x90)).with_cache())
 
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0x90)
 
@@ -38,6 +42,7 @@ class CacheTest(Gain):
 
 @pytest.mark.asyncio()
 async def test_cache_check_once():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         g = CacheTest()
         assert await autd.send_async(g)
@@ -55,6 +60,7 @@ async def test_cache_check_once():
 
 @pytest.mark.asyncio()
 async def test_cache_check_only_for_enabled():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         autd.geometry[0].enable = False
 
@@ -65,17 +71,18 @@ async def test_cache_check_only_for_enabled():
         assert 0 not in g_cached.drives()
         assert 1 in g_cached.drives()
 
-        intensities, phases = autd.link.intensities_and_phases(0, 0)
+        intensities, phases = autd.link.drives(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        intensities, phases = autd.link.intensities_and_phases(1, 0)
+        intensities, phases = autd.link.drives(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)
 
 
 @pytest.mark.asyncio()
 async def test_transform():
+    autd: Controller[Audit]
     with await create_controller() as autd:
 
         def transform(dev: Device, _tr: Transducer, d: Drive) -> Drive:
@@ -86,17 +93,18 @@ async def test_transform():
 
         assert await autd.send_async(Uniform(0x80).with_phase(Phase(128)).with_transform(transform))
 
-        intensities, phases = autd.link.intensities_and_phases(0, 0)
+        intensities, phases = autd.link.drives(0, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 128 + 32)
 
-        intensities, phases = autd.link.intensities_and_phases(1, 0)
+        intensities, phases = autd.link.drives(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 128 - 32)
 
 
 @pytest.mark.asyncio()
 async def test_transform_check_only_for_enabled():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         autd.geometry[0].enable = False
 
@@ -111,10 +119,10 @@ async def test_transform_check_only_for_enabled():
         assert not check[0]
         assert check[1]
 
-        intensities, phases = autd.link.intensities_and_phases(0, 0)
+        intensities, phases = autd.link.drives(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        intensities, phases = autd.link.intensities_and_phases(1, 0)
+        intensities, phases = autd.link.drives(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)

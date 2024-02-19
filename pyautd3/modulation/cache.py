@@ -5,7 +5,7 @@ import numpy as np
 
 from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.modulation import IModulation
+from pyautd3.driver.datagram.modulation import IModulation, IModulationWithLoopBehavior
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.utils import _validate_ptr
@@ -13,7 +13,7 @@ from pyautd3.native_methods.utils import _validate_ptr
 M = TypeVar("M", bound=IModulation)
 
 
-class Cache(IModulation, Generic[M]):
+class Cache(IModulationWithLoopBehavior, IModulation, Generic[M]):
     """Modulation to cache the result of calculation."""
 
     _m: M
@@ -25,6 +25,7 @@ class Cache(IModulation, Generic[M]):
         self._m = m
         self._cache = None
         self._sampling_config = None
+        self._loop_behavior = m._loop_behavior
 
     def _init(self: "Cache") -> np.ndarray:
         if self._cache is None:
@@ -47,6 +48,7 @@ class Cache(IModulation, Generic[M]):
             self._sampling_config._internal,  # type: ignore[union-attr]
             data.ctypes.data_as(POINTER(c_uint8)),  # type: ignore[arg-type]
             size,
+            self._loop_behavior._internal,
         )
 
     @property

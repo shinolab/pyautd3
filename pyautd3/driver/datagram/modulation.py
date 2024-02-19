@@ -2,8 +2,7 @@ from abc import ABCMeta, abstractmethod
 from collections.abc import Callable
 from typing import TYPE_CHECKING, TypeVar
 
-from pyautd3.driver.common.emit_intensity import EmitIntensity
-from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.common import EmitIntensity, LoopBehavior, SamplingConfiguration
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -19,9 +18,12 @@ __all__ = []  # type: ignore[var-annotated]
 
 M = TypeVar("M", bound="IModulation")
 MF = TypeVar("MF", bound="IModulationWithSamplingConfig")
+ML = TypeVar("ML", bound="IModulationWithLoopBehavior")
 
 
 class IModulation(Datagram, metaclass=ABCMeta):
+    _loop_behavior: LoopBehavior
+
     def __init__(self: "IModulation") -> None:
         super().__init__()
 
@@ -68,4 +70,21 @@ class IModulationWithSamplingConfig(IModulation):
 
         """
         self._config = config
+        return self
+
+
+class IModulationWithLoopBehavior(IModulation):
+    def __init__(self: "IModulationWithLoopBehavior") -> None:
+        super().__init__()
+        self._loop_behavior = LoopBehavior.infinite()
+
+    def with_loop_behavior(self: ML, loop_behavior: LoopBehavior) -> ML:
+        """Set loop behavior.
+
+        Arguments:
+        ---------
+            loop_behavior: Loop behavior.
+
+        """
+        self._loop_behavior = loop_behavior
         return self

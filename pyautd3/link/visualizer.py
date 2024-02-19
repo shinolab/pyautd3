@@ -5,10 +5,11 @@ from collections.abc import Iterable
 import numpy as np
 
 from pyautd3.autd_error import InvalidPlotConfigError
+from pyautd3.driver.common import EmitIntensity, Phase
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkPtr, Segment
 from pyautd3.native_methods.autd3capi_link_visualizer import (
     Backend,
     CMap,
@@ -388,100 +389,83 @@ class Visualizer(Link):
         """Create visualizer link builder with NullBackend."""
         return Visualizer._Builder(Backend.Null)
 
-    def phases_of(self: "Visualizer", idx: int) -> np.ndarray:
+    def phases(self: "Visualizer", segment: Segment, idx: int) -> np.ndarray:
         """Get phases of specifig STM index."""
-        size = LinkVisualizer().link_visualizer_phases_of(self._ptr, self._backend, self._directivity, idx, None)
+        size = LinkVisualizer().link_visualizer_phases_of(self._ptr, self._backend, self._directivity, segment, idx, None)
         phases = np.zeros(int(size)).astype(ctypes.c_uint8)
-        LinkVisualizer().link_visualizer_phases_of(self._ptr, self._backend, self._directivity, idx, np.ctypeslib.as_ctypes(phases))
-        return phases
+        LinkVisualizer().link_visualizer_phases_of(self._ptr, self._backend, self._directivity, segment, idx, np.ctypeslib.as_ctypes(phases))
+        return np.fromiter((Phase(x) for x in phases), dtype=Phase)
 
-    def phases(self: "Visualizer") -> np.ndarray:
-        """Get phases."""
-        return self.phases_of(0)
-
-    def intensities_of(self: "Visualizer", idx: int) -> np.ndarray:
+    def intensities(self: "Visualizer", segment: Segment, idx: int) -> np.ndarray:
         """Get intensities of specifig STM index."""
-        size = LinkVisualizer().link_visualizer_intensities_of(self._ptr, self._backend, self._directivity, idx, None)
-        phases = np.zeros(int(size)).astype(ctypes.c_uint8)
-        LinkVisualizer().link_visualizer_intensities_of(self._ptr, self._backend, self._directivity, idx, np.ctypeslib.as_ctypes(phases))
-        return phases
+        size = LinkVisualizer().link_visualizer_intensities(self._ptr, self._backend, self._directivity, segment, idx, None)
+        intensities = np.zeros(int(size)).astype(ctypes.c_uint8)
+        LinkVisualizer().link_visualizer_intensities(self._ptr, self._backend, self._directivity, segment, idx, np.ctypeslib.as_ctypes(intensities))
+        return np.fromiter((EmitIntensity(x) for x in intensities), dtype=EmitIntensity)
 
-    def intensities(self: "Visualizer") -> np.ndarray:
-        """Get intensities."""
-        return self.intensities_of(0)
-
-    def modulation(self: "Visualizer") -> np.ndarray:
+    def modulation(self: "Visualizer", segment: Segment) -> np.ndarray:
         """Get modulation data."""
-        size = LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, None)
+        size = LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, None)
         modulation = np.zeros(int(size)).astype(ctypes.c_uint8)
-        LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, np.ctypeslib.as_ctypes(modulation))
-        return modulation
+        LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, np.ctypeslib.as_ctypes(modulation))
+        return np.fromiter((EmitIntensity(x) for x in modulation), dtype=EmitIntensity)
 
-    def calc_field_of(self: "Visualizer", points_iter: Iterable[np.ndarray], geometry: Geometry, idx: int) -> np.ndarray:
+    def calc_field(self: "Visualizer", points_iter: Iterable[np.ndarray], geometry: Geometry, segment: Segment, idx: int) -> np.ndarray:
         """Calculate field of specific STM index."""
         points = np.fromiter(points_iter, dtype=np.ndarray)
         points_len = len(points)
         points = np.ravel(np.stack(points))  # type: ignore[call-overload]
         buf = np.zeros(points_len * 2).astype(ctypes.c_double)
         _validate_int(
-            LinkVisualizer().link_visualizer_calc_field_of(
+            LinkVisualizer().link_visualizer_calc_field(
                 self._ptr,
                 self._backend,
                 self._directivity,
                 np.ctypeslib.as_ctypes(points),
                 points_len,
                 geometry._geometry_ptr(),
+                segment,
                 idx,
                 np.ctypeslib.as_ctypes(buf),
             ),
         )
         return np.fromiter([buf[2 * i] + buf[2 * i + 1] * 1j for i in range(points_len)], dtype=np.complex128, count=points_len)
 
-    def calc_field(self: "Visualizer", points_iter: Iterable[np.ndarray], geometry: Geometry) -> np.ndarray:
-        """Calculate field."""
-        return self.calc_field_of(points_iter, geometry, 0)
-
-    def plot_field_of(self: "Visualizer", config: IPlotConfig, plot_range: PlotRange, geometry: Geometry, idx: int) -> None:
+    def plot_field(self: "Visualizer", config: IPlotConfig, plot_range: PlotRange, geometry: Geometry, segment: Segment, idx: int) -> None:
         """Plot field of specific STM index."""
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(
-            LinkVisualizer().link_visualizer_plot_field_of(
+            LinkVisualizer().link_visualizer_plot_field(
                 self._ptr,
                 self._backend,
                 self._directivity,
                 config._config_ptr(),
                 plot_range._ptr(),
                 geometry._geometry_ptr(),
+                segment,
                 idx,
             ),
         )
 
-    def plot_field(self: "Visualizer", config: IPlotConfig, plot_range: PlotRange, geometry: Geometry) -> None:
-        """Plot field."""
-        self.plot_field_of(config, plot_range, geometry, 0)
-
-    def plot_phase_of(self: "Visualizer", config: IPlotConfig, geometry: Geometry, idx: int) -> None:
+    def plot_phase(self: "Visualizer", config: IPlotConfig, geometry: Geometry, segment: Segment, idx: int) -> None:
         """Plot phase of specific STM index."""
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(
-            LinkVisualizer().link_visualizer_plot_phase_of(
+            LinkVisualizer().link_visualizer_plot_phase(
                 self._ptr,
                 self._backend,
                 self._directivity,
                 config._config_ptr(),
                 geometry._geometry_ptr(),
+                segment,
                 idx,
             ),
         )
 
-    def plot_phase(self: "Visualizer", config: IPlotConfig, geometry: Geometry) -> None:
-        """Plot phase."""
-        self.plot_phase_of(config, geometry, 0)
-
-    def plot_modulation(self: "Visualizer", config: IPlotConfig) -> None:
+    def plot_modulation(self: "Visualizer", config: IPlotConfig, segment: Segment) -> None:
         """Plot modulation."""
         if self._backend != config._backend():
             raise InvalidPlotConfigError
-        _validate_int(LinkVisualizer().link_visualizer_plot_modulation(self._ptr, self._backend, self._directivity, config._config_ptr()))
+        _validate_int(LinkVisualizer().link_visualizer_plot_modulation(self._ptr, self._backend, self._directivity, config._config_ptr(), segment))

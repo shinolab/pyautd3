@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyautd3 import AUTD3, Controller, Phase
+from pyautd3 import AUTD3, Controller, EmitIntensity, Phase, Segment
 from pyautd3.autd_error import InvalidPlotConfigError
 from pyautd3.gain import Uniform
 from pyautd3.link.visualizer import (
@@ -30,7 +30,12 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
 
     autd.send((m, g))
 
-    autd.link.plot_phase(config, autd.geometry)
+    autd.link.plot_phase(
+        config,
+        autd.geometry,
+        Segment.S0,
+        0,
+    )
     autd.link.plot_field(
         config,
         PlotRange(
@@ -43,6 +48,8 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
             resolution=1,
         ),
         autd.geometry,
+        Segment.S0,
+        0,
     )
     autd.link.plot_field(
         config,
@@ -56,17 +63,19 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
             resolution=1,
         ),
         autd.geometry,
+        Segment.S0,
+        0,
     )
-    autd.link.plot_modulation(config)
+    autd.link.plot_modulation(config, Segment.S0)
 
-    intensities = autd.link.intensities()
-    assert np.array_equal(intensities, [0x80] * autd.geometry.num_transducers)
-    phases = autd.link.phases()
-    assert np.array_equal(phases, [0x81] * autd.geometry.num_transducers)
-    assert np.array_equal(autd.link.modulation(), [0x82] * 2)
+    intensities = autd.link.intensities(Segment.S0, 0)
+    assert np.array_equal(intensities, np.array([EmitIntensity(0x80)] * autd.geometry.num_transducers))
+    phases = autd.link.phases(Segment.S0, 0)
+    assert np.array_equal(phases, np.array([Phase(0x81)] * autd.geometry.num_transducers))
+    assert np.array_equal(autd.link.modulation(Segment.S0), np.array([EmitIntensity(0x82)] * 2))
 
     points = [center]
-    autd.link.calc_field(points, autd.geometry)
+    autd.link.calc_field(points, autd.geometry, Segment.S0, 0)
 
     autd.close()
 
@@ -89,16 +98,16 @@ def test_plot_range():
 
 
 def test_visualizer_plotters():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(
             autd,
             PlotConfig(fname="test.png"),
         )
 
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.plotters().with_directivity(T4010A1()),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.plotters().with_directivity(T4010A1()),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(
             autd,
@@ -116,16 +125,16 @@ def test_visualizer_plotters():
 
 
 def test_visualizer_python():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.builder().with_backend(PythonBackend()).with_directivity(Sphere()),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.builder().with_backend(PythonBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(
             autd,
             PyPlotConfig(fname="test.png"),
         )
 
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.python().with_directivity(T4010A1()),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.python().with_directivity(T4010A1()),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(
             autd,
@@ -145,32 +154,32 @@ def test_visualizer_python():
 
 
 def test_visualizer_null():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(autd, NullPlotConfig())
 
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.null().with_directivity(T4010A1()),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.null().with_directivity(T4010A1()),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(autd, NullPlotConfig())
 
 
 @pytest.mark.gpu()
 def test_visualizer_gpu():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with(
-        Visualizer.null().with_gpu(-1),
+    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
+        Visualizer.null().with_gpu(-1),  # type: ignore[arg-type]
     ) as autd:
         visualizer_test_with(autd, NullPlotConfig())
 
 
 def test_visualizer_invalid_config():
+    autd: Controller[Visualizer]
     with (
-        Controller[Visualizer]
-        .builder()
+        Controller.builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open_with(
-            Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),
+        .open(
+            Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
         )
     ) as autd:
         center = autd.geometry.center + np.array([0, 0, 150])
@@ -187,11 +196,21 @@ def test_visualizer_invalid_config():
                     resolution=1,
                 ),
                 autd.geometry,
+                Segment.S0,
+                0,
             )
         with pytest.raises(InvalidPlotConfigError):
-            autd.link.plot_phase(PyPlotConfig(fname="test.png"), autd.geometry)
+            autd.link.plot_phase(
+                PyPlotConfig(fname="test.png"),
+                autd.geometry,
+                Segment.S0,
+                0,
+            )
         with pytest.raises(InvalidPlotConfigError):
-            autd.link.plot_modulation(NullPlotConfig())
+            autd.link.plot_modulation(
+                NullPlotConfig(),
+                Segment.S0,
+            )
 
 
 def test_visualizer_config_default():

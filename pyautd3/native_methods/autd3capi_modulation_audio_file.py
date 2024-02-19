@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import ModulationPtr, ResultModulation, SamplingConfiguration
+from pyautd3.native_methods.autd3capi_def import LoopBehavior, ModulationPtr, ResultModulation, SamplingConfiguration
 
 
 class Singleton(type):
@@ -25,26 +25,26 @@ class NativeMethods(metaclass=Singleton):
         except Exception:
             return
 
-        self.dll.AUTDModulationWav.argtypes = [ctypes.c_char_p, SamplingConfiguration]  # type: ignore 
+        self.dll.AUTDModulationWav.argtypes = [ctypes.c_char_p, SamplingConfiguration, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWav.restype = ResultModulation
 
         self.dll.AUTDModulationWavIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationWavIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDModulationRawPCM.argtypes = [ctypes.c_char_p, ctypes.c_uint32, SamplingConfiguration]  # type: ignore 
+        self.dll.AUTDModulationRawPCM.argtypes = [ctypes.c_char_p, ctypes.c_uint32, SamplingConfiguration, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationRawPCM.restype = ResultModulation
 
         self.dll.AUTDModulationRawPCMIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationRawPCMIsDefault.restype = ctypes.c_bool
 
-    def modulation_wav(self, path: bytes, config: SamplingConfiguration) -> ResultModulation:
-        return self.dll.AUTDModulationWav(path, config)
+    def modulation_wav(self, path: bytes, config: SamplingConfiguration, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationWav(path, config, loop_behavior)
 
     def modulation_wav_is_default(self, wav: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationWavIsDefault(wav)
 
-    def modulation_raw_pcm(self, path: bytes, sample_rate: int, config: SamplingConfiguration) -> ResultModulation:
-        return self.dll.AUTDModulationRawPCM(path, sample_rate, config)
+    def modulation_raw_pcm(self, path: bytes, sample_rate: int, config: SamplingConfiguration, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationRawPCM(path, sample_rate, config, loop_behavior)
 
     def modulation_raw_pcm_is_default(self, rawpcm: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationRawPCMIsDefault(rawpcm)

@@ -219,9 +219,9 @@ impl PythonGenerator {
                     | "SyncGroupGuard"
                     | "SyncController"
                     | "SyncControllerBuilder"
-                    | "FutureWrapper" // TODO: Remove
                     | "SyncLink"
                     | "SyncLinkBuilder"
+                    | "DynamicDatagramWithSegment"
             )
         }));
         self
@@ -303,6 +303,12 @@ import os"
             "GroupGainMapPtr",
             "GainSTMMode",
             "Drive",
+            "LoopBehavior",
+            "Segment",
+            "ResultFocusSTM",
+            "FocusSTMPtr",
+            "ResultGainSTM",
+            "GainSTMPtr",
         ];
         let holo_ty = vec!["ResultBackend", "BackendPtr", "EmissionConstraintPtr"];
         if crate_name != "autd3capi-def"

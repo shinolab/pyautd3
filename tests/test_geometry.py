@@ -34,7 +34,7 @@ async def test_with_rotation():
         return await (
             Controller.builder()
             .add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q))
-            .open_with_async(
+            .open_async(
                 Audit.builder(),
             )
         )

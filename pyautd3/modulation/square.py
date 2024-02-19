@@ -1,12 +1,12 @@
 from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.modulation import IModulationWithSamplingConfig
+from pyautd3.driver.datagram.modulation import IModulationWithLoopBehavior, IModulationWithSamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SamplingMode
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 
 
-class Square(IModulationWithSamplingConfig):
+class Square(IModulationWithSamplingConfig, IModulationWithLoopBehavior):
     """Square wave modulation."""
 
     _freq: float
@@ -102,4 +102,5 @@ class Square(IModulationWithSamplingConfig):
             self._high.value,
             self._duty,
             self._mode,
+            self._loop_behavior._internal,
         )

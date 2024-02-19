@@ -26,7 +26,7 @@ class LM(HoloWithBackend):
     _eps2: float
     _tau: float
     _kmax: int
-    _initial: list[float]
+    _initial: np.ndarray
 
     def __init__(self: "LM", backend: Backend) -> None:
         super().__init__(EmissionConstraint.dont_care(), backend)
@@ -34,7 +34,7 @@ class LM(HoloWithBackend):
         self._eps2 = 1e-8
         self._tau = 1e-3
         self._kmax = 5
-        self._initial = []
+        self._initial = np.array([])
 
     def with_eps1(self: "LM", eps1: float) -> "LM":
         """Set parameter.
@@ -96,7 +96,7 @@ class LM(HoloWithBackend):
         """Get parameter."""
         return self._kmax
 
-    def with_initial(self: "LM", initial: list[float]) -> "LM":
+    def with_initial(self: "LM", initial: np.ndarray) -> "LM":
         """Set parameter.
 
         Arguments:
@@ -107,7 +107,7 @@ class LM(HoloWithBackend):
         self._initial = initial
         return self
 
-    def initial(self: "LM") -> list[float]:
+    def initial(self: "LM") -> np.ndarray:
         """Get parameter."""
         return self._initial
 
@@ -115,5 +115,5 @@ class LM(HoloWithBackend):
         size = len(self._amps)
         foci_ = np.ctypeslib.as_ctypes(np.array(self._foci).astype(ctypes.c_double))
         amps = np.ctypeslib.as_ctypes(np.fromiter((a.pascal for a in self._amps), dtype=float).astype(ctypes.c_double))
-        initial_ = np.ctypeslib.as_ctypes(np.array(self._initial).astype(ctypes.c_double))
+        initial_ = np.ctypeslib.as_ctypes(self._initial.astype(ctypes.c_double))
         return self._backend._lm(foci_, amps, size, self._eps1, self._eps2, self._tau, self._kmax, initial_, len(self._initial), self._constraint)

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from pyautd3 import Segment
 from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, pascal
 from tests.test_autd import create_controller
 
@@ -17,7 +18,7 @@ async def test_constraint():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 
@@ -29,7 +30,7 @@ async def test_constraint():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -41,7 +42,7 @@ async def test_constraint():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities >= 67)
             assert np.all(intensities <= 85)
             assert not np.all(phases == 0)
@@ -54,6 +55,6 @@ async def test_constraint():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)

@@ -7,7 +7,7 @@ from pyautd3.link.twincat import TwinCAT
 
 
 async def main() -> None:
-    with await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(TwinCAT.builder()) as autd:  # type: Controller
+    with await Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_async(TwinCAT.builder()) as autd:
         await runner.run(autd)
 
 

@@ -42,3 +42,10 @@ class InvalidPlotConfigError(AUTDError):
 
     def __init__(self: "InvalidPlotConfigError") -> None:
         super().__init__("Invalid plot config type")
+
+
+class CantBeZeroError(AUTDError):
+    """Value must be greater than 0."""
+
+    def __init__(self: "CantBeZeroError", v: int) -> None:
+        super().__init__(f"Value must be greater than 0: {v}")

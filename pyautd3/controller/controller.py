@@ -54,25 +54,27 @@ class _Builder(Generic[L]):
         )
         return self
 
-    async def open_with_async(self: "_Builder[L]", link: LinkBuilder[L]) -> "Controller[L]":
+    async def open_async(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
         """Open controller.
 
         Arguments:
         ---------
             link: LinkBuilder
+            timeout: Timeout
 
         """
-        return await Controller._open_impl_async(self._ptr, link)
+        return await Controller._open_impl_async(self._ptr, link, timeout)
 
-    def open_with(self: "_Builder[L]", link: LinkBuilder[L]) -> "Controller[L]":
+    def open(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
         """Open controller.
 
         Arguments:
         ---------
             link: LinkBuilder
+            timeout: Timeout
 
         """
-        return Controller._open_impl(self._ptr, link)
+        return Controller._open_impl(self._ptr, link, timeout)
 
 
 class _GroupGuard(Generic[K]):
@@ -219,15 +221,17 @@ class Controller(Generic[L]):
         return self._geometry
 
     @staticmethod
-    async def _open_impl_async(builder: ControllerBuilderPtr, link_builder: LinkBuilder[L]) -> "Controller[L]":
+    async def _open_impl_async(
+        builder: ControllerBuilderPtr,
+        link_builder: LinkBuilder[L],
+        timeout: timedelta | None = None,
+    ) -> "Controller[L]":
+        timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         loop.call_soon(
             lambda *_: future.set_result(
-                Base().controller_open_with(
-                    builder,
-                    link_builder._link_builder_ptr(),
-                ),
+                Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns),
             ),
         )
         ptr = _validate_ptr(await future)
@@ -236,12 +240,14 @@ class Controller(Generic[L]):
         return Controller(geometry, ptr, link)
 
     @staticmethod
-    def _open_impl(builder: ControllerBuilderPtr, link_builder: LinkBuilder[L]) -> "Controller[L]":
+    def _open_impl(
+        builder: ControllerBuilderPtr,
+        link_builder: LinkBuilder[L],
+        timeout: timedelta | None = None,
+    ) -> "Controller[L]":
+        timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         ptr = _validate_ptr(
-            Base().controller_open_with(
-                builder,
-                link_builder._link_builder_ptr(),
-            ),
+            Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns),
         )
         geometry = Geometry(Base().geometry(ptr))
         link = link_builder._resolve_link(ptr)

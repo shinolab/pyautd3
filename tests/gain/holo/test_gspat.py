@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyautd3 import AUTD3, Controller
+from pyautd3 import AUTD3, Controller, Segment
 from pyautd3.gain.holo import GSPAT, EmissionConstraint, NalgebraBackend, pascal
 from pyautd3.link.audit import Audit
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
@@ -9,7 +9,8 @@ from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
 
 @pytest.mark.asyncio()
 async def test_gspat():
-    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
+    autd: Controller[Audit]
+    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_async(Audit.builder()) as autd:
         backend = NalgebraBackend()
         g = (
             GSPAT(backend)
@@ -18,7 +19,7 @@ async def test_gspat():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -31,7 +32,7 @@ async def test_gspat():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 
@@ -41,7 +42,8 @@ async def test_gspat():
 async def test_gspat_cuda():
     from pyautd3.gain.holo.backend_cuda import CUDABackend
 
-    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_with_async(Audit.builder()) as autd:
+    autd: Controller[Audit]
+    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_async(Audit.builder()) as autd:
         backend = CUDABackend()
         g = (
             GSPAT(backend)
@@ -50,7 +52,7 @@ async def test_gspat_cuda():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -63,11 +65,11 @@ async def test_gspat_cuda():
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 
 
 def test_gspat_default():
     g = GSPAT(NalgebraBackend())
-    assert Holo().gain_gspat_is_default(g._gain_ptr(0))
+    assert Holo().gain_gspat_is_default(g._gain_ptr(0))  # type: ignore [arg-type]

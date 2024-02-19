@@ -8,11 +8,13 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import (
     DatagramPtr,
+    FocusSTMPtr,
 )
 from pyautd3.native_methods.utils import _validate_ptr
 
@@ -55,7 +57,7 @@ class FocusSTM(_STM):
     def _datagram_ptr(self: "FocusSTM", _: Geometry) -> DatagramPtr:
         points = np.ctypeslib.as_ctypes(np.array(self._points).astype(ctypes.c_double))
         intensities = np.fromiter((i.value for i in self._intensities), dtype=c_uint8)  # type: ignore[type-var,call-overload]
-        return _validate_ptr(
+        res: FocusSTMPtr = _validate_ptr(
             Base().stm_focus(
                 self._props(),
                 points,
@@ -63,6 +65,7 @@ class FocusSTM(_STM):
                 len(self._intensities),
             ),
         )
+        return Base().stm_focus_into_datagram(res)
 
     @staticmethod
     def from_freq(freq: float) -> "FocusSTM":
@@ -142,24 +145,13 @@ class FocusSTM(_STM):
         """Sampling frequency [Hz]."""
         return self._sampling_config_from_size(len(self._intensities))
 
-    def with_start_idx(self: "FocusSTM", value: int | None) -> "FocusSTM":
-        """Set the start index of STM.
+    def with_loop_behavior(self: "FocusSTM", value: LoopBehavior) -> "FocusSTM":
+        """Set loop behavior.
 
         Arguments:
         ---------
-            value: Start index of STM.
+            value: LoopBehavior.
 
         """
-        self._start_idx = -1 if value is None else value
-        return self
-
-    def with_finish_idx(self: "FocusSTM", value: int | None) -> "FocusSTM":
-        """Set the finish index of STM.
-
-        Arguments:
-        ---------
-            value: Finish index of STM.
-
-        """
-        self._finish_idx = -1 if value is None else value
+        self._loop_behavior = value
         return self

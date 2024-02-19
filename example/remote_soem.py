@@ -10,10 +10,10 @@ async def main() -> None:
     with await (
         Controller.builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open_with_async(
+        .open_async(
             RemoteSOEM.builder("127.0.0.1:8080"),
         )
-    ) as autd:  # type: Controller
+    ) as autd:
         await runner.run(autd)
 
 

@@ -51,3 +51,12 @@ class EmitIntensity:
     def __floordiv__(self: "EmitIntensity", other: int) -> "EmitIntensity":
         """Divide by integer."""
         return EmitIntensity(self.value // other)
+
+    def __eq__(self: "EmitIntensity", __value: object) -> bool:
+        return isinstance(__value, EmitIntensity) and self.value == __value.value
+
+    def __str__(self: "EmitIntensity") -> str:
+        return f"EmitIntensity({self.value})"
+
+    def __repr__(self: "EmitIntensity") -> str:
+        return f"EmitIntensity({self.value})"

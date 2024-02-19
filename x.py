@@ -230,15 +230,15 @@ def should_update_dll(config: Config, version: str) -> bool:
 def copy_dll(config: Config):
     with open("pyautd3/__init__.py", "r") as f:
         content = f.read()
-        version = re.search(r'__version__ = "(.*)"', content).group(1)
-        version = ".".join(version.split(".")[:3])
+        version = re.search(r'__version__ = "(.*)"', content).group(1).split(".")
+        version = ".".join(version) if version[2].endswith("rc") else ".".join(version[:3])
 
     if not should_update_dll(config, version):
         return
 
     os.makedirs("pyautd3/bin", exist_ok=True)
     if config.is_windows():
-        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64.zip"
+        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64-dll.zip"
         with open("tmp.zip", mode="wb") as f:
             f.write(requests.get(url).content)
         shutil.unpack_archive("tmp.zip", ".")
@@ -246,7 +246,7 @@ def copy_dll(config: Config):
         for dll in glob.glob("bin/*.dll"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_macos():
-        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-macos-universal.tar.gz"
+        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-macos-universal-shared.tar.gz"
         with open("tmp.tar.gz", mode="wb") as f:
             f.write(requests.get(url).content)
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
@@ -255,7 +255,7 @@ def copy_dll(config: Config):
         for dll in glob.glob("bin/*.dylib"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_linux():
-        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-x64.tar.gz"
+        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-x64-shared.tar.gz"
         with open("tmp.tar.gz", mode="wb") as f:
             f.write(requests.get(url).content)
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
@@ -268,7 +268,6 @@ def copy_dll(config: Config):
     shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
 
     rmtree_f("bin")
-    rmtree_f("lib")
 
     with open("VERSION", mode="w") as f:
         f.write(version)
@@ -335,6 +334,7 @@ def py_test(args):
         command.append("pyautd3")
         command.append("example")
         command.append("tests")
+        command.append("--check-untyped-defs")
         subprocess.run(command).check_returncode()
 
         command = []

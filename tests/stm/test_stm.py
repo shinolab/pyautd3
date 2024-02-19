@@ -1,14 +1,19 @@
 from datetime import timedelta
+from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
 
-from pyautd3 import ConfigureSilencer, FocusSTM, GainSTM, GainSTMMode, SamplingConfiguration, Uniform
+from pyautd3 import ConfigureSilencer, Controller, FocusSTM, GainSTM, GainSTMMode, SamplingConfiguration, Segment, Uniform
 from tests.test_autd import create_controller
+
+if TYPE_CHECKING:
+    from pyautd3.link.audit import Audit
 
 
 @pytest.mark.asyncio()
 async def test_focus_stm():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         assert await autd.send_async(ConfigureSilencer.disable())
 
@@ -20,33 +25,14 @@ async def test_focus_stm():
         )
         assert await autd.send_async(stm)
         for dev in autd.geometry:
-            assert not autd.link.is_stm_gain_mode(dev.idx)
+            assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
         assert stm.frequency == 1.0
         assert stm.period == timedelta(microseconds=1000000)
         assert stm.sampling_config.frequency == 2 * 1.0
         assert stm.sampling_config.frequency_division == 10240000
         assert stm.sampling_config.period == timedelta(microseconds=500000)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 10240000
-        assert stm.start_idx is None
-        assert stm.finish_idx is None
-        for dev in autd.geometry:
-            assert autd.link.stm_start_idx(dev.idx) == -1
-            assert autd.link.stm_finish_idx(dev.idx) == -1
-        stm = stm.with_start_idx(0)
-        assert stm.start_idx == 0
-        assert stm.finish_idx is None
-        assert await autd.send_async(stm)
-        for dev in autd.geometry:
-            assert autd.link.stm_start_idx(dev.idx) == 0
-            assert autd.link.stm_finish_idx(dev.idx) == -1
-        stm = stm.with_start_idx(None).with_finish_idx(0)
-        assert stm.start_idx is None
-        assert stm.finish_idx == 0
-        assert await autd.send_async(stm)
-        for dev in autd.geometry:
-            assert autd.link.stm_start_idx(dev.idx) == -1
-            assert autd.link.stm_finish_idx(dev.idx) == 0
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
 
         stm = FocusSTM.from_period(timedelta(microseconds=1000000)).add_focus(center).add_focus(center)
         assert await autd.send_async(stm)
@@ -56,13 +42,13 @@ async def test_focus_stm():
         assert stm.sampling_config.frequency_division == 10240000
         assert stm.sampling_config.period == timedelta(microseconds=500000)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 10240000
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -73,13 +59,13 @@ async def test_focus_stm():
         assert stm.sampling_config.frequency_division == 512
         assert stm.sampling_config.period == timedelta(microseconds=25)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 512
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 512
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -90,19 +76,20 @@ async def test_focus_stm():
         assert stm.sampling_config.frequency_division == 512
         assert stm.sampling_config.period == timedelta(microseconds=25)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 512
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 512
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
 
 @pytest.mark.asyncio()
 async def test_gain_stm():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         assert await autd.send_async(ConfigureSilencer.disable())
 
@@ -110,33 +97,14 @@ async def test_gain_stm():
         stm = GainSTM.from_freq(1.0).add_gains_from_iter(Uniform(0xFF // (i + 1)) for i in range(size))
         assert await autd.send_async(stm)
         for dev in autd.geometry:
-            assert autd.link.is_stm_gain_mode(dev.idx)
+            assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
         assert stm.frequency == 1.0
         assert stm.period == timedelta(microseconds=1000000)
         assert stm.sampling_config.frequency == 2 * 1.0
         assert stm.sampling_config.frequency_division == 10240000
         assert stm.sampling_config.period == timedelta(microseconds=500000)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 10240000
-        assert stm.start_idx is None
-        assert stm.finish_idx is None
-        for dev in autd.geometry:
-            assert autd.link.stm_start_idx(dev.idx) == -1
-            assert autd.link.stm_finish_idx(dev.idx) == -1
-        stm = stm.with_start_idx(0)
-        assert stm.start_idx == 0
-        assert stm.finish_idx is None
-        assert await autd.send_async(stm)
-        for dev in autd.geometry:
-            assert autd.link.stm_start_idx(dev.idx) == 0
-            assert autd.link.stm_finish_idx(dev.idx) == -1
-        stm = stm.with_start_idx(None).with_finish_idx(0)
-        assert stm.start_idx is None
-        assert stm.finish_idx == 0
-        assert await autd.send_async(stm)
-        for dev in autd.geometry:
-            assert autd.link.stm_start_idx(dev.idx) == -1
-            assert autd.link.stm_finish_idx(dev.idx) == 0
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
 
         stm = GainSTM.from_period(timedelta(microseconds=1000000)).add_gain(Uniform(0xFF)).add_gain(Uniform(0x80))
         assert await autd.send_async(stm)
@@ -146,13 +114,13 @@ async def test_gain_stm():
         assert stm.sampling_config.frequency_division == 10240000
         assert stm.sampling_config.period == timedelta(microseconds=500000)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 10240000
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
@@ -163,13 +131,13 @@ async def test_gain_stm():
         assert stm.sampling_config.frequency_division == 512
         assert stm.sampling_config.period == timedelta(microseconds=25)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 512
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 512
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
@@ -184,34 +152,34 @@ async def test_gain_stm():
         assert stm.sampling_config.frequency_division == 512
         assert stm.sampling_config.period == timedelta(microseconds=25)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx) == 512
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 512
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
         stm = stm.with_mode(GainSTMMode.PhaseFull)
         assert await autd.send_async(stm)
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
         stm = stm.with_mode(GainSTMMode.PhaseHalf)
         assert await autd.send_async(stm)
         for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx) == 2
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 0)
+            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.intensities_and_phases(dev.idx, 1)
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)

@@ -38,5 +38,14 @@ class Phase:
         def __rmul__(self: "Phase._UnitRad", other: float) -> "Phase":
             return Phase.from_rad(other)
 
+    def __eq__(self: "Phase", __value: object) -> bool:
+        return isinstance(__value, Phase) and self.value == __value.value
+
+    def __str__(self: "Phase") -> str:
+        return f"Phase({self.value})"
+
+    def __repr__(self: "Phase") -> str:
+        return f"Phase({self.value})"
+
 
 rad: Phase._UnitRad = Phase._UnitRad.__private_new__()
