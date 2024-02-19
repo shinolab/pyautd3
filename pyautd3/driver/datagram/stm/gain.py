@@ -6,6 +6,7 @@ import numpy as np
 
 from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.gain import IGain
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -14,13 +15,14 @@ from pyautd3.native_methods.autd3capi_def import (
     GainPtr,
     GainSTMMode,
     GainSTMPtr,
+    Segment,
 )
 from pyautd3.native_methods.utils import _validate_ptr
 
 from .stm import _STM
 
 
-class GainSTM(_STM):
+class GainSTM(_STM, DatagramS["GainSTM", GainSTMPtr]):
     """GainSTM is an STM for moving any Gain."""
 
     _gains: list[IGain]
@@ -46,11 +48,11 @@ class GainSTM(_STM):
         self._gains = []
         self._mode = GainSTMMode.PhaseIntensityFull
 
-    def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
+    def _raw_ptr(self: "GainSTM", geometry: Geometry) -> GainSTMPtr:
         gains: np.ndarray = np.ndarray(len(self._gains), dtype=GainPtr)
         for i, g in enumerate(self._gains):
             gains[i]["_0"] = g._gain_ptr(geometry)._0
-        res: GainSTMPtr = _validate_ptr(
+        return _validate_ptr(
             Base().stm_gain(
                 self._props(),
                 gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
@@ -58,7 +60,12 @@ class GainSTM(_STM):
                 self._mode,
             ),
         )
-        return Base().stm_gain_into_datagram(res)
+
+    def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
+        return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
+
+    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, *, update_segment: bool = True) -> DatagramPtr:
+        return Base().stm_gain_into_datagram_with_segment(ptr, segment, update_segment)
 
     @staticmethod
     def from_freq(freq: float) -> "GainSTM":

@@ -10,18 +10,20 @@ from numpy.typing import ArrayLike
 from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import (
     DatagramPtr,
     FocusSTMPtr,
+    Segment,
 )
 from pyautd3.native_methods.utils import _validate_ptr
 
 from .stm import _STM
 
 
-class FocusSTM(_STM):
+class FocusSTM(_STM, DatagramS["FocusSTM", FocusSTMPtr]):
     """FocusSTM is an STM for moving a single focal point.
 
     The sampling timing is determined by hardware, thus the sampling time is precise.
@@ -54,10 +56,10 @@ class FocusSTM(_STM):
         self._points = []
         self._intensities = []
 
-    def _datagram_ptr(self: "FocusSTM", _: Geometry) -> DatagramPtr:
+    def _raw_ptr(self: "FocusSTM", _: Geometry) -> FocusSTMPtr:
         points = np.ctypeslib.as_ctypes(np.array(self._points).astype(ctypes.c_double))
         intensities = np.fromiter((i.value for i in self._intensities), dtype=c_uint8)  # type: ignore[type-var,call-overload]
-        res: FocusSTMPtr = _validate_ptr(
+        return _validate_ptr(
             Base().stm_focus(
                 self._props(),
                 points,
@@ -65,7 +67,12 @@ class FocusSTM(_STM):
                 len(self._intensities),
             ),
         )
-        return Base().stm_focus_into_datagram(res)
+
+    def _datagram_ptr(self: "FocusSTM", geometry: Geometry) -> DatagramPtr:
+        return Base().stm_focus_into_datagram(self._raw_ptr(geometry))
+
+    def _into_segment(self: "FocusSTM", ptr: FocusSTMPtr, segment: Segment, *, update_segment: bool = True) -> DatagramPtr:
+        return Base().stm_focus_into_datagram_with_segment(ptr, segment, update_segment)
 
     @staticmethod
     def from_freq(freq: float) -> "FocusSTM":

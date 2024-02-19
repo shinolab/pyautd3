@@ -2,10 +2,10 @@ from abc import ABCMeta, abstractmethod
 from typing import TypeVar
 
 from pyautd3.driver.common import LoopBehavior, SamplingConfiguration
-from pyautd3.driver.datagram import Datagram
+from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import DatagramPtr, ModulationPtr
+from pyautd3.native_methods.autd3capi_def import DatagramPtr, ModulationPtr, Segment
 from pyautd3.native_methods.utils import _validate_int
 
 __all__ = []  # type: ignore[var-annotated]
@@ -15,11 +15,17 @@ MF = TypeVar("MF", bound="IModulationWithSamplingConfig")
 ML = TypeVar("ML", bound="IModulationWithLoopBehavior")
 
 
-class IModulation(Datagram, metaclass=ABCMeta):
+class IModulation(DatagramS["IModulation", ModulationPtr], metaclass=ABCMeta):
     _loop_behavior: LoopBehavior
 
     def __init__(self: "IModulation") -> None:
         super().__init__()
+
+    def _raw_ptr(self: "IModulation", _: Geometry) -> ModulationPtr:
+        self._modulation_ptr()
+
+    def _into_segment(self: "IModulation", ptr: ModulationPtr, segment: Segment, *, update_segment: bool) -> DatagramPtr:
+        return Base().modulation_into_datagram_with_segment(ptr, segment, update_segment)
 
     def _datagram_ptr(self: "IModulation", _: Geometry) -> DatagramPtr:
         return Base().modulation_into_datagram(self._modulation_ptr())

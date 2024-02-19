@@ -15,6 +15,7 @@ from .reads_fpga_state import ConfigureReadsFPGAState
 from .silencer import ConfigureSilencer
 from .stm import FocusSTM, GainSTM, GainSTMMode
 from .synchronize import Synchronize
+from .with_segment import DatagramWithSegment
 
 __all__ = [
     "Clear",

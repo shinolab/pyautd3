@@ -2,13 +2,12 @@ from abc import ABCMeta
 from datetime import timedelta
 
 from pyautd3.driver.common import LoopBehavior, SamplingConfiguration
-from pyautd3.driver.datagram import Datagram
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import STMPropsPtr
 from pyautd3.native_methods.utils import _validate_sampling_config
 
 
-class _STM(Datagram, metaclass=ABCMeta):
+class _STM(metaclass=ABCMeta):
     _freq: float | None
     _period: timedelta | None
     _sampling_config: SamplingConfiguration | None
