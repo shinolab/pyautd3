@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 
 import numpy as np
 
-from pyautd3.driver.datagram.gain import IGain
+from pyautd3.driver.datagram.gain.gain import IGain
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import Drive, GainPtr
@@ -54,9 +54,9 @@ class Cache(IGain, Generic[G]):
         return self._cache
 
 
-def __with_cache(self: G) -> Cache:
-    """Cache the result of calculation."""
-    return Cache(self)
+class IGainWithCache:
+    """Gain interface of Cache."""
 
-
-IGain.with_cache = __with_cache  # type: ignore[method-assign]
+    def with_cache(self: G) -> "Cache[G]":
+        """Cache the result of calculation."""
+        return Cache(self)

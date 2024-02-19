@@ -21,7 +21,7 @@ class RadiationPressure(IModulationWithCache, IModulation, Generic[M]):
         return Base().modulation_with_radiation_pressure(self._m._modulation_ptr())
 
 
-class IModulationWithRadiationPressure(IModulation):
+class IModulationWithRadiationPressure:
     """Modulation interface of RadiationPressure."""
 
     def with_radiation_pressure(self: M) -> "RadiationPressure[M]":

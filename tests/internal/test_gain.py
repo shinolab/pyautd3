@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import Controller, Device, Drive, EmitIntensity, Geometry, Phase, Segment, Transducer
+from pyautd3.driver.datagram.gain import IGainWithCache
 from pyautd3.gain import Gain, Uniform
 from tests.test_autd import create_controller
 
@@ -23,7 +24,7 @@ async def test_cache():
             assert np.all(phases == 0x90)
 
 
-class CacheTest(Gain):
+class CacheTest(IGainWithCache, Gain):
     calc_cnt: int
 
     def __init__(self: "CacheTest") -> None:

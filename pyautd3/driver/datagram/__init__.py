@@ -2,7 +2,7 @@ from .clear import Clear
 from .datagram import Datagram
 from .debug import ConfigureDebugOutputIdx
 from .force_fan import ConfigureForceFan
-from .gain import IGain
+from .gain.gain import IGain
 from .modulation import (
     IModulation,
     IModulationWithCache,

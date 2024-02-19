@@ -3,11 +3,10 @@ from collections.abc import Callable
 from typing import TYPE_CHECKING, TypeVar
 
 from pyautd3.driver.common.drive import Drive
+from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import DatagramPtr, GainPtr, Segment
-
-from .with_segment import DatagramS
 
 if TYPE_CHECKING:
     from pyautd3.gain.cache import Cache
@@ -33,12 +32,4 @@ class IGain(DatagramS["IGain", GainPtr], metaclass=ABCMeta):
 
     @abstractmethod
     def _gain_ptr(self: "IGain", geometry: Geometry) -> GainPtr:
-        pass
-
-    def with_cache(self: G) -> "Cache":  # type: ignore[empty-body]
-        # This function is implemented in cache.py
-        pass
-
-    def with_transform(self: G, f: Callable[[Device, Transducer, Drive], Drive]) -> "Transform":  # type: ignore[empty-body]
-        # This function is implemented in transform.py
         pass

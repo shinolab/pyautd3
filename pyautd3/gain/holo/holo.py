@@ -5,7 +5,7 @@ from typing import TypeVar
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3.gain.gain import IGain
+from pyautd3.driver.datagram.gain import IGain, IGainWithCache, IGainWithTransform
 
 from .amplitude import Amplitude
 from .backend import Backend
@@ -17,7 +17,7 @@ __all__ = []  # type: ignore[var-annotated]
 H = TypeVar("H", bound="Holo")
 
 
-class Holo(IGain):
+class Holo(IGainWithCache, IGainWithTransform, IGain):
     _foci: list[float]
     _amps: list[Amplitude]
     _constraint: EmissionConstraint

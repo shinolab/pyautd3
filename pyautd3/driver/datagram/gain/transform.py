@@ -7,17 +7,19 @@ import numpy as np
 
 from pyautd3.driver.common.drive import Drive
 from pyautd3.driver.common.phase import Phase
-from pyautd3.driver.datagram.gain import IGain
+from pyautd3.driver.datagram.gain.gain import IGain
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import Drive as _Drive
 from pyautd3.native_methods.autd3capi_def import GainPtr
 from pyautd3.native_methods.utils import _validate_ptr
 
+from .cache import IGainWithCache
+
 G = TypeVar("G", bound=IGain)
 
 
-class Transform(IGain, Generic[G]):
+class Transform(IGainWithCache, IGain, Generic[G]):
     """Gain to transform gain data."""
 
     _g: G
@@ -55,16 +57,16 @@ class Transform(IGain, Generic[G]):
         )
 
 
-def __with_transform(self: G, f: Callable[[Device, Transducer, Drive], Drive]) -> Transform:
-    """Transform the result of calculation.
+class IGainWithTransform:
+    """Gain interface of Transform."""
 
-    Arguments:
-    ---------
-        self: Gain
-        f: Transform function. The first argument is device, the second is transducer, and the third is the original drive data.
+    def with_transform(self: G, f: Callable[[Device, Transducer, Drive], Drive]) -> Transform:
+        """Transform the result of calculation.
 
-    """
-    return Transform(self, f)
+        Arguments:
+        ---------
+            self: Gain
+            f: Transform function. The first argument is device, the second is transducer, and the third is the original drive data.
 
-
-IGain.with_transform = __with_transform  # type: ignore[method-assign]
+        """
+        return Transform(self, f)
