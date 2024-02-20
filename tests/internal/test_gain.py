@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, Device, Drive, EmitIntensity, Geometry, Phase, Segment, Transducer
+from pyautd3 import ChangeGainSegment, Controller, Device, Drive, EmitIntensity, Geometry, Phase, Segment, Transducer
 from pyautd3.driver.datagram.gain import IGainWithCache
 from pyautd3.gain import Gain, Uniform
 from tests.test_autd import create_controller
@@ -127,3 +127,48 @@ async def test_transform_check_only_for_enabled():
         intensities, phases = autd.link.drives(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)
+
+
+@pytest.mark.asyncio()
+async def test_gain_segment():
+    autd: Controller[Audit]
+    with await create_controller() as autd:
+        assert autd.link.current_stm_segment(0) == Segment.S0
+
+        assert await autd.send_async(Uniform(0x01).with_phase(Phase(0x02)))
+        assert autd.link.current_stm_segment(0) == Segment.S0
+        assert autd.link.stm_cycle(0, Segment.S0) == 1
+        assert autd.link.stm_freqency_division(0, Segment.S0) == 0xFFFFFFFF
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(intensities == 0x01)
+            assert np.all(phases == 0x02)
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S1, 0)
+            assert np.all(intensities == 0x00)
+            assert np.all(phases == 0x00)
+
+        assert await autd.send_async(Uniform(0x03).with_phase(Phase(0x04)).with_segment(Segment.S1, update_segment=True))
+        assert autd.link.current_stm_segment(0) == Segment.S1
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(intensities == 0x01)
+            assert np.all(phases == 0x02)
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S1, 0)
+            assert np.all(intensities == 0x03)
+            assert np.all(phases == 0x04)
+
+        assert await autd.send_async(Uniform(0x05).with_phase(Phase(0x06)).with_segment(Segment.S0, update_segment=False))
+        assert autd.link.current_stm_segment(0) == Segment.S1
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(intensities == 0x05)
+            assert np.all(phases == 0x06)
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S1, 0)
+            assert np.all(intensities == 0x03)
+            assert np.all(phases == 0x04)
+
+        assert await autd.send_async(ChangeGainSegment(Segment.S0))
+        assert autd.link.current_stm_segment(0) == Segment.S0

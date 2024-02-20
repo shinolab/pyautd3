@@ -34,3 +34,8 @@ class LoopBehavior:
     def once() -> "LoopBehavior":
         """Equivalent to `finite(1)`."""
         return LoopBehavior.__private_new__(Def().loop_behavior_once())
+
+    def __eq__(self: "LoopBehavior", value: object) -> bool:
+        if not isinstance(value, LoopBehavior):
+            return False
+        return self._internal.rep == value._internal.rep

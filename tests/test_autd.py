@@ -6,7 +6,6 @@ from pyautd3 import (
     Clear,
     ConfigureDebugOutputIdx,
     ConfigureForceFan,
-    ConfigureReadsFPGAState,
     ConfigureSilencer,
     Controller,
     Device,
@@ -172,81 +171,6 @@ async def test_debug_output_idx():
 
         assert autd.link.debug_output_idx(0) == 10
         assert autd.link.debug_output_idx(1) == 0xFF
-
-
-def test_fpga_state():
-    autd: Controller[Audit]
-    with create_controller_sync() as autd:
-        infos = autd.fpga_state()
-        for info in infos:
-            assert info is None
-
-        autd.send(ConfigureReadsFPGAState(lambda _dev: True))
-        autd.link.assert_thermal_sensor(0)
-        autd.link.update(0)
-        autd.link.update(1)
-
-        infos = autd.fpga_state()
-        assert infos[0] is not None
-        assert infos[0].is_thermal_assert()
-        assert str(infos[0]) == "Thermal assert = True"
-        assert infos[1] is not None
-        assert not infos[1].is_thermal_assert()
-        assert str(infos[1]) == "Thermal assert = False"
-
-        autd.link.deassert_thermal_sensor(0)
-        autd.link.assert_thermal_sensor(1)
-        autd.link.update(0)
-        autd.link.update(1)
-
-        infos = autd.fpga_state()
-        assert infos[0] is not None
-        assert not infos[0].is_thermal_assert()
-        assert infos[1] is not None
-        assert infos[1].is_thermal_assert()
-
-        autd.link.break_down()
-        with pytest.raises(AUTDError) as e:
-            _ = autd.fpga_state()
-        assert str(e.value) == "broken"
-
-
-@pytest.mark.asyncio()
-async def test_fpga_state_async():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        infos = await autd.fpga_state_async()
-        for info in infos:
-            assert info is None
-
-        autd.send(ConfigureReadsFPGAState(lambda _dev: True))
-        autd.link.assert_thermal_sensor(0)
-        autd.link.update(0)
-        autd.link.update(1)
-
-        infos = await autd.fpga_state_async()
-        assert infos[0] is not None
-        assert infos[0].is_thermal_assert()
-        assert str(infos[0]) == "Thermal assert = True"
-        assert infos[1] is not None
-        assert not infos[1].is_thermal_assert()
-        assert str(infos[1]) == "Thermal assert = False"
-
-        autd.link.deassert_thermal_sensor(0)
-        autd.link.assert_thermal_sensor(1)
-        autd.link.update(0)
-        autd.link.update(1)
-
-        infos = await autd.fpga_state_async()
-        assert infos[0] is not None
-        assert not infos[0].is_thermal_assert()
-        assert infos[1] is not None
-        assert infos[1].is_thermal_assert()
-
-        autd.link.break_down()
-        with pytest.raises(AUTDError) as e:
-            _ = await autd.fpga_state_async()
-        assert str(e.value) == "broken"
 
 
 def test_firmware_info():

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, EmitIntensity, LoopBehavior, SamplingConfiguration, Segment
+from pyautd3 import ChangeModulationSegment, Controller, EmitIntensity, LoopBehavior, SamplingConfiguration, Segment, Static
 from pyautd3.driver.datagram.modulation import IModulationWithCache
 from pyautd3.modulation import Modulation, Sine
 from tests.test_autd import create_controller
@@ -181,3 +181,40 @@ async def test_radiation_pressure():
             ]
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+
+
+@pytest.mark.asyncio()
+async def test_mod_segment():
+    autd: Controller[Audit]
+    with await create_controller() as autd:
+        assert autd.link.current_mod_segment(0) == Segment.S0
+
+        assert await autd.send_async(Static.with_intensity(0x01))
+        assert autd.link.current_mod_segment(0) == Segment.S0
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx, Segment.S0)
+            assert np.all(mod == 0x01)
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx, Segment.S1)
+            assert np.all(mod == 0xFF)
+
+        assert await autd.send_async(Static.with_intensity(0x02).with_segment(Segment.S1, update_segment=True))
+        assert autd.link.current_mod_segment(0) == Segment.S1
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx, Segment.S0)
+            assert np.all(mod == 0x01)
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx, Segment.S1)
+            assert np.all(mod == 0x02)
+
+        assert await autd.send_async(Static.with_intensity(0x03).with_segment(Segment.S0, update_segment=False))
+        assert autd.link.current_mod_segment(0) == Segment.S1
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx, Segment.S0)
+            assert np.all(mod == 0x03)
+        for dev in autd.geometry:
+            mod = autd.link.modulation(dev.idx, Segment.S1)
+            assert np.all(mod == 0x02)
+
+        assert await autd.send_async(ChangeModulationSegment(Segment.S0))
+        assert autd.link.current_mod_segment(0) == Segment.S0

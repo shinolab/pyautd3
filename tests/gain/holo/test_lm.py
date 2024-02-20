@@ -73,6 +73,11 @@ async def test_lm_cuda():
             .with_initial(np.zeros(1))
             .with_constraint(EmissionConstraint.uniform(0x80))
         )
+        assert g.eps1() == 1e-3
+        assert g.eps2() == 1e-3
+        assert g.tau() == 1e-3
+        assert g.kmax() == 5
+        assert np.array_equal(g.initial(), np.zeros(1))
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)

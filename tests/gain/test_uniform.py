@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, Segment
+from pyautd3 import Controller, EmitIntensity, Segment
 from pyautd3.driver.common.phase import Phase
 from pyautd3.gain import Uniform
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -17,7 +17,10 @@ if TYPE_CHECKING:
 async def test_uniform():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert await autd.send_async(Uniform(0x80).with_phase(Phase(0x90)))
+        g = Uniform(0x80).with_phase(Phase(0x90))
+        assert g.intensity() == EmitIntensity(0x80)
+        assert g.phase() == Phase(0x90)
+        assert await autd.send_async(g)
 
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)

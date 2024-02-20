@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, Segment
+from pyautd3 import Controller, EmitIntensity, Segment
 from pyautd3.modulation import Static
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from tests.test_autd import create_controller
@@ -16,7 +16,9 @@ if TYPE_CHECKING:
 async def test_static():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert await autd.send_async(Static().with_intensity(0x80))
+        m = Static.with_intensity(0x80)
+        assert m.intensity() == EmitIntensity(0x80)
+        assert await autd.send_async(m)
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)

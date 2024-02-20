@@ -26,6 +26,17 @@ from .stm import _STM
 __all__ = []  # type: ignore[var-annotated]
 
 
+class ControlPoint:
+    """Control point for FocusSTM."""
+
+    point: np.ndarray
+    intensity: EmitIntensity
+
+    def __init__(self: "ControlPoint", point: ArrayLike, intensity: EmitIntensity | int | None = None) -> None:
+        self.point = np.array(point)
+        self.intensity = EmitIntensity(0xFF) if intensity is None else EmitIntensity._cast(intensity)
+
+
 class FocusSTM(_STM, DatagramS["FocusSTM", FocusSTMPtr]):
     """FocusSTM is an STM for moving a single focal point.
 
@@ -110,32 +121,36 @@ class FocusSTM(_STM, DatagramS["FocusSTM", FocusSTMPtr]):
         """
         return FocusSTM(sampling_config=config)
 
-    def add_focus(self: "FocusSTM", point: ArrayLike, intensity: EmitIntensity | None = None) -> "FocusSTM":
+    def add_focus(self: "FocusSTM", point: ArrayLike | ControlPoint) -> "FocusSTM":
         """Add focus.
 
         Arguments:
         ---------
-            point: Focal point
-            intensity: Emission intensity
+            point: Control point
 
         """
-        point = np.array(point)
-        self._points.append(point[0])
-        self._points.append(point[1])
-        self._points.append(point[2])
-        self._intensities.append(intensity if intensity is not None else EmitIntensity(0xFF))
+        p: ControlPoint
+        match point:
+            case ControlPoint():
+                p = point
+            case _:
+                p = ControlPoint(point)
+        self._points.append(p.point[0])
+        self._points.append(p.point[1])
+        self._points.append(p.point[2])
+        self._intensities.append(p.intensity)
         return self
 
-    def add_foci_from_iter(self: "FocusSTM", iterable: Iterable[np.ndarray] | Iterable[tuple[np.ndarray, int]]) -> "FocusSTM":
+    def add_foci_from_iter(self: "FocusSTM", iterable: Iterable[ArrayLike] | Iterable[ControlPoint]) -> "FocusSTM":
         """Add foci.
 
         Arguments:
         ---------
-            iterable: Iterable of focal points or tuples of focal points and duty shifts.
+            iterable: Iterable of Control points.
 
         """
         return functools.reduce(
-            lambda acc, x: acc.add_focus(x) if isinstance(x, np.ndarray) else acc.add_focus(x[0], x[1]),
+            lambda acc, x: acc.add_focus(x),
             iterable,
             self,
         )

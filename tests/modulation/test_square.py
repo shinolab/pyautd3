@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, SamplingConfiguration, Segment
+from pyautd3 import Controller, EmitIntensity, SamplingConfiguration, Segment
 from pyautd3.autd_error import AUTDError
 from pyautd3.modulation import SamplingMode, Square
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -17,7 +17,12 @@ if TYPE_CHECKING:
 async def test_square():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert await autd.send_async(Square(200).with_low(32).with_high(85).with_duty(0.1))
+        m = Square(200).with_low(32).with_high(85).with_duty(0.1)
+        assert m.freq() == 200
+        assert m.low() == EmitIntensity(32)
+        assert m.high() == EmitIntensity(85)
+        assert m.duty() == 0.1
+        assert await autd.send_async(m)
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -38,7 +43,9 @@ async def test_square():
 async def test_square_mode():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert await autd.send_async(Square(150).with_mode(SamplingMode.SizeOptimized))
+        m = Square(150).with_mode(SamplingMode.SizeOptimized)
+        assert m.mode() == SamplingMode.SizeOptimized
+        assert await autd.send_async(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
             mod_expect = [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]

@@ -17,9 +17,12 @@ if TYPE_CHECKING:
 async def test_sine():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert await autd.send_async(
-            Sine(150).with_intensity(EmitIntensity.maximum() // 2).with_offset(EmitIntensity.maximum() // 4).with_phase(Phase.from_rad(np.pi / 2)),
-        )
+        m = Sine(150).with_intensity(EmitIntensity.maximum() // 2).with_offset(EmitIntensity.maximum() // 4).with_phase(Phase.from_rad(np.pi / 2))
+        assert m.freq() == 150
+        assert m.intensity() == EmitIntensity.maximum() // 2
+        assert m.offset() == EmitIntensity.maximum() // 4
+        assert m.phase() == Phase.from_rad(np.pi / 2)
+        assert await autd.send_async(m)
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -121,7 +124,9 @@ async def test_sine():
 async def test_sine_mode():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert await autd.send_async(Sine(150).with_mode(SamplingMode.SizeOptimized))
+        m = Sine(150).with_mode(SamplingMode.SizeOptimized)
+        assert m.mode() == SamplingMode.SizeOptimized
+        assert await autd.send_async(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
             mod_expect = [127, 156, 184, 209, 229, 244, 253, 254, 249, 237, 220, 197, 171, 142, 112, 83, 57, 34, 17, 5, 0, 1, 10, 25, 45, 70, 98]

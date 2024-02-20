@@ -24,7 +24,7 @@ class Singleton(type):
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
             with cls._lock:
-                if cls not in cls._instances:
+                if cls not in cls._instances: # pragma: no cover
                     cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
         return cls._instances[cls]
 
@@ -34,8 +34,8 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         try:
             self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_gain_holo{bin_ext}'))
-        except Exception:
-            return
+        except FileNotFoundError:   # pragma: no cover
+            return                  # pragma: no cover
 
         self.dll.AUTDGainHoloConstraintDotCare.argtypes = [] 
         self.dll.AUTDGainHoloConstraintDotCare.restype = EmissionConstraintPtr

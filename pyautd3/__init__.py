@@ -14,7 +14,7 @@ from .driver.datagram import (
 )
 from .driver.datagram.gain import ChangeGainSegment
 from .driver.datagram.modulation import ChangeModulationSegment
-from .driver.datagram.stm import ChangeFocusSTMSegment, ChangeGainSTMSegment
+from .driver.datagram.stm import ChangeFocusSTMSegment, ChangeGainSTMSegment, ControlPoint
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer, deg, rad
 from .gain import Bessel, Focus, Group, Null, Plane, TransducerTest, Uniform
 from .link.nop import Nop
@@ -34,6 +34,7 @@ __all__ = [
     "ConfigureDebugOutputIdx",
     "ConfigureReadsFPGAState",
     "ConfigureForceFan",
+    "ControlPoint",
     "FocusSTM",
     "GainSTM",
     "GainSTMMode",

@@ -117,3 +117,9 @@ class Audit(Link):
 
     def stm_loop_behavior(self: "Audit", idx: int, segment: Segment) -> LoopBehavior:
         return LoopBehavior.__private_new__(LinkAudit().link_audit_fpga_stm_loop_behavior(self._ptr, segment, idx))
+
+    def current_stm_segment(self: "Audit", idx: int) -> Segment:
+        return LinkAudit().link_audit_fpga_current_stm_segment(self._ptr, idx)
+
+    def current_mod_segment(self: "Audit", idx: int) -> Segment:
+        return LinkAudit().link_audit_fpga_current_mod_segment(self._ptr, idx)
