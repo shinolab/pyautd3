@@ -2,6 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import TypeVar
 
 from pyautd3.driver.common import LoopBehavior, SamplingConfiguration
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -76,3 +77,14 @@ class IModulationWithLoopBehavior(IModulation):
         """
         self._loop_behavior = loop_behavior
         return self
+
+
+class ChangeModulationSegment(Datagram):
+    _segment: Segment
+
+    def __init__(self: "ChangeModulationSegment", segment: Segment) -> None:
+        super().__init__()
+        self._segment = segment
+
+    def _datagram_ptr(self: "ChangeModulationSegment", _: Geometry) -> DatagramPtr:
+        return Base().datagram_change_modulation_segment(self._segment)

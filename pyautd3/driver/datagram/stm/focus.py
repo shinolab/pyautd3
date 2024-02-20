@@ -10,6 +10,7 @@ from numpy.typing import ArrayLike
 from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -21,6 +22,8 @@ from pyautd3.native_methods.autd3capi_def import (
 from pyautd3.native_methods.utils import _validate_ptr
 
 from .stm import _STM
+
+__all__ = []  # type: ignore[var-annotated]
 
 
 class FocusSTM(_STM, DatagramS["FocusSTM", FocusSTMPtr]):
@@ -162,3 +165,14 @@ class FocusSTM(_STM, DatagramS["FocusSTM", FocusSTMPtr]):
         """
         self._loop_behavior = value
         return self
+
+
+class ChangeFocusSTMSegment(Datagram):
+    _segment: Segment
+
+    def __init__(self: "ChangeFocusSTMSegment", segment: Segment) -> None:
+        super().__init__()
+        self._segment = segment
+
+    def _datagram_ptr(self: "ChangeFocusSTMSegment", _: Geometry) -> DatagramPtr:
+        return Base().datagram_change_focus_stm_segment(self._segment)

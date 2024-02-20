@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import TypeVar
 
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -27,3 +28,14 @@ class IGain(DatagramS["IGain", GainPtr], metaclass=ABCMeta):
     @abstractmethod
     def _gain_ptr(self: "IGain", geometry: Geometry) -> GainPtr:
         pass
+
+
+class ChangeGainSegment(Datagram):
+    _segment: Segment
+
+    def __init__(self: "ChangeGainSegment", segment: Segment) -> None:
+        super().__init__()
+        self._segment = segment
+
+    def _datagram_ptr(self: "ChangeGainSegment", _: Geometry) -> DatagramPtr:
+        return Base().datagram_change_gain_segment(self._segment)

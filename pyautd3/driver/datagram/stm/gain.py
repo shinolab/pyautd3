@@ -6,6 +6,7 @@ import numpy as np
 
 from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.gain import IGain
@@ -20,6 +21,8 @@ from pyautd3.native_methods.autd3capi_def import (
 from pyautd3.native_methods.utils import _validate_ptr
 
 from .stm import _STM
+
+__all__ = []  # type: ignore[var-annotated]
 
 
 class GainSTM(_STM, DatagramS["GainSTM", GainSTMPtr]):
@@ -163,3 +166,14 @@ class GainSTM(_STM, DatagramS["GainSTM", GainSTMPtr]):
         """
         self._loop_behavior = value
         return self
+
+
+class ChangeGainSTMSegment(Datagram):
+    _segment: Segment
+
+    def __init__(self: "ChangeGainSTMSegment", segment: Segment) -> None:
+        super().__init__()
+        self._segment = segment
+
+    def _datagram_ptr(self: "ChangeGainSTMSegment", _: Geometry) -> DatagramPtr:
+        return Base().datagram_change_gain_stm_segment(self._segment)

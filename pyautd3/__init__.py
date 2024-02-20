@@ -12,6 +12,9 @@ from .driver.datagram import (
     GainSTM,
     GainSTMMode,
 )
+from .driver.datagram.gain import ChangeGainSegment
+from .driver.datagram.modulation import ChangeModulationSegment
+from .driver.datagram.stm import ChangeFocusSTMSegment, ChangeGainSTMSegment
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer, deg, rad
 from .gain import Bessel, Focus, Group, Null, Plane, TransducerTest, Uniform
 from .link.nop import Nop
@@ -55,6 +58,10 @@ __all__ = [
     "TimerStrategy",
     "LoopBehavior",
     "Segment",
+    "ChangeGainSegment",
+    "ChangeModulationSegment",
+    "ChangeFocusSTMSegment",
+    "ChangeGainSTMSegment",
 ]
 
 __version__ = "22.0.0-rc.1"
