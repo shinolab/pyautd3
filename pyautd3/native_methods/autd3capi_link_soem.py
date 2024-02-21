@@ -58,8 +58,8 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         try:
             self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_link_soem{bin_ext}'))
-        except FileNotFoundError:   # pragma: no cover
-            return                  # pragma: no cover
+        except Exception:   # pragma: no cover
+            return          # pragma: no cover
 
         self.dll.AUTDAdapterPointer.argtypes = [] 
         self.dll.AUTDAdapterPointer.restype = EthernetAdaptersPtr

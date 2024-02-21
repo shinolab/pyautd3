@@ -30,8 +30,8 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         try:
             self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_link_simulator{bin_ext}'))
-        except FileNotFoundError:   # pragma: no cover
-            return                  # pragma: no cover
+        except Exception:   # pragma: no cover
+            return          # pragma: no cover
 
         self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_uint16] 
         self.dll.AUTDLinkSimulator.restype = LinkSimulatorBuilderPtr
