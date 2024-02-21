@@ -55,6 +55,6 @@ def test_sampl_config_from_period():
     assert e.value.msg == "Sampling period (209715201000 ns) is out of range ([25000, 209715199951])"
 
 
-def test_sampling_config_ctr():
+def test_sampling_config_ctor():
     with pytest.raises(NotImplementedError):
         _ = SamplingConfiguration()

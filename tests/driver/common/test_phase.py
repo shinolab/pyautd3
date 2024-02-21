@@ -8,6 +8,7 @@ def test_phase():
     for i in range(256):
         phase = Phase(i)
         assert phase.value == i
+        assert str(phase) == f"Phase({i})"
 
     phase = Phase.from_rad(0)
     assert phase.radian == 0

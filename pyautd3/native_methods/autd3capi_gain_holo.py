@@ -49,6 +49,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloConstraintClamp.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainHoloConstraintClamp.restype = EmissionConstraintPtr
 
+        self.dll.AUTDGainHoloConstraintEq.argtypes = [EmissionConstraintPtr, EmissionConstraintPtr]  # type: ignore 
+        self.dll.AUTDGainHoloConstraintEq.restype = ctypes.c_bool
+
         self.dll.AUTDGainHoloGreedy.argtypes = [ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_uint8, EmissionConstraintPtr]  # type: ignore 
         self.dll.AUTDGainHoloGreedy.restype = GainPtr
 
@@ -108,6 +111,9 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_holo_constraint_clamp(self, min_v: int, max_v: int) -> EmissionConstraintPtr:
         return self.dll.AUTDGainHoloConstraintClamp(min_v, max_v)
+
+    def gain_holo_constraint_eq(self, a: EmissionConstraintPtr, b: EmissionConstraintPtr) -> ctypes.c_bool:
+        return self.dll.AUTDGainHoloConstraintEq(a, b)
 
     def gain_holo_greedy(self, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, div: int, constraint: EmissionConstraintPtr) -> GainPtr:
         return self.dll.AUTDGainHoloGreedy(points, amps, size, div, constraint)

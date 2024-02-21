@@ -22,7 +22,7 @@ class GS(HoloWithBackend):
     _repeat: int
 
     def __init__(self: "GS", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.dont_care(), backend)
+        super().__init__(EmissionConstraint.DontCare(), backend)
         self._repeat = 100
 
     def with_repeat(self: "GS", value: int) -> "GS":

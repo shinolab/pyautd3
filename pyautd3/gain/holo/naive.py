@@ -13,7 +13,7 @@ class Naive(HoloWithBackend):
     """Gain to produce multiple foci with naive linear synthesis."""
 
     def __init__(self: "Naive", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.dont_care(), backend)
+        super().__init__(EmissionConstraint.DontCare(), backend)
 
     def _gain_ptr(self: "Naive", _: Geometry) -> GainPtr:
         size = len(self._amps)

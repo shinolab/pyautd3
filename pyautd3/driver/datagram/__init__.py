@@ -11,6 +11,7 @@ from .modulation import (
     IModulationWithSamplingConfig,
     IModulationWithTransform,
 )
+from .phase_filter import ConfigurePhaseFilter
 from .reads_fpga_state import ConfigureReadsFPGAState
 from .silencer import ConfigureSilencer
 from .stm import FocusSTM, GainSTM, GainSTMMode
@@ -22,6 +23,7 @@ __all__ = [
     "ConfigureDebugOutputIdx",
     "ConfigureReadsFPGAState",
     "ConfigureForceFan",
+    "ConfigurePhaseFilter",
     "IGain",
     "IModulation",
     "IModulationWithSamplingConfig",

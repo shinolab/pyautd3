@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, Segment
+from pyautd3 import Controller, EmitIntensity, Phase, Segment
 from pyautd3.gain import Focus
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from tests.test_autd import create_controller
@@ -22,7 +22,11 @@ async def test_focus():
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
-        assert await autd.send_async(Focus(autd.geometry.center).with_intensity(0x80).with_phase(0x90)
+        g = Focus(autd.geometry.center).with_intensity(0x80).with_phase_offset(Phase(0x90))
+        assert await autd.send_async(g)
+        assert np.array_equal(g.pos(), autd.geometry.center)
+        assert g.intensity() == EmitIntensity(0x80)
+        assert g.phase_offset() == Phase(0x90)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)

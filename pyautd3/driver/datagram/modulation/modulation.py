@@ -78,6 +78,10 @@ class IModulationWithLoopBehavior(IModulation):
         self._loop_behavior = loop_behavior
         return self
 
+    def loop_behavior(self: ML) -> LoopBehavior:
+        """Get loop behavior."""
+        return self._loop_behavior
+
 
 class ChangeModulationSegment(Datagram):
     _segment: Segment

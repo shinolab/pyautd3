@@ -1,14 +1,20 @@
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pytest
 
-from pyautd3 import Segment
+from pyautd3 import Controller, EmitIntensity, Phase, Segment
 from pyautd3.gain import Bessel
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from tests.test_autd import create_controller
 
+if TYPE_CHECKING:
+    from pyautd3.link.audit import Audit
+
 
 @pytest.mark.asyncio()
 async def test_bessel():
+    autd: Controller[Audit]
     with await create_controller() as autd:
         assert await autd.send_async(Bessel(autd.geometry.center, [0, 0, 1], np.pi / 4))
         for dev in autd.geometry:
@@ -16,7 +22,10 @@ async def test_bessel():
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
-        assert await autd.send_async(Bessel(autd.geometry.center, [0, 0, 1], np.pi / 4).with_intensity(0x80))
+        g = Bessel(autd.geometry.center, [0, 0, 1], np.pi / 4).with_intensity(0x80).with_phase_offset(Phase(0x90))
+        assert await autd.send_async(g)
+        assert g.intensity() == EmitIntensity(0x80)
+        assert g.phase_offset() == Phase(0x90)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)

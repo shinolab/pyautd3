@@ -29,7 +29,7 @@ class LM(HoloWithBackend):
     _initial: np.ndarray
 
     def __init__(self: "LM", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.dont_care(), backend)
+        super().__init__(EmissionConstraint.DontCare(), backend)
         self._eps1 = 1e-8
         self._eps2 = 1e-8
         self._tau = 1e-3

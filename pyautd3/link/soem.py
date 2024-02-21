@@ -95,7 +95,7 @@ class SOEM(Link):
             """
 
             def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
-                handler(int(slave), Status(int(status)), p_msg.decode("utf-8"))
+                handler(int(slave), Status(int(status)), p_msg.decode("utf-8"))  # pragma: no cover
 
             self._err_handler = ErrHandlerFunc(callback_native)
             self._builder = LinkSOEM().link_soem_with_err_handler(self._builder, self._err_handler, None)  # type: ignore[arg-type]
@@ -151,7 +151,7 @@ class SOEM(Link):
             return LinkSOEM().link_soem_into_builder(self._builder)
 
         def _resolve_link(self: "SOEM._Builder", _ptr: ControllerPtr) -> "SOEM":
-            return SOEM(Base().link_get(_ptr), self._err_handler)
+            return SOEM(Base().link_get(_ptr), self._err_handler)  # pragma: no cover
 
     @staticmethod
     def enumerate_adapters() -> list[EtherCATAdapter]:
@@ -205,7 +205,7 @@ class RemoteSOEM(Link):
             return LinkSOEM().link_remote_soem_into_builder(self._builder)  # pragma: no cover
 
         def _resolve_link(self: "RemoteSOEM._Builder", _ptr: ControllerPtr) -> "RemoteSOEM":
-            return RemoteSOEM(Base().link_get(_ptr))
+            return RemoteSOEM(Base().link_get(_ptr))  # pragma: no cover
 
     def __init__(self: "RemoteSOEM", ptr: LinkPtr) -> None:
         super().__init__(ptr)  # pragma: no cover

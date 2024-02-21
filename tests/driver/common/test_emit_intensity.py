@@ -9,6 +9,7 @@ def test_emit_intensity():
     for i in range(256):
         intensity = EmitIntensity(i)
         assert intensity.value == i
+        assert str(intensity) == f"EmitIntensity({i})"
 
 
 def test_emit_intensity_with_correction():

@@ -222,6 +222,8 @@ impl PythonGenerator {
                     | "SyncLink"
                     | "SyncLinkBuilder"
                     | "DynamicDatagramWithSegment"
+                    | "DynamicConfigurePhaseFilter"
+                    | "DynamicConfigurePhaseFilterOp"
             )
         }));
         self

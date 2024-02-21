@@ -14,7 +14,7 @@ class Plane(IGainWithCache, IGainWithTransform, IGain):
 
     _d: np.ndarray
     _intensity: EmitIntensity
-    _phase: Phase
+    _phase_offset: Phase
 
     def __init__(self: "Plane", direction: ArrayLike) -> None:
         """Constructor.
@@ -27,7 +27,7 @@ class Plane(IGainWithCache, IGainWithTransform, IGain):
         super().__init__()
         self._d = np.array(direction)
         self._intensity = EmitIntensity.maximum()
-        self._phase = Phase(0)
+        self._phase_offset = Phase(0)
 
     def dir(self: "Plane") -> np.ndarray:
         """Get direction of the plane wave."""
@@ -48,20 +48,20 @@ class Plane(IGainWithCache, IGainWithTransform, IGain):
         """Get emission intensity."""
         return self._intensity
 
-    def with_phase(self: "Plane", phase: Phase) -> "Plane":
-        """Set phase.
+    def with_phase_offset(self: "Plane", phase: Phase) -> "Plane":
+        """Set phase offset.
 
         Arguments:
         ---------
             phase: Phase
 
         """
-        self._phase = phase
+        self._phase_offset = phase
         return self
 
-    def phase(self: "Plane") -> Phase:
-        """Get phase."""
-        return self._phase
+    def phase_offset(self: "Plane") -> Phase:
+        """Get phase offset."""
+        return self._phase_offset
 
     def _gain_ptr(self: "Plane", _: Geometry) -> GainPtr:
-        return Base().gain_plane(self._d[0], self._d[1], self._d[2], self._intensity.value, self._phase.value)
+        return Base().gain_plane(self._d[0], self._d[1], self._d[2], self._intensity.value, self._phase_offset.value)

@@ -23,7 +23,7 @@ class Greedy(Holo):
     _div: int
 
     def __init__(self: "Greedy") -> None:
-        super().__init__(EmissionConstraint.uniform(EmitIntensity.maximum()))
+        super().__init__(EmissionConstraint.Uniform(EmitIntensity.maximum()))
         self._div = 16
 
     def with_phase_div(self: "Greedy", div: int) -> "Greedy":

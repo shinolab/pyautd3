@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from ctypes import Array, c_double
 
-from pyautd3.gain.holo.constraint import EmissionConstraint
+from pyautd3.gain.holo.constraint import IEmissionConstraint
 from pyautd3.native_methods.autd3capi_def import GainPtr
 from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr
 
@@ -26,20 +26,20 @@ class Backend(metaclass=ABCMeta):
         alpha: float,
         lambda_: float,
         repeat: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         pass
 
     @abstractmethod
-    def _gs(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraint) -> GainPtr:
+    def _gs(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: IEmissionConstraint) -> GainPtr:
         pass
 
     @abstractmethod
-    def _gspat(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraint) -> GainPtr:
+    def _gspat(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: IEmissionConstraint) -> GainPtr:
         pass
 
     @abstractmethod
-    def _naive(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: EmissionConstraint) -> GainPtr:
+    def _naive(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: IEmissionConstraint) -> GainPtr:
         pass
 
     @abstractmethod
@@ -54,6 +54,6 @@ class Backend(metaclass=ABCMeta):
         kmax: int,
         initial: Array[c_double],
         initial_size: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         pass

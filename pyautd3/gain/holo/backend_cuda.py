@@ -7,7 +7,7 @@ from pyautd3.native_methods.autd3capi_def import GainPtr
 from pyautd3.native_methods.utils import _validate_ptr
 
 from .backend import Backend
-from .constraint import EmissionConstraint
+from .constraint import IEmissionConstraint
 
 
 class CUDABackend(Backend):
@@ -30,11 +30,11 @@ class CUDABackend(Backend):
         alpha: float,
         lambda_: float,
         repeat: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         return AUTD3BackendCUDA().gain_holo_cudasdp(self._backend_ptr(), foci, amps, size, alpha, lambda_, repeat, constraint._constraint_ptr())
 
-    def _gs(self: "CUDABackend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraint) -> GainPtr:
+    def _gs(self: "CUDABackend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: IEmissionConstraint) -> GainPtr:
         return AUTD3BackendCUDA().gain_holo_cudags(self._backend_ptr(), foci, amps, size, repeat, constraint._constraint_ptr())
 
     def _gspat(
@@ -43,11 +43,11 @@ class CUDABackend(Backend):
         amps: Array[c_double],
         size: int,
         repeat: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         return AUTD3BackendCUDA().gain_holo_cudagspat(self._backend_ptr(), foci, amps, size, repeat, constraint._constraint_ptr())
 
-    def _naive(self: "CUDABackend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: EmissionConstraint) -> GainPtr:
+    def _naive(self: "CUDABackend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: IEmissionConstraint) -> GainPtr:
         return AUTD3BackendCUDA().gain_holo_cuda_naive(self._backend_ptr(), foci, amps, size, constraint._constraint_ptr())
 
     def _lm(
@@ -61,7 +61,7 @@ class CUDABackend(Backend):
         kmax: int,
         initial: Array[c_double],
         initial_size: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         return AUTD3BackendCUDA().gain_holo_cudalm(
             self._backend_ptr(),

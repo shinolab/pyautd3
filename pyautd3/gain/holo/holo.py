@@ -9,9 +9,9 @@ from pyautd3.driver.datagram.gain import IGain, IGainWithCache, IGainWithTransfo
 
 from .amplitude import Amplitude
 from .backend import Backend
-from .constraint import EmissionConstraint
+from .constraint import EmissionConstraint, IEmissionConstraint
 
-__all__ = []  # type: ignore[var-annotated]
+__all__ = ["EmissionConstraint"]
 
 
 H = TypeVar("H", bound="Holo")
@@ -20,9 +20,9 @@ H = TypeVar("H", bound="Holo")
 class Holo(IGainWithCache, IGainWithTransform, IGain):
     _foci: list[float]
     _amps: list[Amplitude]
-    _constraint: EmissionConstraint
+    _constraint: IEmissionConstraint
 
-    def __init__(self: "Holo", constraint: EmissionConstraint) -> None:
+    def __init__(self: "Holo", constraint: IEmissionConstraint) -> None:
         self._foci = []
         self._amps = []
         self._constraint = constraint
@@ -57,7 +57,7 @@ class Holo(IGainWithCache, IGainWithTransform, IGain):
             self,
         )
 
-    def with_constraint(self: H, constraint: EmissionConstraint) -> H:
+    def with_constraint(self: H, constraint: IEmissionConstraint) -> H:
         """Set amplitude constraint.
 
         Arguments:
@@ -68,7 +68,7 @@ class Holo(IGainWithCache, IGainWithTransform, IGain):
         self._constraint = constraint
         return self
 
-    def constraint(self: H) -> EmissionConstraint:
+    def constraint(self: H) -> IEmissionConstraint:
         """Get emission constraint."""
         return self._constraint
 
@@ -76,6 +76,6 @@ class Holo(IGainWithCache, IGainWithTransform, IGain):
 class HoloWithBackend(Holo):
     _backend: Backend
 
-    def __init__(self: "HoloWithBackend", constraint: EmissionConstraint, backend: Backend) -> None:
+    def __init__(self: "HoloWithBackend", constraint: IEmissionConstraint, backend: Backend) -> None:
         super().__init__(constraint)
         self._backend = backend

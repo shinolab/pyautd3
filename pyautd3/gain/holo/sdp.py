@@ -24,7 +24,7 @@ class SDP(HoloWithBackend):
     _repeat: int
 
     def __init__(self: "SDP", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.dont_care(), backend)
+        super().__init__(EmissionConstraint.DontCare(), backend)
         self._alpha = 1e-3
         self._lambda = 0.9
         self._repeat = 100

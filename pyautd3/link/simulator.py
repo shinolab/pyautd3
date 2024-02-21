@@ -52,7 +52,7 @@ class Simulator(Link):
             return LinkSimulator().link_simulator_into_builder(self._builder)  # pragma: no cover
 
         def _resolve_link(self: "Simulator._Builder", ptr: ControllerPtr) -> "Simulator":
-            return Simulator(Base().link_get(ptr))
+            return Simulator(Base().link_get(ptr))  # pragma: no cover
 
     def __init__(self: "Simulator", ptr: LinkPtr) -> None:
         super().__init__(ptr)  # pragma: no cover

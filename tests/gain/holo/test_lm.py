@@ -33,7 +33,7 @@ async def test_lm():
             .with_tau(1e-3)
             .with_kmax(5)
             .with_initial(np.zeros(1))
-            .with_constraint(EmissionConstraint.uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(0x80))
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
@@ -71,7 +71,7 @@ async def test_lm_cuda():
             .with_tau(1e-3)
             .with_kmax(5)
             .with_initial(np.zeros(1))
-            .with_constraint(EmissionConstraint.uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(0x80))
         )
         assert g.eps1() == 1e-3
         assert g.eps2() == 1e-3

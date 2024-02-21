@@ -1,6 +1,8 @@
+import ctypes
 import functools
 from collections.abc import Iterable
-from functools import reduce
+
+import numpy as np
 
 from pyautd3.driver.datagram import (
     IModulationWithCache,
@@ -60,8 +62,10 @@ class Fourier(
         return self.add_component(rhs)
 
     def _modulation_ptr(self: "Fourier") -> ModulationPtr:
-        return reduce(
-            lambda acc, s: Base().modulation_fourier_add_component(acc, s._modulation_ptr()),
-            self._components[1:],
-            Base().modulation_fourier(self._components[0]._modulation_ptr()),
+        components: np.ndarray = np.ndarray(len(self._components), dtype=ModulationPtr)
+        for i, m in enumerate(self._components):
+            components[i]["_0"] = m._modulation_ptr()._0
+        return Base().modulation_fourier(
+            components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
+            len(self._components),
         )

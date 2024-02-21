@@ -6,6 +6,7 @@ from .driver.datagram import (
     Clear,
     ConfigureDebugOutputIdx,
     ConfigureForceFan,
+    ConfigurePhaseFilter,
     ConfigureReadsFPGAState,
     ConfigureSilencer,
     FocusSTM,
@@ -33,6 +34,7 @@ __all__ = [
     "ConfigureSilencer",
     "ConfigureDebugOutputIdx",
     "ConfigureReadsFPGAState",
+    "ConfigurePhaseFilter",
     "ConfigureForceFan",
     "ControlPoint",
     "FocusSTM",
@@ -65,4 +67,4 @@ __all__ = [
     "ChangeGainSTMSegment",
 ]
 
-__version__ = "22.0.0-rc.1"
+__version__ = "22.0.0"

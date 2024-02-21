@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, EmitIntensity, Phase, SamplingConfiguration, Segment
+from pyautd3 import Controller, EmitIntensity, LoopBehavior, Phase, SamplingConfiguration, Segment
 from pyautd3.autd_error import AUTDError
 from pyautd3.modulation import SamplingMode, Sine
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -17,14 +17,22 @@ if TYPE_CHECKING:
 async def test_sine():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        m = Sine(150).with_intensity(EmitIntensity.maximum() // 2).with_offset(EmitIntensity.maximum() // 4).with_phase(Phase.from_rad(np.pi / 2))
+        m = (
+            Sine(150)
+            .with_intensity(EmitIntensity.maximum() // 2)
+            .with_offset(EmitIntensity.maximum() // 4)
+            .with_phase(Phase.from_rad(np.pi / 2))
+            .with_loop_behavior(LoopBehavior.once())
+        )
         assert m.freq() == 150
         assert m.intensity() == EmitIntensity.maximum() // 2
         assert m.offset() == EmitIntensity.maximum() // 4
         assert m.phase() == Phase.from_rad(np.pi / 2)
+        assert m.loop_behavior() == LoopBehavior.once()
         assert await autd.send_async(m)
 
         for dev in autd.geometry:
+            assert autd.link.modulation_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.once()
             mod = autd.link.modulation(dev.idx, Segment.S0)
             mod_expect = [
                 127,

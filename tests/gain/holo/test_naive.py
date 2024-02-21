@@ -28,7 +28,7 @@ async def test_naive():
             Naive(backend)
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
             .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
-            .with_constraint(EmissionConstraint.uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(0x80))
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
@@ -61,7 +61,7 @@ async def test_naive_cuda():
             Naive(backend)
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
             .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
-            .with_constraint(EmissionConstraint.uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(0x80))
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:

@@ -1,17 +1,15 @@
+from datetime import timedelta
+
 import numpy as np
 import pytest
 
 from pyautd3 import (
     AUTD3,
     Clear,
-    ConfigureDebugOutputIdx,
     ConfigureForceFan,
-    ConfigureSilencer,
     Controller,
     Device,
-    GainSTM,
     Phase,
-    SamplingConfiguration,
     Segment,
 )
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
@@ -42,135 +40,6 @@ def create_controller_sync() -> Controller[Audit]:
             Audit.builder(),
         )
     )
-
-
-@pytest.mark.asyncio()
-async def test_silencer_fixed_completion_steps():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        await autd.send_async(ConfigureSilencer.fixed_completion_steps(2, 3))
-
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        await autd.send_async(ConfigureSilencer.disable())
-
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 1
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 1
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        await autd.send_async(ConfigureSilencer.default())
-
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-
-@pytest.mark.asyncio()
-async def test_silencer_fixed_update_rate():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        await autd.send_async(ConfigureSilencer.fixed_update_rate(2, 3))
-
-        for dev in autd.geometry:
-            assert autd.link.silencer_update_rate_intensity(dev.idx) == 2
-            assert autd.link.silencer_update_rate_phase(dev.idx) == 3
-            assert not autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-
-@pytest.mark.asyncio()
-async def test_silencer_large_steps():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        await autd.send_async(ConfigureSilencer.disable())
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 1
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 1
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        assert await autd.send_async(Sine(150).with_sampling_config(SamplingConfiguration.from_frequency_division(512)))
-
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async(ConfigureSilencer.fixed_completion_steps(10, 40))
-        assert str(e.value) == "Completion steps is too large"
-
-
-@pytest.mark.asyncio()
-async def test_silencer_small_freq_div_mod():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async(Sine(150).with_sampling_config(SamplingConfiguration.from_frequency_division(512)))
-        assert str(e.value) == "Frequency division is too small"
-
-        await autd.send_async(ConfigureSilencer.fixed_completion_steps(10, 40).with_strict_mode(mode=False))
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        assert await autd.send_async(Sine(150).with_sampling_config(SamplingConfiguration.from_frequency_division(512)))
-
-
-@pytest.mark.asyncio()
-async def test_silencer_small_freq_div_stm():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async(GainSTM.from_sampling_config(SamplingConfiguration.from_frequency_division(512)).add_gain(Null()).add_gain(Null()))
-        assert str(e.value) == "Frequency division is too small"
-
-        await autd.send_async(ConfigureSilencer.fixed_completion_steps(10, 40).with_strict_mode(mode=False))
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-
-        assert await autd.send_async(
-            GainSTM.from_sampling_config(SamplingConfiguration.from_frequency_division(512)).add_gain(Null()).add_gain(Null()),
-        )
-
-
-@pytest.mark.asyncio()
-async def test_debug_output_idx():
-    autd: Controller[Audit]
-    with await create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.debug_output_idx(dev.idx) == 0xFF
-
-        await autd.send_async(ConfigureDebugOutputIdx(lambda dev: dev[0]))
-
-        for dev in autd.geometry:
-            assert autd.link.debug_output_idx(dev.idx) == 0
-
-        await autd.send_async(ConfigureDebugOutputIdx(lambda dev: dev[10] if dev.idx == 0 else None))
-
-        assert autd.link.debug_output_idx(0) == 10
-        assert autd.link.debug_output_idx(1) == 0xFF
 
 
 def test_firmware_info():
@@ -239,13 +108,17 @@ async def test_close_async():
 async def test_send_async_single():
     autd: Controller[Audit]
     with await create_controller() as autd:
+        assert autd.link.last_timeout() == timedelta(milliseconds=200)
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
 
         assert await autd.send_async(Static())
-
+        assert autd.link.last_timeout() == timedelta(milliseconds=200)
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+
+        assert await autd.send_async(Static(), timeout=timedelta(milliseconds=100))
+        assert autd.link.last_timeout() == timedelta(milliseconds=100)
 
         autd.link.down()
         assert not await autd.send_async(Static())

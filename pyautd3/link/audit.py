@@ -21,6 +21,10 @@ class Audit(Link):
         def __init__(self: "Audit._Builder") -> None:
             self._builder = LinkAudit().link_audit()
 
+        def with_timeout(self: "Audit._Builder", timeout: timedelta) -> "Audit._Builder":
+            self._builder = LinkAudit().link_audit_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
+            return self
+
         def _link_builder_ptr(self: "Audit._Builder") -> LinkBuilderPtr:
             return LinkAudit().link_audit_into_builder(self._builder)
 
@@ -46,8 +50,8 @@ class Audit(Link):
     def break_down(self: "Audit") -> None:
         LinkAudit().link_audit_break_down(self._ptr)
 
-    def update(self: "Audit", idx: int) -> None:
-        LinkAudit().link_audit_cpu_update(self._ptr, idx)
+    def timeout(self: "Audit") -> timedelta:
+        return timedelta(microseconds=int(LinkAudit().link_audit_timeout_ns(self._ptr)) / 1000)
 
     def last_timeout(self: "Audit") -> timedelta:
         return timedelta(microseconds=int(LinkAudit().link_audit_last_timeout_ns(self._ptr)) / 1000)
@@ -96,7 +100,7 @@ class Audit(Link):
         n = int(LinkAudit().link_audit_cpu_num_transducers(self._ptr, idx))
         intensities = np.zeros([n]).astype(ctypes.c_uint8)
         phases = np.zeros([n]).astype(ctypes.c_uint8)
-        LinkAudit().link_audit_fpga_i_drives(
+        LinkAudit().link_audit_fpga_drives(
             self._ptr,
             segment,
             idx,
@@ -105,6 +109,9 @@ class Audit(Link):
             np.ctypeslib.as_ctypes(phases),
         )
         return (intensities, phases)
+
+    def sound_speed(self: "Audit", idx: int, segment: Segment) -> int:
+        return int(LinkAudit().link_audit_fpga_sound_speed(self._ptr, segment, idx))
 
     def stm_cycle(self: "Audit", idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_stm_cycle(self._ptr, segment, idx))
@@ -123,3 +130,13 @@ class Audit(Link):
 
     def current_mod_segment(self: "Audit", idx: int) -> Segment:
         return LinkAudit().link_audit_fpga_current_mod_segment(self._ptr, idx)
+
+    def phase_filter(self: "Audit", idx: int) -> np.ndarray:
+        n = int(LinkAudit().link_audit_cpu_num_transducers(self._ptr, idx))
+        p = np.zeros([n]).astype(ctypes.c_uint8)
+        LinkAudit().link_audit_fpga_phase_filter(
+            self._ptr,
+            idx,
+            np.ctypeslib.as_ctypes(p),
+        )
+        return p

@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.common import EmitIntensity, Phase
 from pyautd3.driver.datagram.gain import IGain, IGainWithCache, IGainWithTransform
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -15,6 +15,7 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
     _d: np.ndarray
     _theta: float
     _intensity: EmitIntensity
+    _phase_offset: Phase
 
     def __init__(self: "Bessel", pos: ArrayLike, direction: ArrayLike, theta: float) -> None:
         """Constructor.
@@ -31,6 +32,7 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
         self._d = np.array(direction)
         self._theta = theta
         self._intensity = EmitIntensity.maximum()
+        self._phase_offset = Phase(0)
 
     def pos(self: "Bessel") -> np.ndarray:
         """Get start point of the beam."""
@@ -59,6 +61,21 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
         """Get emission intensity."""
         return self._intensity
 
+    def with_phase_offset(self: "Bessel", phase: Phase) -> "Bessel":
+        """Set phase offset.
+
+        Arguments:
+        ---------
+            phase: Phase offset
+
+        """
+        self._phase_offset = phase
+        return self
+
+    def phase_offset(self: "Bessel") -> Phase:
+        """Get phase offset."""
+        return self._phase_offset
+
     def _gain_ptr(self: "Bessel", _: Geometry) -> GainPtr:
         return Base().gain_bessel(
             self._p[0],
@@ -69,4 +86,5 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
             self._d[2],
             self._theta,
             self._intensity.value,
+            self._phase_offset.value,
         )

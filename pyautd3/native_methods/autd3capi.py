@@ -96,6 +96,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramConfigureForceFan.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDDatagramConfigureForceFan.restype = DatagramPtr
 
+        self.dll.AUTDDatagramConfigurePhaseFilter.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
+        self.dll.AUTDDatagramConfigurePhaseFilter.restype = DatagramPtr
+
         self.dll.AUTDDatagramConfigureReadsFPGAState.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDDatagramConfigureReadsFPGAState.restype = DatagramPtr
 
@@ -111,7 +114,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSynchronize.argtypes = [] 
         self.dll.AUTDDatagramSynchronize.restype = DatagramPtr
 
-        self.dll.AUTDGainBessel.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8] 
+        self.dll.AUTDGainBessel.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainBessel.restype = GainPtr
 
         self.dll.AUTDGainBesselIsDefault.argtypes = [GainPtr]  # type: ignore 
@@ -123,7 +126,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainCustomSet.argtypes = [GainPtr, ctypes.c_uint32, ctypes.POINTER(Drive), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainCustomSet.restype = GainPtr
 
-        self.dll.AUTDGainFocus.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8] 
+        self.dll.AUTDGainFocus.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainFocus.restype = GainPtr
 
         self.dll.AUTDGainFocusIsDefault.argtypes = [GainPtr]  # type: ignore 
@@ -306,29 +309,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditDown.argtypes = [LinkPtr]  # type: ignore 
         self.dll.AUTDLinkAuditDown.restype = None
 
-        self.dll.AUTDLinkAuditUp.argtypes = [LinkPtr]  # type: ignore 
-        self.dll.AUTDLinkAuditUp.restype = None
-
         self.dll.AUTDLinkAuditBreakDown.argtypes = [LinkPtr]  # type: ignore 
         self.dll.AUTDLinkAuditBreakDown.restype = None
 
-        self.dll.AUTDLinkAuditRepair.argtypes = [LinkPtr]  # type: ignore 
-        self.dll.AUTDLinkAuditRepair.restype = None
-
-        self.dll.AUTDLinkAuditCpuUpdate.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditCpuUpdate.restype = None
-
-        self.dll.AUTDLinkAuditCpuIdx.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditCpuIdx.restype = ctypes.c_uint32
-
         self.dll.AUTDLinkAuditCpuNumTransducers.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditCpuNumTransducers.restype = ctypes.c_uint32
-
-        self.dll.AUTDLinkAuditCpuAck.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditCpuAck.restype = ctypes.c_uint8
-
-        self.dll.AUTDLinkAuditCpuRxData.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditCpuRxData.restype = ctypes.c_uint8
 
         self.dll.AUTDLinkAuditFpgaAssertThermalSensor.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaAssertThermalSensor.restype = None
@@ -390,8 +375,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaModulationLoopBehavior.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaModulationLoopBehavior.restype = LoopBehavior
 
-        self.dll.AUTDLinkAuditFpgaIDrives.argtypes = [LinkPtr, Segment, ctypes.c_uint32, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaIDrives.restype = None
+        self.dll.AUTDLinkAuditFpgaDrives.argtypes = [LinkPtr, Segment, ctypes.c_uint32, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaDrives.restype = None
+
+        self.dll.AUTDLinkAuditFpgaPhaseFilter.argtypes = [LinkPtr, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaPhaseFilter.restype = None
 
         self.dll.AUTDLinkGet.argtypes = [ControllerPtr]  # type: ignore 
         self.dll.AUTDLinkGet.restype = LinkPtr
@@ -402,14 +390,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationCustom.argtypes = [SamplingConfiguration, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationCustom.restype = ModulationPtr
 
-        self.dll.AUTDModulationFourier.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationFourier.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDModulationFourier.restype = ModulationPtr
-
-        self.dll.AUTDModulationFourierAddComponent.argtypes = [ModulationPtr, ModulationPtr]  # type: ignore 
-        self.dll.AUTDModulationFourierAddComponent.restype = ModulationPtr
-
-        self.dll.AUTDModulationFourierAddComponents.argtypes = [ModulationPtr, ctypes.POINTER(ModulationPtr), ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDModulationFourierAddComponents.restype = ModulationPtr
 
         self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSamplingConfig.restype = SamplingConfiguration
@@ -471,9 +453,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMGain.argtypes = [STMPropsPtr, ctypes.POINTER(GainPtr), ctypes.c_uint32, GainSTMMode]  # type: ignore 
         self.dll.AUTDSTMGain.restype = ResultGainSTM
 
-        self.dll.AUTDSTMGainAddGain.argtypes = [GainSTMPtr, GainPtr]  # type: ignore 
-        self.dll.AUTDSTMGainAddGain.restype = ResultDatagram
-
         self.dll.AUTDSTMGainIntoDatagramWithSegment.argtypes = [GainSTMPtr, Segment, ctypes.c_bool]  # type: ignore 
         self.dll.AUTDSTMGainIntoDatagramWithSegment.restype = DatagramPtr
 
@@ -504,9 +483,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMPropsSamplingConfig.argtypes = [STMPropsPtr, ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDSTMPropsSamplingConfig.restype = ResultSamplingConfig
 
-        self.dll.AUTDSTMPropsLoopBehavior.argtypes = [STMPropsPtr]  # type: ignore 
-        self.dll.AUTDSTMPropsLoopBehavior.restype = LoopBehavior
-
     def datagram_clear(self) -> DatagramPtr:
         return self.dll.AUTDDatagramClear()
 
@@ -515,6 +491,9 @@ class NativeMethods(metaclass=Singleton):
 
     def datagram_configure_force_fan(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramConfigureForceFan(f, context, geometry)
+
+    def datagram_configure_phase_filter(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramConfigurePhaseFilter(f, context, geometry)
 
     def datagram_configure_reads_fpga_state(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramConfigureReadsFPGAState(f, context, geometry)
@@ -531,8 +510,8 @@ class NativeMethods(metaclass=Singleton):
     def datagram_synchronize(self) -> DatagramPtr:
         return self.dll.AUTDDatagramSynchronize()
 
-    def gain_bessel(self, x: float, y: float, z: float, nx: float, ny: float, nz: float, theta_z: float, intensity: int) -> GainPtr:
-        return self.dll.AUTDGainBessel(x, y, z, nx, ny, nz, theta_z, intensity)
+    def gain_bessel(self, x: float, y: float, z: float, nx: float, ny: float, nz: float, theta_z: float, intensity: int, phase_offset: int) -> GainPtr:
+        return self.dll.AUTDGainBessel(x, y, z, nx, ny, nz, theta_z, intensity, phase_offset)
 
     def gain_bessel_is_default(self, bessel: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainBesselIsDefault(bessel)
@@ -543,8 +522,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_custom_set(self, custom: GainPtr, dev_idx: int, ptr: ctypes.Array | None, len: int) -> GainPtr:
         return self.dll.AUTDGainCustomSet(custom, dev_idx, ptr, len)
 
-    def gain_focus(self, x: float, y: float, z: float, intensity: int) -> GainPtr:
-        return self.dll.AUTDGainFocus(x, y, z, intensity)
+    def gain_focus(self, x: float, y: float, z: float, intensity: int, phase_offset: int) -> GainPtr:
+        return self.dll.AUTDGainFocus(x, y, z, intensity, phase_offset)
 
     def gain_focus_is_default(self, focus: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainFocusIsDefault(focus)
@@ -579,8 +558,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_null(self) -> GainPtr:
         return self.dll.AUTDGainNull()
 
-    def gain_plane(self, nx: float, ny: float, nz: float, intensity: int, phase: int) -> GainPtr:
-        return self.dll.AUTDGainPlane(nx, ny, nz, intensity, phase)
+    def gain_plane(self, nx: float, ny: float, nz: float, intensity: int, phase_offset: int) -> GainPtr:
+        return self.dll.AUTDGainPlane(nx, ny, nz, intensity, phase_offset)
 
     def gain_planel_is_default(self, plane: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainPlanelIsDefault(plane)
@@ -726,29 +705,11 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_down(self, audit: LinkPtr) -> None:
         return self.dll.AUTDLinkAuditDown(audit)
 
-    def link_audit_up(self, audit: LinkPtr) -> None:
-        return self.dll.AUTDLinkAuditUp(audit)
-
     def link_audit_break_down(self, audit: LinkPtr) -> None:
         return self.dll.AUTDLinkAuditBreakDown(audit)
 
-    def link_audit_repair(self, audit: LinkPtr) -> None:
-        return self.dll.AUTDLinkAuditRepair(audit)
-
-    def link_audit_cpu_update(self, audit: LinkPtr, idx: int) -> None:
-        return self.dll.AUTDLinkAuditCpuUpdate(audit, idx)
-
-    def link_audit_cpu_idx(self, audit: LinkPtr, idx: int) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkAuditCpuIdx(audit, idx)
-
     def link_audit_cpu_num_transducers(self, audit: LinkPtr, idx: int) -> ctypes.c_uint32:
         return self.dll.AUTDLinkAuditCpuNumTransducers(audit, idx)
-
-    def link_audit_cpu_ack(self, audit: LinkPtr, idx: int) -> ctypes.c_uint8:
-        return self.dll.AUTDLinkAuditCpuAck(audit, idx)
-
-    def link_audit_cpu_rx_data(self, audit: LinkPtr, idx: int) -> ctypes.c_uint8:
-        return self.dll.AUTDLinkAuditCpuRxData(audit, idx)
 
     def link_audit_fpga_assert_thermal_sensor(self, audit: LinkPtr, idx: int) -> None:
         return self.dll.AUTDLinkAuditFpgaAssertThermalSensor(audit, idx)
@@ -810,8 +771,11 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_modulation_loop_behavior(self, audit: LinkPtr, segment: Segment, idx: int) -> LoopBehavior:
         return self.dll.AUTDLinkAuditFpgaModulationLoopBehavior(audit, segment, idx)
 
-    def link_audit_fpga_i_drives(self, audit: LinkPtr, segment: Segment, idx: int, stm_idx: int, intensities: ctypes.Array[ctypes.c_uint8] | None, phases: ctypes.Array[ctypes.c_uint8] | None) -> None:
-        return self.dll.AUTDLinkAuditFpgaIDrives(audit, segment, idx, stm_idx, intensities, phases)
+    def link_audit_fpga_drives(self, audit: LinkPtr, segment: Segment, idx: int, stm_idx: int, intensities: ctypes.Array[ctypes.c_uint8] | None, phases: ctypes.Array[ctypes.c_uint8] | None) -> None:
+        return self.dll.AUTDLinkAuditFpgaDrives(audit, segment, idx, stm_idx, intensities, phases)
+
+    def link_audit_fpga_phase_filter(self, audit: LinkPtr, idx: int, phase_filter: ctypes.Array[ctypes.c_uint8] | None) -> None:
+        return self.dll.AUTDLinkAuditFpgaPhaseFilter(audit, idx, phase_filter)
 
     def link_get(self, cnt: ControllerPtr) -> LinkPtr:
         return self.dll.AUTDLinkGet(cnt)
@@ -822,14 +786,8 @@ class NativeMethods(metaclass=Singleton):
     def modulation_custom(self, config: SamplingConfiguration, ptr: ctypes.Array[ctypes.c_uint8] | None, len: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationCustom(config, ptr, len, loop_behavior)
 
-    def modulation_fourier(self, m: ModulationPtr) -> ModulationPtr:
-        return self.dll.AUTDModulationFourier(m)
-
-    def modulation_fourier_add_component(self, fourier: ModulationPtr, m: ModulationPtr) -> ModulationPtr:
-        return self.dll.AUTDModulationFourierAddComponent(fourier, m)
-
-    def modulation_fourier_add_components(self, fourier: ModulationPtr, components: ctypes.Array | None, size: int) -> ModulationPtr:
-        return self.dll.AUTDModulationFourierAddComponents(fourier, components, size)
+    def modulation_fourier(self, components: ctypes.Array | None, size: int) -> ModulationPtr:
+        return self.dll.AUTDModulationFourier(components, size)
 
     def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfiguration:
         return self.dll.AUTDModulationSamplingConfig(m)
@@ -891,9 +849,6 @@ class NativeMethods(metaclass=Singleton):
     def stm_gain(self, props: STMPropsPtr, gains: ctypes.Array | None, size: int, mode: GainSTMMode) -> ResultGainSTM:
         return self.dll.AUTDSTMGain(props, gains, size, mode)
 
-    def stm_gain_add_gain(self, stm: GainSTMPtr, gain: GainPtr) -> ResultDatagram:
-        return self.dll.AUTDSTMGainAddGain(stm, gain)
-
     def stm_gain_into_datagram_with_segment(self, stm: GainSTMPtr, segment: Segment, update_segment: bool) -> DatagramPtr:
         return self.dll.AUTDSTMGainIntoDatagramWithSegment(stm, segment, update_segment)
 
@@ -923,6 +878,3 @@ class NativeMethods(metaclass=Singleton):
 
     def stm_props_sampling_config(self, props: STMPropsPtr, size: int) -> ResultSamplingConfig:
         return self.dll.AUTDSTMPropsSamplingConfig(props, size)
-
-    def stm_props_loop_behavior(self, props: STMPropsPtr) -> LoopBehavior:
-        return self.dll.AUTDSTMPropsLoopBehavior(props)

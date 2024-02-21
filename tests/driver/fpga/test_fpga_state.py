@@ -57,15 +57,19 @@ def test_fpga_state():
 
         autd.send(GainSTM.from_freq(1.0).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S0, update_segment=True))
         infos = autd.fpga_state()
+        assert infos[0] is not None
         assert infos[0].current_gain_segment() is None
         assert infos[0].current_stm_segment() == Segment.S0
+        assert infos[1] is not None
         assert infos[1].current_gain_segment() is None
         assert infos[1].current_stm_segment() == Segment.S0
 
         autd.send(GainSTM.from_freq(1.0).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S1, update_segment=True))
         infos = autd.fpga_state()
+        assert infos[0] is not None
         assert infos[0].current_gain_segment() is None
         assert infos[0].current_stm_segment() == Segment.S1
+        assert infos[1] is not None
         assert infos[1].current_gain_segment() is None
         assert infos[1].current_stm_segment() == Segment.S1
 

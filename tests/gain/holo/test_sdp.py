@@ -31,7 +31,7 @@ async def test_sdp():
             .with_alpha(1e-3)
             .with_lambda(0.9)
             .with_repeat(10)
-            .with_constraint(EmissionConstraint.uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(0x80))
         )
         assert await autd.send_async(g)
         for dev in autd.geometry:
@@ -67,7 +67,7 @@ async def test_sdp_cuda():
             .with_alpha(1e-3)
             .with_lambda(0.9)
             .with_repeat(10)
-            .with_constraint(EmissionConstraint.uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(0x80))
         )
         assert g.alpha() == 1e-3
         assert g.lambda_() == 0.9

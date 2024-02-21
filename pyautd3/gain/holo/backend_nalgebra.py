@@ -4,7 +4,7 @@ from pyautd3.native_methods.autd3capi_def import GainPtr
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 
 from .backend import Backend
-from .constraint import EmissionConstraint
+from .constraint import IEmissionConstraint
 
 
 class NalgebraBackend(Backend):
@@ -26,11 +26,18 @@ class NalgebraBackend(Backend):
         alpha: float,
         lambda_: float,
         repeat: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         return GainHolo().gain_holo_sdp(self._backend_ptr(), foci, amps, size, alpha, lambda_, repeat, constraint._constraint_ptr())
 
-    def _gs(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraint) -> GainPtr:
+    def _gs(
+        self: "NalgebraBackend",
+        foci: Array[c_double],
+        amps: Array[c_double],
+        size: int,
+        repeat: int,
+        constraint: IEmissionConstraint,
+    ) -> GainPtr:
         return GainHolo().gain_holo_gs(self._backend_ptr(), foci, amps, size, repeat, constraint._constraint_ptr())
 
     def _gspat(
@@ -39,11 +46,11 @@ class NalgebraBackend(Backend):
         amps: Array[c_double],
         size: int,
         repeat: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         return GainHolo().gain_holo_gspat(self._backend_ptr(), foci, amps, size, repeat, constraint._constraint_ptr())
 
-    def _naive(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: EmissionConstraint) -> GainPtr:
+    def _naive(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: IEmissionConstraint) -> GainPtr:
         return GainHolo().gain_holo_naive(self._backend_ptr(), foci, amps, size, constraint._constraint_ptr())
 
     def _lm(
@@ -57,7 +64,7 @@ class NalgebraBackend(Backend):
         kmax: int,
         initial: Array[c_double],
         initial_size: int,
-        constraint: EmissionConstraint,
+        constraint: IEmissionConstraint,
     ) -> GainPtr:
         return GainHolo().gain_holo_lm(
             self._backend_ptr(),
