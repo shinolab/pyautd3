@@ -47,6 +47,7 @@ class LM(HoloWithBackend):
         self._eps1 = eps1
         return self
 
+    @property
     def eps1(self: "LM") -> float:
         """Get parameter."""
         return self._eps1
@@ -62,6 +63,7 @@ class LM(HoloWithBackend):
         self._eps2 = eps2
         return self
 
+    @property
     def eps2(self: "LM") -> float:
         """Get parameter."""
         return self._eps2
@@ -77,6 +79,7 @@ class LM(HoloWithBackend):
         self._tau = tau
         return self
 
+    @property
     def tau(self: "LM") -> float:
         """Get parameter."""
         return self._tau
@@ -92,6 +95,7 @@ class LM(HoloWithBackend):
         self._kmax = kmax
         return self
 
+    @property
     def kmax(self: "LM") -> int:
         """Get parameter."""
         return self._kmax
@@ -107,6 +111,7 @@ class LM(HoloWithBackend):
         self._initial = initial
         return self
 
+    @property
     def initial(self: "LM") -> np.ndarray:
         """Get parameter."""
         return self._initial

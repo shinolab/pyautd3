@@ -37,6 +37,7 @@ class Greedy(Holo):
         self._div = div
         return self
 
+    @property
     def phase_div(self: "Greedy") -> int:
         """Get parameter."""
         return self._div

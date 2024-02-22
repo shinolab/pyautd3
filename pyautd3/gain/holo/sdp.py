@@ -40,6 +40,7 @@ class SDP(HoloWithBackend):
         self._alpha = alpha
         return self
 
+    @property
     def alpha(self: "SDP") -> float:
         """Get parameter."""
         return self._alpha
@@ -55,6 +56,7 @@ class SDP(HoloWithBackend):
         self._lambda = lambda_
         return self
 
+    @property
     def lambda_(self: "SDP") -> float:
         """Get parameter."""
         return self._lambda
@@ -70,6 +72,7 @@ class SDP(HoloWithBackend):
         self._repeat = repeat
         return self
 
+    @property
     def repeat(self: "SDP") -> int:
         """Get parameter."""
         return self._repeat

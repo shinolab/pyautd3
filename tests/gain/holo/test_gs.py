@@ -27,9 +27,10 @@ async def test_gs():
             GS(backend)
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
             .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
-            .with_repeat(100)
+            .with_repeat(50)
             .with_constraint(EmissionConstraint.Uniform(0x80))
         )
+        assert g.repeat == 50
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -63,7 +64,6 @@ async def test_gs_cuda():
             .with_repeat(50)
             .with_constraint(EmissionConstraint.Uniform(0x80))
         )
-        assert g.repeat() == 50
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)

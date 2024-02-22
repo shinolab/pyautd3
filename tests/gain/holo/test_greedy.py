@@ -29,8 +29,8 @@ async def test_greedy():
             .with_phase_div(8)
             .with_constraint(EmissionConstraint.Uniform(0x80))
         )
-        assert g.constraint() == EmissionConstraint.Uniform(0x80)
-        assert g.phase_div() == 8
+        assert g.constraint == EmissionConstraint.Uniform(0x80)
+        assert g.phase_div == 8
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)

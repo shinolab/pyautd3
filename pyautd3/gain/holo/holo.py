@@ -68,6 +68,7 @@ class Holo(IGainWithCache, IGainWithTransform, IGain):
         self._constraint = constraint
         return self
 
+    @property
     def constraint(self: H) -> IEmissionConstraint:
         """Get emission constraint."""
         return self._constraint

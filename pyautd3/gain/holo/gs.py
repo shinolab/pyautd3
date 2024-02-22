@@ -36,6 +36,7 @@ class GS(HoloWithBackend):
         self._repeat = value
         return self
 
+    @property
     def repeat(self: "GS") -> int:
         """Get parameter."""
         return self._repeat

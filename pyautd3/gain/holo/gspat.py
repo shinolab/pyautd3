@@ -35,6 +35,7 @@ class GSPAT(HoloWithBackend):
         self._repeat = value
         return self
 
+    @property
     def repeat(self: "GSPAT") -> int:
         """Get parameter."""
         return self._repeat

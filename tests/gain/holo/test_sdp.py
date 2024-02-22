@@ -33,6 +33,9 @@ async def test_sdp():
             .with_repeat(10)
             .with_constraint(EmissionConstraint.Uniform(0x80))
         )
+        assert g.alpha == 1e-3
+        assert g.lambda_ == 0.9
+        assert g.repeat == 10
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -69,9 +72,6 @@ async def test_sdp_cuda():
             .with_repeat(10)
             .with_constraint(EmissionConstraint.Uniform(0x80))
         )
-        assert g.alpha() == 1e-3
-        assert g.lambda_() == 0.9
-        assert g.repeat() == 10
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
