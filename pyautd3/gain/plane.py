@@ -29,6 +29,7 @@ class Plane(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity.maximum()
         self._phase_offset = Phase(0)
 
+    @property
     def dir(self: "Plane") -> np.ndarray:
         """Get direction of the plane wave."""
         return self._d
@@ -44,6 +45,7 @@ class Plane(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    @property
     def intensity(self: "Plane") -> EmitIntensity:
         """Get emission intensity."""
         return self._intensity
@@ -59,6 +61,7 @@ class Plane(IGainWithCache, IGainWithTransform, IGain):
         self._phase_offset = phase
         return self
 
+    @property
     def phase_offset(self: "Plane") -> Phase:
         """Get phase offset."""
         return self._phase_offset

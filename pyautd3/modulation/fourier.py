@@ -6,7 +6,6 @@ import numpy as np
 
 from pyautd3.driver.datagram import (
     IModulationWithCache,
-    IModulationWithLoopBehavior,
     IModulationWithRadiationPressure,
     IModulationWithTransform,
 )
@@ -20,7 +19,6 @@ class Fourier(
     IModulationWithCache,
     IModulationWithRadiationPressure,
     IModulationWithTransform,
-    IModulationWithLoopBehavior,
 ):
     """Multi-frequency sine wave modulation."""
 
@@ -68,4 +66,5 @@ class Fourier(
         return Base().modulation_fourier(
             components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
             len(self._components),
+            self._loop_behavior._internal,
         )

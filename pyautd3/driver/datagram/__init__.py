@@ -6,7 +6,6 @@ from .gain.gain import IGain
 from .modulation import (
     IModulation,
     IModulationWithCache,
-    IModulationWithLoopBehavior,
     IModulationWithRadiationPressure,
     IModulationWithSamplingConfig,
     IModulationWithTransform,
@@ -27,7 +26,6 @@ __all__ = [
     "IGain",
     "IModulation",
     "IModulationWithSamplingConfig",
-    "IModulationWithLoopBehavior",
     "IModulationWithTransform",
     "IModulationWithRadiationPressure",
     "IModulationWithCache",

@@ -69,8 +69,8 @@ async def test_cache_check_only_for_enabled():
         g_cached = g.with_cache()
         assert await autd.send_async(g_cached)
 
-        assert 0 not in g_cached.drives()
-        assert 1 in g_cached.drives()
+        assert 0 not in g_cached.drives
+        assert 1 in g_cached.drives
 
         intensities, phases = autd.link.drives(0, Segment.S0, 0)
         assert np.all(intensities == 0)

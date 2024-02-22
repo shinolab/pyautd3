@@ -24,8 +24,8 @@ async def test_bessel():
 
         g = Bessel(autd.geometry.center, [0, 0, 1], np.pi / 4).with_intensity(0x80).with_phase_offset(Phase(0x90))
         assert await autd.send_async(g)
-        assert g.intensity() == EmitIntensity(0x80)
-        assert g.phase_offset() == Phase(0x90)
+        assert g.intensity == EmitIntensity(0x80)
+        assert g.phase_offset == Phase(0x90)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
@@ -34,7 +34,7 @@ async def test_bessel():
 
 def test_bessel_default():
     g = Bessel([0, 0, 0], [0, 0, 1], np.pi / 4)
-    assert np.array_equal(g.pos(), [0, 0, 0])
-    assert np.array_equal(g.dir(), [0, 0, 1])
-    assert g.theta() == np.pi / 4
+    assert np.array_equal(g.pos, [0, 0, 0])
+    assert np.array_equal(g.dir, [0, 0, 1])
+    assert g.theta == np.pi / 4
     assert Base().gain_bessel_is_default(g._gain_ptr(0))  # type: ignore [arg-type]

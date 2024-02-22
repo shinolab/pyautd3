@@ -46,11 +46,11 @@ class Group(IGainWithCache, IGainWithTransform, IGain, Generic[K]):
     def _gain_ptr(self: "Group", geometry: Geometry) -> GainPtr:
         keymap: dict[K, int] = {}
 
-        device_indices = np.array([dev.idx for dev in geometry.devices()])
+        device_indices = np.array([dev.idx for dev in geometry.devices])
 
         gain_group_map = Base().gain_group_create_map(np.ctypeslib.as_ctypes(device_indices.astype(c_uint32)), len(device_indices))
         k: int = 0
-        for dev in geometry.devices():
+        for dev in geometry.devices:
             m = np.zeros(dev.num_transducers, dtype=np.int32)
             for tr in dev:
                 key = self._f(dev, tr)

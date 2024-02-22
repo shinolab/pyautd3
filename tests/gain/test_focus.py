@@ -24,9 +24,9 @@ async def test_focus():
 
         g = Focus(autd.geometry.center).with_intensity(0x80).with_phase_offset(Phase(0x90))
         assert await autd.send_async(g)
-        assert np.array_equal(g.pos(), autd.geometry.center)
-        assert g.intensity() == EmitIntensity(0x80)
-        assert g.phase_offset() == Phase(0x90)
+        assert np.array_equal(g.pos, autd.geometry.center)
+        assert g.intensity == EmitIntensity(0x80)
+        assert g.phase_offset == Phase(0x90)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
@@ -35,5 +35,5 @@ async def test_focus():
 
 def test_focus_default():
     g = Focus([0, 0, 0])
-    assert np.array_equal(g.pos(), [0, 0, 0])
+    assert np.array_equal(g.pos, [0, 0, 0])
     assert Base().gain_focus_is_default(g._gain_ptr(0))  # type: ignore [arg-type]

@@ -34,14 +34,17 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity.maximum()
         self._phase_offset = Phase(0)
 
+    @property
     def pos(self: "Bessel") -> np.ndarray:
         """Get start point of the beam."""
         return self._p
 
+    @property
     def dir(self: "Bessel") -> np.ndarray:
         """Get direction of the beam."""
         return self._d
 
+    @property
     def theta(self: "Bessel") -> float:
         """Get angle between the conical wavefront of the beam and the plane normal to `dir`."""
         return self._theta
@@ -57,6 +60,7 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    @property
     def intensity(self: "Bessel") -> EmitIntensity:
         """Get emission intensity."""
         return self._intensity
@@ -72,6 +76,7 @@ class Bessel(IGainWithCache, IGainWithTransform, IGain):
         self._phase_offset = phase
         return self
 
+    @property
     def phase_offset(self: "Bessel") -> Phase:
         """Get phase offset."""
         return self._phase_offset

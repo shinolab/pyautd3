@@ -23,9 +23,9 @@ async def test_plane():
             assert np.all(phases == 0)
 
         g = Plane([0, 0, 1]).with_intensity(0x80).with_phase_offset(Phase(0x81))
-        assert np.array_equal(g.dir(), [0, 0, 1])
-        assert g.intensity() == EmitIntensity(0x80)
-        assert g.phase_offset() == Phase(0x81)
+        assert np.array_equal(g.dir, [0, 0, 1])
+        assert g.intensity == EmitIntensity(0x80)
+        assert g.phase_offset == Phase(0x81)
         assert await autd.send_async(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -35,5 +35,5 @@ async def test_plane():
 
 def test_plane_default():
     g = Plane([0, 0, 1])
-    assert np.array_equal(g.dir(), [0, 0, 1])
+    assert np.array_equal(g.dir, [0, 0, 1])
     assert Base().gain_planel_is_default(g._gain_ptr(0))  # type: ignore [arg-type]

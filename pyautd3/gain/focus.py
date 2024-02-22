@@ -28,6 +28,7 @@ class Focus(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity.maximum()
         self._phase_offset = Phase(0)
 
+    @property
     def pos(self: "Focus") -> np.ndarray:
         """Get position of the focal point."""
         return self._p
@@ -43,6 +44,7 @@ class Focus(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    @property
     def intensity(self: "Focus") -> EmitIntensity:
         """Get emission intensity."""
         return self._intensity
@@ -58,6 +60,7 @@ class Focus(IGainWithCache, IGainWithTransform, IGain):
         self._phase_offset = phase
         return self
 
+    @property
     def phase_offset(self: "Focus") -> Phase:
         """Get phase offset."""
         return self._phase_offset

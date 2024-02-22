@@ -3,7 +3,6 @@ from pyautd3.driver.common.phase import Phase
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.datagram import (
     IModulationWithCache,
-    IModulationWithLoopBehavior,
     IModulationWithRadiationPressure,
     IModulationWithSamplingConfig,
     IModulationWithTransform,
@@ -18,7 +17,6 @@ class Sine(
     IModulationWithRadiationPressure,
     IModulationWithTransform,
     IModulationWithSamplingConfig,
-    IModulationWithLoopBehavior,
 ):
     """Sine wave modulation."""
 
@@ -46,6 +44,7 @@ class Sine(
         self._phase = Phase(0)
         self._mode = SamplingMode.ExactFrequency
 
+    @property
     def freq(self: "Sine") -> float:
         """Get frequency."""
         return self._freq
@@ -61,6 +60,7 @@ class Sine(
         self._intensity = EmitIntensity._cast(intensity)
         return self
 
+    @property
     def intensity(self: "Sine") -> EmitIntensity:
         """Get intensity."""
         return self._intensity
@@ -76,6 +76,7 @@ class Sine(
         self._offset = EmitIntensity._cast(offset)
         return self
 
+    @property
     def offset(self: "Sine") -> EmitIntensity:
         """Get offset."""
         return self._offset
@@ -91,6 +92,7 @@ class Sine(
         self._phase = phase
         return self
 
+    @property
     def phase(self: "Sine") -> Phase:
         """Get phase."""
         return self._phase
@@ -106,6 +108,7 @@ class Sine(
         self._mode = mode
         return self
 
+    @property
     def mode(self: "Sine") -> SamplingMode:
         """Get sampling mode."""
         return self._mode

@@ -24,11 +24,11 @@ async def test_sine():
             .with_phase(Phase.from_rad(np.pi / 2))
             .with_loop_behavior(LoopBehavior.once())
         )
-        assert m.freq() == 150
-        assert m.intensity() == EmitIntensity.maximum() // 2
-        assert m.offset() == EmitIntensity.maximum() // 4
-        assert m.phase() == Phase.from_rad(np.pi / 2)
-        assert m.loop_behavior() == LoopBehavior.once()
+        assert m.freq == 150
+        assert m.intensity == EmitIntensity.maximum() // 2
+        assert m.offset == EmitIntensity.maximum() // 4
+        assert m.phase == Phase.from_rad(np.pi / 2)
+        assert m.loop_behavior == LoopBehavior.once()
         assert await autd.send_async(m)
 
         for dev in autd.geometry:
@@ -133,7 +133,7 @@ async def test_sine_mode():
     autd: Controller[Audit]
     with await create_controller() as autd:
         m = Sine(150).with_mode(SamplingMode.SizeOptimized)
-        assert m.mode() == SamplingMode.SizeOptimized
+        assert m.mode == SamplingMode.SizeOptimized
         assert await autd.send_async(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -148,5 +148,5 @@ async def test_sine_mode():
 
 def test_sine_default():
     m = Sine(150.0)
-    assert m.freq() == 150.0
+    assert m.freq == 150.0
     assert Base().modulation_sine_is_default(m._modulation_ptr())

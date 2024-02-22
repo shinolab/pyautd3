@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, EmitIntensity, LoopBehavior, SamplingConfiguration, Segment
+from pyautd3 import Controller, EmitIntensity, SamplingConfiguration, Segment
 from pyautd3.modulation import Modulation
 from tests.test_autd import create_controller
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Burst(Modulation):
     def __init__(self: "Burst") -> None:
-        super().__init__(SamplingConfiguration.from_frequency(4e3), LoopBehavior.infinite())
+        super().__init__(SamplingConfiguration.from_frequency(4e3))
 
     def calc(self: "Burst"):
         buf = np.array([EmitIntensity(0)] * 10)

@@ -26,11 +26,11 @@ class Cache(IGain, Generic[G]):
 
     def init(self: "Cache", geometry: Geometry) -> None:
         """Initialize gain."""
-        device_indices = [dev.idx for dev in geometry.devices()]
+        device_indices = [dev.idx for dev in geometry.devices]
 
         if len(self._cache) != len(device_indices) or any(idx not in self._cache for idx in device_indices):
             res = _validate_ptr(Base().gain_calc(self._g._gain_ptr(geometry), geometry._geometry_ptr()))
-            for dev in geometry.devices():
+            for dev in geometry.devices:
                 drives = np.zeros(dev.num_transducers, dtype=Drive)
                 Base().gain_calc_get_result(res, drives.ctypes.data_as(POINTER(Drive)), dev.idx)  # type: ignore[arg-type]
                 self._cache[dev.idx] = drives
@@ -45,10 +45,11 @@ class Cache(IGain, Generic[G]):
                 self._cache[dev.idx].ctypes.data_as(POINTER(Drive)),  # type: ignore[arg-type]
                 len(self._cache[dev.idx]),
             ),
-            geometry.devices(),
+            geometry.devices,
             Base().gain_custom(),
         )
 
+    @property
     def drives(self: "Cache") -> dict[int, np.ndarray]:
         """Get cached drives."""
         return self._cache

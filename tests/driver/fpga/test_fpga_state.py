@@ -29,15 +29,15 @@ def test_fpga_state():
         autd.link.assert_thermal_sensor(0)
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert infos[0].is_thermal_assert()
-        assert infos[0].current_gain_segment() == Segment.S0
-        assert infos[0].current_mod_segment() == Segment.S0
-        assert infos[0].current_stm_segment() is None
+        assert infos[0].is_thermal_assert
+        assert infos[0].current_gain_segment == Segment.S0
+        assert infos[0].current_mod_segment == Segment.S0
+        assert infos[0].current_stm_segment is None
         assert infos[1] is not None
-        assert not infos[1].is_thermal_assert()
-        assert infos[1].current_gain_segment() == Segment.S0
-        assert infos[1].current_mod_segment() == Segment.S0
-        assert infos[1].current_stm_segment() is None
+        assert not infos[1].is_thermal_assert
+        assert infos[1].current_gain_segment == Segment.S0
+        assert infos[1].current_mod_segment == Segment.S0
+        assert infos[1].current_stm_segment is None
 
         autd.link.deassert_thermal_sensor(0)
         autd.link.assert_thermal_sensor(1)
@@ -45,33 +45,33 @@ def test_fpga_state():
         autd.send(ChangeGainSegment(Segment.S1))
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert not infos[0].is_thermal_assert()
-        assert infos[0].current_gain_segment() == Segment.S1
-        assert infos[0].current_mod_segment() == Segment.S1
-        assert infos[0].current_stm_segment() is None
+        assert not infos[0].is_thermal_assert
+        assert infos[0].current_gain_segment == Segment.S1
+        assert infos[0].current_mod_segment == Segment.S1
+        assert infos[0].current_stm_segment is None
         assert infos[1] is not None
-        assert infos[1].is_thermal_assert()
-        assert infos[1].current_gain_segment() == Segment.S1
-        assert infos[1].current_mod_segment() == Segment.S1
-        assert infos[1].current_stm_segment() is None
+        assert infos[1].is_thermal_assert
+        assert infos[1].current_gain_segment == Segment.S1
+        assert infos[1].current_mod_segment == Segment.S1
+        assert infos[1].current_stm_segment is None
 
         autd.send(GainSTM.from_freq(1.0).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S0, update_segment=True))
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert infos[0].current_gain_segment() is None
-        assert infos[0].current_stm_segment() == Segment.S0
+        assert infos[0].current_gain_segment is None
+        assert infos[0].current_stm_segment == Segment.S0
         assert infos[1] is not None
-        assert infos[1].current_gain_segment() is None
-        assert infos[1].current_stm_segment() == Segment.S0
+        assert infos[1].current_gain_segment is None
+        assert infos[1].current_stm_segment == Segment.S0
 
         autd.send(GainSTM.from_freq(1.0).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S1, update_segment=True))
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert infos[0].current_gain_segment() is None
-        assert infos[0].current_stm_segment() == Segment.S1
+        assert infos[0].current_gain_segment is None
+        assert infos[0].current_stm_segment == Segment.S1
         assert infos[1] is not None
-        assert infos[1].current_gain_segment() is None
-        assert infos[1].current_stm_segment() == Segment.S1
+        assert infos[1].current_gain_segment is None
+        assert infos[1].current_stm_segment == Segment.S1
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
@@ -92,18 +92,18 @@ async def test_fpga_state_async():
 
         infos = await autd.fpga_state_async()
         assert infos[0] is not None
-        assert infos[0].is_thermal_assert()
+        assert infos[0].is_thermal_assert
         assert infos[1] is not None
-        assert not infos[1].is_thermal_assert()
+        assert not infos[1].is_thermal_assert
 
         autd.link.deassert_thermal_sensor(0)
         autd.link.assert_thermal_sensor(1)
 
         infos = await autd.fpga_state_async()
         assert infos[0] is not None
-        assert not infos[0].is_thermal_assert()
+        assert not infos[0].is_thermal_assert
         assert infos[1] is not None
-        assert infos[1].is_thermal_assert()
+        assert infos[1].is_thermal_assert
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:

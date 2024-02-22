@@ -34,7 +34,7 @@ class Transform(IGainWithCache, IGain, Generic[G]):
         res = _validate_ptr(Base().gain_calc(self._g._gain_ptr(geometry), geometry._geometry_ptr()))
 
         drives: dict[int, np.ndarray] = {}
-        for dev in geometry.devices():
+        for dev in geometry.devices:
             d = np.zeros(dev.num_transducers, dtype=_Drive)
 
             Base().gain_calc_get_result(res, d.ctypes.data_as(POINTER(_Drive)), dev.idx)  # type: ignore[arg-type]
@@ -52,7 +52,7 @@ class Transform(IGainWithCache, IGain, Generic[G]):
                 drives[dev.idx].ctypes.data_as(POINTER(_Drive)),  # type: ignore[arg-type]
                 len(drives[dev.idx]),
             ),
-            geometry.devices(),
+            geometry.devices,
             Base().gain_custom(),
         )
 

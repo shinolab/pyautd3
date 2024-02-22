@@ -29,7 +29,7 @@ class Gain(IGain, metaclass=ABCMeta):
                 drives[dev.idx].ctypes.data_as(POINTER(_Drive)),  # type: ignore[arg-type]
                 len(drives[dev.idx]),
             ),
-            geometry.devices(),
+            geometry.devices,
             Base().gain_custom(),
         )
 
@@ -40,5 +40,5 @@ class Gain(IGain, metaclass=ABCMeta):
                 (np.void(_Drive(d.phase._value, d.intensity._value)) for d in (f(dev, tr) for tr in dev)),  # type: ignore[call-overload]
                 dtype=_Drive,
             )
-            for dev in geometry.devices()
+            for dev in geometry.devices
         }

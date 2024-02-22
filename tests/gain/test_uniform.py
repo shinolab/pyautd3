@@ -18,8 +18,8 @@ async def test_uniform():
     autd: Controller[Audit]
     with await create_controller() as autd:
         g = Uniform(0x80).with_phase(Phase(0x90))
-        assert g.intensity() == EmitIntensity(0x80)
-        assert g.phase() == Phase(0x90)
+        assert g.intensity == EmitIntensity(0x80)
+        assert g.phase == Phase(0x90)
         assert await autd.send_async(g)
 
         for dev in autd.geometry:
@@ -30,5 +30,5 @@ async def test_uniform():
 
 def test_bessel_default():
     g = Uniform(0x00)
-    assert g.intensity().value == 0x00
+    assert g.intensity.value == 0x00
     assert Base().gain_uniform_is_default(g._gain_ptr(0))  # type: ignore [arg-type]

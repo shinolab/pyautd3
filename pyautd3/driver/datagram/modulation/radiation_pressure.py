@@ -16,9 +16,10 @@ class RadiationPressure(IModulationWithCache, IModulation, Generic[M]):
 
     def __init__(self: "RadiationPressure", m: M) -> None:
         self._m = m
+        self._loop_behavior = m._loop_behavior
 
     def _modulation_ptr(self: "RadiationPressure[M]") -> ModulationPtr:
-        return Base().modulation_with_radiation_pressure(self._m._modulation_ptr())
+        return Base().modulation_with_radiation_pressure(self._m._modulation_ptr(), self._loop_behavior._internal)
 
 
 class IModulationWithRadiationPressure(IModulation):

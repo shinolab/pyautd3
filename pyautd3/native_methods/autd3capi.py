@@ -390,7 +390,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationCustom.argtypes = [SamplingConfiguration, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationCustom.restype = ModulationPtr
 
-        self.dll.AUTDModulationFourier.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDModulationFourier.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourier.restype = ModulationPtr
 
         self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]  # type: ignore 
@@ -414,7 +414,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramChangeModulationSegment.argtypes = [Segment]  # type: ignore 
         self.dll.AUTDDatagramChangeModulationSegment.restype = DatagramPtr
 
-        self.dll.AUTDModulationWithRadiationPressure.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationWithRadiationPressure.argtypes = [ModulationPtr, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWithRadiationPressure.restype = ModulationPtr
 
         self.dll.AUTDModulationSine.argtypes = [ctypes.c_double, SamplingConfiguration, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_uint8, SamplingMode, LoopBehavior]  # type: ignore 
@@ -429,13 +429,13 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationSquareIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSquareIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDModulationStatic.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDModulationStatic.argtypes = [ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationStatic.restype = ModulationPtr
 
         self.dll.AUTDModulationStaticIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationStaticIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDModulationWithTransform.argtypes = [ModulationPtr, ctypes.c_void_p, ctypes.c_void_p]  # type: ignore 
+        self.dll.AUTDModulationWithTransform.argtypes = [ModulationPtr, ctypes.c_void_p, ctypes.c_void_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWithTransform.restype = ModulationPtr
 
         self.dll.AUTDSTMFocus.argtypes = [STMPropsPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64]  # type: ignore 
@@ -786,8 +786,8 @@ class NativeMethods(metaclass=Singleton):
     def modulation_custom(self, config: SamplingConfiguration, ptr: ctypes.Array[ctypes.c_uint8] | None, len: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationCustom(config, ptr, len, loop_behavior)
 
-    def modulation_fourier(self, components: ctypes.Array | None, size: int) -> ModulationPtr:
-        return self.dll.AUTDModulationFourier(components, size)
+    def modulation_fourier(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationFourier(components, size, loop_behavior)
 
     def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfiguration:
         return self.dll.AUTDModulationSamplingConfig(m)
@@ -810,8 +810,8 @@ class NativeMethods(metaclass=Singleton):
     def datagram_change_modulation_segment(self, segment: Segment) -> DatagramPtr:
         return self.dll.AUTDDatagramChangeModulationSegment(segment)
 
-    def modulation_with_radiation_pressure(self, m: ModulationPtr) -> ModulationPtr:
-        return self.dll.AUTDModulationWithRadiationPressure(m)
+    def modulation_with_radiation_pressure(self, m: ModulationPtr, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationWithRadiationPressure(m, loop_behavior)
 
     def modulation_sine(self, freq: float, config: SamplingConfiguration, intensity: int, offset: int, phase: int, mode: SamplingMode, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationSine(freq, config, intensity, offset, phase, mode, loop_behavior)
@@ -825,14 +825,14 @@ class NativeMethods(metaclass=Singleton):
     def modulation_square_is_default(self, square: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationSquareIsDefault(square)
 
-    def modulation_static(self, intensity: int) -> ModulationPtr:
-        return self.dll.AUTDModulationStatic(intensity)
+    def modulation_static(self, intensity: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationStatic(intensity, loop_behavior)
 
     def modulation_static_is_default(self, s: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationStaticIsDefault(s)
 
-    def modulation_with_transform(self, m: ModulationPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None) -> ModulationPtr:
-        return self.dll.AUTDModulationWithTransform(m, f, context)
+    def modulation_with_transform(self, m: ModulationPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationWithTransform(m, f, context, loop_behavior)
 
     def stm_focus(self, props: STMPropsPtr, points: ctypes.Array[ctypes.c_double] | None, intensities: ctypes.Array[ctypes.c_uint8] | None, size: int) -> ResultFocusSTM:
         return self.dll.AUTDSTMFocus(props, points, intensities, size)

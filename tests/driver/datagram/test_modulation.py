@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import ChangeModulationSegment, Controller, EmitIntensity, LoopBehavior, SamplingConfiguration, Segment, Static
+from pyautd3 import ChangeModulationSegment, Controller, EmitIntensity, SamplingConfiguration, Segment, Static
 from pyautd3.driver.datagram.modulation import IModulationWithCache
 from pyautd3.modulation import Modulation, Sine
 from tests.test_autd import create_controller
@@ -40,7 +40,7 @@ class CacheTest(IModulationWithCache, Modulation):
     calc_cnt: int
 
     def __init__(self: "CacheTest") -> None:
-        super().__init__(SamplingConfiguration.from_frequency(4e3), LoopBehavior.infinite())
+        super().__init__(SamplingConfiguration.from_frequency(4e3))
         self.calc_cnt = 0
 
     def calc(self: "CacheTest"):

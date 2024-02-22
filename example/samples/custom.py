@@ -1,7 +1,7 @@
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3 import ConfigureSilencer, Controller, Drive, EmitIntensity, Geometry, LoopBehavior, Phase, SamplingConfiguration
+from pyautd3 import ConfigureSilencer, Controller, Drive, EmitIntensity, Geometry, Phase, SamplingConfiguration
 from pyautd3.gain import Gain
 from pyautd3.modulation import Modulation
 
@@ -24,7 +24,7 @@ class Burst(Modulation):
     _length: int
 
     def __init__(self: "Burst", length: int, config: SamplingConfiguration | None = None) -> None:
-        super().__init__(config if config is not None else SamplingConfiguration.from_frequency(4e3), LoopBehavior.infinite())
+        super().__init__(config if config is not None else SamplingConfiguration.from_frequency(4e3))
         self._length = length
 
     def calc(self: "Burst") -> np.ndarray:

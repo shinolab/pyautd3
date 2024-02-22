@@ -2,7 +2,6 @@ from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.datagram import (
     IModulationWithCache,
-    IModulationWithLoopBehavior,
     IModulationWithRadiationPressure,
     IModulationWithSamplingConfig,
     IModulationWithTransform,
@@ -17,7 +16,6 @@ class Square(
     IModulationWithRadiationPressure,
     IModulationWithTransform,
     IModulationWithSamplingConfig,
-    IModulationWithLoopBehavior,
 ):
     """Square wave modulation."""
 
@@ -42,6 +40,7 @@ class Square(
         self._duty = 0.5
         self._mode = SamplingMode.ExactFrequency
 
+    @property
     def freq(self: "Square") -> float:
         """Get frequency."""
         return self._freq
@@ -57,6 +56,7 @@ class Square(
         self._low = EmitIntensity._cast(low)
         return self
 
+    @property
     def low(self: "Square") -> EmitIntensity:
         """Get low level intensity."""
         return self._low
@@ -72,6 +72,7 @@ class Square(
         self._high = EmitIntensity._cast(high)
         return self
 
+    @property
     def high(self: "Square") -> EmitIntensity:
         """Get high level intensity."""
         return self._high
@@ -87,6 +88,7 @@ class Square(
         self._duty = duty
         return self
 
+    @property
     def duty(self: "Square") -> float:
         """Get duty ratio."""
         return self._duty
@@ -102,6 +104,7 @@ class Square(
         self._mode = mode
         return self
 
+    @property
     def mode(self: "Square") -> SamplingMode:
         """Get sampling mode."""
         return self._mode

@@ -20,6 +20,7 @@ class Transform(IModulationWithCache, IModulationWithRadiationPressure, IModulat
 
     def __init__(self: "Transform", m: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> None:
         self._m = m
+        self._loop_behavior = m._loop_behavior
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint8)(
             lambda _, i, d: f(
                 int(i),
@@ -28,7 +29,12 @@ class Transform(IModulationWithCache, IModulationWithRadiationPressure, IModulat
         )
 
     def _modulation_ptr(self: "Transform[M]") -> ModulationPtr:
-        return Base().modulation_with_transform(self._m._modulation_ptr(), self._f_native, None)  # type: ignore[arg-type]
+        return Base().modulation_with_transform(
+            self._m._modulation_ptr(),
+            self._f_native,  # type: ignore[arg-type]
+            None,
+            self._loop_behavior._internal,
+        )
 
 
 class IModulationWithTransform(IModulation):

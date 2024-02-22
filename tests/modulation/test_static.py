@@ -17,7 +17,7 @@ async def test_static():
     autd: Controller[Audit]
     with await create_controller() as autd:
         m = Static.with_intensity(0x80)
-        assert m.intensity() == EmitIntensity(0x80)
+        assert m.intensity == EmitIntensity(0x80)
         assert await autd.send_async(m)
 
         for dev in autd.geometry:

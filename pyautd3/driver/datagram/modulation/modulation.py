@@ -13,7 +13,6 @@ __all__ = []  # type: ignore[var-annotated]
 
 M = TypeVar("M", bound="IModulation")
 MF = TypeVar("MF", bound="IModulationWithSamplingConfig")
-ML = TypeVar("ML", bound="IModulationWithLoopBehavior")
 
 
 class IModulation(DatagramS["IModulation", ModulationPtr], metaclass=ABCMeta):
@@ -21,6 +20,7 @@ class IModulation(DatagramS["IModulation", ModulationPtr], metaclass=ABCMeta):
 
     def __init__(self: "IModulation") -> None:
         super().__init__()
+        self._loop_behavior = LoopBehavior.infinite()
 
     def _raw_ptr(self: "IModulation", _: Geometry) -> ModulationPtr:
         return self._modulation_ptr()
@@ -42,6 +42,22 @@ class IModulation(DatagramS["IModulation", ModulationPtr], metaclass=ABCMeta):
     def _modulation_ptr(self: "IModulation") -> ModulationPtr:
         pass
 
+    def with_loop_behavior(self: M, loop_behavior: LoopBehavior) -> M:
+        """Set loop behavior.
+
+        Arguments:
+        ---------
+            loop_behavior: Loop behavior.
+
+        """
+        self._loop_behavior = loop_behavior
+        return self
+
+    @property
+    def loop_behavior(self: "IModulation") -> LoopBehavior:
+        """Get loop behavior."""
+        return self._loop_behavior
+
 
 class IModulationWithSamplingConfig(IModulation):
     _config: SamplingConfiguration
@@ -60,27 +76,6 @@ class IModulationWithSamplingConfig(IModulation):
         """
         self._config = config
         return self
-
-
-class IModulationWithLoopBehavior(IModulation):
-    def __init__(self: "IModulationWithLoopBehavior") -> None:
-        super().__init__()
-        self._loop_behavior = LoopBehavior.infinite()
-
-    def with_loop_behavior(self: ML, loop_behavior: LoopBehavior) -> ML:
-        """Set loop behavior.
-
-        Arguments:
-        ---------
-            loop_behavior: Loop behavior.
-
-        """
-        self._loop_behavior = loop_behavior
-        return self
-
-    def loop_behavior(self: ML) -> LoopBehavior:
-        """Get loop behavior."""
-        return self._loop_behavior
 
 
 class ChangeModulationSegment(Datagram):

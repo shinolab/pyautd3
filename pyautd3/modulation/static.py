@@ -34,9 +34,10 @@ class Static(
         """
         return Static(intensity)
 
+    @property
     def intensity(self: "Static") -> EmitIntensity:
         """Get emission intensity."""
         return self._intensity
 
     def _modulation_ptr(self: "Static") -> ModulationPtr:
-        return Base().modulation_static(self._intensity.value)
+        return Base().modulation_static(self._intensity.value, self._loop_behavior._internal)

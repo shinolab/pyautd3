@@ -24,6 +24,7 @@ class Uniform(IGainWithCache, IGainWithTransform, IGain):
         self._intensity = EmitIntensity._cast(intensity)
         self._phase = Phase(0)
 
+    @property
     def intensity(self: "Uniform") -> EmitIntensity:
         """Get emission intensity."""
         return self._intensity
@@ -39,6 +40,7 @@ class Uniform(IGainWithCache, IGainWithTransform, IGain):
         self._phase = phase
         return self
 
+    @property
     def phase(self: "Uniform") -> Phase:
         """Get phase."""
         return self._phase

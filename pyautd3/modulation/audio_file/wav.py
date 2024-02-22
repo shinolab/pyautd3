@@ -3,7 +3,6 @@ from pathlib import Path
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.datagram import (
     IModulationWithCache,
-    IModulationWithLoopBehavior,
     IModulationWithRadiationPressure,
     IModulationWithSamplingConfig,
     IModulationWithTransform,
@@ -20,7 +19,6 @@ class Wav(
     IModulationWithRadiationPressure,
     IModulationWithTransform,
     IModulationWithSamplingConfig,
-    IModulationWithLoopBehavior,
 ):
     """Modulation constructed from a wav file.
 

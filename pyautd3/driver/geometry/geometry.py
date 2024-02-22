@@ -48,6 +48,7 @@ class Geometry:
     def __iter__(self: "Geometry") -> Iterator[Device]:
         return iter(self._devices)
 
+    @property
     def devices(self: "Geometry") -> Iterator[Device]:
         """Get the iterator of enabled devices."""
         return filter(lambda x: x.enable, self._devices)
@@ -69,7 +70,7 @@ class Geometry:
             m: Molecular mass
 
         """
-        for d in self.devices():
+        for d in self.devices:
             d.set_sound_speed_from_temp(temp, k, r, m)
 
     def set_sound_speed(
@@ -83,7 +84,7 @@ class Geometry:
             c: Speed of sound [mm/s]
 
         """
-        for d in self.devices():
+        for d in self.devices:
             d.sound_speed = c
 
     def _geometry_ptr(self: "Geometry") -> GeometryPtr:
