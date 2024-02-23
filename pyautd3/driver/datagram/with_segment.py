@@ -2,7 +2,6 @@ from abc import ABCMeta, abstractmethod
 from typing import Generic, TypeVar
 
 from pyautd3.driver.geometry import Geometry
-from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import DatagramPtr, Segment
 
 from .datagram import Datagram
@@ -15,7 +14,7 @@ P = TypeVar("P")
 
 class DatagramS(Datagram, Generic[P], metaclass=ABCMeta):
     @abstractmethod
-    def _into_segment(self: "DatagramS[P]", ptr: P, segment: Segment, *, update_segment: bool) -> DatagramPtr:
+    def _into_segment(self: "DatagramS[P]", ptr: P, segment: tuple[Segment, bool] | None) -> DatagramPtr:
         pass
 
     @abstractmethod
@@ -23,8 +22,7 @@ class DatagramS(Datagram, Generic[P], metaclass=ABCMeta):
         pass
 
     def _datagram_ptr(self: "DatagramS[P]", geometry: Geometry) -> DatagramPtr:
-        raw_ptr = self._raw_ptr(geometry)
-        return Base().gain_into_datagram(raw_ptr)
+        return self._into_segment(self._raw_ptr(geometry), None)
 
 
 class DatagramWithSegment(Datagram, Generic[DS]):
@@ -39,7 +37,7 @@ class DatagramWithSegment(Datagram, Generic[DS]):
 
     def _datagram_ptr(self: "DatagramWithSegment[DS]", g: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._raw_ptr(g)
-        return self._datagram._into_segment(raw_ptr, self._segment, update_segment=self._update_segment)
+        return self._datagram._into_segment(raw_ptr, (self._segment, self._update_segment))
 
 
 class IntoDatagramWithSegment(DatagramS, Generic[DS]):

@@ -82,11 +82,11 @@ class FocusSTM(_STM, IntoDatagramWithSegment, DatagramS[FocusSTMPtr]):
             ),
         )
 
-    def _datagram_ptr(self: "FocusSTM", geometry: Geometry) -> DatagramPtr:
-        return Base().stm_focus_into_datagram(self._raw_ptr(geometry))
-
-    def _into_segment(self: "FocusSTM", ptr: FocusSTMPtr, segment: Segment, *, update_segment: bool = True) -> DatagramPtr:
-        return Base().stm_focus_into_datagram_with_segment(ptr, segment, update_segment)
+    def _into_segment(self: "FocusSTM", ptr: FocusSTMPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
+        if segment is None:
+            return Base().stm_focus_into_datagram(ptr)
+        segment_, update_segment = segment
+        return Base().stm_focus_into_datagram_with_segment(ptr, segment_, update_segment)
 
     @staticmethod
     def from_freq(freq: float) -> "FocusSTM":

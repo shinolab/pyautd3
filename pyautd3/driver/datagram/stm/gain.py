@@ -64,11 +64,11 @@ class GainSTM(_STM, IntoDatagramWithSegment, DatagramS[GainSTMPtr]):
             ),
         )
 
-    def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
-        return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
-
-    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, *, update_segment: bool = True) -> DatagramPtr:
-        return Base().stm_gain_into_datagram_with_segment(ptr, segment, update_segment)
+    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
+        if segment is None:
+            return Base().stm_gain_into_datagram(ptr)
+        segment_, update_segment = segment
+        return Base().stm_gain_into_datagram_with_segment(ptr, segment_, update_segment)
 
     @staticmethod
     def from_freq(freq: float) -> "GainSTM":

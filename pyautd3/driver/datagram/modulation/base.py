@@ -24,11 +24,11 @@ class ModulationBase(IntoDatagramWithSegment[M], DatagramS[ModulationPtr], Gener
     def _raw_ptr(self: M, _: Geometry) -> ModulationPtr:
         return self._modulation_ptr()
 
-    def _into_segment(self: M, ptr: ModulationPtr, segment: Segment, *, update_segment: bool) -> DatagramPtr:
-        return Base().modulation_into_datagram_with_segment(ptr, segment, update_segment)
-
-    def _datagram_ptr(self: M, geometry: Geometry) -> DatagramPtr:
-        return Base().modulation_into_datagram(self._raw_ptr(geometry))
+    def _into_segment(self: M, ptr: ModulationPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
+        if segment is None:
+            return Base().modulation_into_datagram(ptr)
+        segment_, update_segment = segment
+        return Base().modulation_into_datagram_with_segment(ptr, segment_, update_segment)
 
     @property
     def sampling_config(self: M) -> SamplingConfiguration:

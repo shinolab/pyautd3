@@ -19,8 +19,11 @@ class GainBase(DatagramS[GainPtr], metaclass=ABCMeta):
     def _raw_ptr(self: "GainBase", geometry: Geometry) -> GainPtr:
         return self._gain_ptr(geometry)
 
-    def _into_segment(self: "GainBase", ptr: GainPtr, segment: Segment, *, update_segment: bool) -> DatagramPtr:
-        return Base().gain_into_datagram_with_segment(ptr, segment, update_segment)
+    def _into_segment(self: "GainBase", ptr: GainPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
+        if segment is None:
+            return Base().gain_into_datagram(ptr)
+        segment_, update_segment = segment
+        return Base().gain_into_datagram_with_segment(ptr, segment_, update_segment)
 
     @abstractmethod
     def _gain_ptr(self: "GainBase", geometry: Geometry) -> GainPtr:
