@@ -9,7 +9,7 @@ from .backend import Backend
 from .holo import EmissionConstraint, HoloWithBackend
 
 
-class GS(HoloWithBackend):
+class GS(HoloWithBackend["GS"]):
     """Gain to produce multiple foci with GS algorithm.
 
     References

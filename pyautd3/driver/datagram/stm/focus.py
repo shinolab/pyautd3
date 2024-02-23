@@ -11,7 +11,7 @@ from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_segment import DatagramS
+from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import (
@@ -37,7 +37,7 @@ class ControlPoint:
         self.intensity = EmitIntensity(0xFF) if intensity is None else EmitIntensity._cast(intensity)
 
 
-class FocusSTM(_STM, DatagramS["FocusSTM", FocusSTMPtr]):
+class FocusSTM(_STM, IntoDatagramWithSegment, DatagramS[FocusSTMPtr]):
     """FocusSTM is an STM for moving a single focal point.
 
     The sampling timing is determined by hardware, thus the sampling time is precise.

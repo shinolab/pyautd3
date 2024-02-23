@@ -5,7 +5,8 @@ from typing import Generic, TypeVar
 import numpy as np
 
 from pyautd3.autd_error import UnknownGroupKeyError
-from pyautd3.driver.datagram.gain import IGain, IGainWithCache, IGainWithTransform
+from pyautd3.driver.datagram.gain import Gain
+from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import GainPtr
@@ -13,10 +14,10 @@ from pyautd3.native_methods.autd3capi_def import GainPtr
 K = TypeVar("K")
 
 
-class Group(IGainWithCache, IGainWithTransform, IGain, Generic[K]):
+class Group(Gain["Group[K]"], Generic[K]):
     """Gain to group gains by key."""
 
-    _map: dict[K, IGain]
+    _map: dict[K, GainBase]
     _f: Callable[[Device, Transducer], K | None]
 
     def __init__(self: "Group", f: Callable[[Device, Transducer], K | None]) -> None:
@@ -31,7 +32,7 @@ class Group(IGainWithCache, IGainWithTransform, IGain, Generic[K]):
         self._map = {}
         self._f = f
 
-    def set_gain(self: "Group", key: K, gain: IGain) -> "Group":
+    def set_gain(self: "Group", key: K, gain: GainBase) -> "Group":
         """Set gain.
 
         Arguments:

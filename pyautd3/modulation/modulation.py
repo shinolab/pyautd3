@@ -1,18 +1,19 @@
 from abc import ABCMeta, abstractmethod
 from ctypes import POINTER, c_uint8
+from typing import Generic, TypeVar
 
 import numpy as np
 
 from pyautd3.driver.common import SamplingConfiguration
-from pyautd3.driver.datagram.modulation.modulation import IModulation
+from pyautd3.driver.datagram.modulation.modulation import Modulation as _Modulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 
+M = TypeVar("M", bound="Modulation")
 
-class Modulation(IModulation, metaclass=ABCMeta):
+
+class Modulation(_Modulation[M], Generic[M], metaclass=ABCMeta):
     """Base class of custom Modulation."""
-
-    _config: SamplingConfiguration
 
     def __init__(self: "Modulation", config: SamplingConfiguration) -> None:
         """Constructor.
@@ -23,8 +24,7 @@ class Modulation(IModulation, metaclass=ABCMeta):
             loop_behavior: loop behavior
 
         """
-        super().__init__()
-        self._config = config
+        super().__init__(config)
 
     @abstractmethod
     def calc(self: "Modulation") -> np.ndarray:

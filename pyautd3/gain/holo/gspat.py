@@ -9,7 +9,7 @@ from .backend import Backend
 from .holo import EmissionConstraint, HoloWithBackend
 
 
-class GSPAT(HoloWithBackend):
+class GSPAT(HoloWithBackend["GSPAT"]):
     """Gain to produce multiple foci with GS-PAT algorithm.
 
     Reference

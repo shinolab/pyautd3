@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 
 from pyautd3 import ChangeModulationSegment, Controller, EmitIntensity, SamplingConfiguration, Segment, Static
-from pyautd3.driver.datagram.modulation import IModulationWithCache
 from pyautd3.modulation import Modulation, Sine
 from tests.test_autd import create_controller
 
@@ -36,7 +35,7 @@ async def test_cache():
         assert np.array_equal(buf, mod_expect)
 
 
-class CacheTest(IModulationWithCache, Modulation):
+class CacheTest(Modulation["CacheTest"]):
     calc_cnt: int
 
     def __init__(self: "CacheTest") -> None:

@@ -6,7 +6,7 @@ from pyautd3.gain import Gain
 from pyautd3.modulation import Modulation
 
 
-class Focus(Gain):
+class Focus(Gain["Focus"]):
     def __init__(self: "Focus", point: ArrayLike) -> None:
         self.point = np.array(point)
 
@@ -20,7 +20,7 @@ class Focus(Gain):
         )
 
 
-class Burst(Modulation):
+class Burst(Modulation["Burst"]):
     _length: int
 
     def __init__(self: "Burst", length: int, config: SamplingConfiguration | None = None) -> None:

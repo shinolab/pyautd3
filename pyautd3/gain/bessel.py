@@ -2,13 +2,13 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from pyautd3.driver.common import EmitIntensity, Phase
-from pyautd3.driver.datagram.gain import IGain, IGainWithCache, IGainWithTransform
+from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import GainPtr
 
 
-class Bessel(IGainWithCache, IGainWithTransform, IGain):
+class Bessel(Gain["Bessel"]):
     """Gain to produce a Bessel beam."""
 
     _p: np.ndarray

@@ -5,15 +5,15 @@ import numpy as np
 
 from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.modulation.modulation import IModulation
+from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 from pyautd3.native_methods.utils import _validate_ptr
 
-M = TypeVar("M", bound=IModulation)
+M = TypeVar("M", bound=ModulationBase)
 
 
-class Cache(IModulation, Generic[M]):
+class Cache(ModulationBase["Cache[M]"], Generic[M]):
     """Modulation to cache the result of calculation."""
 
     _m: M
@@ -57,7 +57,7 @@ class Cache(IModulation, Generic[M]):
         return self._cache
 
 
-class IModulationWithCache(IModulation):
+class IntoModulationCache(ModulationBase, Generic[M]):
     """Modulation interface of Cache."""
 
     def with_cache(self: M) -> "Cache[M]":

@@ -4,11 +4,10 @@ from collections.abc import Iterable
 
 import numpy as np
 
-from pyautd3.driver.datagram import (
-    IModulationWithCache,
-    IModulationWithRadiationPressure,
-    IModulationWithTransform,
-)
+from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
+from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
+from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 
@@ -16,9 +15,10 @@ from .sine import Sine
 
 
 class Fourier(
-    IModulationWithCache,
-    IModulationWithRadiationPressure,
-    IModulationWithTransform,
+    IntoModulationCache["Fourier"],
+    IntoModulationRadiationPressure["Fourier"],
+    IntoModulationTransform["Fourier"],
+    ModulationBase["Fourier"],
 ):
     """Multi-frequency sine wave modulation."""
 

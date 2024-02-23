@@ -9,7 +9,7 @@ from .backend import Backend
 from .holo import EmissionConstraint, HoloWithBackend
 
 
-class SDP(HoloWithBackend):
+class SDP(HoloWithBackend["SDP"]):
     """Gain to produce multiple foci by solving Semi-Denfinite Programming.
 
     References

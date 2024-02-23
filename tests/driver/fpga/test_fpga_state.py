@@ -9,8 +9,8 @@ from pyautd3 import (
     Null,
 )
 from pyautd3.autd_error import AUTDError
-from pyautd3.driver.datagram.gain.gain import ChangeGainSegment
-from pyautd3.driver.datagram.modulation.modulation import ChangeModulationSegment
+from pyautd3.driver.datagram.gain import ChangeGainSegment
+from pyautd3.driver.datagram.modulation import ChangeModulationSegment
 from pyautd3.native_methods.autd3capi_def import Segment
 from tests.test_autd import create_controller, create_controller_sync
 

@@ -1,13 +1,7 @@
-from .cache import IModulationWithCache
-from .modulation import ChangeModulationSegment, IModulation, IModulationWithSamplingConfig
-from .radiation_pressure import IModulationWithRadiationPressure
-from .transform import IModulationWithTransform
+from .base import ChangeModulationSegment
+from .modulation import Modulation
 
 __all__ = [
-    "IModulation",
-    "IModulationWithSamplingConfig",
-    "IModulationWithTransform",
-    "IModulationWithRadiationPressure",
-    "IModulationWithCache",
+    "Modulation",
     "ChangeModulationSegment",
 ]

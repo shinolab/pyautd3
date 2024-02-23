@@ -7,9 +7,9 @@ import numpy as np
 from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.common.sampling_config import SamplingConfiguration
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_segment import DatagramS
+from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
 from pyautd3.driver.geometry import Geometry
-from pyautd3.gain.gain import IGain
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import (
     DatagramPtr,
@@ -25,10 +25,10 @@ from .stm import _STM
 __all__ = []  # type: ignore[var-annotated]
 
 
-class GainSTM(_STM, DatagramS["GainSTM", GainSTMPtr]):
+class GainSTM(_STM, IntoDatagramWithSegment, DatagramS[GainSTMPtr]):
     """GainSTM is an STM for moving any Gain."""
 
-    _gains: list[IGain]
+    _gains: list[GainBase]
     _mode: GainSTMMode
 
     def __init__(
@@ -103,7 +103,7 @@ class GainSTM(_STM, DatagramS["GainSTM", GainSTMPtr]):
         """
         return GainSTM(period=period)
 
-    def add_gain(self: "GainSTM", gain: IGain) -> "GainSTM":
+    def add_gain(self: "GainSTM", gain: GainBase) -> "GainSTM":
         """Add gain.
 
         Arguments:
@@ -114,7 +114,7 @@ class GainSTM(_STM, DatagramS["GainSTM", GainSTMPtr]):
         self._gains.append(gain)
         return self
 
-    def add_gains_from_iter(self: "GainSTM", iterable: Iterable[IGain]) -> "GainSTM":
+    def add_gains_from_iter(self: "GainSTM", iterable: Iterable[GainBase]) -> "GainSTM":
         """Add gains.
 
         Arguments:

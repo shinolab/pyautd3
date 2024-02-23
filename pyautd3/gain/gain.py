@@ -2,25 +2,28 @@ import functools
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable
 from ctypes import POINTER
+from typing import Generic, TypeVar
 
 import numpy as np
 
 from pyautd3.driver.common.drive import Drive
-from pyautd3.driver.datagram.gain.gain import IGain
+from pyautd3.driver.datagram.gain.gain import Gain as _Gain
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import Drive as _Drive
 from pyautd3.native_methods.autd3capi_def import GainPtr
 
+G = TypeVar("G", bound="Gain")
 
-class Gain(IGain, metaclass=ABCMeta):
+
+class Gain(_Gain[G], Generic[G], metaclass=ABCMeta):
     """Base class of custom Gain."""
 
     @abstractmethod
-    def calc(self: "Gain", geometry: Geometry) -> dict[int, np.ndarray]:
+    def calc(self: "Gain[G]", geometry: Geometry) -> dict[int, np.ndarray]:
         """Calculate amp and phase for all transducers."""
 
-    def _gain_ptr(self: "Gain", geometry: Geometry) -> GainPtr:
+    def _gain_ptr(self: "Gain[G]", geometry: Geometry) -> GainPtr:
         drives = self.calc(geometry)
         return functools.reduce(
             lambda acc, dev: Base().gain_custom_set(

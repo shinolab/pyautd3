@@ -6,14 +6,19 @@ from pyautd3.driver.common.emit_intensity import EmitIntensity
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 
-from .cache import IModulationWithCache
-from .modulation import IModulation
-from .radiation_pressure import IModulationWithRadiationPressure
+from .base import ModulationBase
+from .cache import IntoModulationCache
+from .radiation_pressure import IntoModulationRadiationPressure
 
-M = TypeVar("M", bound="IModulation")
+M = TypeVar("M", bound="ModulationBase")
 
 
-class Transform(IModulationWithCache, IModulationWithRadiationPressure, IModulation, Generic[M]):
+class Transform(
+    IntoModulationCache["Transform[M]"],
+    IntoModulationRadiationPressure["Transform[M]"],
+    ModulationBase["Transform[M]"],
+    Generic[M],
+):
     """Modulation to transform modulation data."""
 
     _m: M
@@ -37,7 +42,7 @@ class Transform(IModulationWithCache, IModulationWithRadiationPressure, IModulat
         )
 
 
-class IModulationWithTransform(IModulation):
+class IntoModulationTransform(ModulationBase, Generic[M]):
     """Modulation interface of Transform."""
 
     def with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> "Transform[M]":

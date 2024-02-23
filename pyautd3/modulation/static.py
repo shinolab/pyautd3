@@ -1,19 +1,17 @@
 from pyautd3.driver.common.emit_intensity import EmitIntensity
-from pyautd3.driver.datagram import (
-    IModulation,
-    IModulationWithCache,
-    IModulationWithRadiationPressure,
-    IModulationWithTransform,
-)
+from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
+from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
+from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import ModulationPtr
 
 
 class Static(
-    IModulationWithCache,
-    IModulationWithRadiationPressure,
-    IModulationWithTransform,
-    IModulation,
+    IntoModulationCache["Static"],
+    IntoModulationRadiationPressure["Static"],
+    IntoModulationTransform["Static"],
+    ModulationBase["Static"],
 ):
     """Without modulation."""
 

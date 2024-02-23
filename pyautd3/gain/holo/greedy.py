@@ -10,7 +10,7 @@ from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 from .holo import EmissionConstraint, Holo
 
 
-class Greedy(Holo):
+class Greedy(Holo["Greedy"]):
     """Gain to produce multiple foci with greedy algorithm.
 
     References

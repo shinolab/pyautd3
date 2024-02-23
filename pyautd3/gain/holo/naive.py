@@ -9,7 +9,7 @@ from .backend import Backend
 from .holo import EmissionConstraint, HoloWithBackend
 
 
-class Naive(HoloWithBackend):
+class Naive(HoloWithBackend["Naive"]):
     """Gain to produce multiple foci with naive linear synthesis."""
 
     def __init__(self: "Naive", backend: Backend) -> None:

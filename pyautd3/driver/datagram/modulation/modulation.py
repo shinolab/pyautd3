@@ -1,72 +1,32 @@
-from abc import ABCMeta, abstractmethod
-from typing import TypeVar
+from abc import ABCMeta
+from typing import Generic, TypeVar
 
-from pyautd3.driver.common import LoopBehavior, SamplingConfiguration
-from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_segment import DatagramS
-from pyautd3.driver.geometry import Geometry
-from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import DatagramPtr, ModulationPtr, Segment
-from pyautd3.native_methods.utils import _validate_int
+from pyautd3.driver.common import SamplingConfiguration
+from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
+from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
+from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 
 __all__ = []  # type: ignore[var-annotated]
 
-M = TypeVar("M", bound="IModulation")
-MF = TypeVar("MF", bound="IModulationWithSamplingConfig")
+M = TypeVar("M", bound="Modulation")
 
 
-class IModulation(DatagramS["IModulation", ModulationPtr], metaclass=ABCMeta):
-    _loop_behavior: LoopBehavior
-
-    def __init__(self: "IModulation") -> None:
-        super().__init__()
-        self._loop_behavior = LoopBehavior.infinite()
-
-    def _raw_ptr(self: "IModulation", _: Geometry) -> ModulationPtr:
-        return self._modulation_ptr()
-
-    def _into_segment(self: "IModulation", ptr: ModulationPtr, segment: Segment, *, update_segment: bool) -> DatagramPtr:
-        return Base().modulation_into_datagram_with_segment(ptr, segment, update_segment)
-
-    def _datagram_ptr(self: "IModulation", geometry: Geometry) -> DatagramPtr:
-        return Base().modulation_into_datagram(self._raw_ptr(geometry))
-
-    @property
-    def sampling_config(self: "IModulation") -> SamplingConfiguration:
-        return SamplingConfiguration.__private_new__(Base().modulation_sampling_config(self._modulation_ptr()))
-
-    def __len__(self: "IModulation") -> int:
-        return _validate_int(Base().modulation_size(self._modulation_ptr()))
-
-    @abstractmethod
-    def _modulation_ptr(self: "IModulation") -> ModulationPtr:
-        pass
-
-    def with_loop_behavior(self: M, loop_behavior: LoopBehavior) -> M:
-        """Set loop behavior.
-
-        Arguments:
-        ---------
-            loop_behavior: Loop behavior.
-
-        """
-        self._loop_behavior = loop_behavior
-        return self
-
-    @property
-    def loop_behavior(self: "IModulation") -> LoopBehavior:
-        """Get loop behavior."""
-        return self._loop_behavior
-
-
-class IModulationWithSamplingConfig(IModulation):
+class Modulation(
+    IntoModulationCache[M],
+    IntoModulationTransform[M],
+    IntoModulationRadiationPressure[M],
+    ModulationBase[M],
+    Generic[M],
+    metaclass=ABCMeta,
+):
     _config: SamplingConfiguration
 
-    def __init__(self: "IModulationWithSamplingConfig", config: SamplingConfiguration) -> None:
+    def __init__(self: "Modulation[M]", config: SamplingConfiguration) -> None:
         super().__init__()
         self._config = config
 
-    def with_sampling_config(self: MF, config: SamplingConfiguration) -> MF:
+    def with_sampling_config(self: M, config: SamplingConfiguration) -> M:
         """Set sampling configuration.
 
         Arguments:
@@ -76,14 +36,3 @@ class IModulationWithSamplingConfig(IModulation):
         """
         self._config = config
         return self
-
-
-class ChangeModulationSegment(Datagram):
-    _segment: Segment
-
-    def __init__(self: "ChangeModulationSegment", segment: Segment) -> None:
-        super().__init__()
-        self._segment = segment
-
-    def _datagram_ptr(self: "ChangeModulationSegment", _: Geometry) -> DatagramPtr:
-        return Base().datagram_change_modulation_segment(self._segment)

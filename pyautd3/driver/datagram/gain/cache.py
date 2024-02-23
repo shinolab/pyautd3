@@ -4,16 +4,17 @@ from typing import Generic, TypeVar
 
 import numpy as np
 
-from pyautd3.driver.datagram.gain.gain import IGain
+from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.with_segment import IntoDatagramWithSegment
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import Drive, GainPtr
 from pyautd3.native_methods.utils import _validate_ptr
 
-G = TypeVar("G", bound=IGain)
+G = TypeVar("G", bound=GainBase)
 
 
-class Cache(IGain, Generic[G]):
+class Cache(GainBase, IntoDatagramWithSegment["Cache[G]"], Generic[G]):
     """Gain to cache the result of calculation."""
 
     _g: G
@@ -55,7 +56,7 @@ class Cache(IGain, Generic[G]):
         return self._cache
 
 
-class IGainWithCache(IGain):
+class IntoGainCache(GainBase, Generic[G]):
     """Gain interface of Cache."""
 
     def with_cache(self: G) -> "Cache[G]":

@@ -9,7 +9,7 @@ from .backend import Backend
 from .holo import EmissionConstraint, HoloWithBackend
 
 
-class LM(HoloWithBackend):
+class LM(HoloWithBackend["LM"]):
     """Gain to produce multiple foci with Levenberg-Marquardt algorithm.
 
     References

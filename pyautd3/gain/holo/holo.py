@@ -1,11 +1,11 @@
 import functools
 from collections.abc import Iterable
-from typing import TypeVar
+from typing import Generic, TypeVar
 
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3.driver.datagram.gain import IGain, IGainWithCache, IGainWithTransform
+from pyautd3.driver.datagram.gain import Gain
 
 from .amplitude import Amplitude
 from .backend import Backend
@@ -17,7 +17,7 @@ __all__ = ["EmissionConstraint"]
 H = TypeVar("H", bound="Holo")
 
 
-class Holo(IGainWithCache, IGainWithTransform, IGain):
+class Holo(Gain[H], Generic[H]):
     _foci: list[float]
     _amps: list[Amplitude]
     _constraint: IEmissionConstraint
@@ -74,7 +74,7 @@ class Holo(IGainWithCache, IGainWithTransform, IGain):
         return self._constraint
 
 
-class HoloWithBackend(Holo):
+class HoloWithBackend(Holo[H], Generic[H]):
     _backend: Backend
 
     def __init__(self: "HoloWithBackend", constraint: IEmissionConstraint, backend: Backend) -> None:

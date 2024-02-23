@@ -2,21 +2,32 @@ from abc import ABCMeta, abstractmethod
 from typing import Generic, TypeVar
 
 from pyautd3.driver.geometry import Geometry
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import DatagramPtr, Segment
 
 from .datagram import Datagram
 
 __all__ = []  # type: ignore[var-annotated]
 
-D = TypeVar("D", bound=Datagram)
 DS = TypeVar("DS", bound="DatagramS")
 P = TypeVar("P")
 
 
-class DatagramWithSegment(
-    Datagram,
-    Generic[DS],
-):
+class DatagramS(Datagram, Generic[P], metaclass=ABCMeta):
+    @abstractmethod
+    def _into_segment(self: "DatagramS[P]", ptr: P, segment: Segment, *, update_segment: bool) -> DatagramPtr:
+        pass
+
+    @abstractmethod
+    def _raw_ptr(self: "DatagramS[P]", geometry: Geometry) -> P:
+        pass
+
+    def _datagram_ptr(self: "DatagramS[P]", geometry: Geometry) -> DatagramPtr:
+        raw_ptr = self._raw_ptr(geometry)
+        return Base().gain_into_datagram(raw_ptr)
+
+
+class DatagramWithSegment(Datagram, Generic[DS]):
     _datagram: DS
     _segment: Segment
     _update_segment: bool
@@ -26,19 +37,11 @@ class DatagramWithSegment(
         self._segment = segment
         self._update_segment = update_segment
 
-    def _datagram_ptr(self: "DatagramWithSegment[DS]", geometry: Geometry) -> DatagramPtr:
-        raw_ptr = self._datagram._raw_ptr(geometry)
+    def _datagram_ptr(self: "DatagramWithSegment[DS]", g: Geometry) -> DatagramPtr:
+        raw_ptr = self._datagram._raw_ptr(g)
         return self._datagram._into_segment(raw_ptr, self._segment, update_segment=self._update_segment)
 
 
-class DatagramS(Datagram, Generic[DS, P], metaclass=ABCMeta):
-    @abstractmethod
-    def _into_segment(self: DS, ptr: P, segment: Segment, *, update_segment: bool) -> DatagramPtr:
-        pass
-
-    @abstractmethod
-    def _raw_ptr(self: DS, geometry: Geometry) -> P:
-        pass
-
+class IntoDatagramWithSegment(DatagramS, Generic[DS]):
     def with_segment(self: DS, segment: Segment, *, update_segment: bool = True) -> DatagramWithSegment[DS]:
         return DatagramWithSegment(self, segment, update_segment=update_segment)
