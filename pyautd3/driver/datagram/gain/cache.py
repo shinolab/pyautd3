@@ -20,12 +20,12 @@ class Cache(GainBase, IntoDatagramWithSegment["Cache[G]"], Generic[G]):
     _g: G
     _cache: dict[int, np.ndarray]
 
-    def __init__(self: "Cache", g: G) -> None:
+    def __init__(self: "Cache[G]", g: G) -> None:
         super().__init__()
         self._g = g
         self._cache = {}
 
-    def init(self: "Cache", geometry: Geometry) -> None:
+    def init(self: "Cache[G]", geometry: Geometry) -> None:
         """Initialize gain."""
         device_indices = [dev.idx for dev in geometry.devices]
 
@@ -37,7 +37,7 @@ class Cache(GainBase, IntoDatagramWithSegment["Cache[G]"], Generic[G]):
                 self._cache[dev.idx] = drives
             Base().gain_calc_free_result(res)
 
-    def _gain_ptr(self: "Cache", geometry: Geometry) -> GainPtr:
+    def _gain_ptr(self: "Cache[G]", geometry: Geometry) -> GainPtr:
         self.init(geometry)
         return reduce(
             lambda acc, dev: Base().gain_custom_set(
@@ -51,7 +51,7 @@ class Cache(GainBase, IntoDatagramWithSegment["Cache[G]"], Generic[G]):
         )
 
     @property
-    def drives(self: "Cache") -> dict[int, np.ndarray]:
+    def drives(self: "Cache[G]") -> dict[int, np.ndarray]:
         """Get cached drives."""
         return self._cache
 

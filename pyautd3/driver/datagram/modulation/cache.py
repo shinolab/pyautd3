@@ -37,7 +37,7 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
             self._cache = np.fromiter((EmitIntensity(int(x)) for x in buf), dtype=EmitIntensity)
         return self._cache
 
-    def calc(self: "Cache") -> np.ndarray:
+    def calc(self: "Cache[M]") -> np.ndarray:
         """Calculate modulation."""
         return self._init()
 

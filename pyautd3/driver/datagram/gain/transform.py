@@ -36,7 +36,7 @@ class Transform(
         self._g = g
         self._f = f
 
-    def _gain_ptr(self: "Transform", geometry: Geometry) -> GainPtr:
+    def _gain_ptr(self: "Transform[G]", geometry: Geometry) -> GainPtr:
         res = _validate_ptr(Base().gain_calc(self._g._gain_ptr(geometry), geometry._geometry_ptr()))
 
         drives: dict[int, np.ndarray] = {}

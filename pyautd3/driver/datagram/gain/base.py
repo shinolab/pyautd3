@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from typing import TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_segment import DatagramS
@@ -8,8 +7,6 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_def import DatagramPtr, GainPtr, Segment
 
 __all__ = []  # type: ignore[var-annotated]
-
-G = TypeVar("G", bound="GainBase")
 
 
 class GainBase(DatagramS[GainPtr], metaclass=ABCMeta):

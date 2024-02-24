@@ -17,28 +17,28 @@ M = TypeVar("M", bound="ModulationBase")
 class ModulationBase(IntoDatagramWithSegment[M], DatagramS[ModulationPtr], Generic[M], metaclass=ABCMeta):
     _loop_behavior: LoopBehavior
 
-    def __init__(self: M) -> None:
+    def __init__(self: "ModulationBase[M]") -> None:
         super().__init__()
         self._loop_behavior = LoopBehavior.infinite()
 
-    def _raw_ptr(self: M, _: Geometry) -> ModulationPtr:
+    def _raw_ptr(self: "ModulationBase[M]", _: Geometry) -> ModulationPtr:
         return self._modulation_ptr()
 
-    def _into_segment(self: M, ptr: ModulationPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
+    def _into_segment(self: "ModulationBase[M]", ptr: ModulationPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
         if segment is None:
             return Base().modulation_into_datagram(ptr)
         segment_, update_segment = segment
         return Base().modulation_into_datagram_with_segment(ptr, segment_, update_segment)
 
     @property
-    def sampling_config(self: M) -> SamplingConfiguration:
+    def sampling_config(self: "ModulationBase[M]") -> SamplingConfiguration:
         return SamplingConfiguration.__private_new__(Base().modulation_sampling_config(self._modulation_ptr()))
 
-    def __len__(self: M) -> int:
+    def __len__(self: "ModulationBase[M]") -> int:
         return _validate_int(Base().modulation_size(self._modulation_ptr()))
 
     @abstractmethod
-    def _modulation_ptr(self: M) -> ModulationPtr:
+    def _modulation_ptr(self: "ModulationBase[M]") -> ModulationPtr:
         pass
 
     def with_loop_behavior(self: M, loop_behavior: LoopBehavior) -> M:
@@ -53,7 +53,7 @@ class ModulationBase(IntoDatagramWithSegment[M], DatagramS[ModulationPtr], Gener
         return self
 
     @property
-    def loop_behavior(self: M) -> LoopBehavior:
+    def loop_behavior(self: "ModulationBase[M]") -> LoopBehavior:
         """Get loop behavior."""
         return self._loop_behavior
 

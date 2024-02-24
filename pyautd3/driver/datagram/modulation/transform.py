@@ -23,7 +23,7 @@ class Transform(
 
     _m: M
 
-    def __init__(self: "Transform", m: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> None:
+    def __init__(self: "Transform[M]", m: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> None:
         self._m = m
         self._loop_behavior = m._loop_behavior
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint8)(
