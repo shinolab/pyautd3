@@ -42,7 +42,7 @@ class Transform(
         )
 
 
-class IntoModulationTransform(ModulationBase, Generic[M]):
+class IntoModulationTransform(ModulationBase[M], Generic[M]):
     """Modulation interface of Transform."""
 
     def with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> "Transform[M]":

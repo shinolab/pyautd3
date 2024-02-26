@@ -26,7 +26,7 @@ class RadiationPressure(
         return Base().modulation_with_radiation_pressure(self._m._modulation_ptr(), self._loop_behavior._internal)
 
 
-class IntoModulationRadiationPressure(ModulationBase, Generic[M]):
+class IntoModulationRadiationPressure(ModulationBase[M], Generic[M]):
     """Modulation interface of RadiationPressure."""
 
     def with_radiation_pressure(self: M) -> "RadiationPressure[M]":

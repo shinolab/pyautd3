@@ -57,7 +57,7 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
         return self._cache
 
 
-class IntoModulationCache(ModulationBase, Generic[M]):
+class IntoModulationCache(ModulationBase[M], Generic[M]):
     """Modulation interface of Cache."""
 
     def with_cache(self: M) -> "Cache[M]":
