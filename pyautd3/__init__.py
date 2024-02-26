@@ -67,4 +67,4 @@ __all__ = [
     "ChangeGainSTMSegment",
 ]
 
-__version__ = "22.0.1.1"
+__version__ = "22.0.1.2"
