@@ -33,11 +33,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install packaging
-        run: |
-          python3 -m pip install -U packaging requests
-
-
       - name: Generate code coverage for python
         run: |
           python3 -m pip install -U pytest pytest-asyncio pytest-cov

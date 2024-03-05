@@ -22,7 +22,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 -m pip install -U packaging requests
           python3 x.py build --no-install
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
 
@@ -42,7 +41,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 -m pip install -U packaging requests
           python3 x.py build --no-install
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
@@ -62,7 +60,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 -m pip install -U packaging requests
           python3 x.py build --no-install --arch arm32
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
@@ -82,7 +79,6 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 -m pip install -U packaging requests
           python3 x.py build --no-install --arch aarch64
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
@@ -102,6 +98,5 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 -m pip install -U packaging requests
           python3 x.py build --no-install
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing

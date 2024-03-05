@@ -52,11 +52,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.os-and-python.python-version }}
-      - name: Install packaging
-        if: needs.check.outputs.status
-        shell: bash
-        run: |
-          python3 -m pip install -U packaging requests
 
       - name: Install tools
         if: needs.check.outputs.status
