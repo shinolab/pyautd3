@@ -45,9 +45,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloCUDANaive.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, EmissionConstraintPtr]  # type: ignore 
         self.dll.AUTDGainHoloCUDANaive.restype = GainPtr
 
-        self.dll.AUTDGainHoloCUDAGreedy.argtypes = [ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_uint8, EmissionConstraintPtr]  # type: ignore 
-        self.dll.AUTDGainHoloCUDAGreedy.restype = GainPtr
-
         self.dll.AUTDGainHoloCUDALM.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint32, EmissionConstraintPtr, ctypes.POINTER(ctypes.c_double), ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDGainHoloCUDALM.restype = GainPtr
 
@@ -68,9 +65,6 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_holo_cuda_naive(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, constraint: EmissionConstraintPtr) -> GainPtr:
         return self.dll.AUTDGainHoloCUDANaive(backend, points, amps, size, constraint)
-
-    def gain_holo_cuda_greedy(self, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, div: int, constraint: EmissionConstraintPtr) -> GainPtr:
-        return self.dll.AUTDGainHoloCUDAGreedy(points, amps, size, div, constraint)
 
     def gain_holo_cudalm(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, eps_1: float, eps_2: float, tau: float, k_max: int, constraint: EmissionConstraintPtr, initial_ptr: ctypes.Array[ctypes.c_double] | None, initial_len: int) -> GainPtr:
         return self.dll.AUTDGainHoloCUDALM(backend, points, amps, size, eps_1, eps_2, tau, k_max, constraint, initial_ptr, initial_len)

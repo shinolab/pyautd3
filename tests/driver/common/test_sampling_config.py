@@ -48,11 +48,11 @@ def test_sampl_config_from_period():
 
     with pytest.raises(AUTDError) as e:
         config = SamplingConfiguration.from_period(timedelta(microseconds=PERIOD_MIN / 1000 - 1))
-    assert e.value.msg == "Sampling period (24000 ns) is out of range ([25000, 209715199951])"
+    assert e.value.msg == "Sampling period (24000 ns) is out of range ([25000, 209715199999])"
 
     with pytest.raises(AUTDError) as e:
         config = SamplingConfiguration.from_period(timedelta(microseconds=PERIOD_MAX / 1000 + 1))
-    assert e.value.msg == "Sampling period (209715201000 ns) is out of range ([25000, 209715199951])"
+    assert e.value.msg == "Sampling period (209715201000 ns) is out of range ([25000, 209715199999])"
 
 
 def test_sampling_config_ctor():
