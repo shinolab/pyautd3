@@ -71,8 +71,15 @@ class Audit(Link):
     def silencer_fixed_completion_steps_mode(self: "Audit", idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_silencer_fixed_completion_steps_mode(self._ptr, idx))
 
-    def debug_output_idx(self: "Audit", idx: int) -> int:
-        return int(LinkAudit().link_audit_fpga_debug_output_idx(self._ptr, idx))
+    def debug_types(self: "Audit", idx: int) -> np.ndarray:
+        buf = np.zeros([4]).astype(ctypes.c_uint8)
+        LinkAudit().link_audit_fpga_debug_types(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
+        return buf
+
+    def debug_values(self: "Audit", idx: int) -> np.ndarray:
+        buf = np.zeros([4]).astype(ctypes.c_uint16)
+        LinkAudit().link_audit_fpga_debug_values(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
+        return buf
 
     def assert_thermal_sensor(self: "Audit", idx: int) -> None:
         LinkAudit().link_audit_fpga_assert_thermal_sensor(self._ptr, idx)

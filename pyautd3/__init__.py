@@ -4,11 +4,12 @@ from .driver.common import Drive, EmitIntensity, LoopBehavior, Phase, SamplingCo
 from .driver.common.phase import rad as phase_rad
 from .driver.datagram import (
     Clear,
-    ConfigureDebugOutputIdx,
+    ConfigureDebugSettings,
     ConfigureForceFan,
     ConfigurePhaseFilter,
     ConfigureReadsFPGAState,
     ConfigureSilencer,
+    DebugType,
     FocusSTM,
     GainSTM,
     GainSTMMode,
@@ -32,7 +33,8 @@ __all__ = [
     "SamplingConfiguration",
     "Clear",
     "ConfigureSilencer",
-    "ConfigureDebugOutputIdx",
+    "ConfigureDebugSettings",
+    "DebugType",
     "ConfigureReadsFPGAState",
     "ConfigurePhaseFilter",
     "ConfigureForceFan",
@@ -67,4 +69,4 @@ __all__ = [
     "ChangeGainSTMSegment",
 ]
 
-__version__ = "22.0.4"
+__version__ = "22.1.0"

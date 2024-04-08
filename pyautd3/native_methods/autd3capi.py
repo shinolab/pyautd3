@@ -90,8 +90,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramClear.argtypes = [] 
         self.dll.AUTDDatagramClear.restype = DatagramPtr
 
-        self.dll.AUTDDatagramConfigureDebugOutputIdx.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
-        self.dll.AUTDDatagramConfigureDebugOutputIdx.restype = DatagramPtr
+        self.dll.AUTDDatagramConfigureDebugSettings2.argtypes = [ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctypes.c_uint16), GeometryPtr]  # type: ignore 
+        self.dll.AUTDDatagramConfigureDebugSettings2.restype = DatagramPtr
 
         self.dll.AUTDDatagramConfigureForceFan.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDDatagramConfigureForceFan.restype = DatagramPtr
@@ -348,8 +348,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.restype = ctypes.c_bool
 
-        self.dll.AUTDLinkAuditFpgaDebugOutputIdx.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaDebugOutputIdx.restype = ctypes.c_uint8
+        self.dll.AUTDLinkAuditFpgaDebugTypes.argtypes = [LinkPtr, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaDebugTypes.restype = None
+
+        self.dll.AUTDLinkAuditFpgaDebugValues.argtypes = [LinkPtr, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint16)]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaDebugValues.restype = None
 
         self.dll.AUTDLinkAuditFpgaStmFrequencyDivision.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaStmFrequencyDivision.restype = ctypes.c_uint32
@@ -486,8 +489,8 @@ class NativeMethods(metaclass=Singleton):
     def datagram_clear(self) -> DatagramPtr:
         return self.dll.AUTDDatagramClear()
 
-    def datagram_configure_debug_output_idx(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramConfigureDebugOutputIdx(f, context, geometry)
+    def datagram_configure_debug_settings_2(self, types: ctypes.Array[ctypes.c_uint8] | None, values: ctypes.Array[ctypes.c_uint16] | None, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramConfigureDebugSettings2(types, values, geometry)
 
     def datagram_configure_force_fan(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramConfigureForceFan(f, context, geometry)
@@ -744,8 +747,11 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_silencer_fixed_completion_steps_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
         return self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode(audit, idx)
 
-    def link_audit_fpga_debug_output_idx(self, audit: LinkPtr, idx: int) -> ctypes.c_uint8:
-        return self.dll.AUTDLinkAuditFpgaDebugOutputIdx(audit, idx)
+    def link_audit_fpga_debug_types(self, audit: LinkPtr, idx: int, ty: ctypes.Array[ctypes.c_uint8] | None) -> None:
+        return self.dll.AUTDLinkAuditFpgaDebugTypes(audit, idx, ty)
+
+    def link_audit_fpga_debug_values(self, audit: LinkPtr, idx: int, value: ctypes.Array[ctypes.c_uint16] | None) -> None:
+        return self.dll.AUTDLinkAuditFpgaDebugValues(audit, idx, value)
 
     def link_audit_fpga_stm_frequency_division(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
         return self.dll.AUTDLinkAuditFpgaStmFrequencyDivision(audit, segment, idx)

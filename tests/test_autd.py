@@ -46,8 +46,8 @@ def test_firmware_info():
     autd: Controller[Audit]
     with create_controller_sync() as autd:
         for i, firm in enumerate(autd.firmware_info_list()):
-            assert firm.info == f"{i}: CPU = v6.0.0, FPGA = v6.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v6.0.0, FPGA = v6.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v6.1.0, FPGA = v6.1.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v6.1.0, FPGA = v6.1.0 [Emulator]"
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
@@ -59,11 +59,11 @@ def test_firmware_info():
 async def test_firmware_info_async():
     autd: Controller[Audit]
     with await create_controller() as autd:
-        assert FirmwareInfo.latest_version() == "v6.0.0"
+        assert FirmwareInfo.latest_version() == "v6.1.0"
 
         for i, firm in enumerate(await autd.firmware_info_list_async()):
-            assert firm.info == f"{i}: CPU = v6.0.0, FPGA = v6.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v6.0.0, FPGA = v6.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v6.1.0, FPGA = v6.1.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v6.1.0, FPGA = v6.1.0 [Emulator]"
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:

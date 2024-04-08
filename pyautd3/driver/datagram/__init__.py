@@ -1,6 +1,6 @@
 from .clear import Clear
 from .datagram import Datagram
-from .debug import ConfigureDebugOutputIdx
+from .debug import ConfigureDebugSettings, DebugType
 from .force_fan import ConfigureForceFan
 from .phase_filter import ConfigurePhaseFilter
 from .reads_fpga_state import ConfigureReadsFPGAState
@@ -11,7 +11,8 @@ from .synchronize import Synchronize
 __all__ = [
     "Clear",
     "ConfigureSilencer",
-    "ConfigureDebugOutputIdx",
+    "ConfigureDebugSettings",
+    "DebugType",
     "ConfigureReadsFPGAState",
     "ConfigureForceFan",
     "ConfigurePhaseFilter",

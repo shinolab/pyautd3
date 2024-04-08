@@ -195,7 +195,11 @@ impl PythonGenerator {
     }
 
     pub fn register_func(mut self, functions: Vec<Function>) -> Self {
-        self.functions.extend(functions);
+        self.functions.extend(
+            functions
+                .into_iter()
+                .filter(|s| !matches!(s.name.as_str(), "AUTDDatagramConfigureDebugSettings")),
+        );
         self
     }
 
@@ -224,6 +228,9 @@ impl PythonGenerator {
                     | "DynamicDatagramWithSegment"
                     | "DynamicConfigurePhaseFilter"
                     | "DynamicConfigurePhaseFilterOp"
+                    | "DynamicConfigureDebugSettings"
+                    | "DynamicDebugSettingOp"
+                    | "DebugSettings"
             )
         }));
         self
