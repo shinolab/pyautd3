@@ -172,13 +172,6 @@ def build_wheel(config: Config):
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
                 content = content.replace(r"${classifiers_os}", "Operating System :: MacOS :: MacOS X")
-                content = content.replace(r"${plat_name}", "macosx-10-13-x86_64")
-                with open("setup.cfg", "w") as f:
-                    f.write(content)
-            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
-            with open("setup.cfg.template", "r") as setup:
-                content = setup.read()
-                content = content.replace(r"${classifiers_os}", "Operating System :: MacOS :: MacOS X")
                 content = content.replace(r"${plat_name}", "macosx-11-0-arm64")
                 with open("setup.cfg", "w") as f:
                     f.write(content)
@@ -290,7 +283,7 @@ def py_build(args):
                 plat_name = "win_amd64"
             elif config.is_macos():
                 if platform.machine() in ["ADM64", "x86_64"]:
-                    plat_name = "macosx_10_13_x86_64"
+                    err(f'platform "{platform.system()}/{platform.machine()}" is not supported.')
                 else:
                     plat_name = "macosx_11_0_arm64"
             elif config.is_linux():
