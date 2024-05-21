@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from typing import Generic, TypeVar
 
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.autd3capi import ControllerPtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
 
 __all__ = []  # type: ignore[var-annotated]
 

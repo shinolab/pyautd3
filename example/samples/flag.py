@@ -1,13 +1,13 @@
 import threading
 
-from pyautd3 import ConfigureForceFan, ConfigureReadsFPGAState, Controller
+from pyautd3 import Controller, ForceFan, ReadsFPGAState
 
 
-async def flag(autd: Controller) -> None:
+def flag(autd: Controller) -> None:
     print("press any key to run fan...")
     _ = input()
 
-    await autd.send_async(ConfigureReadsFPGAState(lambda _: True), ConfigureForceFan(lambda _: True))
+    autd.send(ReadsFPGAState(lambda _: True), ForceFan(lambda _: True))
 
     fin = False
 
@@ -23,7 +23,7 @@ async def flag(autd: Controller) -> None:
     prompts = ["-", "/", "|", "\\"]
     prompts_idx = 0
     while not fin:
-        states = await autd.fpga_state_async()
+        states = autd.fpga_state()
         print(f"{prompts[(prompts_idx // 1000) % len(prompts)]} FPGA Status...")
         print("\n".join([f"\x1b[0K[{i}]: thermo = {'-' if state is None else state.is_thermal_assert}" for i, state in enumerate(states)]))
         print(f"\x1b[{len(states) + 1}A", end="")
@@ -31,4 +31,4 @@ async def flag(autd: Controller) -> None:
     print("\x1b[1F\x1b[0J")
 
     th.join()
-    await autd.send_async(ConfigureReadsFPGAState(lambda _: False), ConfigureForceFan(lambda _: False))
+    autd.send(ReadsFPGAState(lambda _: False), ForceFan(lambda _: False))

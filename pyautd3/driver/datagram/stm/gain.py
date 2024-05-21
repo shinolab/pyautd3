@@ -1,179 +1,112 @@
 import ctypes
 from collections.abc import Iterable
-from datetime import timedelta
 
 import numpy as np
 
-from pyautd3.driver.common.loop_behavior import LoopBehavior
-from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain.base import GainBase
-from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import (
+from pyautd3.native_methods.autd3capi_driver import (
     DatagramPtr,
     GainPtr,
     GainSTMMode,
     GainSTMPtr,
+    SamplingConfigWrap,
     Segment,
+    TransitionModeWrap,
 )
-from pyautd3.native_methods.utils import _validate_ptr
-
-from .stm import _STM
+from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
 
 __all__ = []  # type: ignore[var-annotated]
 
 
-class GainSTM(_STM, IntoDatagramWithSegment, DatagramS[GainSTMPtr]):
-    """GainSTM is an STM for moving any Gain."""
-
+class GainSTM(IntoDatagramWithSegmentTransition, DatagramST[GainSTMPtr]):
     _gains: list[GainBase]
     _mode: GainSTMMode
 
-    def __init__(
-        self: "GainSTM",
-        *,
-        freq: float | None = None,
-        period: timedelta | None = None,
-        sampling_config: SamplingConfiguration | None = None,
-    ) -> None:
-        """Constructor.
+    _freq: Freq[float] | None
+    _freq_nearest: Freq[float] | None
+    _sampling_config: SamplingConfigWrap | None
+    _loop_behavior: _LoopBehavior
 
-        Arguments:
-        ---------
-            freq: Frequency of STM [Hz]. The frequency closest to `freq` from the possible frequencies is set.
-            period: only for internal use.
-            sampling_config: only for internal use.
+    def __new__(cls: type["GainSTM"]) -> "GainSTM":
+        raise NotImplementedError
 
-        """
-        super().__init__(freq, period, sampling_config)
-        self._gains = []
-        self._mode = GainSTMMode.PhaseIntensityFull
+    @classmethod
+    def __private_new__(
+        cls: type["GainSTM"],
+        freq: Freq[float] | None,
+        freq_nearest: Freq[float] | None,
+        sampling_config: SamplingConfigWrap | None,
+    ) -> "GainSTM":
+        ins = super().__new__(cls)
+
+        ins._gains = []
+        ins._mode = GainSTMMode.PhaseIntensityFull
+
+        ins._freq = freq
+        ins._freq_nearest = freq_nearest
+        ins._sampling_config = sampling_config
+
+        ins._loop_behavior = LoopBehavior.Infinite
+
+        return ins
 
     def _raw_ptr(self: "GainSTM", geometry: Geometry) -> GainSTMPtr:
         gains: np.ndarray = np.ndarray(len(self._gains), dtype=GainPtr)
         for i, g in enumerate(self._gains):
             gains[i]["_0"] = g._gain_ptr(geometry)._0
-        return _validate_ptr(
-            Base().stm_gain(
-                self._props(),
-                gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
-                len(self._gains),
-                self._mode,
-            ),
+        ptr: GainSTMPtr
+        if self._freq is not None:
+            ptr = Base().stm_gain_from_freq(self._freq.hz)
+        elif self._freq_nearest is not None:
+            ptr = Base().stm_gain_from_freq_nearest(self._freq_nearest.hz)
+        elif self._sampling_config is not None:
+            ptr = Base().stm_gain_from_sampling_config(self._sampling_config)
+        ptr = Base().stm_gain_with_mode(ptr, self._mode)
+        ptr = Base().stm_gain_with_loop_behavior(ptr, self._loop_behavior)
+        return Base().stm_gain_add_gains(
+            ptr,
+            gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
+            len(self._gains),
         )
 
-    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
-        if segment is None:
-            return Base().stm_gain_into_datagram(ptr)
-        segment_, update_segment = segment
-        return Base().stm_gain_into_datagram_with_segment(ptr, segment_, update_segment)
+    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+        if transition_mode is None:
+            return Base().stm_gain_into_datagram_with_segment(ptr, segment)
+        return Base().stm_gain_into_datagram_with_segment_transition(ptr, segment, transition_mode)
 
     @staticmethod
-    def from_freq(freq: float) -> "GainSTM":
-        """Constructor.
-
-        Arguments:
-        ---------
-            freq: freq
-
-        """
-        return GainSTM(freq=freq)
+    def from_freq(freq: Freq[float]) -> "GainSTM":
+        return GainSTM.__private_new__(freq, None, None)
 
     @staticmethod
-    def from_sampling_config(config: SamplingConfiguration) -> "GainSTM":
-        """Constructor.
-
-        Arguments:
-        ---------
-            config: Sampling configuration
-
-        """
-        return GainSTM(sampling_config=config)
+    def from_freq_nearest(freq: Freq[float]) -> "GainSTM":
+        return GainSTM.__private_new__(None, freq, None)
 
     @staticmethod
-    def from_period(period: timedelta) -> "GainSTM":
-        """Constructor.
-
-        Arguments:
-        ---------
-            period: Period.
-
-        """
-        return GainSTM(period=period)
+    def from_sampling_config(config: SamplingConfigWrap) -> "GainSTM":
+        return GainSTM.__private_new__(None, None, config)
 
     def add_gain(self: "GainSTM", gain: GainBase) -> "GainSTM":
-        """Add gain.
-
-        Arguments:
-        ---------
-            gain: Gain
-
-        """
         self._gains.append(gain)
         return self
 
     def add_gains_from_iter(self: "GainSTM", iterable: Iterable[GainBase]) -> "GainSTM":
-        """Add gains.
-
-        Arguments:
-        ---------
-            iterable: Iterable of gains
-
-        """
         self._gains.extend(iterable)
         return self
 
-    @property
-    def frequency(self: "GainSTM") -> float:
-        """Frequency [Hz]."""
-        return self._frequency_from_size(len(self._gains))
-
-    @property
-    def period(self: "GainSTM") -> timedelta:
-        """Period."""
-        return self._period_from_size(len(self._gains))
-
-    @property
-    def sampling_config(self: "GainSTM") -> SamplingConfiguration:
-        """Sampling configuration."""
-        return self._sampling_config_from_size(len(self._gains))
-
     def with_mode(self: "GainSTM", mode: GainSTMMode) -> "GainSTM":
-        """Set GainSTMMode.
-
-        Arguments:
-        ---------
-            mode: GainSTMMode
-
-        """
         self._mode = mode
         return self
 
     @property
     def mode(self: "GainSTM") -> GainSTMMode:
-        """GainSTMMode."""
         return self._mode
 
-    def with_loop_behavior(self: "GainSTM", value: LoopBehavior) -> "GainSTM":
-        """Set loop behavior.
-
-        Arguments:
-        ---------
-            value: LoopBehavior.
-
-        """
+    def with_loop_behavior(self: "GainSTM", value: _LoopBehavior) -> "GainSTM":
         self._loop_behavior = value
         return self
-
-
-class ChangeGainSTMSegment(Datagram):
-    _segment: Segment
-
-    def __init__(self: "ChangeGainSTMSegment", segment: Segment) -> None:
-        super().__init__()
-        self._segment = segment
-
-    def _datagram_ptr(self: "ChangeGainSTMSegment", _: Geometry) -> DatagramPtr:
-        return Base().datagram_change_gain_stm_segment(self._segment)

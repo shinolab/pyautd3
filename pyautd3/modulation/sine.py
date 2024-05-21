@@ -1,115 +1,75 @@
-from pyautd3.driver.common.emit_intensity import EmitIntensity
-from pyautd3.driver.common.phase import Phase
-from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from typing import TypeVar
+
 from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi import SamplingMode
-from pyautd3.native_methods.autd3capi_def import ModulationPtr
+from pyautd3.driver.defined.angle import Angle, rad
+from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.driver.geometry import Geometry
+from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
+from pyautd3.native_methods.autd3capi_driver import ModulationPtr
+
+T = TypeVar("T", int, float)
 
 
 class Sine(Modulation["Sine"]):
-    """Sine wave modulation."""
-
-    _freq: float
+    _mode: ISamplingMode
     _intensity: EmitIntensity
     _offset: EmitIntensity
-    _phase: Phase
-    _mode: SamplingMode
+    _phase: Angle
 
-    def __init__(self: "Sine", freq: float) -> None:
-        """Constructor.
-
-        The sine wave is defined as `amp/2 * sin(2π * freq * t + phase) + offset`,
-        where `t` is time, and `amp = EmitIntensity.maximum()`, `phase = 0`, `offset = EmitIntensity.maximum()/2` by default.
-
-        Arguments:
-        ---------
-            freq: Frequency (Hz)
-
-        """
-        super().__init__(SamplingConfiguration.from_frequency(4e3))
-        self._freq = freq
+    def __private__init__(self: "Sine", mode: ISamplingMode) -> None:
+        super().__init__(SamplingConfig.Division(5120))
+        self._mode = mode
         self._intensity = EmitIntensity.maximum()
         self._offset = EmitIntensity.maximum() // 2
-        self._phase = Phase(0)
-        self._mode = SamplingMode.ExactFrequency
+        self._phase = 0 * rad
 
-    @property
-    def freq(self: "Sine") -> float:
-        """Get frequency."""
-        return self._freq
+    def __init__(self: "Sine", freq: Freq[T]) -> None:
+        match freq.hz:
+            case int():
+                self.__private__init__(SamplingModeExact(freq))  # type: ignore[arg-type]
+            case float():
+                self.__private__init__(SamplingModeExactFloat(freq))
+            case _:
+                msg = "Invalid frequency type"
+                raise ValueError(msg)
 
-    def with_intensity(self: "Sine", intensity: int | EmitIntensity) -> "Sine":
-        """Set intensity.
+    @classmethod
+    def with_freq_nearest(cls: "type[Sine]", freq: Freq[float]) -> "Sine":
+        sine = super().__new__(cls)
+        sine.__private__init__(SamplingModeNearest(freq))
+        return sine
 
-        Arguments:
-        ---------
-            intensity: Intensity
-
-        """
-        self._intensity = EmitIntensity._cast(intensity)
+    def with_intensity(self: "Sine", intensity: EmitIntensity) -> "Sine":
+        self._intensity = intensity
         return self
 
     @property
     def intensity(self: "Sine") -> EmitIntensity:
-        """Get intensity."""
         return self._intensity
 
-    def with_offset(self: "Sine", offset: int | EmitIntensity) -> "Sine":
-        """Set offset.
-
-        Arguments:
-        ---------
-            offset: Offset
-
-        """
-        self._offset = EmitIntensity._cast(offset)
+    def with_offset(self: "Sine", offset: EmitIntensity) -> "Sine":
+        self._offset = offset
         return self
 
     @property
     def offset(self: "Sine") -> EmitIntensity:
-        """Get offset."""
         return self._offset
 
-    def with_phase(self: "Sine", phase: Phase) -> "Sine":
-        """Set phase.
-
-        Arguments:
-        ---------
-            phase: Phase
-
-        """
+    def with_phase(self: "Sine", phase: Angle) -> "Sine":
         self._phase = phase
         return self
 
     @property
-    def phase(self: "Sine") -> Phase:
-        """Get phase."""
+    def phase(self: "Sine") -> Angle:
         return self._phase
 
-    def with_mode(self: "Sine", mode: SamplingMode) -> "Sine":
-        """Set sampling mode.
-
-        Arguments:
-        ---------
-            mode: Sampling mode
-
-        """
-        self._mode = mode
-        return self
-
-    @property
-    def mode(self: "Sine") -> SamplingMode:
-        """Get sampling mode."""
-        return self._mode
-
-    def _modulation_ptr(self: "Sine") -> ModulationPtr:
-        return Base().modulation_sine(
-            self._freq,
-            self._config._internal,
-            self._intensity.value,
-            self._offset.value,
-            self._phase.value,
-            self._mode,
-            self._loop_behavior._internal,
+    def _modulation_ptr(self: "Sine", _: Geometry) -> ModulationPtr:
+        return self._mode.sine_ptr(
+            self._config,
+            self._intensity,
+            self._offset,
+            self._phase,
+            self._loop_behavior,
         )

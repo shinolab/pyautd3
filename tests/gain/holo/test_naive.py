@@ -2,23 +2,23 @@ import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Controller, Segment
-from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, pascal
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, Pa
 from pyautd3.link.audit import Audit
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
 
 
-@pytest.mark.asyncio()
-async def test_naive():
+def test_naive():
     autd: Controller[Audit]
-    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_async(Audit.builder()) as autd:
+    with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(Audit.builder()) as autd:
         backend = NalgebraBackend()
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30])
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
@@ -26,11 +26,11 @@ async def test_naive():
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30])
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
@@ -38,20 +38,19 @@ async def test_naive():
 
 
 @pytest.mark.cuda()
-@pytest.mark.asyncio()
-async def test_naive_cuda():
+def test_naive_cuda():
     from pyautd3.gain.holo.backend_cuda import CUDABackend
 
     autd: Controller[Audit]
-    with await Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open_async(Audit.builder()) as autd:
+    with Controller[Audit].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(Audit.builder()) as autd:
         backend = CUDABackend()
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30])
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
@@ -59,11 +58,11 @@ async def test_naive_cuda():
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * pascal) for x in [-30])
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_foci_from_iter((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30])
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)

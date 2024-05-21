@@ -73,7 +73,7 @@ impl Type {
                             ty: Self::parse_str(
                                 path.path
                                     .segments
-                                    .first()
+                                    .last()
                                     .unwrap()
                                     .ident
                                     .to_string()

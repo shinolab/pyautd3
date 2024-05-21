@@ -152,6 +152,11 @@ class Config:
 
         return wpcap_exists and packet_exists
 
+    def python_module(self, cmd):
+        r = ["python" if self.is_windows() else "python3", "-m"]
+        r.extend(cmd)
+        return r
+
 
 def build_wheel(config: Config):
     with working_dir("."):
@@ -162,7 +167,7 @@ def build_wheel(config: Config):
                 content = content.replace(r"${plat_name}", "win-amd64")
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(["python", "-m", "build", "-w"]).check_returncode()
+            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
         elif config.is_macos():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
@@ -170,14 +175,14 @@ def build_wheel(config: Config):
                 content = content.replace(r"${plat_name}", "macosx-10-13-x86_64")
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(["python3", "-m", "build", "-w"]).check_returncode()
+            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
                 content = content.replace(r"${classifiers_os}", "Operating System :: MacOS :: MacOS X")
                 content = content.replace(r"${plat_name}", "macosx-11-0-arm64")
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(["python3", "-m", "build", "-w"]).check_returncode()
+            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
         elif config.is_linux():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
@@ -199,7 +204,7 @@ def build_wheel(config: Config):
                 content = content.replace(r"${plat_name}", plat_name)
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(["python3", "-m", "build", "-w"]).check_returncode()
+            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
 
 
 def should_update_dll(config: Config, version: str) -> bool:
@@ -279,14 +284,7 @@ def py_build(args):
                 content = setup.read()
                 m = re.search("version = (.*)", content)
                 version = m.group(1)
-            command = []
-            if config.is_windows():
-                command.append("python")
-            else:
-                command.append("python3")
-            command.append("-m")
-            command.append("pip")
-            command.append("install")
+            command = config.python_module(["pip", "install"])
             plat_name = ""
             if config.is_windows():
                 plat_name = "win_amd64"
@@ -316,38 +314,14 @@ def py_test(args):
     copy_dll(config)
 
     with working_dir("."):
-        command = []
-        if config.is_windows():
-            command.append("python")
-        else:
-            command.append("python3")
-        command.append("-m")
-        command.append("mypy")
-        command.append("pyautd3")
-        command.append("example")
-        command.append("tests")
-        command.append("--check-untyped-defs")
-        subprocess.run(command).check_returncode()
+        subprocess.run(config.python_module(["mypy", "pyautd3", "--check-untyped-defs"])).check_returncode()
+        subprocess.run(config.python_module(["ruff", "check", "pyautd3"])).check_returncode()
+        subprocess.run(config.python_module(["mypy", "example", "--check-untyped-defs"])).check_returncode()
+        subprocess.run(config.python_module(["ruff", "check", "example"])).check_returncode()
+        subprocess.run(config.python_module(["mypy", "tests", "--check-untyped-defs"])).check_returncode()
+        subprocess.run(config.python_module(["ruff", "check", "tests"])).check_returncode()
 
-        command = []
-        if config.is_windows():
-            command.append("python")
-        else:
-            command.append("python3")
-        command.append("-m")
-        command.append("ruff")
-        command.append("pyautd3")
-        command.append("example")
-        command.append("tests")
-        subprocess.run(command).check_returncode()
-
-        command = []
-        if config.is_windows():
-            command.append("python")
-        else:
-            command.append("python3")
-        command.append("-m")
-        command.append("pytest")
+        command = config.python_module(["pytest"])
         if config.is_pcap_available():
             command.append("--soem")
         if config.is_cuda_available():
@@ -361,13 +335,7 @@ def py_cov(args):
     copy_dll(config)
 
     with working_dir("."):
-        command = []
-        if config.is_windows():
-            command.append("python")
-        else:
-            command.append("python3")
-        command.append("-m")
-        command.append("pytest")
+        command = config.python_module(["pytest"])
         if config.is_pcap_available():
             command.append("--soem")
         if config.is_cuda_available():

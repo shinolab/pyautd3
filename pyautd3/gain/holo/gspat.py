@@ -3,41 +3,26 @@ import ctypes
 import numpy as np
 
 from pyautd3.driver.geometry import Geometry
-from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from .backend import Backend
-from .holo import EmissionConstraint, HoloWithBackend
+from .constraint import EmissionConstraint
+from .holo import HoloWithBackend
 
 
 class GSPAT(HoloWithBackend["GSPAT"]):
-    """Gain to produce multiple foci with GS-PAT algorithm.
-
-    Reference
-    ---------
-    - Plasencia, Diego Martinez, et al. "GS-PAT: high-speed multi-point sound-fields for phased arrays of transducers,"
-        ACM Transactions on Graphics (TOG) 39.4 (2020): 138-1.
-    """
-
     _repeat: int
 
     def __init__(self: "GSPAT", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.DontCare(), backend)
+        super().__init__(EmissionConstraint.DontCare, backend)
         self._repeat = 100
 
     def with_repeat(self: "GSPAT", value: int) -> "GSPAT":
-        """Set parameter.
-
-        Arguments:
-        ---------
-            value: parameter
-
-        """
         self._repeat = value
         return self
 
     @property
     def repeat(self: "GSPAT") -> int:
-        """Get parameter."""
         return self._repeat
 
     def _gain_ptr(self: "GSPAT", _: Geometry) -> GainPtr:

@@ -4,25 +4,25 @@ import numpy as np
 import pytest
 
 from pyautd3 import Controller, Segment
-from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, pascal
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, Pa
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_constraint():
+def test_constraint():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
         backend = NalgebraBackend()
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * pascal)
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
@@ -30,11 +30,11 @@ async def test_constraint():
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * pascal)
-            .with_constraint(EmissionConstraint.Normalize())
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
+            .with_constraint(EmissionConstraint.Normalize)
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
@@ -42,11 +42,11 @@ async def test_constraint():
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * pascal)
-            .with_constraint(EmissionConstraint.Clamp(67, 85))
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
+            .with_constraint(EmissionConstraint.Clamp(EmitIntensity(67), EmitIntensity(85)))
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities >= 67)
@@ -55,11 +55,11 @@ async def test_constraint():
 
         g = (
             Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * pascal)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * pascal)
-            .with_constraint(EmissionConstraint.DontCare())
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
+            .with_constraint(EmissionConstraint.DontCare)
         )
-        assert await autd.send_async(g)
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
@@ -69,7 +69,3 @@ async def test_constraint():
 def test_constraint_ctor():
     with pytest.raises(NotImplementedError):
         _ = EmissionConstraint()
-
-
-def test_constraint_eq():
-    assert EmissionConstraint.Uniform(0x80) != 0x80

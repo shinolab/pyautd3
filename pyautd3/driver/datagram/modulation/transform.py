@@ -2,9 +2,10 @@ import ctypes
 from collections.abc import Callable
 from typing import Generic, TypeVar
 
-from pyautd3.driver.common.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import ModulationPtr
+from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 from .base import ModulationBase
 from .cache import IntoModulationCache
@@ -19,8 +20,6 @@ class Transform(
     ModulationBase["Transform[M]"],
     Generic[M],
 ):
-    """Modulation to transform modulation data."""
-
     _m: M
 
     def __init__(self: "Transform[M]", m: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> None:
@@ -33,25 +32,15 @@ class Transform(
             ).value,
         )
 
-    def _modulation_ptr(self: "Transform[M]") -> ModulationPtr:
+    def _modulation_ptr(self: "Transform[M]", geometry: Geometry) -> ModulationPtr:
         return Base().modulation_with_transform(
-            self._m._modulation_ptr(),
+            self._m._modulation_ptr(geometry),
             self._f_native,  # type: ignore[arg-type]
             None,
-            self._loop_behavior._internal,
+            self._loop_behavior,
         )
 
 
 class IntoModulationTransform(ModulationBase[M], Generic[M]):
-    """Modulation interface of Transform."""
-
     def with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> "Transform[M]":
-        """Transform modulation data.
-
-        Arguments:
-        ---------
-            self: Modulation
-            f: Transform function. The first argument is the index of the modulation data, and the second is the original data.
-
-        """
         return Transform(self, f)

@@ -5,11 +5,13 @@ from collections.abc import Iterable
 import numpy as np
 
 from pyautd3.autd_error import InvalidPlotConfigError
-from pyautd3.driver.common import EmitIntensity, Phase
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkPtr, Segment
+from pyautd3.native_methods.autd3capi_driver import LinkPtr, Segment
 from pyautd3.native_methods.autd3capi_link_visualizer import (
     Backend,
     CMap,
@@ -47,22 +49,16 @@ class IPlotBackend(metaclass=ABCMeta):
 
 
 class PlottersBackend(IPlotBackend):
-    """Plotters backend."""
-
     def __init__(self: "PlottersBackend") -> None:
         super().__init__(Backend.Plotters)
 
 
 class PythonBackend(IPlotBackend):
-    """Python backend."""
-
     def __init__(self: "PythonBackend") -> None:
         super().__init__(Backend.Python)
 
 
 class NullBackend(IPlotBackend):
-    """Null backend."""
-
     def __init__(self: "NullBackend") -> None:
         super().__init__(Backend.Null)
 
@@ -75,22 +71,16 @@ class IDirectivity(metaclass=ABCMeta):
 
 
 class Sphere(IDirectivity):
-    """Sphere directivity."""
-
     def __init__(self: "Sphere") -> None:
         super().__init__(Directivity.Sphere)
 
 
 class T4010A1(IDirectivity):
-    """T4010A1 directivity."""
-
     def __init__(self: "T4010A1") -> None:
         super().__init__(Directivity.T4010A1)
 
 
 class PlotRange:
-    """Plot range."""
-
     x_start: float
     x_end: float
     y_start: float
@@ -130,7 +120,6 @@ class PlotRange:
         )
 
     def observe_points(self: "PlotRange") -> list[np.ndarray]:
-        """Get observe points."""
         plot_range = self._ptr()
         points_len = int(LinkVisualizer().link_visualizer_plot_range_observe_points_len(plot_range))
         buf = np.zeros(3 * points_len).astype(ctypes.c_double)
@@ -149,8 +138,6 @@ class IPlotConfig(metaclass=ABCMeta):
 
 
 class PlotConfig(IPlotConfig):
-    """Plot config for PlottersBackend."""
-
     figsize: tuple[int, int]
     cbar_size: float
     font_size: int
@@ -204,8 +191,6 @@ class PlotConfig(IPlotConfig):
 
 
 class PyPlotConfig(IPlotConfig):
-    """Plot config for PythonBackend."""
-
     figsize: tuple[int, int]
     dpi: int
     cbar_position: str
@@ -267,8 +252,6 @@ class PyPlotConfig(IPlotConfig):
 
 
 class NullPlotConfig(IPlotConfig):
-    """Plot config for NullBackend."""
-
     def _config_ptr(self: "NullPlotConfig") -> ConfigPtr:
         return ConfigPtr(LinkVisualizer().link_visualizer_null_plot_config()._0)
 
@@ -277,8 +260,6 @@ class NullPlotConfig(IPlotConfig):
 
 
 class Visualizer(Link):
-    """Link for visualizing."""
-
     _ptr: LinkPtr
     _backend: Backend
     _directivity: Directivity
@@ -332,35 +313,14 @@ class Visualizer(Link):
             return Visualizer(Base().link_get(ptr), self._backend, self._directivity)
 
         def with_gpu(self: "Visualizer._Builder", gpu_idx: int) -> "Visualizer._Builder":  # pragma: no cover
-            """Set GPU index.
-
-            Arguments:
-            ---------
-                gpu_idx: GPU index
-
-            """
             self._gpu_idx = gpu_idx
             return self
 
         def with_backend(self: "Visualizer._Builder", backend: IPlotBackend) -> "Visualizer._Builder":
-            """Set backend.
-
-            Arguments:
-            ---------
-                backend: Backend
-
-            """
             self._backend = backend._backend
             return self
 
         def with_directivity(self: "Visualizer._Builder", directivity: IDirectivity) -> "Visualizer._Builder":
-            """Set directivity.
-
-            Arguments:
-            ---------
-                directivity: Directivity
-
-            """
             self._directivity = directivity._directivity
             return self
 
@@ -371,47 +331,39 @@ class Visualizer(Link):
 
     @staticmethod
     def builder() -> _Builder:
-        """Create visualizer link builder."""
         return Visualizer._Builder()
 
     @staticmethod
     def plotters() -> _Builder:
-        """Create visualizer link builder with PlottersBackend."""
         return Visualizer._Builder(Backend.Plotters)
 
     @staticmethod
     def python() -> _Builder:
-        """Create visualizer link builder with PythonBackend."""
         return Visualizer._Builder(Backend.Python)
 
     @staticmethod
     def null() -> _Builder:
-        """Create visualizer link builder with NullBackend."""
         return Visualizer._Builder(Backend.Null)
 
     def phases(self: "Visualizer", segment: Segment, idx: int) -> np.ndarray:
-        """Get phases of specifig STM index."""
         size = LinkVisualizer().link_visualizer_phases_of(self._ptr, self._backend, self._directivity, segment, idx, None)
         phases = np.zeros(int(size)).astype(ctypes.c_uint8)
         LinkVisualizer().link_visualizer_phases_of(self._ptr, self._backend, self._directivity, segment, idx, np.ctypeslib.as_ctypes(phases))
-        return np.fromiter((Phase(x) for x in phases), dtype=Phase)
+        return np.fromiter((Phase(int(x)) for x in phases), dtype=Phase)
 
     def intensities(self: "Visualizer", segment: Segment, idx: int) -> np.ndarray:
-        """Get intensities of specifig STM index."""
         size = LinkVisualizer().link_visualizer_intensities(self._ptr, self._backend, self._directivity, segment, idx, None)
         intensities = np.zeros(int(size)).astype(ctypes.c_uint8)
         LinkVisualizer().link_visualizer_intensities(self._ptr, self._backend, self._directivity, segment, idx, np.ctypeslib.as_ctypes(intensities))
         return np.fromiter((EmitIntensity(x) for x in intensities), dtype=EmitIntensity)
 
     def modulation(self: "Visualizer", segment: Segment) -> np.ndarray:
-        """Get modulation data."""
         size = LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, None)
         modulation = np.zeros(int(size)).astype(ctypes.c_uint8)
         LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, np.ctypeslib.as_ctypes(modulation))
         return np.fromiter((EmitIntensity(x) for x in modulation), dtype=EmitIntensity)
 
     def calc_field(self: "Visualizer", points_iter: Iterable[np.ndarray], geometry: Geometry, segment: Segment, idx: int) -> np.ndarray:
-        """Calculate field of specific STM index."""
         points = np.fromiter(points_iter, dtype=np.ndarray)
         points_len = len(points)
         points = np.ravel(np.stack(points))  # type: ignore[call-overload]
@@ -432,7 +384,6 @@ class Visualizer(Link):
         return np.fromiter([buf[2 * i] + buf[2 * i + 1] * 1j for i in range(points_len)], dtype=np.complex128, count=points_len)
 
     def plot_field(self: "Visualizer", config: IPlotConfig, plot_range: PlotRange, geometry: Geometry, segment: Segment, idx: int) -> None:
-        """Plot field of specific STM index."""
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(
@@ -449,7 +400,6 @@ class Visualizer(Link):
         )
 
     def plot_phase(self: "Visualizer", config: IPlotConfig, geometry: Geometry, segment: Segment, idx: int) -> None:
-        """Plot phase of specific STM index."""
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(
@@ -465,7 +415,6 @@ class Visualizer(Link):
         )
 
     def plot_modulation(self: "Visualizer", config: IPlotConfig, segment: Segment) -> None:
-        """Plot modulation."""
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(LinkVisualizer().link_visualizer_plot_modulation(self._ptr, self._backend, self._directivity, config._config_ptr(), segment))

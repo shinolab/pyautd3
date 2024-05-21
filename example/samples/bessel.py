@@ -1,13 +1,13 @@
 import numpy as np
 
-from pyautd3 import Bessel, ConfigureSilencer, Controller, Sine
+from pyautd3 import Bessel, Controller, Hz, Silencer, Sine
 
 
-async def bessel(autd: Controller) -> None:
-    config = ConfigureSilencer.default()
-    await autd.send_async(config)
+def bessel(autd: Controller) -> None:
+    config = Silencer.default()
+    autd.send(config)
 
     f = Bessel(autd.geometry.center, np.array([0.0, 0.0, 1.0]), 13.0 / 180 * np.pi)
-    m = Sine(150)
+    m = Sine(150 * Hz)
 
-    await autd.send_async(m, f)
+    autd.send(m, f)

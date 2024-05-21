@@ -1,9 +1,10 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
-from pyautd3 import Controller, EmitIntensity, SamplingConfiguration, Segment
+from pyautd3 import Controller, EmitIntensity, SamplingConfig, Segment
+from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.modulation import Modulation
 from tests.test_autd import create_controller
 
@@ -13,24 +14,20 @@ if TYPE_CHECKING:
 
 class Burst(Modulation):
     def __init__(self: "Burst") -> None:
-        super().__init__(SamplingConfiguration.from_frequency(4e3))
+        super().__init__(SamplingConfig.Freq(4000 * Hz))
 
-    def calc(self: "Burst"):
+    def calc(self: "Burst", _: Geometry):
         buf = np.array([EmitIntensity(0)] * 10)
         buf[0] = EmitIntensity(0xFF)
         return buf
 
 
-@pytest.mark.asyncio()
-async def test_modulation():
+def test_modulation():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
         m = Burst()
 
-        assert m.sampling_config.frequency == 4e3
-        assert len(m) == 10
-
-        assert await autd.send_async(m)
+        autd.send(m)
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)

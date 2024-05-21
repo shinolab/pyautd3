@@ -10,17 +10,13 @@ import numpy as np
 from pyautd3.autd_error import InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
+from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
-from pyautd3.driver.fpga.defined.fpga_state import FPGAState
 from pyautd3.driver.geometry import Device, Geometry
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, GroupKVMapPtr
+from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, GroupKVMapPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import (
-    AUTD3_TRUE,
-    ControllerPtr,
-    DatagramPtr,
-)
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr
 from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
 K = TypeVar("K")
@@ -34,13 +30,6 @@ class _Builder(Generic[L]):
         self._ptr = Base().controller_builder()
 
     def add_device(self: "_Builder[L]", device: AUTD3) -> "_Builder[L]":
-        """Add device.
-
-        Arguments:
-        ---------
-            device: Device to add
-
-        """
         q = device._rot if device._rot is not None else np.array([1.0, 0.0, 0.0, 0.0])
         self._ptr = Base().controller_builder_add_device(
             self._ptr,
@@ -55,25 +44,9 @@ class _Builder(Generic[L]):
         return self
 
     async def open_async(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
-        """Open controller.
-
-        Arguments:
-        ---------
-            link: LinkBuilder
-            timeout: Timeout
-
-        """
         return await Controller._open_impl_async(self._ptr, link, timeout)
 
     def open(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
-        """Open controller.
-
-        Arguments:
-        ---------
-            link: LinkBuilder
-            timeout: Timeout
-
-        """
         return Controller._open_impl(self._ptr, link, timeout)
 
 
@@ -107,35 +80,29 @@ class _GroupGuard(Generic[K]):
 
         match (d1, d2):
             case (Datagram(), None):
-                self._kv_map = _validate_ptr(
-                    Base().controller_group_kv_map_set(
-                        self._kv_map,
-                        self._k,
-                        d1._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                        DatagramPtr(None),
-                        timeout_ns,
-                    ),
+                Base().controller_group_kv_map_set(
+                    self._kv_map,
+                    self._k,
+                    d1._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
+                    DatagramPtr(None),
+                    timeout_ns,
                 )
             case ((Datagram(), Datagram()), None):
                 (d11, d12) = d1  # type: ignore[misc]
-                self._kv_map = _validate_ptr(
-                    Base().controller_group_kv_map_set(
-                        self._kv_map,
-                        self._k,
-                        d11._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                        d12._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                        timeout_ns,
-                    ),
+                Base().controller_group_kv_map_set(
+                    self._kv_map,
+                    self._k,
+                    d11._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
+                    d12._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
+                    timeout_ns,
                 )
             case (Datagram(), Datagram()):
-                self._kv_map = _validate_ptr(
-                    Base().controller_group_kv_map_set(
-                        self._kv_map,
-                        self._k,
-                        d1._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                        d2._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                        timeout_ns,
-                    ),
+                Base().controller_group_kv_map_set(
+                    self._kv_map,
+                    self._k,
+                    d1._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
+                    d2._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
+                    timeout_ns,
                 )
             case _:
                 raise InvalidDatagramTypeError
@@ -144,7 +111,7 @@ class _GroupGuard(Generic[K]):
 
         return self
 
-    async def send_async(self: "_GroupGuard") -> bool:
+    async def send_async(self: "_GroupGuard") -> None:
         m = np.fromiter(
             (self._keymap[k] if k is not None else -1 for k in (self._map(dev) if dev.enable else None for dev in self._controller.geometry)),
             dtype=np.int32,
@@ -160,28 +127,23 @@ class _GroupGuard(Generic[K]):
                 ),
             ),
         )
-        return _validate_int(await future) == AUTD3_TRUE
+        _validate_int(await future)
 
-    def send(self: "_GroupGuard") -> bool:
+    def send(self: "_GroupGuard") -> None:
         m = np.fromiter(
             (self._keymap[k] if k is not None else -1 for k in (self._map(dev) if dev.enable else None for dev in self._controller.geometry)),
             dtype=np.int32,
         )
-        return (
-            _validate_int(
-                Base().controller_group(
-                    self._controller._ptr,
-                    np.ctypeslib.as_ctypes(m.astype(ctypes.c_int32)),
-                    self._kv_map,
-                ),
-            )
-            == AUTD3_TRUE
+        _validate_int(
+            Base().controller_group(
+                self._controller._ptr,
+                np.ctypeslib.as_ctypes(m.astype(ctypes.c_int32)),
+                self._kv_map,
+            ),
         )
 
 
 class Controller(Generic[L]):
-    """Controller."""
-
     _geometry: Geometry
     _ptr: ControllerPtr
     link: L
@@ -193,7 +155,6 @@ class Controller(Generic[L]):
 
     @staticmethod
     def builder() -> "_Builder[L]":
-        """Create builder."""
         return _Builder()
 
     def __del__(self: "Controller") -> None:
@@ -217,7 +178,6 @@ class Controller(Generic[L]):
 
     @property
     def geometry(self: "Controller") -> Geometry:
-        """Get geometry."""
         return self._geometry
 
     @staticmethod
@@ -253,41 +213,38 @@ class Controller(Generic[L]):
         link = link_builder._resolve_link(ptr)
         return Controller(geometry, ptr, link)
 
-    async def firmware_info_list_async(self: "Controller") -> list[FirmwareInfo]:
-        """Get firmware information list."""
+    async def firmware_version_async(self: "Controller") -> list[FirmwareInfo]:
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         loop.call_soon(
-            lambda *_: future.set_result(Base().controller_firmware_info_list_pointer(self._ptr)),
+            lambda *_: future.set_result(Base().controller_firmware_version_list_pointer(self._ptr)),
         )
         handle = _validate_ptr(await future)
 
         def get_firmware_info(i: int) -> FirmwareInfo:
             sb = ctypes.create_string_buffer(256)
-            Base().controller_firmware_info_get(handle, i, sb)
+            Base().controller_firmware_version_get(handle, i, sb)
             info = sb.value.decode("utf-8")
             return FirmwareInfo(info)
 
         res = list(map(get_firmware_info, range(self.geometry.num_devices)))
-        Base().controller_firmware_info_list_pointer_delete(handle)
+        Base().controller_firmware_version_list_pointer_delete(handle)
         return res
 
-    def firmware_info_list(self: "Controller") -> list[FirmwareInfo]:
-        """Get firmware information list."""
-        handle = _validate_ptr(Base().controller_firmware_info_list_pointer(self._ptr))
+    def firmware_version(self: "Controller") -> list[FirmwareInfo]:
+        handle = _validate_ptr(Base().controller_firmware_version_list_pointer(self._ptr))
 
         def get_firmware_info(i: int) -> FirmwareInfo:
             sb = ctypes.create_string_buffer(256)
-            Base().controller_firmware_info_get(handle, i, sb)
+            Base().controller_firmware_version_get(handle, i, sb)
             info = sb.value.decode("utf-8")
             return FirmwareInfo(info)
 
         res = list(map(get_firmware_info, range(self.geometry.num_devices)))
-        Base().controller_firmware_info_list_pointer_delete(handle)
+        Base().controller_firmware_version_list_pointer_delete(handle)
         return res
 
-    async def close_async(self: "Controller") -> bool:
-        """Close controller."""
+    async def close_async(self: "Controller") -> None:
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         loop.call_soon(
@@ -295,14 +252,12 @@ class Controller(Generic[L]):
                 Base().controller_close(self._ptr),
             ),
         )
-        return _validate_int(await future) == AUTD3_TRUE
+        _validate_int(await future)
 
-    def close(self: "Controller") -> bool:
-        """Close controller."""
-        return _validate_int(Base().controller_close(self._ptr)) == AUTD3_TRUE
+    def close(self: "Controller") -> None:
+        _validate_int(Base().controller_close(self._ptr))
 
     async def fpga_state_async(self: "Controller") -> list[FPGAState | None]:
-        """Get FPGA information list."""
         infos = np.zeros([self.geometry.num_devices]).astype(ctypes.c_int32)
         pinfos = np.ctypeslib.as_ctypes(infos)
         future: asyncio.Future = asyncio.Future()
@@ -314,7 +269,6 @@ class Controller(Generic[L]):
         return [None if x == -1 else FPGAState(x) for x in infos]
 
     def fpga_state(self: "Controller") -> list[FPGAState | None]:
-        """Get FPGA information list."""
         infos = np.zeros([self.geometry.num_devices]).astype(ctypes.c_int32)
         pinfos = np.ctypeslib.as_ctypes(infos)
         _validate_int(Base().controller_fpga_state(self._ptr, pinfos))
@@ -326,25 +280,7 @@ class Controller(Generic[L]):
         d2: Datagram | None = None,
         *,
         timeout: timedelta | None = None,
-    ) -> bool:
-        """Send data.
-
-        Arguments:
-        ---------
-            d1: Data to send
-            d2: Data to send
-            timeout: Timeout
-
-        Returns:
-        -------
-            bool: If true, it is confirmed that the data has been successfully transmitted.
-                  If false, there are no errors, but it is unclear whether the data has been sent reliably or not.
-
-        Raises:
-        ------
-            AUTDError: If an error occurs
-
-        """
+    ) -> None:
         timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
@@ -390,8 +326,7 @@ class Controller(Generic[L]):
                 )
             case _:
                 raise InvalidDatagramTypeError
-        res = _validate_int(await future)
-        return res == AUTD3_TRUE
+        _validate_int(await future)
 
     def send(
         self: "Controller",
@@ -399,31 +334,12 @@ class Controller(Generic[L]):
         d2: Datagram | None = None,
         *,
         timeout: timedelta | None = None,
-    ) -> bool:
-        """Send data.
-
-        Arguments:
-        ---------
-            d1: Data to send
-            d2: Data to send
-            timeout: Timeout
-
-        Returns:
-        -------
-            bool: If true, it is confirmed that the data has been successfully transmitted.
-                  If false, there are no errors, but it is unclear whether the data has been sent reliably or not.
-
-        Raises:
-        ------
-            AUTDError: If an error occurs
-
-        """
+    ) -> None:
         timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
-        res: int
         match (d1, d2):
             case (Datagram(), None):
                 d_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
-                res = _validate_int(
+                _validate_int(
                     Base().controller_send(
                         self._ptr,
                         d_ptr,
@@ -435,7 +351,7 @@ class Controller(Generic[L]):
                 (d11, d12) = d1  # type: ignore[misc]
                 d11_ptr: DatagramPtr = d11._datagram_ptr(self.geometry)
                 d22_ptr: DatagramPtr = d12._datagram_ptr(self.geometry)
-                res = _validate_int(
+                _validate_int(
                     Base().controller_send(
                         self._ptr,
                         d11_ptr,
@@ -446,7 +362,7 @@ class Controller(Generic[L]):
             case (Datagram(), Datagram()):
                 d1_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
                 d2_ptr: DatagramPtr = d2._datagram_ptr(self.geometry)  # type: ignore[union-attr]
-                res = _validate_int(
+                _validate_int(
                     Base().controller_send(
                         self._ptr,
                         d1_ptr,
@@ -456,8 +372,6 @@ class Controller(Generic[L]):
                 )
             case _:
                 raise InvalidDatagramTypeError
-        return res == AUTD3_TRUE
 
     def group(self: "Controller", group_map: Callable[[Device], K | None]) -> _GroupGuard:
-        """Grouping data."""
         return _GroupGuard(group_map, self)

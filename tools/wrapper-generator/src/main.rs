@@ -9,7 +9,7 @@ use anyhow::Result;
 use glob::glob;
 
 use cargo_metadata::MetadataCommand;
-use parse::{parse_const, parse_enum, parse_func, parse_struct};
+use parse::*;
 use python::PythonGenerator;
 
 pub fn gen_py<P1: AsRef<Path>, P2: AsRef<Path>>(crate_path: P1, dest_dir: P2) -> Result<()> {
@@ -31,6 +31,7 @@ pub fn gen_py<P1: AsRef<Path>, P2: AsRef<Path>>(crate_path: P1, dest_dir: P2) ->
             .register_func(parse_func(&path)?)
             .register_const(parse_const(&path)?)
             .register_enum(parse_enum(&path)?)
+            .register_union(parse_union(&path)?)
             .register_struct(parse_struct(&path)?))
     })?
     .write(dest_dir, crate_name)

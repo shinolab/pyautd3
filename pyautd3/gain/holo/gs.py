@@ -3,42 +3,26 @@ import ctypes
 import numpy as np
 
 from pyautd3.driver.geometry import Geometry
-from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from .backend import Backend
-from .holo import EmissionConstraint, HoloWithBackend
+from .constraint import EmissionConstraint
+from .holo import HoloWithBackend
 
 
 class GS(HoloWithBackend["GS"]):
-    """Gain to produce multiple foci with GS algorithm.
-
-    References
-    ----------
-    - Marzo, Asier, and Bruce W. Drinkwater. "Holographic acoustic tweezers,"
-        Proceedings of the National Academy of Sciences 116.1 (2019): 84-89.
-
-    """
-
     _repeat: int
 
     def __init__(self: "GS", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.DontCare(), backend)
+        super().__init__(EmissionConstraint.DontCare, backend)
         self._repeat = 100
 
     def with_repeat(self: "GS", value: int) -> "GS":
-        """Set parameter.
-
-        Arguments:
-        ---------
-            value: parameter
-
-        """
         self._repeat = value
         return self
 
     @property
     def repeat(self: "GS") -> int:
-        """Get parameter."""
         return self._repeat
 
     def _gain_ptr(self: "GS", _: Geometry) -> GainPtr:

@@ -1,13 +1,12 @@
 from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as LinkNop,
 )
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
 
 
 class Nop(Link):
-    """Link which do nothing."""
-
     class _Builder(LinkBuilder):
         def __init__(self: "Nop._Builder") -> None:
             pass
@@ -23,5 +22,4 @@ class Nop(Link):
 
     @staticmethod
     def builder() -> _Builder:
-        """Create Nop link builder."""
         return Nop._Builder()

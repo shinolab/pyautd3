@@ -1,11 +1,11 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller, Device, Focus, Group, Null, Sine, Static
+from pyautd3 import Controller, Device, Focus, Group, Hz, Null, Silencer, Sine, Static
 
 
-async def group_by_device(autd: Controller) -> None:
-    config = ConfigureSilencer.default()
-    await autd.send_async(config)
+def group_by_device(autd: Controller) -> None:
+    config = Silencer.default()
+    autd.send(config)
 
     def grouping(dev: Device) -> str | None:
         match dev.idx:
@@ -16,21 +16,16 @@ async def group_by_device(autd: Controller) -> None:
             case _:
                 return None
 
-    await (
-        autd.group(grouping)
-        .set_data("null", Static(), Null())
-        .set_data(
-            "focus",
-            Sine(150),
-            Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0])),
-        )
-        .send_async()
-    )
+    autd.group(grouping).set_data("null", Static(), Null()).set_data(
+        "focus",
+        Sine(150 * Hz),
+        Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0])),
+    ).send()
 
 
-async def group_by_transducer(autd: Controller) -> None:
-    config = ConfigureSilencer.default()
-    await autd.send_async(config)
+def group_by_transducer(autd: Controller) -> None:
+    config = Silencer.default()
+    autd.send(config)
 
     cx = autd.geometry.center[0]
     g1 = Focus(autd.geometry.center + np.array([0, 0, 150]))
@@ -38,6 +33,6 @@ async def group_by_transducer(autd: Controller) -> None:
 
     g = Group(lambda _, tr: "focus" if tr.position[0] < cx else "null").set_gain("focus", g1).set_gain("null", g2)
 
-    m = Sine(150)
+    m = Sine(150 * Hz)
 
-    await autd.send_async((m, g))
+    autd.send((m, g))

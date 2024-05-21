@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32
 
 
 class LinkSimulatorBuilderPtr(ctypes.Structure):
@@ -11,6 +11,11 @@ class LinkSimulatorBuilderPtr(ctypes.Structure):
 
 class ResultLinkSimulatorBuilder(ctypes.Structure):
     _fields_ = [("result", LinkSimulatorBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultLinkSimulatorBuilder) and self._fields_ == other._fields_
+                    
 
 
 class Singleton(type):

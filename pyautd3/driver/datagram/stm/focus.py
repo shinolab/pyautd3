@@ -1,134 +1,106 @@
 import ctypes
 import functools
 from collections.abc import Iterable
-from ctypes import c_uint8
-from datetime import timedelta
+from ctypes import c_double, c_uint8
 
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3.driver.common.emit_intensity import EmitIntensity
-from pyautd3.driver.common.loop_behavior import LoopBehavior
-from pyautd3.driver.common.sampling_config import SamplingConfiguration
-from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.firmware.fpga import LoopBehavior
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import (
+from pyautd3.native_methods.autd3capi_driver import (
     DatagramPtr,
     FocusSTMPtr,
+    SamplingConfigWrap,
     Segment,
+    TransitionModeWrap,
 )
-from pyautd3.native_methods.utils import _validate_ptr
-
-from .stm import _STM
+from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
 
 __all__ = []  # type: ignore[var-annotated]
 
 
 class ControlPoint:
-    """Control point for FocusSTM."""
-
     point: np.ndarray
     intensity: EmitIntensity
 
-    def __init__(self: "ControlPoint", point: ArrayLike, intensity: EmitIntensity | int | None = None) -> None:
+    def __init__(self: "ControlPoint", point: ArrayLike, intensity: EmitIntensity | None = None) -> None:
         self.point = np.array(point)
-        self.intensity = EmitIntensity(0xFF) if intensity is None else EmitIntensity._cast(intensity)
+        self.intensity = EmitIntensity(0xFF) if intensity is None else intensity
 
 
-class FocusSTM(_STM, IntoDatagramWithSegment, DatagramS[FocusSTMPtr]):
-    """FocusSTM is an STM for moving a single focal point.
-
-    The sampling timing is determined by hardware, thus the sampling time is precise.
-
-    FocusSTM has following restrictions:
-    - The maximum number of sampling points is 65536.
-    - The sampling frequency is `pyautd3.AUTD3.fpga_clk_freq()`/N, where `N` is a 32-bit unsigned integer.
-    """
-
+class FocusSTM(IntoDatagramWithSegmentTransition, DatagramST[FocusSTMPtr]):
     _points: list[float]
     _intensities: list[EmitIntensity]
 
-    def __init__(
-        self: "FocusSTM",
-        *,
-        freq: float | None = None,
-        period: timedelta | None = None,
-        sampling_config: SamplingConfiguration | None = None,
-    ) -> None:
-        """Constructor.
+    _freq: Freq[float] | None
+    _freq_nearest: Freq[float] | None
+    _sampling_config: SamplingConfigWrap | None
+    _loop_behavior: _LoopBehavior
 
-        Arguments:
-        ---------
-            freq: Frequency of STM [Hz]. The frequency closest to `freq` from the possible frequencies is set.
-            period: only for internal use.
-            sampling_config: only for internal use.
+    def __new__(cls: type["FocusSTM"]) -> "FocusSTM":
+        raise NotImplementedError
 
-        """
-        super().__init__(freq, period, sampling_config)
-        self._points = []
-        self._intensities = []
+    @classmethod
+    def __private_new__(
+        cls: type["FocusSTM"],
+        freq: Freq[float] | None,
+        freq_nearest: Freq[float] | None,
+        sampling_config: SamplingConfigWrap | None,
+    ) -> "FocusSTM":
+        ins = super().__new__(cls)
+
+        ins._points = []
+        ins._intensities = []
+
+        ins._freq = freq
+        ins._freq_nearest = freq_nearest
+        ins._sampling_config = sampling_config
+
+        ins._loop_behavior = LoopBehavior.Infinite
+
+        return ins
 
     def _raw_ptr(self: "FocusSTM", _: Geometry) -> FocusSTMPtr:
-        points = np.ctypeslib.as_ctypes(np.array(self._points).astype(ctypes.c_double))
+        points = np.ctypeslib.as_ctypes(np.array(self._points).astype(c_double))
         intensities = np.fromiter((i.value for i in self._intensities), dtype=c_uint8)  # type: ignore[type-var,call-overload]
-        return _validate_ptr(
-            Base().stm_focus(
-                self._props(),
-                points,
-                intensities.ctypes.data_as(ctypes.POINTER(c_uint8)),  # type: ignore[arg-type]
-                len(self._intensities),
-            ),
+        ptr: FocusSTMPtr
+        if self._freq is not None:
+            ptr = Base().stm_focus_from_freq(self._freq.hz)
+        elif self._freq_nearest is not None:
+            ptr = Base().stm_focus_from_freq_nearest(self._freq_nearest.hz)
+        elif self._sampling_config is not None:
+            ptr = Base().stm_focus_from_sampling_config(self._sampling_config)
+        ptr = Base().stm_focus_with_loop_behavior(ptr, self._loop_behavior)
+        return Base().stm_focus_add_foci(
+            ptr,
+            points,
+            intensities.ctypes.data_as(ctypes.POINTER(c_uint8)),  # type: ignore[arg-type]
+            len(self._intensities),
         )
 
-    def _into_segment(self: "FocusSTM", ptr: FocusSTMPtr, segment: tuple[Segment, bool] | None) -> DatagramPtr:
-        if segment is None:
-            return Base().stm_focus_into_datagram(ptr)
-        segment_, update_segment = segment
-        return Base().stm_focus_into_datagram_with_segment(ptr, segment_, update_segment)
+    def _into_segment(self: "FocusSTM", ptr: FocusSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+        if transition_mode is None:
+            return Base().stm_focus_into_datagram_with_segment(ptr, segment)
+        return Base().stm_focus_into_datagram_with_segment_transition(ptr, segment, transition_mode)
 
     @staticmethod
-    def from_freq(freq: float) -> "FocusSTM":
-        """Constructor.
-
-        Arguments:
-        ---------
-            freq: freq.
-
-        """
-        return FocusSTM(freq=freq)
+    def from_freq(freq: Freq[float]) -> "FocusSTM":
+        return FocusSTM.__private_new__(freq, None, None)
 
     @staticmethod
-    def from_period(period: timedelta) -> "FocusSTM":
-        """Constructor.
-
-        Arguments:
-        ---------
-            period: Period.
-
-        """
-        return FocusSTM(period=period)
+    def from_freq_nearest(freq: Freq[float]) -> "FocusSTM":
+        return FocusSTM.__private_new__(None, freq, None)
 
     @staticmethod
-    def from_sampling_config(config: SamplingConfiguration) -> "FocusSTM":
-        """Constructor.
-
-        Arguments:
-        ---------
-            config: Sampling configuration
-
-        """
-        return FocusSTM(sampling_config=config)
+    def from_sampling_config(sampling_config: SamplingConfigWrap) -> "FocusSTM":
+        return FocusSTM.__private_new__(None, None, sampling_config)
 
     def add_focus(self: "FocusSTM", point: ArrayLike | ControlPoint) -> "FocusSTM":
-        """Add focus.
-
-        Arguments:
-        ---------
-            point: Control point
-
-        """
         p: ControlPoint
         match point:
             case ControlPoint():
@@ -142,52 +114,12 @@ class FocusSTM(_STM, IntoDatagramWithSegment, DatagramS[FocusSTMPtr]):
         return self
 
     def add_foci_from_iter(self: "FocusSTM", iterable: Iterable[ArrayLike] | Iterable[ControlPoint]) -> "FocusSTM":
-        """Add foci.
-
-        Arguments:
-        ---------
-            iterable: Iterable of Control points.
-
-        """
         return functools.reduce(
             lambda acc, x: acc.add_focus(x),
             iterable,
             self,
         )
 
-    @property
-    def frequency(self: "FocusSTM") -> float:
-        """Frequency [Hz]."""
-        return self._frequency_from_size(len(self._intensities))
-
-    @property
-    def period(self: "FocusSTM") -> timedelta:
-        """Period."""
-        return self._period_from_size(len(self._intensities))
-
-    @property
-    def sampling_config(self: "FocusSTM") -> SamplingConfiguration:
-        """Sampling frequency [Hz]."""
-        return self._sampling_config_from_size(len(self._intensities))
-
-    def with_loop_behavior(self: "FocusSTM", value: LoopBehavior) -> "FocusSTM":
-        """Set loop behavior.
-
-        Arguments:
-        ---------
-            value: LoopBehavior.
-
-        """
+    def with_loop_behavior(self: "FocusSTM", value: _LoopBehavior) -> "FocusSTM":
         self._loop_behavior = value
         return self
-
-
-class ChangeFocusSTMSegment(Datagram):
-    _segment: Segment
-
-    def __init__(self: "ChangeFocusSTMSegment", segment: Segment) -> None:
-        super().__init__()
-        self._segment = segment
-
-    def _datagram_ptr(self: "ChangeFocusSTMSegment", _: Geometry) -> DatagramPtr:
-        return Base().datagram_change_focus_stm_segment(self._segment)

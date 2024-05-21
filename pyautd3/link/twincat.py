@@ -1,18 +1,17 @@
 from datetime import timedelta
 
 from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_twincat import LinkRemoteTwinCATBuilderPtr, LinkTwinCATBuilderPtr
 from pyautd3.native_methods.autd3capi_link_twincat import NativeMethods as LinkTwinCAT
 from pyautd3.native_methods.utils import _validate_ptr
 
 
 class TwinCAT(Link):
-    """Link using TwinCAT3."""
-
     class _Builder(LinkBuilder):
         _builder: LinkTwinCATBuilderPtr
 
@@ -20,13 +19,6 @@ class TwinCAT(Link):
             self._builder = LinkTwinCAT().link_twin_cat()
 
         def with_timeout(self: "TwinCAT._Builder", timeout: timedelta) -> "TwinCAT._Builder":
-            """Set timeout.
-
-            Arguments:
-            ---------
-                timeout: Timeout
-
-            """
             self._builder = LinkTwinCAT().link_twin_cat_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
 
@@ -41,13 +33,10 @@ class TwinCAT(Link):
 
     @staticmethod
     def builder() -> _Builder:
-        """Create TwinCAT link builder."""
         return TwinCAT._Builder()
 
 
 class RemoteTwinCAT(Link):
-    """Link for remote TwinCAT3 server via [ADS](https://github.com/Beckhoff/ADS) library."""
-
     class _Builder(LinkBuilder):
         _builder: LinkRemoteTwinCATBuilderPtr
 
@@ -55,35 +44,14 @@ class RemoteTwinCAT(Link):
             self._builder = _validate_ptr(LinkTwinCAT().link_remote_twin_cat(server_ams_net_id.encode("utf-8")))
 
         def with_server_ip(self: "RemoteTwinCAT._Builder", ip: str) -> "RemoteTwinCAT._Builder":
-            """Set server IP address.
-
-            Arguments:
-            ---------
-                ip: Server IP address
-
-            """
             self._builder = LinkTwinCAT().link_remote_twin_cat_with_server_ip(self._builder, ip.encode("utf-8"))
             return self
 
         def with_client_ams_net_id(self: "RemoteTwinCAT._Builder", ams_net_id: str) -> "RemoteTwinCAT._Builder":
-            """Set client AMS Net ID.
-
-            Arguments:
-            ---------
-                ams_net_id: Client AMS Net ID
-
-            """
             self._builder = LinkTwinCAT().link_remote_twin_cat_with_client_ams_net_id(self._builder, ams_net_id.encode("utf-8"))
             return self
 
         def with_timeout(self: "RemoteTwinCAT._Builder", timeout: timedelta) -> "RemoteTwinCAT._Builder":
-            """Set timeout.
-
-            Arguments:
-            ---------
-                timeout: Timeout
-
-            """
             self._builder = LinkTwinCAT().link_remote_twin_cat_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
 
@@ -98,11 +66,4 @@ class RemoteTwinCAT(Link):
 
     @staticmethod
     def builder(server_ams_net_id: str) -> _Builder:
-        """Create TwinCAT link builder.
-
-        Arguments:
-        ---------
-            server_ams_net_id: Server AMS Net ID
-
-        """
         return RemoteTwinCAT._Builder(server_ams_net_id)

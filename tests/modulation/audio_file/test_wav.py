@@ -2,9 +2,8 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
-from pyautd3 import Controller, SamplingConfiguration, Segment
+from pyautd3 import Controller, SamplingConfig, Segment
 from pyautd3.modulation.audio_file import Wav
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 from tests.test_autd import create_controller
@@ -13,11 +12,10 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_wav():
+def test_wav():
     autd: Controller[Audit]
-    with await create_controller() as autd:
-        assert await autd.send_async(Wav(Path(__file__).parent / "sin150.wav"))
+    with create_controller() as autd:
+        autd.send(Wav(Path(__file__).parent / "sin150.wav"))
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -106,9 +104,9 @@ async def test_wav():
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
 
-        assert await autd.send_async(
+        autd.send(
             Wav(Path(__file__).parent / "sin150.wav").with_sampling_config(
-                SamplingConfiguration.from_frequency_division(10240),
+                SamplingConfig.Division(10240),
             ),
         )
         for dev in autd.geometry:
@@ -116,5 +114,6 @@ async def test_wav():
 
 
 def test_rawpcm_default():
-    m = Wav(Path(__file__))
-    assert AudioFile().modulation_wav_is_default(m._modulation_ptr())
+    with create_controller() as autd:
+        m = Wav(Path(__file__))
+        assert AudioFile().modulation_wav_is_default(m._modulation_ptr(autd.geometry))

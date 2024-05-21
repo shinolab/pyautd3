@@ -4,14 +4,12 @@ from functools import reduce
 import numpy as np
 
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import GeometryPtr
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr
 
 from .device import Device
 
 
 class Geometry:
-    """Geometry."""
-
     _ptr: GeometryPtr
     _devices: list[Device]
 
@@ -21,7 +19,6 @@ class Geometry:
 
     @property
     def center(self: "Geometry") -> np.ndarray:
-        """Get center position of all devices."""
         return reduce(
             lambda acc, x: acc + x.center,
             self._devices,
@@ -30,12 +27,10 @@ class Geometry:
 
     @property
     def num_devices(self: "Geometry") -> int:
-        """Get the number of devices."""
         return len(self._devices)
 
     @property
     def num_transducers(self: "Geometry") -> int:
-        """Get the number of total transducers."""
         return reduce(
             lambda acc, x: acc + x.num_transducers,
             self._devices,
@@ -50,7 +45,6 @@ class Geometry:
 
     @property
     def devices(self: "Geometry") -> Iterator[Device]:
-        """Get the iterator of enabled devices."""
         return filter(lambda x: x.enable, self._devices)
 
     def set_sound_speed_from_temp(
@@ -60,16 +54,6 @@ class Geometry:
         r: float = 8.31446261815324,
         m: float = 28.9647e-3,
     ) -> None:
-        """Set speed of sound of enabled devices from temperature.
-
-        Arguments:
-        ---------
-            temp: Temperature [K]
-            k: Ratio of specific heats
-            r: Specific gas constant
-            m: Molecular mass
-
-        """
         for d in self.devices:
             d.set_sound_speed_from_temp(temp, k, r, m)
 
@@ -77,13 +61,6 @@ class Geometry:
         self: "Geometry",
         c: float,
     ) -> None:
-        """Set speed of sound of enabled devices.
-
-        Arguments:
-        ---------
-            c: Speed of sound [mm/s]
-
-        """
         for d in self.devices:
             d.sound_speed = c
 

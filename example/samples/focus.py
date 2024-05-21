@@ -1,13 +1,13 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller, Focus, Sine
+from pyautd3 import Controller, Focus, Hz, Silencer, Sine
 
 
-async def simple(autd: Controller) -> None:
-    config = ConfigureSilencer.default()
-    await autd.send_async(config)
+def simple(autd: Controller) -> None:
+    config = Silencer.default()
+    autd.send(config)
 
     f = Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))
-    m = Sine(150)
+    m = Sine(150 * Hz)
 
-    await autd.send_async(m, f)
+    autd.send(m, f)

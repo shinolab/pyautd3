@@ -1,4 +1,4 @@
-from .amplitude import Amplitude, dB, pascal
+from .amplitude import Amplitude, Pa, dB
 from .backend_nalgebra import NalgebraBackend
 from .constraint import EmissionConstraint
 from .greedy import Greedy
@@ -10,7 +10,7 @@ from .sdp import SDP
 
 __all__ = [
     "dB",
-    "pascal",
+    "Pa",
     "Amplitude",
     "NalgebraBackend",
     "EmissionConstraint",

@@ -3,16 +3,17 @@ from typing import TYPE_CHECKING
 import pytest
 
 from pyautd3 import (
-    ConfigureReadsFPGAState,
     Controller,
     GainSTM,
     Null,
+    ReadsFPGAState,
 )
 from pyautd3.autd_error import AUTDError
-from pyautd3.driver.datagram.gain import ChangeGainSegment
-from pyautd3.driver.datagram.modulation import ChangeModulationSegment
-from pyautd3.native_methods.autd3capi_def import Segment
-from tests.test_autd import create_controller, create_controller_sync
+from pyautd3.driver.datagram.segment import SwapSegment
+from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
+from pyautd3.native_methods.autd3capi_driver import Segment
+from tests.test_autd import create_controller, create_controller_async
 
 if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
@@ -20,12 +21,12 @@ if TYPE_CHECKING:
 
 def test_fpga_state():
     autd: Controller[Audit]
-    with create_controller_sync() as autd:
+    with create_controller() as autd:
         infos = autd.fpga_state()
         for info in infos:
             assert info is None
 
-        autd.send(ConfigureReadsFPGAState(lambda _dev: True))
+        autd.send(ReadsFPGAState(lambda _dev: True))
         autd.link.assert_thermal_sensor(0)
         infos = autd.fpga_state()
         assert infos[0] is not None
@@ -41,8 +42,8 @@ def test_fpga_state():
 
         autd.link.deassert_thermal_sensor(0)
         autd.link.assert_thermal_sensor(1)
-        autd.send(ChangeModulationSegment(Segment.S1))
-        autd.send(ChangeGainSegment(Segment.S1))
+        autd.send(SwapSegment.modulation(Segment.S1, TransitionMode.Immediate))
+        autd.send(SwapSegment.gain(Segment.S1))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert not infos[0].is_thermal_assert
@@ -55,7 +56,7 @@ def test_fpga_state():
         assert infos[1].current_mod_segment == Segment.S1
         assert infos[1].current_stm_segment is None
 
-        autd.send(GainSTM.from_freq(1.0).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S0, update_segment=True))
+        autd.send(GainSTM.from_freq(1.0 * Hz).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S0, TransitionMode.Immediate))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert infos[0].current_gain_segment is None
@@ -64,7 +65,7 @@ def test_fpga_state():
         assert infos[1].current_gain_segment is None
         assert infos[1].current_stm_segment == Segment.S0
 
-        autd.send(GainSTM.from_freq(1.0).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S1, update_segment=True))
+        autd.send(GainSTM.from_freq(1.0 * Hz).add_gains_from_iter([Null(), Null()]).with_segment(Segment.S1, TransitionMode.Immediate))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert infos[0].current_gain_segment is None
@@ -82,12 +83,12 @@ def test_fpga_state():
 @pytest.mark.asyncio()
 async def test_fpga_state_async():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with await create_controller_async() as autd:
         infos = await autd.fpga_state_async()
         for info in infos:
             assert info is None
 
-        autd.send(ConfigureReadsFPGAState(lambda _dev: True))
+        autd.send(ReadsFPGAState(lambda _dev: True))
         autd.link.assert_thermal_sensor(0)
 
         infos = await autd.fpga_state_async()

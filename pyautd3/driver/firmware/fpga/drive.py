@@ -3,21 +3,21 @@ from .phase import Phase
 
 
 class Drive:
-    """Phase and intensity."""
-
     _phase: Phase
     _intensity: EmitIntensity
 
-    def __init__(self: "Drive", phase: Phase, intensity: int | EmitIntensity) -> None:
+    def __init__(self: "Drive", phase: Phase, intensity: EmitIntensity) -> None:
         self._phase = phase
-        self._intensity = EmitIntensity._cast(intensity)
+        self._intensity = intensity
 
     @property
     def phase(self: "Drive") -> Phase:
-        """Phase."""
         return self._phase
 
     @property
     def intensity(self: "Drive") -> EmitIntensity:
-        """Emission intensity."""
         return self._intensity
+
+    @staticmethod
+    def null() -> "Drive":
+        return Drive(Phase(0), EmitIntensity.minimum())

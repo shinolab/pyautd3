@@ -3,11 +3,10 @@ from datetime import timedelta
 
 import numpy as np
 
-from pyautd3.driver.common.loop_behavior import LoopBehavior
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import LinkAuditBuilderPtr
+from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr, Segment
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, LoopBehavior, Segment
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -98,10 +97,10 @@ class Audit(Link):
         return buf
 
     def modulation_frequency_division(self: "Audit", idx: int, segment: Segment) -> int:
-        return int(LinkAudit().link_audit_fpga_modulation_frequency_division(self._ptr, segment, idx))
+        return int(LinkAudit().link_audit_fpga_modulation_freq_division(self._ptr, segment, idx))
 
     def modulation_loop_behavior(self: "Audit", idx: int, segment: Segment) -> LoopBehavior:
-        return LoopBehavior.__private_new__(LinkAudit().link_audit_fpga_modulation_loop_behavior(self._ptr, segment, idx))
+        return LinkAudit().link_audit_fpga_modulation_loop_behavior(self._ptr, segment, idx)
 
     def drives(self: "Audit", idx: int, segment: Segment, stm_idx: int) -> tuple[np.ndarray, np.ndarray]:
         n = int(LinkAudit().link_audit_cpu_num_transducers(self._ptr, idx))
@@ -127,10 +126,10 @@ class Audit(Link):
         return int(LinkAudit().link_audit_fpga_is_stm_gain_mode(self._ptr, segment, idx))
 
     def stm_freqency_division(self: "Audit", idx: int, segment: Segment) -> int:
-        return int(LinkAudit().link_audit_fpga_stm_frequency_division(self._ptr, segment, idx))
+        return int(LinkAudit().link_audit_fpga_stm_freq_division(self._ptr, segment, idx))
 
     def stm_loop_behavior(self: "Audit", idx: int, segment: Segment) -> LoopBehavior:
-        return LoopBehavior.__private_new__(LinkAudit().link_audit_fpga_stm_loop_behavior(self._ptr, segment, idx))
+        return LinkAudit().link_audit_fpga_stm_loop_behavior(self._ptr, segment, idx)
 
     def current_stm_segment(self: "Audit", idx: int) -> Segment:
         return LinkAudit().link_audit_fpga_current_stm_segment(self._ptr, idx)

@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import LinkBuilderPtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
 
 
 class LinkTwinCATBuilderPtr(ctypes.Structure):
@@ -15,6 +15,11 @@ class LinkRemoteTwinCATBuilderPtr(ctypes.Structure):
 
 class ResultLinkRemoteTwinCATBuilder(ctypes.Structure):
     _fields_ = [("result", LinkRemoteTwinCATBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultLinkRemoteTwinCATBuilder) and self._fields_ == other._fields_
+                    
 
 
 class Singleton(type):

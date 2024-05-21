@@ -3,17 +3,16 @@ import ctypes
 import numpy as np
 
 from pyautd3.driver.geometry import Geometry
-from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from .backend import Backend
-from .holo import EmissionConstraint, HoloWithBackend
+from .constraint import EmissionConstraint
+from .holo import HoloWithBackend
 
 
 class Naive(HoloWithBackend["Naive"]):
-    """Gain to produce multiple foci with naive linear synthesis."""
-
     def __init__(self: "Naive", backend: Backend) -> None:
-        super().__init__(EmissionConstraint.DontCare(), backend)
+        super().__init__(EmissionConstraint.DontCare, backend)
 
     def _gain_ptr(self: "Naive", _: Geometry) -> GainPtr:
         size = len(self._amps)

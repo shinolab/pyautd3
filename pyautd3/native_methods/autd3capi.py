@@ -2,24 +2,22 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, DatagramPtr, DevicePtr, Drive, FocusSTMPtr, GainPtr, GainSTMMode, GainSTMPtr, GeometryPtr, LinkBuilderPtr, LinkPtr, LoopBehavior, ModulationPtr, ResultController, ResultDatagram, ResultFocusSTM, ResultGainSTM, ResultI32, ResultSamplingConfig, SamplingConfiguration, Segment, TransducerPtr
-
-from enum import IntEnum
-
-class SamplingMode(IntEnum):
-    ExactFrequency = 0
-    SizeOptimized = 1
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, DevicePtr, Drive, FocusSTMPtr, GPIOIn, GainPtr, GainSTMMode, GainSTMPtr, GeometryPtr, LinkBuilderPtr, LinkPtr, LoopBehavior, ModulationPtr, ResultDatagram, ResultI32, SamplingConfigWrap, Segment, TransducerPtr, TransitionModeWrap
 
 
-class GroupGainMapPtr(ctypes.Structure):
+class ControllerBuilderPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class GainCalcDrivesMapPtr(ctypes.Structure):
+class GroupKVMapPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class ControllerPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class FirmwareVersionListPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -27,15 +25,11 @@ class ContextPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class ControllerBuilderPtr(ctypes.Structure):
+class GroupGainMapPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class FirmwareInfoListPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class GroupKVMapPtr(ctypes.Structure):
+class GainCalcDrivesMapPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -47,24 +41,37 @@ class ModulationCalcPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class STMPropsPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
+class ResultController(ctypes.Structure):
+    _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultController) and self._fields_ == other._fields_
+                    
+
+class ResultFirmwareVersionList(ctypes.Structure):
+    _fields_ = [("result", FirmwareVersionListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_
+                    
 
 class ResultGainCalcDrivesMap(ctypes.Structure):
     _fields_ = [("result", GainCalcDrivesMapPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
-class ResultFirmwareInfoList(ctypes.Structure):
-    _fields_ = [("result", FirmwareInfoListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-class ResultGroupKVMap(ctypes.Structure):
-    _fields_ = [("result", GroupKVMapPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultGainCalcDrivesMap) and self._fields_ == other._fields_
+                    
 
 class ResultModulationCalc(ctypes.Structure):
-    _fields_ = [("result", ModulationCalcPtr), ("result_len", ctypes.c_uint32), ("freq_div", ctypes.c_uint32), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+    _fields_ = [("result", ModulationCalcPtr), ("config", SamplingConfigWrap), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultModulationCalc) and self._fields_ == other._fields_
+                    
 
 
 class Singleton(type):
@@ -87,20 +94,83 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
+        self.dll.AUTDControllerBuilder.argtypes = [] 
+        self.dll.AUTDControllerBuilder.restype = ControllerBuilderPtr
+
+        self.dll.AUTDControllerBuilderWithUltrasoundFreq.argtypes = [ControllerBuilderPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDControllerBuilderWithUltrasoundFreq.restype = ControllerBuilderPtr
+
+        self.dll.AUTDControllerBuilderAddDevice.argtypes = [ControllerBuilderPtr, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double]  # type: ignore 
+        self.dll.AUTDControllerBuilderAddDevice.restype = ControllerBuilderPtr
+
+        self.dll.AUTDControllerOpen.argtypes = [ControllerBuilderPtr, LinkBuilderPtr, ctypes.c_int64]  # type: ignore 
+        self.dll.AUTDControllerOpen.restype = ResultController
+
+        self.dll.AUTDControllerGroupCreateKVMap.argtypes = [] 
+        self.dll.AUTDControllerGroupCreateKVMap.restype = GroupKVMapPtr
+
+        self.dll.AUTDControllerGroupKVMapSet.argtypes = [GroupKVMapPtr, ctypes.c_int32, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
+        self.dll.AUTDControllerGroupKVMapSet.restype = None
+
+        self.dll.AUTDControllerGroup.argtypes = [ControllerPtr, ctypes.POINTER(ctypes.c_int32), GroupKVMapPtr]  # type: ignore 
+        self.dll.AUTDControllerGroup.restype = ResultI32
+
+        self.dll.AUTDControllerClose.argtypes = [ControllerPtr]  # type: ignore 
+        self.dll.AUTDControllerClose.restype = ResultI32
+
+        self.dll.AUTDControllerDelete.argtypes = [ControllerPtr]  # type: ignore 
+        self.dll.AUTDControllerDelete.restype = ResultI32
+
+        self.dll.AUTDControllerFPGAState.argtypes = [ControllerPtr, ctypes.POINTER(ctypes.c_int32)]  # type: ignore 
+        self.dll.AUTDControllerFPGAState.restype = ResultI32
+
+        self.dll.AUTDControllerFirmwareVersionListPointer.argtypes = [ControllerPtr]  # type: ignore 
+        self.dll.AUTDControllerFirmwareVersionListPointer.restype = ResultFirmwareVersionList
+
+        self.dll.AUTDControllerFirmwareVersionGet.argtypes = [FirmwareVersionListPtr, ctypes.c_uint32, ctypes.c_char_p]  # type: ignore 
+        self.dll.AUTDControllerFirmwareVersionGet.restype = None
+
+        self.dll.AUTDControllerFirmwareVersionListPointerDelete.argtypes = [FirmwareVersionListPtr]  # type: ignore 
+        self.dll.AUTDControllerFirmwareVersionListPointerDelete.restype = None
+
+        self.dll.AUTDFirmwareLatest.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDFirmwareLatest.restype = None
+
+        self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
+        self.dll.AUTDControllerSend.restype = ResultI32
+
         self.dll.AUTDDatagramClear.argtypes = [] 
         self.dll.AUTDDatagramClear.restype = DatagramPtr
 
-        self.dll.AUTDDatagramConfigureDebugSettings2.argtypes = [ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctypes.c_uint16), GeometryPtr]  # type: ignore 
-        self.dll.AUTDDatagramConfigureDebugSettings2.restype = DatagramPtr
+        self.dll.AUTDDatagramDebugSettings.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
+        self.dll.AUTDDatagramDebugSettings.restype = DatagramPtr
 
-        self.dll.AUTDDatagramConfigureForceFan.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
-        self.dll.AUTDDatagramConfigureForceFan.restype = DatagramPtr
+        self.dll.AUTDDatagramForceFan.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
+        self.dll.AUTDDatagramForceFan.restype = DatagramPtr
 
-        self.dll.AUTDDatagramConfigurePhaseFilter.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
-        self.dll.AUTDDatagramConfigurePhaseFilter.restype = DatagramPtr
+        self.dll.AUTDDatagramPhaseFilterAdditive.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
+        self.dll.AUTDDatagramPhaseFilterAdditive.restype = DatagramPtr
 
-        self.dll.AUTDDatagramConfigureReadsFPGAState.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
-        self.dll.AUTDDatagramConfigureReadsFPGAState.restype = DatagramPtr
+        self.dll.AUTDDatagramPulseWidthEncoder.argtypes = [ctypes.POINTER(ctypes.c_uint16), ctypes.c_uint32] 
+        self.dll.AUTDDatagramPulseWidthEncoder.restype = ResultDatagram
+
+        self.dll.AUTDDatagramPulseWidthEncoderDefault.argtypes = [] 
+        self.dll.AUTDDatagramPulseWidthEncoderDefault.restype = DatagramPtr
+
+        self.dll.AUTDDatagramReadsFPGAState.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
+        self.dll.AUTDDatagramReadsFPGAState.restype = DatagramPtr
+
+        self.dll.AUTDDatagramSwapSegmentModulation.argtypes = [Segment, TransitionModeWrap]  # type: ignore 
+        self.dll.AUTDDatagramSwapSegmentModulation.restype = DatagramPtr
+
+        self.dll.AUTDDatagramSwapSegmentFocusSTM.argtypes = [Segment, TransitionModeWrap]  # type: ignore 
+        self.dll.AUTDDatagramSwapSegmentFocusSTM.restype = DatagramPtr
+
+        self.dll.AUTDDatagramSwapSegmentGainSTM.argtypes = [Segment, TransitionModeWrap]  # type: ignore 
+        self.dll.AUTDDatagramSwapSegmentGainSTM.restype = DatagramPtr
+
+        self.dll.AUTDDatagramSwapSegmentGain.argtypes = [Segment]  # type: ignore 
+        self.dll.AUTDDatagramSwapSegmentGain.restype = DatagramPtr
 
         self.dll.AUTDDatagramSilencerFixedUpdateRate.argtypes = [ctypes.c_uint16, ctypes.c_uint16] 
         self.dll.AUTDDatagramSilencerFixedUpdateRate.restype = ResultDatagram
@@ -111,8 +181,140 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.argtypes = [DatagramPtr]  # type: ignore 
         self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.restype = ctypes.c_bool
 
+        self.dll.AUTDSTMFocusFromFreq.argtypes = [ctypes.c_double] 
+        self.dll.AUTDSTMFocusFromFreq.restype = FocusSTMPtr
+
+        self.dll.AUTDSTMFocusFromFreqNearest.argtypes = [ctypes.c_double] 
+        self.dll.AUTDSTMFocusFromFreqNearest.restype = FocusSTMPtr
+
+        self.dll.AUTDSTMFocusFromSamplingConfig.argtypes = [SamplingConfigWrap]  # type: ignore 
+        self.dll.AUTDSTMFocusFromSamplingConfig.restype = FocusSTMPtr
+
+        self.dll.AUTDSTMFocusAddFoci.argtypes = [FocusSTMPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64]  # type: ignore 
+        self.dll.AUTDSTMFocusAddFoci.restype = FocusSTMPtr
+
+        self.dll.AUTDSTMFocusWithLoopBehavior.argtypes = [FocusSTMPtr, LoopBehavior]  # type: ignore 
+        self.dll.AUTDSTMFocusWithLoopBehavior.restype = FocusSTMPtr
+
+        self.dll.AUTDSTMFocusIntoDatagramWithSegment.argtypes = [FocusSTMPtr, Segment]  # type: ignore 
+        self.dll.AUTDSTMFocusIntoDatagramWithSegment.restype = DatagramPtr
+
+        self.dll.AUTDSTMFocusIntoDatagramWithSegmentTransition.argtypes = [FocusSTMPtr, Segment, TransitionModeWrap]  # type: ignore 
+        self.dll.AUTDSTMFocusIntoDatagramWithSegmentTransition.restype = DatagramPtr
+
+        self.dll.AUTDSTMFocusIntoDatagram.argtypes = [FocusSTMPtr]  # type: ignore 
+        self.dll.AUTDSTMFocusIntoDatagram.restype = DatagramPtr
+
+        self.dll.AUTDSTMGainFromFreq.argtypes = [ctypes.c_double] 
+        self.dll.AUTDSTMGainFromFreq.restype = GainSTMPtr
+
+        self.dll.AUTDSTMGainFromFreqNearest.argtypes = [ctypes.c_double] 
+        self.dll.AUTDSTMGainFromFreqNearest.restype = GainSTMPtr
+
+        self.dll.AUTDSTMGainFromSamplingConfig.argtypes = [SamplingConfigWrap]  # type: ignore 
+        self.dll.AUTDSTMGainFromSamplingConfig.restype = GainSTMPtr
+
+        self.dll.AUTDSTMGainWithMode.argtypes = [GainSTMPtr, GainSTMMode]  # type: ignore 
+        self.dll.AUTDSTMGainWithMode.restype = GainSTMPtr
+
+        self.dll.AUTDSTMGainAddGains.argtypes = [GainSTMPtr, ctypes.POINTER(GainPtr), ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMGainAddGains.restype = GainSTMPtr
+
+        self.dll.AUTDSTMGainWithLoopBehavior.argtypes = [GainSTMPtr, LoopBehavior]  # type: ignore 
+        self.dll.AUTDSTMGainWithLoopBehavior.restype = GainSTMPtr
+
+        self.dll.AUTDSTMGainIntoDatagramWithSegment.argtypes = [GainSTMPtr, Segment]  # type: ignore 
+        self.dll.AUTDSTMGainIntoDatagramWithSegment.restype = DatagramPtr
+
+        self.dll.AUTDSTMGainIntoDatagramWithSegmentTransition.argtypes = [GainSTMPtr, Segment, TransitionModeWrap]  # type: ignore 
+        self.dll.AUTDSTMGainIntoDatagramWithSegmentTransition.restype = DatagramPtr
+
+        self.dll.AUTDSTMGainIntoDatagram.argtypes = [GainSTMPtr]  # type: ignore 
+        self.dll.AUTDSTMGainIntoDatagram.restype = DatagramPtr
+
         self.dll.AUTDDatagramSynchronize.argtypes = [] 
         self.dll.AUTDDatagramSynchronize.restype = DatagramPtr
+
+        self.dll.AUTDDcSysTimeNow.argtypes = [] 
+        self.dll.AUTDDcSysTimeNow.restype = ctypes.c_uint64
+
+        self.dll.AUTDDebugTypeNone.argtypes = [] 
+        self.dll.AUTDDebugTypeNone.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeBaseSignal.argtypes = [] 
+        self.dll.AUTDDebugTypeBaseSignal.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeThermo.argtypes = [] 
+        self.dll.AUTDDebugTypeThermo.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeForceFan.argtypes = [] 
+        self.dll.AUTDDebugTypeForceFan.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeSync.argtypes = [] 
+        self.dll.AUTDDebugTypeSync.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeModSegment.argtypes = [] 
+        self.dll.AUTDDebugTypeModSegment.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeModIdx.argtypes = [ctypes.c_uint16] 
+        self.dll.AUTDDebugTypeModIdx.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeStmSegment.argtypes = [] 
+        self.dll.AUTDDebugTypeStmSegment.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeStmIdx.argtypes = [ctypes.c_uint16] 
+        self.dll.AUTDDebugTypeStmIdx.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeIsStmMode.argtypes = [] 
+        self.dll.AUTDDebugTypeIsStmMode.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypePwmOut.argtypes = [TransducerPtr]  # type: ignore 
+        self.dll.AUTDDebugTypePwmOut.restype = DebugTypeWrap
+
+        self.dll.AUTDDebugTypeDirect.argtypes = [ctypes.c_bool] 
+        self.dll.AUTDDebugTypeDirect.restype = DebugTypeWrap
+
+        self.dll.AUTDLoopBehaviorInfinite.argtypes = [] 
+        self.dll.AUTDLoopBehaviorInfinite.restype = LoopBehavior
+
+        self.dll.AUTDLoopBehaviorFinite.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDLoopBehaviorFinite.restype = LoopBehavior
+
+        self.dll.AUTDLoopBehaviorOnce.argtypes = [] 
+        self.dll.AUTDLoopBehaviorOnce.restype = LoopBehavior
+
+        self.dll.AUTDPhaseFromRad.argtypes = [ctypes.c_double] 
+        self.dll.AUTDPhaseFromRad.restype = ctypes.c_uint8
+
+        self.dll.AUTDPhaseToRad.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDPhaseToRad.restype = ctypes.c_double
+
+        self.dll.AUTDSamplingConfigFromDivision.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDSamplingConfigFromDivision.restype = SamplingConfigWrap
+
+        self.dll.AUTDSamplingConfigFromDivisionRaw.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDSamplingConfigFromDivisionRaw.restype = SamplingConfigWrap
+
+        self.dll.AUTDSamplingConfigFromFreq.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDSamplingConfigFromFreq.restype = SamplingConfigWrap
+
+        self.dll.AUTDSamplingConfigFromFreqNearest.argtypes = [ctypes.c_double] 
+        self.dll.AUTDSamplingConfigFromFreqNearest.restype = SamplingConfigWrap
+
+        self.dll.AUTDTransitionModeSyncIdx.argtypes = [] 
+        self.dll.AUTDTransitionModeSyncIdx.restype = TransitionModeWrap
+
+        self.dll.AUTDTransitionModeSysTime.argtypes = [ctypes.c_uint64] 
+        self.dll.AUTDTransitionModeSysTime.restype = TransitionModeWrap
+
+        self.dll.AUTDTransitionModeGPIO.argtypes = [GPIOIn]  # type: ignore 
+        self.dll.AUTDTransitionModeGPIO.restype = TransitionModeWrap
+
+        self.dll.AUTDTransitionModeExt.argtypes = [] 
+        self.dll.AUTDTransitionModeExt.restype = TransitionModeWrap
+
+        self.dll.AUTDTransitionModeImmediate.argtypes = [] 
+        self.dll.AUTDTransitionModeImmediate.restype = TransitionModeWrap
 
         self.dll.AUTDGainBessel.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainBessel.restype = GainPtr
@@ -120,11 +322,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainBesselIsDefault.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainBesselIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainCustom.argtypes = [] 
+        self.dll.AUTDGainCustom.argtypes = [ctypes.c_void_p, ContextPtr, GeometryPtr]  # type: ignore 
         self.dll.AUTDGainCustom.restype = GainPtr
-
-        self.dll.AUTDGainCustomSet.argtypes = [GainPtr, ctypes.c_uint32, ctypes.POINTER(Drive), ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDGainCustomSet.restype = GainPtr
 
         self.dll.AUTDGainFocus.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainFocus.restype = GainPtr
@@ -156,9 +355,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainCalcFreeResult.argtypes = [GainCalcDrivesMapPtr]  # type: ignore 
         self.dll.AUTDGainCalcFreeResult.restype = None
 
-        self.dll.AUTDDatagramChangeGainSegment.argtypes = [Segment]  # type: ignore 
-        self.dll.AUTDDatagramChangeGainSegment.restype = DatagramPtr
-
         self.dll.AUTDGainNull.argtypes = [] 
         self.dll.AUTDGainNull.restype = GainPtr
 
@@ -168,8 +364,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainPlanelIsDefault.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainPlanelIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainTransducerTest.argtypes = [ctypes.c_void_p, ContextPtr, GeometryPtr]  # type: ignore 
-        self.dll.AUTDGainTransducerTest.restype = GainPtr
+        self.dll.AUTDGainRaw.argtypes = [] 
+        self.dll.AUTDGainRaw.restype = GainPtr
+
+        self.dll.AUTDGainRawSet.argtypes = [GainPtr, ctypes.c_uint32, ctypes.POINTER(Drive), ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDGainRawSet.restype = GainPtr
 
         self.dll.AUTDGainUniform.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainUniform.restype = GainPtr
@@ -216,6 +415,12 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDeviceEnableGet.argtypes = [DevicePtr]  # type: ignore 
         self.dll.AUTDDeviceEnableGet.restype = ctypes.c_bool
 
+        self.dll.AUTDDeviceWavelength.argtypes = [DevicePtr]  # type: ignore 
+        self.dll.AUTDDeviceWavelength.restype = ctypes.c_double
+
+        self.dll.AUTDDeviceWavenumber.argtypes = [DevicePtr]  # type: ignore 
+        self.dll.AUTDDeviceWavenumber.restype = ctypes.c_double
+
         self.dll.AUTDGeometry.argtypes = [ControllerPtr]  # type: ignore 
         self.dll.AUTDGeometry.restype = GeometryPtr
 
@@ -242,51 +447,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDTransducerDirectionZ.argtypes = [TransducerPtr, ctypes.POINTER(ctypes.c_double)]  # type: ignore 
         self.dll.AUTDTransducerDirectionZ.restype = None
-
-        self.dll.AUTDTransducerWavelength.argtypes = [TransducerPtr, ctypes.c_double]  # type: ignore 
-        self.dll.AUTDTransducerWavelength.restype = ctypes.c_double
-
-        self.dll.AUTDControllerBuilder.argtypes = [] 
-        self.dll.AUTDControllerBuilder.restype = ControllerBuilderPtr
-
-        self.dll.AUTDControllerBuilderAddDevice.argtypes = [ControllerBuilderPtr, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double]  # type: ignore 
-        self.dll.AUTDControllerBuilderAddDevice.restype = ControllerBuilderPtr
-
-        self.dll.AUTDControllerOpen.argtypes = [ControllerBuilderPtr, LinkBuilderPtr, ctypes.c_int64]  # type: ignore 
-        self.dll.AUTDControllerOpen.restype = ResultController
-
-        self.dll.AUTDControllerClose.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerClose.restype = ResultI32
-
-        self.dll.AUTDControllerDelete.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerDelete.restype = ResultI32
-
-        self.dll.AUTDControllerFPGAState.argtypes = [ControllerPtr, ctypes.POINTER(ctypes.c_int32)]  # type: ignore 
-        self.dll.AUTDControllerFPGAState.restype = ResultI32
-
-        self.dll.AUTDControllerFirmwareInfoListPointer.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerFirmwareInfoListPointer.restype = ResultFirmwareInfoList
-
-        self.dll.AUTDControllerFirmwareInfoGet.argtypes = [FirmwareInfoListPtr, ctypes.c_uint32, ctypes.c_char_p]  # type: ignore 
-        self.dll.AUTDControllerFirmwareInfoGet.restype = None
-
-        self.dll.AUTDControllerFirmwareInfoListPointerDelete.argtypes = [FirmwareInfoListPtr]  # type: ignore 
-        self.dll.AUTDControllerFirmwareInfoListPointerDelete.restype = None
-
-        self.dll.AUTDFirmwareLatest.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDFirmwareLatest.restype = None
-
-        self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
-        self.dll.AUTDControllerSend.restype = ResultI32
-
-        self.dll.AUTDControllerGroupCreateKVMap.argtypes = [] 
-        self.dll.AUTDControllerGroupCreateKVMap.restype = GroupKVMapPtr
-
-        self.dll.AUTDControllerGroupKVMapSet.argtypes = [GroupKVMapPtr, ctypes.c_int32, DatagramPtr, DatagramPtr, ctypes.c_int64]  # type: ignore 
-        self.dll.AUTDControllerGroupKVMapSet.restype = ResultGroupKVMap
-
-        self.dll.AUTDControllerGroup.argtypes = [ControllerPtr, ctypes.POINTER(ctypes.c_int32), GroupKVMapPtr]  # type: ignore 
-        self.dll.AUTDControllerGroup.restype = ResultI32
 
         self.dll.AUTDLinkAudit.argtypes = [] 
         self.dll.AUTDLinkAudit.restype = LinkAuditBuilderPtr
@@ -354,8 +514,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaDebugValues.argtypes = [LinkPtr, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint16)]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaDebugValues.restype = None
 
-        self.dll.AUTDLinkAuditFpgaStmFrequencyDivision.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaStmFrequencyDivision.restype = ctypes.c_uint32
+        self.dll.AUTDLinkAuditFpgaStmFreqDivision.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaStmFreqDivision.restype = ctypes.c_uint32
 
         self.dll.AUTDLinkAuditFpgaStmCycle.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaStmCycle.restype = ctypes.c_uint32
@@ -366,8 +526,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaStmLoopBehavior.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaStmLoopBehavior.restype = LoopBehavior
 
-        self.dll.AUTDLinkAuditFpgaModulationFrequencyDivision.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaModulationFrequencyDivision.restype = ctypes.c_uint32
+        self.dll.AUTDLinkAuditFpgaModulationFreqDivision.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaModulationFreqDivision.restype = ctypes.c_uint32
 
         self.dll.AUTDLinkAuditFpgaModulationCycle.argtypes = [LinkPtr, Segment, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaModulationCycle.restype = ctypes.c_uint32
@@ -384,50 +544,74 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaPhaseFilter.argtypes = [LinkPtr, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaPhaseFilter.restype = None
 
+        self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable.argtypes = [LinkPtr, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable.restype = ctypes.c_uint16
+
+        self.dll.AUTDLinkAuditFpgaUltrasoundFreq.argtypes = [LinkPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaUltrasoundFreq.restype = ctypes.c_uint32
+
         self.dll.AUTDLinkGet.argtypes = [ControllerPtr]  # type: ignore 
         self.dll.AUTDLinkGet.restype = LinkPtr
 
         self.dll.AUTDLinkNop.argtypes = [] 
         self.dll.AUTDLinkNop.restype = LinkBuilderPtr
 
-        self.dll.AUTDModulationCustom.argtypes = [SamplingConfiguration, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationCustom.restype = ModulationPtr
+        self.dll.AUTDModulationFourierExact.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierExact.restype = ModulationPtr
 
-        self.dll.AUTDModulationFourier.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationFourier.restype = ModulationPtr
+        self.dll.AUTDModulationFourierExactFloat.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierExactFloat.restype = ModulationPtr
 
-        self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]  # type: ignore 
-        self.dll.AUTDModulationSamplingConfig.restype = SamplingConfiguration
+        self.dll.AUTDModulationFourierNearest.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierNearest.restype = ModulationPtr
 
-        self.dll.AUTDModulationIntoDatagramWithSegment.argtypes = [ModulationPtr, Segment, ctypes.c_bool]  # type: ignore 
+        self.dll.AUTDModulationIntoDatagramWithSegment.argtypes = [ModulationPtr, Segment]  # type: ignore 
         self.dll.AUTDModulationIntoDatagramWithSegment.restype = DatagramPtr
+
+        self.dll.AUTDModulationIntoDatagramWithSegmentTransition.argtypes = [ModulationPtr, Segment, TransitionModeWrap]  # type: ignore 
+        self.dll.AUTDModulationIntoDatagramWithSegmentTransition.restype = DatagramPtr
 
         self.dll.AUTDModulationIntoDatagram.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationIntoDatagram.restype = DatagramPtr
 
-        self.dll.AUTDModulationSize.argtypes = [ModulationPtr]  # type: ignore 
-        self.dll.AUTDModulationSize.restype = ResultI32
-
-        self.dll.AUTDModulationCalc.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationCalc.argtypes = [ModulationPtr, GeometryPtr]  # type: ignore 
         self.dll.AUTDModulationCalc.restype = ResultModulationCalc
 
         self.dll.AUTDModulationCalcGetResult.argtypes = [ModulationCalcPtr, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDModulationCalcGetResult.restype = None
 
-        self.dll.AUTDDatagramChangeModulationSegment.argtypes = [Segment]  # type: ignore 
-        self.dll.AUTDDatagramChangeModulationSegment.restype = DatagramPtr
+        self.dll.AUTDModulationCalcGetSize.argtypes = [ModulationCalcPtr]  # type: ignore 
+        self.dll.AUTDModulationCalcGetSize.restype = ctypes.c_uint32
+
+        self.dll.AUTDModulationCalcFreeResult.argtypes = [ModulationCalcPtr]  # type: ignore 
+        self.dll.AUTDModulationCalcFreeResult.restype = None
 
         self.dll.AUTDModulationWithRadiationPressure.argtypes = [ModulationPtr, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWithRadiationPressure.restype = ModulationPtr
 
-        self.dll.AUTDModulationSine.argtypes = [ctypes.c_double, SamplingConfiguration, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_uint8, SamplingMode, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationSine.restype = ModulationPtr
+        self.dll.AUTDModulationRaw.argtypes = [SamplingConfigWrap, LoopBehavior, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDModulationRaw.restype = ModulationPtr
+
+        self.dll.AUTDModulationSineExact.argtypes = [ctypes.c_uint32, SamplingConfigWrap, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSineExact.restype = ModulationPtr
+
+        self.dll.AUTDModulationSineExactFloat.argtypes = [ctypes.c_double, SamplingConfigWrap, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSineExactFloat.restype = ModulationPtr
+
+        self.dll.AUTDModulationSineNearest.argtypes = [ctypes.c_double, SamplingConfigWrap, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSineNearest.restype = ModulationPtr
 
         self.dll.AUTDModulationSineIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSineIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDModulationSquare.argtypes = [ctypes.c_double, SamplingConfiguration, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, SamplingMode, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationSquare.restype = ModulationPtr
+        self.dll.AUTDModulationSquareExact.argtypes = [ctypes.c_uint32, SamplingConfigWrap, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSquareExact.restype = ModulationPtr
+
+        self.dll.AUTDModulationSquareExactFloat.argtypes = [ctypes.c_double, SamplingConfigWrap, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSquareExactFloat.restype = ModulationPtr
+
+        self.dll.AUTDModulationSquareNearest.argtypes = [ctypes.c_double, SamplingConfigWrap, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_double, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSquareNearest.restype = ModulationPtr
 
         self.dll.AUTDModulationSquareIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSquareIsDefault.restype = ctypes.c_bool
@@ -441,65 +625,86 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationWithTransform.argtypes = [ModulationPtr, ctypes.c_void_p, ctypes.c_void_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWithTransform.restype = ModulationPtr
 
-        self.dll.AUTDSTMFocus.argtypes = [STMPropsPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDSTMFocus.restype = ResultFocusSTM
+        self.dll.AUTDGetErr.argtypes = [ctypes.c_void_p, ctypes.c_char_p] 
+        self.dll.AUTDGetErr.restype = None
 
-        self.dll.AUTDSTMFocusIntoDatagramWithSegment.argtypes = [FocusSTMPtr, Segment, ctypes.c_bool]  # type: ignore 
-        self.dll.AUTDSTMFocusIntoDatagramWithSegment.restype = DatagramPtr
+    def controller_builder(self) -> ControllerBuilderPtr:
+        return self.dll.AUTDControllerBuilder()
 
-        self.dll.AUTDSTMFocusIntoDatagram.argtypes = [FocusSTMPtr]  # type: ignore 
-        self.dll.AUTDSTMFocusIntoDatagram.restype = DatagramPtr
+    def controller_builder_with_ultrasound_freq(self, builder: ControllerBuilderPtr, ultrasound_freq: int) -> ControllerBuilderPtr:
+        return self.dll.AUTDControllerBuilderWithUltrasoundFreq(builder, ultrasound_freq)
 
-        self.dll.AUTDDatagramChangeFocusSTMSegment.argtypes = [Segment]  # type: ignore 
-        self.dll.AUTDDatagramChangeFocusSTMSegment.restype = DatagramPtr
+    def controller_builder_add_device(self, builder: ControllerBuilderPtr, x: float, y: float, z: float, qw: float, qx: float, qy: float, qz: float) -> ControllerBuilderPtr:
+        return self.dll.AUTDControllerBuilderAddDevice(builder, x, y, z, qw, qx, qy, qz)
 
-        self.dll.AUTDSTMGain.argtypes = [STMPropsPtr, ctypes.POINTER(GainPtr), ctypes.c_uint32, GainSTMMode]  # type: ignore 
-        self.dll.AUTDSTMGain.restype = ResultGainSTM
+    def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout_ns: int) -> ResultController:
+        return self.dll.AUTDControllerOpen(builder, link_builder, timeout_ns)
 
-        self.dll.AUTDSTMGainIntoDatagramWithSegment.argtypes = [GainSTMPtr, Segment, ctypes.c_bool]  # type: ignore 
-        self.dll.AUTDSTMGainIntoDatagramWithSegment.restype = DatagramPtr
+    def controller_group_create_kv_map(self) -> GroupKVMapPtr:
+        return self.dll.AUTDControllerGroupCreateKVMap()
 
-        self.dll.AUTDSTMGainIntoDatagram.argtypes = [GainSTMPtr]  # type: ignore 
-        self.dll.AUTDSTMGainIntoDatagram.restype = DatagramPtr
+    def controller_group_kv_map_set(self, map: GroupKVMapPtr, key: int, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> None:
+        return self.dll.AUTDControllerGroupKVMapSet(map, key, d1, d2, timeout_ns)
 
-        self.dll.AUTDDatagramChangeGainSTMSegment.argtypes = [Segment]  # type: ignore 
-        self.dll.AUTDDatagramChangeGainSTMSegment.restype = DatagramPtr
+    def controller_group(self, cnt: ControllerPtr, map: ctypes.Array[ctypes.c_int32] | None, kv_map: GroupKVMapPtr) -> ResultI32:
+        return self.dll.AUTDControllerGroup(cnt, map, kv_map)
 
-        self.dll.AUTDSTMPropsFromFreq.argtypes = [ctypes.c_double] 
-        self.dll.AUTDSTMPropsFromFreq.restype = STMPropsPtr
+    def controller_close(self, cnt: ControllerPtr) -> ResultI32:
+        return self.dll.AUTDControllerClose(cnt)
 
-        self.dll.AUTDSTMPropsFromPeriod.argtypes = [ctypes.c_uint64] 
-        self.dll.AUTDSTMPropsFromPeriod.restype = STMPropsPtr
+    def controller_delete(self, cnt: ControllerPtr) -> ResultI32:
+        return self.dll.AUTDControllerDelete(cnt)
 
-        self.dll.AUTDSTMPropsFromSamplingConfig.argtypes = [SamplingConfiguration]  # type: ignore 
-        self.dll.AUTDSTMPropsFromSamplingConfig.restype = STMPropsPtr
+    def controller_fpga_state(self, cnt: ControllerPtr, out: ctypes.Array[ctypes.c_int32] | None) -> ResultI32:
+        return self.dll.AUTDControllerFPGAState(cnt, out)
 
-        self.dll.AUTDSTMPropsWithLoopBehavior.argtypes = [STMPropsPtr, LoopBehavior]  # type: ignore 
-        self.dll.AUTDSTMPropsWithLoopBehavior.restype = STMPropsPtr
+    def controller_firmware_version_list_pointer(self, cnt: ControllerPtr) -> ResultFirmwareVersionList:
+        return self.dll.AUTDControllerFirmwareVersionListPointer(cnt)
 
-        self.dll.AUTDSTMPropsFrequency.argtypes = [STMPropsPtr, ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDSTMPropsFrequency.restype = ctypes.c_double
+    def controller_firmware_version_get(self, p_info_list: FirmwareVersionListPtr, idx: int, info: ctypes.Array[ctypes.c_char] | None) -> None:
+        return self.dll.AUTDControllerFirmwareVersionGet(p_info_list, idx, info)
 
-        self.dll.AUTDSTMPropsPeriod.argtypes = [STMPropsPtr, ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDSTMPropsPeriod.restype = ctypes.c_uint64
+    def controller_firmware_version_list_pointer_delete(self, p_info_list: FirmwareVersionListPtr) -> None:
+        return self.dll.AUTDControllerFirmwareVersionListPointerDelete(p_info_list)
 
-        self.dll.AUTDSTMPropsSamplingConfig.argtypes = [STMPropsPtr, ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDSTMPropsSamplingConfig.restype = ResultSamplingConfig
+    def firmware_latest(self, latest: ctypes.Array[ctypes.c_char] | None) -> None:
+        return self.dll.AUTDFirmwareLatest(latest)
+
+    def controller_send(self, cnt: ControllerPtr, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultI32:
+        return self.dll.AUTDControllerSend(cnt, d1, d2, timeout_ns)
 
     def datagram_clear(self) -> DatagramPtr:
         return self.dll.AUTDDatagramClear()
 
-    def datagram_configure_debug_settings_2(self, types: ctypes.Array[ctypes.c_uint8] | None, values: ctypes.Array[ctypes.c_uint16] | None, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramConfigureDebugSettings2(types, values, geometry)
+    def datagram_debug_settings(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramDebugSettings(f, context, geometry)
 
-    def datagram_configure_force_fan(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramConfigureForceFan(f, context, geometry)
+    def datagram_force_fan(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramForceFan(f, context, geometry)
 
-    def datagram_configure_phase_filter(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramConfigurePhaseFilter(f, context, geometry)
+    def datagram_phase_filter_additive(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramPhaseFilterAdditive(f, context, geometry)
 
-    def datagram_configure_reads_fpga_state(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramConfigureReadsFPGAState(f, context, geometry)
+    def datagram_pulse_width_encoder(self, buf: ctypes.Array[ctypes.c_uint16] | None, len: int) -> ResultDatagram:
+        return self.dll.AUTDDatagramPulseWidthEncoder(buf, len)
+
+    def datagram_pulse_width_encoder_default(self) -> DatagramPtr:
+        return self.dll.AUTDDatagramPulseWidthEncoderDefault()
+
+    def datagram_reads_fpga_state(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramReadsFPGAState(f, context, geometry)
+
+    def datagram_swap_segment_modulation(self, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
+        return self.dll.AUTDDatagramSwapSegmentModulation(segment, transition_mode)
+
+    def datagram_swap_segment_focus_stm(self, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
+        return self.dll.AUTDDatagramSwapSegmentFocusSTM(segment, transition_mode)
+
+    def datagram_swap_segment_gain_stm(self, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
+        return self.dll.AUTDDatagramSwapSegmentGainSTM(segment, transition_mode)
+
+    def datagram_swap_segment_gain(self, segment: Segment) -> DatagramPtr:
+        return self.dll.AUTDDatagramSwapSegmentGain(segment)
 
     def datagram_silencer_fixed_update_rate(self, value_intensity: int, value_phase: int) -> ResultDatagram:
         return self.dll.AUTDDatagramSilencerFixedUpdateRate(value_intensity, value_phase)
@@ -510,8 +715,140 @@ class NativeMethods(metaclass=Singleton):
     def datagram_silencer_fixed_completion_steps_is_default(self, silencer: DatagramPtr) -> ctypes.c_bool:
         return self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault(silencer)
 
+    def stm_focus_from_freq(self, freq: float) -> FocusSTMPtr:
+        return self.dll.AUTDSTMFocusFromFreq(freq)
+
+    def stm_focus_from_freq_nearest(self, freq: float) -> FocusSTMPtr:
+        return self.dll.AUTDSTMFocusFromFreqNearest(freq)
+
+    def stm_focus_from_sampling_config(self, config: SamplingConfigWrap) -> FocusSTMPtr:
+        return self.dll.AUTDSTMFocusFromSamplingConfig(config)
+
+    def stm_focus_add_foci(self, stm: FocusSTMPtr, points: ctypes.Array[ctypes.c_double] | None, intensities: ctypes.Array[ctypes.c_uint8] | None, size: int) -> FocusSTMPtr:
+        return self.dll.AUTDSTMFocusAddFoci(stm, points, intensities, size)
+
+    def stm_focus_with_loop_behavior(self, stm: FocusSTMPtr, loop_behavior: LoopBehavior) -> FocusSTMPtr:
+        return self.dll.AUTDSTMFocusWithLoopBehavior(stm, loop_behavior)
+
+    def stm_focus_into_datagram_with_segment(self, stm: FocusSTMPtr, segment: Segment) -> DatagramPtr:
+        return self.dll.AUTDSTMFocusIntoDatagramWithSegment(stm, segment)
+
+    def stm_focus_into_datagram_with_segment_transition(self, stm: FocusSTMPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
+        return self.dll.AUTDSTMFocusIntoDatagramWithSegmentTransition(stm, segment, transition_mode)
+
+    def stm_focus_into_datagram(self, stm: FocusSTMPtr) -> DatagramPtr:
+        return self.dll.AUTDSTMFocusIntoDatagram(stm)
+
+    def stm_gain_from_freq(self, freq: float) -> GainSTMPtr:
+        return self.dll.AUTDSTMGainFromFreq(freq)
+
+    def stm_gain_from_freq_nearest(self, freq: float) -> GainSTMPtr:
+        return self.dll.AUTDSTMGainFromFreqNearest(freq)
+
+    def stm_gain_from_sampling_config(self, config: SamplingConfigWrap) -> GainSTMPtr:
+        return self.dll.AUTDSTMGainFromSamplingConfig(config)
+
+    def stm_gain_with_mode(self, stm: GainSTMPtr, mode: GainSTMMode) -> GainSTMPtr:
+        return self.dll.AUTDSTMGainWithMode(stm, mode)
+
+    def stm_gain_add_gains(self, stm: GainSTMPtr, gains: ctypes.Array | None, size: int) -> GainSTMPtr:
+        return self.dll.AUTDSTMGainAddGains(stm, gains, size)
+
+    def stm_gain_with_loop_behavior(self, stm: GainSTMPtr, loop_behavior: LoopBehavior) -> GainSTMPtr:
+        return self.dll.AUTDSTMGainWithLoopBehavior(stm, loop_behavior)
+
+    def stm_gain_into_datagram_with_segment(self, stm: GainSTMPtr, segment: Segment) -> DatagramPtr:
+        return self.dll.AUTDSTMGainIntoDatagramWithSegment(stm, segment)
+
+    def stm_gain_into_datagram_with_segment_transition(self, stm: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
+        return self.dll.AUTDSTMGainIntoDatagramWithSegmentTransition(stm, segment, transition_mode)
+
+    def stm_gain_into_datagram(self, stm: GainSTMPtr) -> DatagramPtr:
+        return self.dll.AUTDSTMGainIntoDatagram(stm)
+
     def datagram_synchronize(self) -> DatagramPtr:
         return self.dll.AUTDDatagramSynchronize()
+
+    def dc_sys_time_now(self) -> ctypes.c_uint64:
+        return self.dll.AUTDDcSysTimeNow()
+
+    def debug_type_none(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeNone()
+
+    def debug_type_base_signal(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeBaseSignal()
+
+    def debug_type_thermo(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeThermo()
+
+    def debug_type_force_fan(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeForceFan()
+
+    def debug_type_sync(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeSync()
+
+    def debug_type_mod_segment(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeModSegment()
+
+    def debug_type_mod_idx(self, value: int) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeModIdx(value)
+
+    def debug_type_stm_segment(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeStmSegment()
+
+    def debug_type_stm_idx(self, value: int) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeStmIdx(value)
+
+    def debug_type_is_stm_mode(self) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeIsStmMode()
+
+    def debug_type_pwm_out(self, value: TransducerPtr) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypePwmOut(value)
+
+    def debug_type_direct(self, value: bool) -> DebugTypeWrap:
+        return self.dll.AUTDDebugTypeDirect(value)
+
+    def loop_behavior_infinite(self) -> LoopBehavior:
+        return self.dll.AUTDLoopBehaviorInfinite()
+
+    def loop_behavior_finite(self, v: int) -> LoopBehavior:
+        return self.dll.AUTDLoopBehaviorFinite(v)
+
+    def loop_behavior_once(self) -> LoopBehavior:
+        return self.dll.AUTDLoopBehaviorOnce()
+
+    def phase_from_rad(self, value: float) -> ctypes.c_uint8:
+        return self.dll.AUTDPhaseFromRad(value)
+
+    def phase_to_rad(self, value: int) -> ctypes.c_double:
+        return self.dll.AUTDPhaseToRad(value)
+
+    def sampling_config_from_division(self, div: int) -> SamplingConfigWrap:
+        return self.dll.AUTDSamplingConfigFromDivision(div)
+
+    def sampling_config_from_division_raw(self, div: int) -> SamplingConfigWrap:
+        return self.dll.AUTDSamplingConfigFromDivisionRaw(div)
+
+    def sampling_config_from_freq(self, f: int) -> SamplingConfigWrap:
+        return self.dll.AUTDSamplingConfigFromFreq(f)
+
+    def sampling_config_from_freq_nearest(self, f: float) -> SamplingConfigWrap:
+        return self.dll.AUTDSamplingConfigFromFreqNearest(f)
+
+    def transition_mode_sync_idx(self) -> TransitionModeWrap:
+        return self.dll.AUTDTransitionModeSyncIdx()
+
+    def transition_mode_sys_time(self, sys_time: int) -> TransitionModeWrap:
+        return self.dll.AUTDTransitionModeSysTime(sys_time)
+
+    def transition_mode_gpio(self, gpio: GPIOIn) -> TransitionModeWrap:
+        return self.dll.AUTDTransitionModeGPIO(gpio)
+
+    def transition_mode_ext(self) -> TransitionModeWrap:
+        return self.dll.AUTDTransitionModeExt()
+
+    def transition_mode_immediate(self) -> TransitionModeWrap:
+        return self.dll.AUTDTransitionModeImmediate()
 
     def gain_bessel(self, x: float, y: float, z: float, nx: float, ny: float, nz: float, theta_z: float, intensity: int, phase_offset: int) -> GainPtr:
         return self.dll.AUTDGainBessel(x, y, z, nx, ny, nz, theta_z, intensity, phase_offset)
@@ -519,11 +856,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_bessel_is_default(self, bessel: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainBesselIsDefault(bessel)
 
-    def gain_custom(self) -> GainPtr:
-        return self.dll.AUTDGainCustom()
-
-    def gain_custom_set(self, custom: GainPtr, dev_idx: int, ptr: ctypes.Array | None, len: int) -> GainPtr:
-        return self.dll.AUTDGainCustomSet(custom, dev_idx, ptr, len)
+    def gain_custom(self, f: ctypes.c_void_p | None, context: ContextPtr, geometry: GeometryPtr) -> GainPtr:
+        return self.dll.AUTDGainCustom(f, context, geometry)
 
     def gain_focus(self, x: float, y: float, z: float, intensity: int, phase_offset: int) -> GainPtr:
         return self.dll.AUTDGainFocus(x, y, z, intensity, phase_offset)
@@ -555,9 +889,6 @@ class NativeMethods(metaclass=Singleton):
     def gain_calc_free_result(self, src: GainCalcDrivesMapPtr) -> None:
         return self.dll.AUTDGainCalcFreeResult(src)
 
-    def datagram_change_gain_segment(self, segment: Segment) -> DatagramPtr:
-        return self.dll.AUTDDatagramChangeGainSegment(segment)
-
     def gain_null(self) -> GainPtr:
         return self.dll.AUTDGainNull()
 
@@ -567,8 +898,11 @@ class NativeMethods(metaclass=Singleton):
     def gain_planel_is_default(self, plane: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainPlanelIsDefault(plane)
 
-    def gain_transducer_test(self, f: ctypes.c_void_p | None, context: ContextPtr, geometry: GeometryPtr) -> GainPtr:
-        return self.dll.AUTDGainTransducerTest(f, context, geometry)
+    def gain_raw(self) -> GainPtr:
+        return self.dll.AUTDGainRaw()
+
+    def gain_raw_set(self, custom: GainPtr, dev_idx: int, ptr: ctypes.Array | None, len: int) -> GainPtr:
+        return self.dll.AUTDGainRawSet(custom, dev_idx, ptr, len)
 
     def gain_uniform(self, intensity: int, phase: int) -> GainPtr:
         return self.dll.AUTDGainUniform(intensity, phase)
@@ -615,6 +949,12 @@ class NativeMethods(metaclass=Singleton):
     def device_enable_get(self, dev: DevicePtr) -> ctypes.c_bool:
         return self.dll.AUTDDeviceEnableGet(dev)
 
+    def device_wavelength(self, dev: DevicePtr) -> ctypes.c_double:
+        return self.dll.AUTDDeviceWavelength(dev)
+
+    def device_wavenumber(self, dev: DevicePtr) -> ctypes.c_double:
+        return self.dll.AUTDDeviceWavenumber(dev)
+
     def geometry(self, cnt: ControllerPtr) -> GeometryPtr:
         return self.dll.AUTDGeometry(cnt)
 
@@ -641,51 +981,6 @@ class NativeMethods(metaclass=Singleton):
 
     def transducer_direction_z(self, tr: TransducerPtr, dir: ctypes.Array[ctypes.c_double] | None) -> None:
         return self.dll.AUTDTransducerDirectionZ(tr, dir)
-
-    def transducer_wavelength(self, tr: TransducerPtr, sound_speed: float) -> ctypes.c_double:
-        return self.dll.AUTDTransducerWavelength(tr, sound_speed)
-
-    def controller_builder(self) -> ControllerBuilderPtr:
-        return self.dll.AUTDControllerBuilder()
-
-    def controller_builder_add_device(self, builder: ControllerBuilderPtr, x: float, y: float, z: float, qw: float, qx: float, qy: float, qz: float) -> ControllerBuilderPtr:
-        return self.dll.AUTDControllerBuilderAddDevice(builder, x, y, z, qw, qx, qy, qz)
-
-    def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout_ns: int) -> ResultController:
-        return self.dll.AUTDControllerOpen(builder, link_builder, timeout_ns)
-
-    def controller_close(self, cnt: ControllerPtr) -> ResultI32:
-        return self.dll.AUTDControllerClose(cnt)
-
-    def controller_delete(self, cnt: ControllerPtr) -> ResultI32:
-        return self.dll.AUTDControllerDelete(cnt)
-
-    def controller_fpga_state(self, cnt: ControllerPtr, out: ctypes.Array[ctypes.c_int32] | None) -> ResultI32:
-        return self.dll.AUTDControllerFPGAState(cnt, out)
-
-    def controller_firmware_info_list_pointer(self, cnt: ControllerPtr) -> ResultFirmwareInfoList:
-        return self.dll.AUTDControllerFirmwareInfoListPointer(cnt)
-
-    def controller_firmware_info_get(self, p_info_list: FirmwareInfoListPtr, idx: int, info: ctypes.Array[ctypes.c_char] | None) -> None:
-        return self.dll.AUTDControllerFirmwareInfoGet(p_info_list, idx, info)
-
-    def controller_firmware_info_list_pointer_delete(self, p_info_list: FirmwareInfoListPtr) -> None:
-        return self.dll.AUTDControllerFirmwareInfoListPointerDelete(p_info_list)
-
-    def firmware_latest(self, latest: ctypes.Array[ctypes.c_char] | None) -> None:
-        return self.dll.AUTDFirmwareLatest(latest)
-
-    def controller_send(self, cnt: ControllerPtr, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultI32:
-        return self.dll.AUTDControllerSend(cnt, d1, d2, timeout_ns)
-
-    def controller_group_create_kv_map(self) -> GroupKVMapPtr:
-        return self.dll.AUTDControllerGroupCreateKVMap()
-
-    def controller_group_kv_map_set(self, map: GroupKVMapPtr, key: int, d1: DatagramPtr, d2: DatagramPtr, timeout_ns: int) -> ResultGroupKVMap:
-        return self.dll.AUTDControllerGroupKVMapSet(map, key, d1, d2, timeout_ns)
-
-    def controller_group(self, cnt: ControllerPtr, map: ctypes.Array[ctypes.c_int32] | None, kv_map: GroupKVMapPtr) -> ResultI32:
-        return self.dll.AUTDControllerGroup(cnt, map, kv_map)
 
     def link_audit(self) -> LinkAuditBuilderPtr:
         return self.dll.AUTDLinkAudit()
@@ -753,8 +1048,8 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_debug_values(self, audit: LinkPtr, idx: int, value: ctypes.Array[ctypes.c_uint16] | None) -> None:
         return self.dll.AUTDLinkAuditFpgaDebugValues(audit, idx, value)
 
-    def link_audit_fpga_stm_frequency_division(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkAuditFpgaStmFrequencyDivision(audit, segment, idx)
+    def link_audit_fpga_stm_freq_division(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
+        return self.dll.AUTDLinkAuditFpgaStmFreqDivision(audit, segment, idx)
 
     def link_audit_fpga_stm_cycle(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
         return self.dll.AUTDLinkAuditFpgaStmCycle(audit, segment, idx)
@@ -765,8 +1060,8 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_stm_loop_behavior(self, audit: LinkPtr, segment: Segment, idx: int) -> LoopBehavior:
         return self.dll.AUTDLinkAuditFpgaStmLoopBehavior(audit, segment, idx)
 
-    def link_audit_fpga_modulation_frequency_division(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
-        return self.dll.AUTDLinkAuditFpgaModulationFrequencyDivision(audit, segment, idx)
+    def link_audit_fpga_modulation_freq_division(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
+        return self.dll.AUTDLinkAuditFpgaModulationFreqDivision(audit, segment, idx)
 
     def link_audit_fpga_modulation_cycle(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint32:
         return self.dll.AUTDLinkAuditFpgaModulationCycle(audit, segment, idx)
@@ -783,50 +1078,74 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_phase_filter(self, audit: LinkPtr, idx: int, phase_filter: ctypes.Array[ctypes.c_uint8] | None) -> None:
         return self.dll.AUTDLinkAuditFpgaPhaseFilter(audit, idx, phase_filter)
 
+    def link_audit_fpga_pulse_width_encoder_table(self, audit: LinkPtr, idx: int, dst: ctypes.Array[ctypes.c_uint8] | None) -> ctypes.c_uint16:
+        return self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable(audit, idx, dst)
+
+    def link_audit_fpga_ultrasound_freq(self, audit: LinkPtr, idx: int) -> ctypes.c_uint32:
+        return self.dll.AUTDLinkAuditFpgaUltrasoundFreq(audit, idx)
+
     def link_get(self, cnt: ControllerPtr) -> LinkPtr:
         return self.dll.AUTDLinkGet(cnt)
 
     def link_nop(self) -> LinkBuilderPtr:
         return self.dll.AUTDLinkNop()
 
-    def modulation_custom(self, config: SamplingConfiguration, ptr: ctypes.Array[ctypes.c_uint8] | None, len: int, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return self.dll.AUTDModulationCustom(config, ptr, len, loop_behavior)
+    def modulation_fourier_exact(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationFourierExact(components, size, loop_behavior)
 
-    def modulation_fourier(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return self.dll.AUTDModulationFourier(components, size, loop_behavior)
+    def modulation_fourier_exact_float(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationFourierExactFloat(components, size, loop_behavior)
 
-    def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfiguration:
-        return self.dll.AUTDModulationSamplingConfig(m)
+    def modulation_fourier_nearest(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationFourierNearest(components, size, loop_behavior)
 
-    def modulation_into_datagram_with_segment(self, m: ModulationPtr, segment: Segment, update_segment: bool) -> DatagramPtr:
-        return self.dll.AUTDModulationIntoDatagramWithSegment(m, segment, update_segment)
+    def modulation_into_datagram_with_segment(self, m: ModulationPtr, segment: Segment) -> DatagramPtr:
+        return self.dll.AUTDModulationIntoDatagramWithSegment(m, segment)
+
+    def modulation_into_datagram_with_segment_transition(self, m: ModulationPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
+        return self.dll.AUTDModulationIntoDatagramWithSegmentTransition(m, segment, transition_mode)
 
     def modulation_into_datagram(self, m: ModulationPtr) -> DatagramPtr:
         return self.dll.AUTDModulationIntoDatagram(m)
 
-    def modulation_size(self, m: ModulationPtr) -> ResultI32:
-        return self.dll.AUTDModulationSize(m)
-
-    def modulation_calc(self, m: ModulationPtr) -> ResultModulationCalc:
-        return self.dll.AUTDModulationCalc(m)
+    def modulation_calc(self, m: ModulationPtr, geometry: GeometryPtr) -> ResultModulationCalc:
+        return self.dll.AUTDModulationCalc(m, geometry)
 
     def modulation_calc_get_result(self, src: ModulationCalcPtr, dst: ctypes.Array[ctypes.c_uint8] | None) -> None:
         return self.dll.AUTDModulationCalcGetResult(src, dst)
 
-    def datagram_change_modulation_segment(self, segment: Segment) -> DatagramPtr:
-        return self.dll.AUTDDatagramChangeModulationSegment(segment)
+    def modulation_calc_get_size(self, src: ModulationCalcPtr) -> ctypes.c_uint32:
+        return self.dll.AUTDModulationCalcGetSize(src)
+
+    def modulation_calc_free_result(self, src: ModulationCalcPtr) -> None:
+        return self.dll.AUTDModulationCalcFreeResult(src)
 
     def modulation_with_radiation_pressure(self, m: ModulationPtr, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationWithRadiationPressure(m, loop_behavior)
 
-    def modulation_sine(self, freq: float, config: SamplingConfiguration, intensity: int, offset: int, phase: int, mode: SamplingMode, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return self.dll.AUTDModulationSine(freq, config, intensity, offset, phase, mode, loop_behavior)
+    def modulation_raw(self, config: SamplingConfigWrap, loop_behavior: LoopBehavior, ptr: ctypes.Array[ctypes.c_uint8] | None, len: int) -> ModulationPtr:
+        return self.dll.AUTDModulationRaw(config, loop_behavior, ptr, len)
+
+    def modulation_sine_exact(self, freq: int, config: SamplingConfigWrap, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationSineExact(freq, config, intensity, offset, phase, loop_behavior)
+
+    def modulation_sine_exact_float(self, freq: float, config: SamplingConfigWrap, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationSineExactFloat(freq, config, intensity, offset, phase, loop_behavior)
+
+    def modulation_sine_nearest(self, freq: float, config: SamplingConfigWrap, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationSineNearest(freq, config, intensity, offset, phase, loop_behavior)
 
     def modulation_sine_is_default(self, sine: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationSineIsDefault(sine)
 
-    def modulation_square(self, freq: float, config: SamplingConfiguration, low: int, high: int, duty: float, mode: SamplingMode, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return self.dll.AUTDModulationSquare(freq, config, low, high, duty, mode, loop_behavior)
+    def modulation_square_exact(self, freq: int, config: SamplingConfigWrap, low: int, high: int, duty: float, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationSquareExact(freq, config, low, high, duty, loop_behavior)
+
+    def modulation_square_exact_float(self, freq: float, config: SamplingConfigWrap, low: int, high: int, duty: float, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationSquareExactFloat(freq, config, low, high, duty, loop_behavior)
+
+    def modulation_square_nearest(self, freq: float, config: SamplingConfigWrap, low: int, high: int, duty: float, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationSquareNearest(freq, config, low, high, duty, loop_behavior)
 
     def modulation_square_is_default(self, square: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationSquareIsDefault(square)
@@ -840,47 +1159,5 @@ class NativeMethods(metaclass=Singleton):
     def modulation_with_transform(self, m: ModulationPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationWithTransform(m, f, context, loop_behavior)
 
-    def stm_focus(self, props: STMPropsPtr, points: ctypes.Array[ctypes.c_double] | None, intensities: ctypes.Array[ctypes.c_uint8] | None, size: int) -> ResultFocusSTM:
-        return self.dll.AUTDSTMFocus(props, points, intensities, size)
-
-    def stm_focus_into_datagram_with_segment(self, stm: FocusSTMPtr, segment: Segment, update_segment: bool) -> DatagramPtr:
-        return self.dll.AUTDSTMFocusIntoDatagramWithSegment(stm, segment, update_segment)
-
-    def stm_focus_into_datagram(self, stm: FocusSTMPtr) -> DatagramPtr:
-        return self.dll.AUTDSTMFocusIntoDatagram(stm)
-
-    def datagram_change_focus_stm_segment(self, segment: Segment) -> DatagramPtr:
-        return self.dll.AUTDDatagramChangeFocusSTMSegment(segment)
-
-    def stm_gain(self, props: STMPropsPtr, gains: ctypes.Array | None, size: int, mode: GainSTMMode) -> ResultGainSTM:
-        return self.dll.AUTDSTMGain(props, gains, size, mode)
-
-    def stm_gain_into_datagram_with_segment(self, stm: GainSTMPtr, segment: Segment, update_segment: bool) -> DatagramPtr:
-        return self.dll.AUTDSTMGainIntoDatagramWithSegment(stm, segment, update_segment)
-
-    def stm_gain_into_datagram(self, stm: GainSTMPtr) -> DatagramPtr:
-        return self.dll.AUTDSTMGainIntoDatagram(stm)
-
-    def datagram_change_gain_stm_segment(self, segment: Segment) -> DatagramPtr:
-        return self.dll.AUTDDatagramChangeGainSTMSegment(segment)
-
-    def stm_props_from_freq(self, freq: float) -> STMPropsPtr:
-        return self.dll.AUTDSTMPropsFromFreq(freq)
-
-    def stm_props_from_period(self, p: int) -> STMPropsPtr:
-        return self.dll.AUTDSTMPropsFromPeriod(p)
-
-    def stm_props_from_sampling_config(self, config: SamplingConfiguration) -> STMPropsPtr:
-        return self.dll.AUTDSTMPropsFromSamplingConfig(config)
-
-    def stm_props_with_loop_behavior(self, props: STMPropsPtr, loop_behavior: LoopBehavior) -> STMPropsPtr:
-        return self.dll.AUTDSTMPropsWithLoopBehavior(props, loop_behavior)
-
-    def stm_props_frequency(self, props: STMPropsPtr, size: int) -> ctypes.c_double:
-        return self.dll.AUTDSTMPropsFrequency(props, size)
-
-    def stm_props_period(self, props: STMPropsPtr, size: int) -> ctypes.c_uint64:
-        return self.dll.AUTDSTMPropsPeriod(props, size)
-
-    def stm_props_sampling_config(self, props: STMPropsPtr, size: int) -> ResultSamplingConfig:
-        return self.dll.AUTDSTMPropsSamplingConfig(props, size)
+    def get_err(self, src: ctypes.c_void_p | None, dst: ctypes.Array[ctypes.c_char] | None) -> None:
+        return self.dll.AUTDGetErr(src, dst)

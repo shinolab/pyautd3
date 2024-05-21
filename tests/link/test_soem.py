@@ -2,9 +2,9 @@ from datetime import timedelta
 
 import pytest
 
-from pyautd3 import AUTD3, Controller, TimerStrategy
+from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
-from pyautd3.link.soem import SOEM, RemoteSOEM, Status, SyncMode
+from pyautd3.link.soem import SOEM, RemoteSOEM, Status, SyncMode, TimerStrategy
 
 
 @pytest.mark.soem()
@@ -20,22 +20,25 @@ def err_handler(slave: int, status: Status, msg: str) -> None:
 
 @pytest.mark.soem()
 def test_soem():
-    with pytest.raises(AUTDError) as _, (
-        Controller.builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open(
-            SOEM.builder()
-            .with_ifname("")
-            .with_buf_size(32)
-            .with_send_cycle(2)
-            .with_sync0_cycle(2)
-            .with_err_handler(err_handler)
-            .with_timer_strategy(TimerStrategy.Sleep)
-            .with_sync_mode(SyncMode.FreeRun)
-            .with_state_check_interval(timedelta(milliseconds=100))
-            .with_timeout(timedelta(milliseconds=200)),
-        )
-    ) as _:
+    with (
+        pytest.raises(AUTDError) as _,
+        (
+            Controller.builder()
+            .add_device(AUTD3([0.0, 0.0, 0.0]))
+            .open(
+                SOEM.builder()
+                .with_ifname("")
+                .with_buf_size(32)
+                .with_send_cycle(2)
+                .with_sync0_cycle(2)
+                .with_err_handler(err_handler)
+                .with_timer_strategy(TimerStrategy.Sleep)
+                .with_sync_mode(SyncMode.FreeRun)
+                .with_state_check_interval(timedelta(milliseconds=100))
+                .with_timeout(timedelta(milliseconds=200)),
+            )
+        ) as _,
+    ):
         pass
 
 

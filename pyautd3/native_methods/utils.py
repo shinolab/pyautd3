@@ -1,29 +1,37 @@
 import ctypes
 
 from pyautd3.autd_error import AUTDError
-from .autd3capi_def import AUTD3_ERR, ResultI32, ResultSamplingConfig, SamplingConfiguration
-from .autd3capi_def import NativeMethods as Def
+from .autd3capi_driver import AUTD3_ERR, ResultI32
+from .autd3capi import NativeMethods as Base
 
 
 def _validate_int(res: ResultI32) -> int:
     if int(res.result) == AUTD3_ERR:
         err = ctypes.create_string_buffer(int(res.err_len))
-        Def().get_err(res.err, err)
+        Base().get_err(res.err, err)
         raise AUTDError(err)
     return int(res.result)
-
-
-def _validate_sampling_config(res: ResultSamplingConfig) -> SamplingConfiguration:
-    if int(res.result.div) == 0:
-        err = ctypes.create_string_buffer(int(res.err_len))
-        Def().get_err(res.err, err)
-        raise AUTDError(err)
-    return res.result
 
 
 def _validate_ptr(res):  # noqa: ANN001, ANN202
     if res.result._0 is None:
         err = ctypes.create_string_buffer(int(res.err_len))
-        Def().get_err(res.err, err)
+        Base().get_err(res.err, err)
         raise AUTDError(err)
     return res.result
+
+
+class ConstantADT(type):
+    _initialized = False
+
+    def __setattr__(cls, name, value):
+        if cls._initialized:
+            if name in cls.__dict__:
+                raise ValueError(f"Do not assign value to {name}")
+            else:
+                raise AttributeError("Do not add new member to {cls}")
+        super().__setattr__(name, value)
+
+    def __init__(cls, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        cls._initialized = True

@@ -13,21 +13,23 @@ use itertools::Itertools;
 use crate::{
     parse::{Arg, Const, Enum, Function, Struct},
     types::{InOut, Type},
+    Union,
 };
 
 pub struct PythonGenerator {
     functions: Vec<Function>,
     constants: Vec<Const>,
     enums: Vec<Enum>,
+    unions: Vec<Union>,
     structs: Vec<Struct>,
 }
 
 impl PythonGenerator {
-    fn sub_reserve(str: String) -> String {
-        if str == "lambda" {
-            "lambda_".to_string()
-        } else {
-            str
+    fn sub_reserve(str: &str) -> String {
+        match str {
+            "lambda" => "lambda_".to_string(),
+            "None" => "None_".to_string(),
+            _ => str.to_owned(),
         }
     }
 
@@ -54,6 +56,8 @@ impl PythonGenerator {
             Type::VoidPtr => "ctypes.c_void_p".to_string(),
             Type::Custom(ref s) => match s.as_str() {
                 "* mut c_char" => "ctypes.c_char_p".to_string(),
+                "[u8 ; 2]" => "ctypes.c_uint8 * 2".to_string(),
+                s if s.ends_with("Tag") => "ctypes.c_uint8".to_string(),
                 s => s.to_owned(),
             },
         }
@@ -194,12 +198,13 @@ impl PythonGenerator {
         self
     }
 
+    pub fn register_union(mut self, unions: Vec<Union>) -> Self {
+        self.unions.extend(unions);
+        self
+    }
+
     pub fn register_func(mut self, functions: Vec<Function>) -> Self {
-        self.functions.extend(
-            functions
-                .into_iter()
-                .filter(|s| !matches!(s.name.as_str(), "AUTDDatagramConfigureDebugSettings")),
-        );
+        self.functions.extend(functions);
         self
     }
 
@@ -212,25 +217,24 @@ impl PythonGenerator {
                     | "DynamicDatagramPack"
                     | "DynamicDatagramPack2"
                     | "DynamicLinkBuilder"
-                    | "DynamicConfigureDebugOutputIdx"
-                    | "DynamicDebugOutIdxOp"
-                    | "DynamicConfigureModDelay"
-                    | "DynamicConfigureModDelayOp"
-                    | "DynamicConfigureForceFan"
-                    | "DynamicConfigureForceFanOp"
-                    | "DynamicConfigureReadsFPGAState"
-                    | "DynamicConfigureReadsFPGAStateOp"
+                    | "DynamicForceFan"
+                    | "DynamicForceFanOp"
+                    | "DynamicReadsFPGAState"
+                    | "DynamicReadsFPGAStateOp"
                     | "SyncGroupGuard"
                     | "SyncController"
                     | "SyncControllerBuilder"
                     | "SyncLink"
                     | "SyncLinkBuilder"
                     | "DynamicDatagramWithSegment"
-                    | "DynamicConfigurePhaseFilter"
-                    | "DynamicConfigurePhaseFilterOp"
-                    | "DynamicConfigureDebugSettings"
+                    | "DynamicDatagramWithSegmentTransition"
+                    | "DynamicPhaseFilter"
+                    | "DynamicPhaseFilterOp"
+                    | "DynamicDebugSettings"
                     | "DynamicDebugSettingOp"
                     | "DebugSettings"
+                    | "RawGain"
+                    | "RawModulation"
             )
         }));
         self
@@ -241,6 +245,7 @@ impl PythonGenerator {
             functions: Vec::new(),
             constants: Vec::new(),
             enums: Vec::new(),
+            unions: Vec::new(),
             structs: Vec::new(),
         }
     }
@@ -283,17 +288,17 @@ import os"
             .collect();
 
         let def_ty = vec![
+            "SyncMode",
+            "GPIOIn",
             "RuntimePtr",
             "GainPtr",
             "ModulationPtr",
             "LinkPtr",
             "ControllerPtr",
-            "STMPropsPtr",
-            "ResultSamplingConfig",
+            "SamplingConfigWrap",
             "LinkBuilderPtr",
             "CachePtr",
             "ResultI32",
-            "SamplingConfiguration",
             "GroupKVMapPtr",
             "ResultDatagram",
             "ResultModulationCalc",
@@ -302,7 +307,6 @@ import os"
             "GeometryPtr",
             "DatagramSpecialPtr",
             "DatagramPtr",
-            "TimerStrategy",
             "ResultModulation",
             "FirmwareInfoListPtr",
             "ResultController",
@@ -318,8 +322,10 @@ import os"
             "FocusSTMPtr",
             "ResultGainSTM",
             "GainSTMPtr",
+            "DebugTypeWrap",
+            "TransitionModeWrap",
         ];
-        let holo_ty = vec!["ResultBackend", "BackendPtr", "EmissionConstraintPtr"];
+        let holo_ty = vec!["ResultBackend", "BackendPtr", "EmissionConstraintWrap"];
         if crate_name != "autd3capi-def"
             && used_ty
                 .iter()
@@ -329,7 +335,7 @@ import os"
         {
             writeln!(
                 w,
-                r"from pyautd3.native_methods.autd3capi_def import {}
+                r"from pyautd3.native_methods.autd3capi_driver import {}
 ",
                 used_ty
                     .iter()
@@ -358,7 +364,11 @@ import os"
         }
 
         if !self.enums.is_empty() {
-            writeln!(w, r"from enum import IntEnum")?;
+            writeln!(
+                w,
+                r"from enum import IntEnum
+"
+            )?;
         }
 
         self.enums
@@ -373,7 +383,7 @@ class {}(IntEnum):",
 
                 e.values
                     .iter()
-                    .map(|(i, v)| writeln!(w, r"    {} = {}", i, v))
+                    .map(|(i, v)| writeln!(w, r"    {} = {}", Self::sub_reserve(i), v))
                     .try_collect()?;
 
                 writeln!(
@@ -383,6 +393,27 @@ class {}(IntEnum):",
     def from_param(cls, obj):
         return int(obj)
 "
+                )
+            })
+            .try_collect()?;
+
+        self.unions
+            .iter()
+            .map(|u| {
+                writeln!(
+                    w,
+                    r"
+class {}(ctypes.Union):",
+                    u.name
+                )?;
+                writeln!(
+                    w,
+                    "    _fields_ = [{}]
+",
+                    u.values
+                        .iter()
+                        .map(|(name, ty)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
+                        .join(", ")
                 )
             })
             .try_collect()?;
@@ -425,6 +456,14 @@ class {}(ctypes.Structure):",
                         .iter()
                         .map(|(ty, name)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
                         .join(", ")
+                )?;
+                writeln!(
+                    w,
+                    "
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, {}) and self._fields_ == other._fields_
+                    ",
+                    p.name
                 )
             })
             .try_collect()?;
@@ -435,7 +474,8 @@ class {}(ctypes.Structure):",
                 write!(
                     w,
                     r"
-{}: {} = {}",
+{}: {} = {}
+",
                     constant.name,
                     Self::to_python_ty(&constant.ty),
                     constant.value
@@ -450,6 +490,7 @@ class {}(ctypes.Structure):",
         write!(
             w,
             r"
+
 class Singleton(type):
     _instances = {{}}  # type: ignore
     _lock = threading.Lock()
@@ -518,7 +559,7 @@ class NativeMethods(metaclass=Singleton):",
                     .map(|arg| {
                         format!(
                             "{}: {}",
-                            Self::sub_reserve(arg.name.to_owned()),
+                            Self::sub_reserve(&arg.name),
                             Self::to_python_arg(arg)
                         )
                     })
@@ -526,7 +567,7 @@ class NativeMethods(metaclass=Singleton):",
                 let arg_names = function
                     .args
                     .iter()
-                    .map(|arg| Self::sub_reserve(arg.name.to_owned()))
+                    .map(|arg| Self::sub_reserve(&arg.name))
                     .join(", ");
 
                 write!(

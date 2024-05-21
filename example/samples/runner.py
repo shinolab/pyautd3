@@ -1,9 +1,9 @@
-from pyautd3 import ConfigureSilencer, Controller, Null
+from pyautd3 import Controller, Null, Silencer
 
-from . import bessel, custom, flag, focus, group, holo, plane, stm, transtest, wav
+from . import bessel, custom, flag, focus, group, holo, plane, stm, user_defined, wav
 
 
-async def run(autd: Controller) -> None:
+def run(autd: Controller) -> None:
     samples = [
         (focus.simple, "Single focus test"),
         (bessel.bessel, "Bessel beam test"),
@@ -12,9 +12,9 @@ async def run(autd: Controller) -> None:
         (stm.stm_focus, "FocusSTM test"),
         (stm.stm_gain, "GainSTM test"),
         (holo.holo, "Multiple foci test"),
-        (custom.custom, "Custom Gain & Modulation test"),
+        (user_defined.user_defined, "User-defined Gain & Modulation test"),
         (flag.flag, "Flag test"),
-        (transtest.transtest, "TransducerTest test"),
+        (custom.transtest, "Custom gain test"),
         (group.group_by_transducer, "Group (by Transducer) test"),
     ]
 
@@ -22,7 +22,7 @@ async def run(autd: Controller) -> None:
         samples.append((group.group_by_device, "Group (by Device) test"))
 
     print("======== AUTD3 firmware information ========")
-    print("\n".join([str(firm) for firm in await autd.firmware_info_list_async()]))
+    print("\n".join([str(firm) for firm in autd.firmware_version()]))
     print("============================================")
 
     while True:
@@ -35,13 +35,13 @@ async def run(autd: Controller) -> None:
             break
 
         (fn, _) = samples[idx]
-        await fn(autd)
+        fn(autd)
 
         print("press enter to finish...")
 
         _ = input()
 
         print("finish.")
-        await autd.send_async(Null(), ConfigureSilencer.default())
+        autd.send(Null(), Silencer.default())
 
-    await autd.close_async()
+    autd.close()

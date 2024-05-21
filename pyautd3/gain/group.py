@@ -9,38 +9,21 @@ from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 K = TypeVar("K")
 
 
 class Group(Gain["Group[K]"], Generic[K]):
-    """Gain to group gains by key."""
-
     _map: dict[K, GainBase]
     _f: Callable[[Device, Transducer], K | None]
 
     def __init__(self: "Group", f: Callable[[Device, Transducer], K | None]) -> None:
-        """Constructor.
-
-        Arguments:
-        ---------
-            f: Function to get key from device and transducer
-
-        """
         super().__init__()
         self._map = {}
         self._f = f
 
     def set_gain(self: "Group", key: K, gain: GainBase) -> "Group":
-        """Set gain.
-
-        Arguments:
-        ---------
-            key: Key
-            gain: Gain
-
-        """
         self._map[key] = gain
         return self
 

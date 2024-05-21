@@ -1,8 +1,9 @@
 from typing import Generic, TypeVar
 
 from pyautd3.driver.datagram.modulation.modulation import ModulationBase
+from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_def import ModulationPtr
+from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 from .cache import IntoModulationCache
 
@@ -14,21 +15,16 @@ class RadiationPressure(
     ModulationBase["RadiationPressure[M]"],
     Generic[M],
 ):
-    """Modulation for modulating radiation pressure."""
-
     _m: M
 
     def __init__(self: "RadiationPressure", m: M) -> None:
         self._m = m
         self._loop_behavior = m._loop_behavior
 
-    def _modulation_ptr(self: "RadiationPressure[M]") -> ModulationPtr:
-        return Base().modulation_with_radiation_pressure(self._m._modulation_ptr(), self._loop_behavior._internal)
+    def _modulation_ptr(self: "RadiationPressure[M]", geometry: Geometry) -> ModulationPtr:
+        return Base().modulation_with_radiation_pressure(self._m._modulation_ptr(geometry), self._loop_behavior)
 
 
 class IntoModulationRadiationPressure(ModulationBase[M], Generic[M]):
-    """Modulation interface of RadiationPressure."""
-
     def with_radiation_pressure(self: M) -> "RadiationPressure[M]":
-        """Apply modulation to radiation pressure instead of amplitude."""
         return RadiationPressure(self)

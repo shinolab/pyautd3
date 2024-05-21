@@ -36,6 +36,12 @@ pub struct Enum {
 }
 
 #[derive(Debug, PartialEq, Eq, Hash)]
+pub struct Union {
+    pub name: String,
+    pub values: Vec<(String, Type)>,
+}
+
+#[derive(Debug, PartialEq, Eq, Hash)]
 pub struct Struct {
     pub name: String,
     pub fields: Vec<(Type, String)>,
@@ -176,8 +182,40 @@ where
                         (name, value)
                     })
                     .collect();
-
                 Some(Enum { name, ty, values })
+            }
+            _ => None,
+        })
+        .collect())
+}
+
+pub fn parse_union<P>(header: P) -> Result<Vec<Union>>
+where
+    P: AsRef<Path>,
+{
+    let mut file = File::open(header)?;
+    let mut contents = String::new();
+    file.read_to_string(&mut contents)?;
+
+    let syntax_tree = syn::parse_file(&contents)?;
+
+    Ok(syntax_tree
+        .items
+        .into_iter()
+        .filter_map(|item| match item {
+            syn::Item::Union(item_union) => {
+                let name = item_union.ident.to_string();
+                let values = item_union
+                    .fields
+                    .named
+                    .into_iter()
+                    .map(|v| {
+                        let name = v.ident.unwrap().to_string();
+                        let ty = Type::parse_str(v.ty.into_token_stream().to_string().as_str());
+                        (name, ty)
+                    })
+                    .collect();
+                Some(Union { name, values })
             }
             _ => None,
         })

@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
 from pyautd3 import Controller, EmitIntensity, Phase, Segment
 from pyautd3.gain import Focus
@@ -12,18 +11,17 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_focus():
+def test_focus():
     autd: Controller[Audit]
-    with await create_controller() as autd:
-        assert await autd.send_async(Focus(autd.geometry.center))
+    with create_controller() as autd:
+        autd.send(Focus(autd.geometry.center))
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
-        g = Focus(autd.geometry.center).with_intensity(0x80).with_phase_offset(Phase(0x90))
-        assert await autd.send_async(g)
+        g = Focus(autd.geometry.center).with_intensity(EmitIntensity(0x80)).with_phase_offset(Phase(0x90))
+        autd.send(g)
         assert np.array_equal(g.pos, autd.geometry.center)
         assert g.intensity == EmitIntensity(0x80)
         assert g.phase_offset == Phase(0x90)

@@ -6,13 +6,10 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from pyautd3.driver.datagram.gain import Gain
+from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintWrap
 
 from .amplitude import Amplitude
 from .backend import Backend
-from .constraint import EmissionConstraint, IEmissionConstraint
-
-__all__ = ["EmissionConstraint"]
-
 
 H = TypeVar("H", bound="Holo")
 
@@ -20,22 +17,14 @@ H = TypeVar("H", bound="Holo")
 class Holo(Gain[H], Generic[H]):
     _foci: list[float]
     _amps: list[Amplitude]
-    _constraint: IEmissionConstraint
+    _constraint: EmissionConstraintWrap
 
-    def __init__(self: "Holo", constraint: IEmissionConstraint) -> None:
+    def __init__(self: "Holo", constraint: EmissionConstraintWrap) -> None:
         self._foci = []
         self._amps = []
         self._constraint = constraint
 
     def add_focus(self: H, focus: ArrayLike, amp: Amplitude) -> H:
-        """Add focus.
-
-        Arguments:
-        ---------
-            focus: Focus point
-            amp: Focus amplitude
-
-        """
         focus = np.array(focus)
         self._foci.append(focus[0])
         self._foci.append(focus[1])
@@ -44,39 +33,24 @@ class Holo(Gain[H], Generic[H]):
         return self
 
     def add_foci_from_iter(self: H, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> H:
-        """Add foci from iterable.
-
-        Arguments:
-        ---------
-            iterable: Iterable of focus point and amplitude.
-
-        """
         return functools.reduce(
             lambda acc, x: acc.add_focus(x[0], x[1]),
             iterable,
             self,
         )
 
-    def with_constraint(self: H, constraint: IEmissionConstraint) -> H:
-        """Set amplitude constraint.
-
-        Arguments:
-        ---------
-            constraint: Amplitude constraint
-
-        """
+    def with_constraint(self: H, constraint: EmissionConstraintWrap) -> H:
         self._constraint = constraint
         return self
 
     @property
-    def constraint(self: H) -> IEmissionConstraint:
-        """Get emission constraint."""
+    def constraint(self: H) -> EmissionConstraintWrap:
         return self._constraint
 
 
 class HoloWithBackend(Holo[H], Generic[H]):
     _backend: Backend
 
-    def __init__(self: "HoloWithBackend", constraint: IEmissionConstraint, backend: Backend) -> None:
+    def __init__(self: "HoloWithBackend", constraint: EmissionConstraintWrap, backend: Backend) -> None:
         super().__init__(constraint)
         self._backend = backend

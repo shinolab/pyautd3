@@ -1,111 +1,74 @@
-from pyautd3.driver.common.emit_intensity import EmitIntensity
-from pyautd3.driver.common.sampling_config import SamplingConfiguration
+from typing import TypeVar
+
 from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi import SamplingMode
-from pyautd3.native_methods.autd3capi_def import ModulationPtr
+from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.driver.geometry.geometry import Geometry
+from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
+from pyautd3.native_methods.autd3capi_driver import ModulationPtr
+
+T = TypeVar("T", int, float)
 
 
 class Square(Modulation["Square"]):
-    """Square wave modulation."""
-
-    _freq: float
+    _mode: ISamplingMode
     _low: EmitIntensity
     _high: EmitIntensity
     _duty: float
-    _mode: SamplingMode
 
-    def __init__(self: "Square", freq: float) -> None:
-        """Constructor.
-
-        Arguments:
-        ---------
-            freq: Frequency (Hz)
-
-        """
-        super().__init__(SamplingConfiguration.from_frequency(4e3))
-        self._freq = freq
+    def __private__init__(self: "Square", mode: ISamplingMode) -> None:
+        super().__init__(SamplingConfig.Division(5120))
+        self._mode = mode
         self._low = EmitIntensity.minimum()
         self._high = EmitIntensity.maximum()
         self._duty = 0.5
-        self._mode = SamplingMode.ExactFrequency
 
-    @property
-    def freq(self: "Square") -> float:
-        """Get frequency."""
-        return self._freq
+    def __init__(self: "Square", freq: Freq[T]) -> None:
+        match freq.hz:
+            case int():
+                self.__private__init__(SamplingModeExact(freq))  # type: ignore[arg-type]
+            case float():
+                self.__private__init__(SamplingModeExactFloat(freq))
+            case _:
+                msg = "Invalid frequency type"
+                raise ValueError(msg)
 
-    def with_low(self: "Square", low: int | EmitIntensity) -> "Square":
-        """Set low level intensity.
+    @classmethod
+    def with_freq_nearest(cls: "type[Square]", freq: Freq[float]) -> "Square":
+        sine = super().__new__(cls)
+        sine.__private__init__(SamplingModeNearest(freq))
+        return sine
 
-        Arguments:
-        ---------
-            low: Low level intensity
-
-        """
-        self._low = EmitIntensity._cast(low)
+    def with_low(self: "Square", low: EmitIntensity) -> "Square":
+        self._low = low
         return self
 
     @property
     def low(self: "Square") -> EmitIntensity:
-        """Get low level intensity."""
         return self._low
 
-    def with_high(self: "Square", high: int | EmitIntensity) -> "Square":
-        """Set high level intensity.
-
-        Arguments:
-        ---------
-            high: High level intensity
-
-        """
-        self._high = EmitIntensity._cast(high)
+    def with_high(self: "Square", high: EmitIntensity) -> "Square":
+        self._high = high
         return self
 
     @property
     def high(self: "Square") -> EmitIntensity:
-        """Get high level intensity."""
         return self._high
 
     def with_duty(self: "Square", duty: float) -> "Square":
-        """Set duty ratio which is defined as `Th / (Th + Tl)`, where `Th` is high level duration and `Tl` is low level duration.
-
-        Arguments:
-        ---------
-            duty: Duty ratio (from 0 to 1)
-
-        """
         self._duty = duty
         return self
 
     @property
     def duty(self: "Square") -> float:
-        """Get duty ratio."""
         return self._duty
 
-    def with_mode(self: "Square", mode: SamplingMode) -> "Square":
-        """Set sampling mode.
-
-        Arguments:
-        ---------
-            mode: Sampling mode
-
-        """
-        self._mode = mode
-        return self
-
-    @property
-    def mode(self: "Square") -> SamplingMode:
-        """Get sampling mode."""
-        return self._mode
-
-    def _modulation_ptr(self: "Square") -> ModulationPtr:
-        return Base().modulation_square(
-            self._freq,
-            self._config._internal,
-            self._low.value,
-            self._high.value,
+    def _modulation_ptr(self: "Square", _: Geometry) -> ModulationPtr:
+        return self._mode.square_ptr(
+            self._config,
+            self._low,
+            self._high,
             self._duty,
-            self._mode,
-            self._loop_behavior._internal,
+            self._loop_behavior,
         )

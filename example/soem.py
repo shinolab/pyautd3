@@ -1,4 +1,3 @@
-import asyncio
 import os
 
 from samples import runner  # type: ignore[import,import-not-found]
@@ -19,16 +18,12 @@ def err_handler(slave: int, status: Status, msg: str) -> None:
             print(f"StateChanged  [{slave}]: {msg}")
 
 
-async def main() -> None:
-    with await (
+if __name__ == "__main__":
+    with (
         Controller.builder()
         .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open_async(
+        .open(
             SOEM.builder().with_err_handler(err_handler),
-        )
-    ) as autd:
-        await runner.run(autd)
-
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        ) as autd
+    ):
+        runner.run(autd)

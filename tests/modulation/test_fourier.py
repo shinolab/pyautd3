@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
 from pyautd3 import Controller, Segment
+from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation import Fourier, Sine
 from tests.test_autd import create_controller
 
@@ -11,12 +11,11 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_fourier():
+def test_fourier():
     autd: Controller[Audit]
-    with await create_controller() as autd:
-        m = Fourier(Sine(50)).add_components_from_iter(Sine(x) for x in [100, 150]) + Sine(200) + Sine(250)
-        assert await autd.send_async(m)
+    with create_controller() as autd:
+        m = Fourier(Sine(50 * Hz)).add_components_from_iter(Sine(x * Hz) for x in [100, 150]) + Sine(200 * Hz) + Sine(250 * Hz)
+        autd.send(m)
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)

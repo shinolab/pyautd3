@@ -2,9 +2,10 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32, Segment
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32, Segment
 
 from enum import IntEnum
+
 
 class Backend(IntEnum):
     Plotters = 0
@@ -69,8 +70,17 @@ class ResultPlotConfig(ctypes.Structure):
     _fields_ = [("result", PlotConfigPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultPlotConfig) and self._fields_ == other._fields_
+                    
+
 class ResultPyPlotConfig(ctypes.Structure):
     _fields_ = [("result", PyPlotConfigPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultPyPlotConfig) and self._fields_ == other._fields_
+                    
 
 
 class Singleton(type):

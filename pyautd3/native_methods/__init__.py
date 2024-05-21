@@ -4,7 +4,6 @@ import platform
 import sys
 
 from .autd3capi import NativeMethods as Base
-from .autd3capi_def import NativeMethods as Def
 from .autd3capi_gain_holo import NativeMethods as GainHolo
 from .autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 from .autd3capi_link_simulator import NativeMethods as LinkSimulator
@@ -29,7 +28,6 @@ else:
 
 _LIB_PATH = os.path.join(os.path.dirname(__file__), "..", "bin")
 
-Def().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 Base().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 GainHolo().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 ModulationAudioFile().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)

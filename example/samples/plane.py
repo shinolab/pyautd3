@@ -1,13 +1,13 @@
 import numpy as np
 
-from pyautd3 import ConfigureSilencer, Controller, Plane, Sine
+from pyautd3 import Controller, Hz, Plane, Silencer, Sine
 
 
-async def plane(autd: Controller) -> None:
-    config = ConfigureSilencer.default()
-    await autd.send_async(config)
+def plane(autd: Controller) -> None:
+    config = Silencer.default()
+    autd.send(config)
 
     f = Plane(np.array([0.0, 0.0, 1.0]))
-    m = Sine(150)
+    m = Sine(150 * Hz)
 
-    await autd.send_async(m, f)
+    autd.send(m, f)

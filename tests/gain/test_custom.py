@@ -1,32 +1,29 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
 from pyautd3 import Controller, Segment
-from pyautd3.driver.common.drive import Drive
-from pyautd3.driver.common.phase import Phase
+from pyautd3.driver.firmware.fpga import Drive, EmitIntensity, Phase
 from pyautd3.driver.geometry import Device, Transducer
-from pyautd3.gain import TransducerTest
+from pyautd3.gain import Custom
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_transtest():
+def test_transtest():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
 
-        def f(dev: Device, tr: Transducer) -> Drive | None:
+        def f(dev: Device, tr: Transducer) -> Drive:
             if dev.idx == 0 and tr.idx == 0:
-                return Drive(Phase(0x90), 0x80)
+                return Drive(Phase(0x90), EmitIntensity(0x80))
             if dev.idx == 1 and tr.idx == 248:
-                return Drive(Phase(0x91), 0x81)
-            return None
+                return Drive(Phase(0x91), EmitIntensity(0x81))
+            return Drive.null()
 
-        assert await autd.send_async(TransducerTest(f))
+        autd.send(Custom(f))
 
         intensities, phases = autd.link.drives(0, Segment.S0, 0)
         assert intensities[0] == 0x80

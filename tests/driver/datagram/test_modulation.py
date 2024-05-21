@@ -1,9 +1,12 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
-from pyautd3 import ChangeModulationSegment, Controller, EmitIntensity, SamplingConfiguration, Segment, Static
+from pyautd3 import Controller, EmitIntensity, SamplingConfig, Segment, Static
+from pyautd3.driver.datagram.segment import SwapSegment
+from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
+from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.modulation import Modulation, Sine
 from tests.test_autd import create_controller
 
@@ -11,17 +14,16 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_cache():
+def test_cache():
     autd1: Controller[Audit]
     autd2: Controller[Audit]
-    with await create_controller() as autd1, await create_controller() as autd2:
-        m1 = Sine(150)
-        m2 = Sine(150).with_cache()
+    with create_controller() as autd1, create_controller() as autd2:
+        m1 = Sine(150 * Hz)
+        m2 = Sine(150 * Hz).with_cache()
         assert m2.buffer is None
 
-        assert await autd1.send_async(m1)
-        assert await autd2.send_async(m2)
+        autd1.send(m1)
+        autd2.send(m2)
 
         for dev in autd1.geometry:
             mod_expect = autd1.link.modulation(dev.idx, Segment.S0)
@@ -39,44 +41,42 @@ class CacheTest(Modulation["CacheTest"]):
     calc_cnt: int
 
     def __init__(self: "CacheTest") -> None:
-        super().__init__(SamplingConfiguration.from_frequency(4e3))
+        super().__init__(SamplingConfig.Freq(4000 * Hz))
         self.calc_cnt = 0
 
-    def calc(self: "CacheTest"):
+    def calc(self: "CacheTest", _geometry: Geometry):
         self.calc_cnt += 1
         return np.array([EmitIntensity(0xFF)] * 2)
 
 
-@pytest.mark.asyncio()
-async def test_cache_check_once():
+def test_cache_check_once():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
         m = CacheTest()
-        assert await autd.send_async(m)
+        autd.send(m)
         assert m.calc_cnt == 1
-        assert await autd.send_async(m)
+        autd.send(m)
         assert m.calc_cnt == 2
 
         m = CacheTest()
         m_cached = m.with_cache()
 
-        assert await autd.send_async(m_cached)
+        autd.send(m_cached)
         assert m.calc_cnt == 1
-        assert await autd.send_async(m_cached)
+        autd.send(m_cached)
         assert m.calc_cnt == 1
 
 
-@pytest.mark.asyncio()
-async def test_transform():
+def test_transform():
     autd1: Controller[Audit]
     autd2: Controller[Audit]
-    with await create_controller() as autd1, await create_controller() as autd2:
-        m1 = Sine(150)
-        m2 = Sine(150).with_transform(lambda _i, v: EmitIntensity(v.value // 2))
+    with create_controller() as autd1, create_controller() as autd2:
+        m1 = Sine(150 * Hz)
+        m2 = Sine(150 * Hz).with_transform(lambda _i, v: EmitIntensity(v.value // 2))
         print(m2)
 
-        assert await autd1.send_async(m1)
-        assert await autd2.send_async(m2)
+        autd1.send(m1)
+        autd2.send(m2)
 
         for dev in autd1.geometry:
             mod_expect = autd1.link.modulation(dev.idx, Segment.S0)
@@ -86,13 +86,12 @@ async def test_transform():
             assert autd2.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
 
 
-@pytest.mark.asyncio()
-async def test_radiation_pressure():
+def test_radiation_pressure():
     autd: Controller[Audit]
-    with await create_controller() as autd:
-        m = Sine(150).with_radiation_pressure()
+    with create_controller() as autd:
+        m = Sine(150 * Hz).with_radiation_pressure()
 
-        assert await autd.send_async(m)
+        autd.send(m)
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -182,13 +181,12 @@ async def test_radiation_pressure():
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
 
 
-@pytest.mark.asyncio()
-async def test_mod_segment():
+def test_mod_segment():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
         assert autd.link.current_mod_segment(0) == Segment.S0
 
-        assert await autd.send_async(Static.with_intensity(0x01))
+        autd.send(Static.with_intensity(EmitIntensity(0x01)))
         assert autd.link.current_mod_segment(0) == Segment.S0
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -197,7 +195,7 @@ async def test_mod_segment():
             mod = autd.link.modulation(dev.idx, Segment.S1)
             assert np.all(mod == 0xFF)
 
-        assert await autd.send_async(Static.with_intensity(0x02).with_segment(Segment.S1, update_segment=True))
+        autd.send(Static.with_intensity(EmitIntensity(0x02)).with_segment(Segment.S1, TransitionMode.Immediate))
         assert autd.link.current_mod_segment(0) == Segment.S1
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -206,7 +204,7 @@ async def test_mod_segment():
             mod = autd.link.modulation(dev.idx, Segment.S1)
             assert np.all(mod == 0x02)
 
-        assert await autd.send_async(Static.with_intensity(0x03).with_segment(Segment.S0, update_segment=False))
+        autd.send(Static.with_intensity(EmitIntensity(0x03)).with_segment(Segment.S0, None))
         assert autd.link.current_mod_segment(0) == Segment.S1
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -215,5 +213,5 @@ async def test_mod_segment():
             mod = autd.link.modulation(dev.idx, Segment.S1)
             assert np.all(mod == 0x02)
 
-        assert await autd.send_async(ChangeModulationSegment(Segment.S0))
+        autd.send(SwapSegment.modulation(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_mod_segment(0) == Segment.S0

@@ -2,9 +2,9 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
-from pyautd3 import Controller, SamplingConfiguration, Segment
+from pyautd3 import Controller, SamplingConfig, Segment
+from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation.audio_file import RawPCM
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 from tests.test_autd import create_controller
@@ -13,11 +13,10 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_rawpcm():
+def test_rawpcm():
     autd: Controller[Audit]
-    with await create_controller() as autd:
-        assert await autd.send_async(RawPCM(Path(__file__).parent / "sin150.dat", 4000))
+    with create_controller() as autd:
+        autd.send(RawPCM(Path(__file__).parent / "sin150.dat", 4000 * Hz))
 
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -106,9 +105,9 @@ async def test_rawpcm():
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
 
-        assert await autd.send_async(
-            RawPCM(Path(__file__).parent / "sin150.dat", 4000).with_sampling_config(
-                SamplingConfiguration.from_frequency_division(10240),
+        autd.send(
+            RawPCM(Path(__file__).parent / "sin150.dat", 4000 * Hz).with_sampling_config(
+                SamplingConfig.Division(10240),
             ),
         )
         for dev in autd.geometry:
@@ -116,5 +115,6 @@ async def test_rawpcm():
 
 
 def test_rawpcm_default():
-    m = RawPCM(Path(__file__), 4000)
-    assert AudioFile().modulation_raw_pcm_is_default(m._modulation_ptr())
+    with create_controller() as autd:
+        m = RawPCM(Path(__file__), 4000 * Hz)
+        assert AudioFile().modulation_raw_pcm_is_default(m._modulation_ptr(autd.geometry))

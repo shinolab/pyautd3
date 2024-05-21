@@ -2,9 +2,10 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import GainPtr
+from pyautd3.native_methods.autd3capi_driver import GainPtr
 
-from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr, EmissionConstraintPtr, ResultBackend
+from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr, EmissionConstraintWrap, ResultBackend
+
 
 
 class Singleton(type):
@@ -33,19 +34,19 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDCUDABackendDelete.argtypes = [BackendPtr]  # type: ignore 
         self.dll.AUTDCUDABackendDelete.restype = None
 
-        self.dll.AUTDGainHoloCUDASDP.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_double, ctypes.c_double, ctypes.c_uint32, EmissionConstraintPtr]  # type: ignore 
+        self.dll.AUTDGainHoloCUDASDP.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_double, ctypes.c_double, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloCUDASDP.restype = GainPtr
 
-        self.dll.AUTDGainHoloCUDAGS.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_uint32, EmissionConstraintPtr]  # type: ignore 
+        self.dll.AUTDGainHoloCUDAGS.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloCUDAGS.restype = GainPtr
 
-        self.dll.AUTDGainHoloCUDAGSPAT.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_uint32, EmissionConstraintPtr]  # type: ignore 
+        self.dll.AUTDGainHoloCUDAGSPAT.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloCUDAGSPAT.restype = GainPtr
 
-        self.dll.AUTDGainHoloCUDANaive.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, EmissionConstraintPtr]  # type: ignore 
+        self.dll.AUTDGainHoloCUDANaive.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloCUDANaive.restype = GainPtr
 
-        self.dll.AUTDGainHoloCUDALM.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint32, EmissionConstraintPtr, ctypes.POINTER(ctypes.c_double), ctypes.c_uint64]  # type: ignore 
+        self.dll.AUTDGainHoloCUDALM.argtypes = [BackendPtr, ctypes.POINTER(ctypes.c_double), ctypes.POINTER(ctypes.c_double), ctypes.c_uint64, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_uint32, EmissionConstraintWrap, ctypes.POINTER(ctypes.c_double), ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDGainHoloCUDALM.restype = GainPtr
 
     def cuda_backend(self) -> ResultBackend:
@@ -54,17 +55,17 @@ class NativeMethods(metaclass=Singleton):
     def cuda_backend_delete(self, backend: BackendPtr) -> None:
         return self.dll.AUTDCUDABackendDelete(backend)
 
-    def gain_holo_cudasdp(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, alpha: float, lambda_: float, repeat: int, constraint: EmissionConstraintPtr) -> GainPtr:
+    def gain_holo_cudasdp(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, alpha: float, lambda_: float, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloCUDASDP(backend, points, amps, size, alpha, lambda_, repeat, constraint)
 
-    def gain_holo_cudags(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, repeat: int, constraint: EmissionConstraintPtr) -> GainPtr:
+    def gain_holo_cudags(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloCUDAGS(backend, points, amps, size, repeat, constraint)
 
-    def gain_holo_cudagspat(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, repeat: int, constraint: EmissionConstraintPtr) -> GainPtr:
+    def gain_holo_cudagspat(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloCUDAGSPAT(backend, points, amps, size, repeat, constraint)
 
-    def gain_holo_cuda_naive(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, constraint: EmissionConstraintPtr) -> GainPtr:
+    def gain_holo_cuda_naive(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloCUDANaive(backend, points, amps, size, constraint)
 
-    def gain_holo_cudalm(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, eps_1: float, eps_2: float, tau: float, k_max: int, constraint: EmissionConstraintPtr, initial_ptr: ctypes.Array[ctypes.c_double] | None, initial_len: int) -> GainPtr:
+    def gain_holo_cudalm(self, backend: BackendPtr, points: ctypes.Array[ctypes.c_double] | None, amps: ctypes.Array[ctypes.c_double] | None, size: int, eps_1: float, eps_2: float, tau: float, k_max: int, constraint: EmissionConstraintWrap, initial_ptr: ctypes.Array[ctypes.c_double] | None, initial_len: int) -> GainPtr:
         return self.dll.AUTDGainHoloCUDALM(backend, points, amps, size, eps_1, eps_2, tau, k_max, constraint, initial_ptr, initial_len)

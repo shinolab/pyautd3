@@ -25,8 +25,8 @@ from pyautd3.native_methods.autd3capi_link_visualizer import NativeMethods as Vi
 def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     center = autd.geometry.center + np.array([0, 0, 150])
 
-    g = Uniform(0x80).with_phase(Phase(0x81))
-    m = Static().with_intensity(0x82)
+    g = Uniform(EmitIntensity(0x80)).with_phase(Phase(0x81))
+    m = Static().with_intensity(EmitIntensity(0x82))
 
     autd.send((m, g))
 
@@ -98,17 +98,27 @@ def test_plot_range():
 
 
 def test_visualizer_plotters():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(
             autd,
             PlotConfig(fname="test.png"),
         )
 
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.plotters().with_directivity(T4010A1()),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.plotters().with_directivity(T4010A1()),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(
             autd,
             PlotConfig(
@@ -125,17 +135,27 @@ def test_visualizer_plotters():
 
 
 def test_visualizer_python():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.builder().with_backend(PythonBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.builder().with_backend(PythonBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(
             autd,
             PyPlotConfig(fname="test.png"),
         )
 
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.python().with_directivity(T4010A1()),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.python().with_directivity(T4010A1()),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(
             autd,
             PyPlotConfig(
@@ -154,22 +174,37 @@ def test_visualizer_python():
 
 
 def test_visualizer_null():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(autd, NullPlotConfig())
 
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.null().with_directivity(T4010A1()),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.null().with_directivity(T4010A1()),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(autd, NullPlotConfig())
 
 
 @pytest.mark.gpu()
 def test_visualizer_gpu():
-    with Controller[Visualizer].builder().add_device(AUTD3([0.0, 0.0, 0.0])).open(
-        Visualizer.null().with_gpu(-1),  # type: ignore[arg-type]
-    ) as autd:
+    with (
+        Controller[Visualizer]
+        .builder()
+        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .open(
+            Visualizer.null().with_gpu(-1),  # type: ignore[arg-type]
+        ) as autd
+    ):
         visualizer_test_with(autd, NullPlotConfig())
 
 

@@ -1,14 +1,11 @@
 from abc import ABCMeta, abstractmethod
 from ctypes import Array, c_double
 
-from pyautd3.gain.holo.constraint import IEmissionConstraint
-from pyautd3.native_methods.autd3capi_def import GainPtr
-from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr
+from pyautd3.native_methods.autd3capi_driver import GainPtr
+from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr, EmissionConstraintWrap
 
 
 class Backend(metaclass=ABCMeta):
-    """Calculation backend."""
-
     _ptr: BackendPtr
 
     def __init__(self: "Backend", ptr: BackendPtr) -> None:
@@ -26,20 +23,20 @@ class Backend(metaclass=ABCMeta):
         alpha: float,
         lambda_: float,
         repeat: int,
-        constraint: IEmissionConstraint,
+        constraint: EmissionConstraintWrap,
     ) -> GainPtr:
         pass
 
     @abstractmethod
-    def _gs(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: IEmissionConstraint) -> GainPtr:
+    def _gs(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         pass
 
     @abstractmethod
-    def _gspat(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: IEmissionConstraint) -> GainPtr:
+    def _gspat(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         pass
 
     @abstractmethod
-    def _naive(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: IEmissionConstraint) -> GainPtr:
+    def _naive(self: "Backend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: EmissionConstraintWrap) -> GainPtr:
         pass
 
     @abstractmethod
@@ -54,6 +51,6 @@ class Backend(metaclass=ABCMeta):
         kmax: int,
         initial: Array[c_double],
         initial_size: int,
-        constraint: IEmissionConstraint,
+        constraint: EmissionConstraintWrap,
     ) -> GainPtr:
         pass

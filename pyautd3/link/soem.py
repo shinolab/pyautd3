@@ -3,11 +3,12 @@ from collections.abc import Callable
 from datetime import timedelta
 
 from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
-from pyautd3.native_methods.autd3capi_def import ControllerPtr, LinkBuilderPtr, LinkPtr, TimerStrategy
-from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, Status, SyncMode
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, SyncMode
+from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, Status, TimerStrategy
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
 from pyautd3.native_methods.utils import _validate_ptr
 
@@ -15,13 +16,8 @@ ErrHandlerFunc = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_uint32, ctypes
 
 
 class EtherCATAdapter:
-    """Ethernet adapter."""
-
     desc: str
-    """Description of the adapter"""
-
     name: str
-    """Name of the adapter"""
 
     def __init__(self: "EtherCATAdapter", name: str, desc: str) -> None:
         self.desc = desc
@@ -32,8 +28,6 @@ class EtherCATAdapter:
 
 
 class SOEM(Link):
-    """Link using SOEM."""
-
     class _Builder(LinkBuilder):
         _builder: LinkSOEMBuilderPtr
 
@@ -41,59 +35,22 @@ class SOEM(Link):
             self._builder = LinkSOEM().link_soem()
 
         def with_ifname(self: "SOEM._Builder", ifname: str) -> "SOEM._Builder":
-            """Set network interface name.
-
-            Arguments:
-            ---------
-                ifname: Network interface name (e.g. "eth0").
-                        If empty, this link will automatically find the network interface that is connected to AUTD3 devices.
-
-            """
             self._builder = LinkSOEM().link_soem_with_ifname(self._builder, ifname.encode("utf-8"))
             return self
 
         def with_buf_size(self: "SOEM._Builder", size: int) -> "SOEM._Builder":
-            """Set send buffer size.
-
-            Arguments:
-            ---------
-                size: Send buffer size
-
-            """
             self._builder = LinkSOEM().link_soem_with_buf_size(self._builder, size)
             return self
 
         def with_send_cycle(self: "SOEM._Builder", cycle: int) -> "SOEM._Builder":
-            """Set send cycle.
-
-            Arguments:
-            ---------
-                cycle: Send cycle (the unit is 500us)
-
-            """
             self._builder = LinkSOEM().link_soem_with_send_cycle(self._builder, cycle)
             return self
 
         def with_sync0_cycle(self: "SOEM._Builder", cycle: int) -> "SOEM._Builder":
-            """Set sync0 cycle.
-
-            Arguments:
-            ---------
-                cycle: Sync0 cycle (the unit is 500us)
-
-            """
             self._builder = LinkSOEM().link_soem_with_sync_0_cycle(self._builder, cycle)
             return self
 
         def with_err_handler(self: "SOEM._Builder", handler: Callable[[int, Status, str], None]) -> "SOEM._Builder":
-            """Set callback function when some error occurs.
-
-            Arguments:
-            ---------
-                handler: Callback function
-
-            """
-
             def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8, p_msg: bytes) -> None:
                 handler(int(slave), Status(int(status)), p_msg.decode("utf-8"))  # pragma: no cover
 
@@ -102,48 +59,18 @@ class SOEM(Link):
             return self
 
         def with_timer_strategy(self: "SOEM._Builder", strategy: TimerStrategy) -> "SOEM._Builder":
-            """Set timer strategy.
-
-            Arguments:
-            ---------
-                strategy: Timer strategy
-
-            """
             self._builder = LinkSOEM().link_soem_with_timer_strategy(self._builder, strategy)
             return self
 
         def with_sync_mode(self: "SOEM._Builder", mode: SyncMode) -> "SOEM._Builder":
-            """Set sync mode.
-
-            See [Beckhoff's site](https://infosys.beckhoff.com/content/1033/ethercatsystem/2469122443.html) for more details.
-
-            Arguments:
-            ---------
-                mode: Sync mode
-
-            """
             self._builder = LinkSOEM().link_soem_with_sync_mode(self._builder, mode)
             return self
 
         def with_state_check_interval(self: "SOEM._Builder", interval: timedelta) -> "SOEM._Builder":
-            """Set state check interval.
-
-            Arguments:
-            ---------
-                interval: State check interval
-
-            """
             self._builder = LinkSOEM().link_soem_with_state_check_interval(self._builder, int(interval.total_seconds() / 1000))
             return self
 
         def with_timeout(self: "SOEM._Builder", timeout: timedelta) -> "SOEM._Builder":
-            """Set timeout.
-
-            Arguments:
-            ---------
-                timeout: Timeout
-
-            """
             self._builder = LinkSOEM().link_soem_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
 
@@ -155,7 +82,6 @@ class SOEM(Link):
 
     @staticmethod
     def enumerate_adapters() -> list[EtherCATAdapter]:
-        """Enumerate ethernet adapters."""
         handle = LinkSOEM().adapter_pointer()
         size = LinkSOEM().adapter_get_size(handle)
 
@@ -177,13 +103,10 @@ class SOEM(Link):
 
     @staticmethod
     def builder() -> _Builder:
-        """Create SOEM link builder."""
         return SOEM._Builder()
 
 
 class RemoteSOEM(Link):
-    """Link to connect to remote SOEMServer."""
-
     class _Builder(LinkBuilder):
         _builder: LinkRemoteSOEMBuilderPtr
 
@@ -191,13 +114,6 @@ class RemoteSOEM(Link):
             self._builder = _validate_ptr(LinkSOEM().link_remote_soem(addr.encode("utf-8")))
 
         def with_timeout(self: "RemoteSOEM._Builder", timeout: timedelta) -> "RemoteSOEM._Builder":
-            """Set timeout.
-
-            Arguments:
-            ---------
-                timeout: Timeout
-
-            """
             self._builder = LinkSOEM().link_remote_soem_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
 
@@ -212,11 +128,4 @@ class RemoteSOEM(Link):
 
     @staticmethod
     def builder(addr: str) -> _Builder:
-        """Create RemoteSOEM link builder.
-
-        Arguments:
-        ---------
-            addr: IP address and port of SOEMServer (e.g. "127.0.0.1:8080")
-
-        """
         return RemoteSOEM._Builder(addr)

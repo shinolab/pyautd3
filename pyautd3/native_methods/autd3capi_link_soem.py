@@ -2,23 +2,25 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.autd3capi_def import LinkBuilderPtr, TimerStrategy
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, SyncMode
 
 from enum import IntEnum
-
-class SyncMode(IntEnum):
-    FreeRun = 0
-    DC = 1
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)
 
 
 class Status(IntEnum):
     Error = 0
     StateChanged = 1
     Lost = 2
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)
+
+
+class TimerStrategy(IntEnum):
+    Sleep = 0
+    BusyWait = 1
+    NativeTimer = 2
 
     @classmethod
     def from_param(cls, obj):
@@ -39,6 +41,11 @@ class LinkRemoteSOEMBuilderPtr(ctypes.Structure):
 
 class ResultLinkRemoteSOEMBuilder(ctypes.Structure):
     _fields_ = [("result", LinkRemoteSOEMBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultLinkRemoteSOEMBuilder) and self._fields_ == other._fields_
+                    
 
 
 class Singleton(type):
@@ -97,6 +104,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithStateCheckInterval.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDLinkSOEMWithStateCheckInterval.restype = LinkSOEMBuilderPtr
 
+        self.dll.AUTDLinkSOEMStatusGetMsg.argtypes = [Status, ctypes.c_char_p]  # type: ignore 
+        self.dll.AUTDLinkSOEMStatusGetMsg.restype = None
+
         self.dll.AUTDLinkSOEMWithErrHandler.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p, ctypes.c_void_p]  # type: ignore 
         self.dll.AUTDLinkSOEMWithErrHandler.restype = LinkSOEMBuilderPtr
 
@@ -150,6 +160,9 @@ class NativeMethods(metaclass=Singleton):
 
     def link_soem_with_state_check_interval(self, soem: LinkSOEMBuilderPtr, interval_ms: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithStateCheckInterval(soem, interval_ms)
+
+    def link_soem_status_get_msg(self, src: Status, dst: ctypes.Array[ctypes.c_char] | None) -> None:
+        return self.dll.AUTDLinkSOEMStatusGetMsg(src, dst)
 
     def link_soem_with_err_handler(self, soem: LinkSOEMBuilderPtr, handler: ctypes.c_void_p | None, context: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithErrHandler(soem, handler, context)

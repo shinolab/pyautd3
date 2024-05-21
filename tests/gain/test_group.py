@@ -5,6 +5,7 @@ import pytest
 
 from pyautd3 import Controller, Device, Phase, Segment, Transducer
 from pyautd3.autd_error import AUTDError
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.gain import Group, Null, Uniform
 from tests.test_autd import create_controller
 
@@ -12,15 +13,14 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-@pytest.mark.asyncio()
-async def test_group():
+def test_group():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
         cx = autd.geometry.center[0]
 
-        assert await autd.send_async(
+        autd.send(
             Group(lambda _, tr: "uniform" if tr.position[0] < cx else "null")
-            .set_gain("uniform", Uniform(0x80).with_phase(Phase(0x90)))
+            .set_gain("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)))
             .set_gain("null", Null()),
         )
         for dev in autd.geometry:
@@ -33,8 +33,11 @@ async def test_group():
                     assert np.all(intensities[tr.idx] == 0)
                     assert np.all(phases[tr.idx] == 0)
 
-        assert await autd.send_async(
-            Group(lambda _, tr: "uniform" if tr.position[0] < cx else None).set_gain("uniform", Uniform(0x80).with_phase(Phase(0x90))),
+        autd.send(
+            Group(lambda _, tr: "uniform" if tr.position[0] < cx else None).set_gain(
+                "uniform",
+                Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)),
+            ),
         )
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -47,24 +50,21 @@ async def test_group():
                     assert np.all(phases[tr.idx] == 0)
 
 
-@pytest.mark.asyncio()
-async def test_group_unknown_key():
+def test_group_unknown_key():
     autd: Controller[Audit]
-    with await create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
-        await autd.send_async(Group(lambda _, _tr: "null").set_gain("uniform", Uniform(0x80).with_phase(Phase(0x90))).set_gain("null", Null()))
+    with create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
+        autd.send(Group(lambda _, _tr: "null").set_gain("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).set_gain("null", Null()))
 
 
-@pytest.mark.asyncio()
-async def test_group_unspecified_key():
+def test_group_unspecified_key():
     autd: Controller[Audit]
-    with await create_controller() as autd, pytest.raises(AUTDError, match="Unspecified group key"):
-        await autd.send_async(Group(lambda _, _tr: "null"))
+    with create_controller() as autd, pytest.raises(AUTDError, match="Unspecified group key"):
+        autd.send(Group(lambda _, _tr: "null"))
 
 
-@pytest.mark.asyncio()
-async def test_group_check_only_for_enabled():
+def test_group_check_only_for_enabled():
     autd: Controller[Audit]
-    with await create_controller() as autd:
+    with create_controller() as autd:
         autd.geometry[0].enable = False
 
         check = np.zeros(autd.geometry.num_devices, dtype=bool)
@@ -73,7 +73,7 @@ async def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return 0
 
-        assert await autd.send_async(Group(f).set_gain(0, Uniform(0x80).with_phase(Phase(0x90))))
+        autd.send(Group(f).set_gain(0, Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))))
 
         assert not check[0]
         assert check[1]
