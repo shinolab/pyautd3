@@ -245,7 +245,7 @@ def copy_dll(config: Config):
         for dll in glob.glob("bin/*.dll"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_macos():
-        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-macos-universal-shared.tar.gz"
+        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-macos-aarch64-shared.tar.gz"
         urllib.request.urlretrieve(url, "tmp.tar.gz")
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
             tar.extractall()
