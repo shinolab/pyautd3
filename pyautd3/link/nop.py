@@ -7,7 +7,7 @@ from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
 
 
 class Nop(Link):
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["Nop"]):
         def __init__(self: "Nop._Builder") -> None:
             pass
 

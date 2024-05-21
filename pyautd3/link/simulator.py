@@ -19,7 +19,7 @@ from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 class Simulator(Link):
     _ptr: LinkPtr
 
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["Simulator"]):
         _builder: LinkSimulatorBuilderPtr
 
         def __init__(self: "Simulator._Builder", port: int) -> None:

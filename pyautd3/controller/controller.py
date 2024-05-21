@@ -24,13 +24,13 @@ K = TypeVar("K")
 L = TypeVar("L", bound=Link)
 
 
-class _Builder(Generic[L]):
+class _Builder:
     _ptr: ControllerBuilderPtr
 
-    def __init__(self: "_Builder[L]") -> None:
+    def __init__(self: "_Builder") -> None:
         self._ptr = Base().controller_builder()
 
-    def add_device(self: "_Builder[L]", device: AUTD3) -> "_Builder[L]":
+    def add_device(self: "_Builder", device: AUTD3) -> "_Builder":
         q = device._rot if device._rot is not None else np.array([1.0, 0.0, 0.0, 0.0])
         self._ptr = Base().controller_builder_add_device(
             self._ptr,
@@ -44,14 +44,14 @@ class _Builder(Generic[L]):
         )
         return self
 
-    def with_ultrasound_freq(self: "_Builder[L]", freq: Freq[int]) -> "_Builder[L]":
+    def with_ultrasound_freq(self: "_Builder", freq: Freq[int]) -> "_Builder":
         self._ptr = Base().controller_builder_with_ultrasound_freq(self._ptr, freq.hz)
         return self
 
-    async def open_async(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
+    async def open_async(self: "_Builder", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
         return await Controller._open_impl_async(self._ptr, link, timeout)
 
-    def open(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
+    def open(self: "_Builder", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
         return Controller._open_impl(self._ptr, link, timeout)
 
 
@@ -69,7 +69,7 @@ class _GroupGuard(Generic[K]):
         self._keymap = {}
         self._k = 0
 
-    def set_data(
+    def set(
         self: "_GroupGuard",
         key: K,
         d1: Datagram | tuple[Datagram, Datagram],
@@ -159,7 +159,7 @@ class Controller(Generic[L]):
         self.link = link
 
     @staticmethod
-    def builder() -> "_Builder[L]":
+    def builder() -> "_Builder":
         return _Builder()
 
     def __del__(self: "Controller") -> None:

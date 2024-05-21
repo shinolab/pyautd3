@@ -30,7 +30,7 @@ class Silencer(Datagram):
             self._value_phase = value_phase
             self._strict_mode = True
 
-        def with_strict_mode(self: "Silencer.FixedCompletionSteps", *, mode: bool) -> "Silencer.FixedCompletionSteps":
+        def with_strict_mode(self: "Silencer.FixedCompletionSteps", mode: bool) -> "Silencer.FixedCompletionSteps":  # noqa: FBT001
             self._strict_mode = mode
             return self
 

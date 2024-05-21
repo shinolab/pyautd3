@@ -28,7 +28,7 @@ class EtherCATAdapter:
 
 
 class SOEM(Link):
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["SOEM"]):
         _builder: LinkSOEMBuilderPtr
 
         def __init__(self: "SOEM._Builder") -> None:
@@ -110,7 +110,7 @@ class SOEM(Link):
 
 
 class RemoteSOEM(Link):
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["RemoteSOEM"]):
         _builder: LinkRemoteSOEMBuilderPtr
 
         def __init__(self: "RemoteSOEM._Builder", addr: str) -> None:

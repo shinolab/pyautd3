@@ -23,7 +23,7 @@ class Group(Gain["Group[K]"], Generic[K]):
         self._map = {}
         self._f = f
 
-    def set_gain(self: "Group", key: K, gain: GainBase) -> "Group":
+    def set(self: "Group", key: K, gain: GainBase) -> "Group":
         self._map[key] = gain
         return self
 

@@ -20,8 +20,8 @@ def test_group():
 
         autd.send(
             Group(lambda _, tr: "uniform" if tr.position[0] < cx else "null")
-            .set_gain("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)))
-            .set_gain("null", Null()),
+            .set("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)))
+            .set("null", Null()),
         )
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -34,7 +34,7 @@ def test_group():
                     assert np.all(phases[tr.idx] == 0)
 
         autd.send(
-            Group(lambda _, tr: "uniform" if tr.position[0] < cx else None).set_gain(
+            Group(lambda _, tr: "uniform" if tr.position[0] < cx else None).set(
                 "uniform",
                 Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)),
             ),
@@ -53,7 +53,7 @@ def test_group():
 def test_group_unknown_key():
     autd: Controller[Audit]
     with create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
-        autd.send(Group(lambda _, _tr: "null").set_gain("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).set_gain("null", Null()))
+        autd.send(Group(lambda _, _tr: "null").set("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).set("null", Null()))
 
 
 def test_group_unspecified_key():
@@ -73,7 +73,7 @@ def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return 0
 
-        autd.send(Group(f).set_gain(0, Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))))
+        autd.send(Group(f).set(0, Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))))
 
         assert not check[0]
         assert check[1]

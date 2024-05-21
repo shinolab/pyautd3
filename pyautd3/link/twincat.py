@@ -12,7 +12,7 @@ from pyautd3.native_methods.utils import _validate_ptr
 
 
 class TwinCAT(Link):
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["TwinCAT"]):
         _builder: LinkTwinCATBuilderPtr
 
         def __init__(self: "TwinCAT._Builder") -> None:
@@ -37,7 +37,7 @@ class TwinCAT(Link):
 
 
 class RemoteTwinCAT(Link):
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["RemoteTwinCAT"]):
         _builder: LinkRemoteTwinCATBuilderPtr
 
         def __init__(self: "RemoteTwinCAT._Builder", server_ams_net_id: str) -> None:

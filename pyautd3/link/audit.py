@@ -14,7 +14,7 @@ __all__ = []  # type: ignore[var-annotated]
 class Audit(Link):
     _ptr: LinkPtr
 
-    class _Builder(LinkBuilder):
+    class _Builder(LinkBuilder["Audit"]):
         _builder: LinkAuditBuilderPtr
 
         def __init__(self: "Audit._Builder") -> None:

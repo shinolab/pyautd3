@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -24,9 +25,9 @@ class Uniform(Gain):
         self.check = np.array(check)
 
     def calc(self: "Uniform", geometry: Geometry) -> dict[int, np.ndarray]:
-        def f(dev: Device, _tr: Transducer) -> Drive:
+        def f(dev: Device) -> Callable[[Transducer], Drive]:
             self.check[dev.idx] = True
-            return Drive(
+            return lambda _: Drive(
                 self._phase,
                 self._intensity,
             )

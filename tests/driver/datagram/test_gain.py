@@ -31,7 +31,7 @@ class CacheTest(Gain["CacheTest"]):
         self.calc_cnt += 1
         return Gain._transform(
             geometry,
-            lambda _dev, _tr: Drive(
+            lambda _dev: lambda _tr: Drive(
                 Phase(0x90),
                 EmitIntensity(0x80),
             ),

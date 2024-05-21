@@ -234,7 +234,7 @@ def test_send_double():
 async def test_group_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
-        await autd.group(lambda dev: dev.idx).set_data(0, Null()).set_data(1, Sine(150 * Hz), Uniform(EmitIntensity(0xFF))).send_async()
+        await autd.group(lambda dev: dev.idx).set(0, Null()).set(1, Sine(150 * Hz), Uniform(EmitIntensity(0xFF))).send_async()
 
         mod = autd.link.modulation(0, Segment.S0)
         assert len(mod) == 2
@@ -249,7 +249,7 @@ async def test_group_async():
         assert np.all(intensities == 0xFF)
         assert np.all(phases == 0)
 
-        await autd.group(lambda dev: dev.idx).set_data(1, Null()).set_data(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send_async()
+        await autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send_async()
 
         mod = autd.link.modulation(0, Segment.S0)
         assert len(mod) == 80
@@ -262,16 +262,16 @@ async def test_group_async():
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            await autd.group(lambda dev: dev.idx).set_data(0, 0).send_async()  # type: ignore[arg-type]
+            await autd.group(lambda dev: dev.idx).set(0, 0).send_async()  # type: ignore[arg-type]
 
         with pytest.raises(KeyAlreadyExistsError):
-            await autd.group(lambda dev: dev.idx).set_data(0, Null()).set_data(0, Null()).send_async()
+            await autd.group(lambda dev: dev.idx).set(0, Null()).set(0, Null()).send_async()
 
 
 def test_group():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.group(lambda dev: dev.idx).set_data(0, Null()).set_data(1, Sine(150 * Hz), Uniform(EmitIntensity(0xFF))).send()
+        autd.group(lambda dev: dev.idx).set(0, Null()).set(1, Sine(150 * Hz), Uniform(EmitIntensity(0xFF))).send()
 
         mod = autd.link.modulation(0, Segment.S0)
         assert len(mod) == 2
@@ -286,7 +286,7 @@ def test_group():
         assert np.all(intensities == 0xFF)
         assert np.all(phases == 0)
 
-        autd.group(lambda dev: dev.idx).set_data(1, Null()).set_data(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send()
+        autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send()
 
         mod = autd.link.modulation(0, Segment.S0)
         assert len(mod) == 80
@@ -299,10 +299,10 @@ def test_group():
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            autd.group(lambda dev: dev.idx).set_data(0, 0).send()  # type: ignore[arg-type]
+            autd.group(lambda dev: dev.idx).set(0, 0).send()  # type: ignore[arg-type]
 
         with pytest.raises(KeyAlreadyExistsError):
-            autd.group(lambda dev: dev.idx).set_data(0, Null()).set_data(0, Null()).send()
+            autd.group(lambda dev: dev.idx).set(0, Null()).set(0, Null()).send()
 
 
 def test_group_check_only_for_enabled():
@@ -316,7 +316,7 @@ def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return 0
 
-        autd.group(f).set_data(0, Sine(150 * Hz), Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).send()
+        autd.group(f).set(0, Sine(150 * Hz), Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).send()
 
         assert not check[0]
         assert check[1]

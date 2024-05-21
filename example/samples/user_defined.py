@@ -14,7 +14,7 @@ class Focus(Gain["Focus"]):
     def calc(self: "Focus", geometry: Geometry) -> dict[int, np.ndarray]:
         return Gain._transform(
             geometry,
-            lambda dev, tr: Drive(
+            lambda dev: lambda tr: Drive(
                 Phase(float(np.linalg.norm(tr.position - self.point)) * dev.wavenumber * rad),
                 EmitIntensity.maximum(),
             ),

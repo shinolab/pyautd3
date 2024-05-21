@@ -19,7 +19,7 @@ def test_phase_filter():
         for dev in autd.geometry:
             assert np.all(autd.link.phase_filter(dev.idx) == 0x00)
 
-        autd.send(PhaseFilter(lambda dev, tr: Phase((dev.idx + tr.idx) % 256)))
+        autd.send(PhaseFilter.additive(lambda dev: lambda tr: Phase((dev.idx + tr.idx) % 256)))
 
         for dev in autd.geometry:
             phase_filter = autd.link.phase_filter(dev.idx)
