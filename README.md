@@ -1,7 +1,7 @@
 # pyautd3
 
 ![build](https://github.com/shinolab/pyautd3/workflows/build/badge.svg)
-[![codecov](https://codecov.io/gh/shinolab/pyautd3/graph/badge.svg)](https://codecov.io/gh/shinolab/pyautd3)
+[![codecov](https://codecov.io/gh/shinolab/pyautd3/graph/badge.svg?precision=2)](https://codecov.io/gh/shinolab/pyautd3)
 [![PyPI version](https://img.shields.io/pypi/v/pyautd3)](https://pypi.org/project/pyautd3/)
 
 [autd3](https://github.com/shinolab/autd3-rs) library for python3.10+

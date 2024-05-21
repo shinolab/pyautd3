@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pytest
 
 from pyautd3 import (
     Controller,
@@ -25,3 +26,8 @@ def test_phase_filter():
             phase_filter = autd.link.phase_filter(dev.idx)
             for tr in dev:
                 assert phase_filter[tr.idx] == (dev.idx + tr.idx) % 256
+
+
+def test_phase_filter_ctor():
+    with pytest.raises(NotImplementedError):
+        _ = PhaseFilter()
