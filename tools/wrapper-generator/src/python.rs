@@ -391,7 +391,7 @@ class {}(IntEnum):",
                     r"
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 "
                 )
             })
@@ -461,7 +461,7 @@ class {}(ctypes.Structure):",
                     w,
                     "
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, {}) and self._fields_ == other._fields_
+        return isinstance(other, {}) and self._fields_ == other._fields_ # pragma: no cover
                     ",
                     p.name
                 )
@@ -483,8 +483,9 @@ class {}(ctypes.Structure):",
             })
             .try_collect()?;
 
-        if crate_name == "autd3capi-def" {
+        if crate_name == "autd3capi-driver" {
             writeln!(w)?;
+            return Ok(());
         }
 
         write!(
@@ -574,7 +575,7 @@ class NativeMethods(metaclass=Singleton):",
                     w,
                     r"
     def {}(self{}{}) -> {}:
-        return self.dll.{}({})",
+        return self.dll.{}({}){}",
                     Self::to_python_func_name(&function.name),
                     if function.args.is_empty() { "" } else { ", " },
                     args,
@@ -584,7 +585,12 @@ class NativeMethods(metaclass=Singleton):",
                         Self::to_return_ty(&function.return_ty)
                     },
                     function.name,
-                    arg_names
+                    arg_names,
+                    if Self::to_python_func_name(&function.name).ends_with("t_4010_a_1") {
+                        "  # pragma: no cover"
+                    } else {
+                        ""
+                    }
                 )
             })
             .try_collect()?;

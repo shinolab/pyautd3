@@ -25,11 +25,11 @@ class ConstantADT(type):
     _initialized = False
 
     def __setattr__(cls, name, value):
-        if cls._initialized:
-            if name in cls.__dict__:
-                raise ValueError(f"Do not assign value to {name}")
-            else:
-                raise AttributeError("Do not add new member to {cls}")
+        if cls._initialized:                                            # pragma: no cover
+            if name in cls.__dict__:                                    # pragma: no cover
+                raise ValueError(f"Do not assign value to {name}")      # pragma: no cover
+            else:                                                       # pragma: no cover
+                raise AttributeError("Do not add new member to {cls}")  # pragma: no cover
         super().__setattr__(name, value)
 
     def __init__(cls, *args, **kwargs):

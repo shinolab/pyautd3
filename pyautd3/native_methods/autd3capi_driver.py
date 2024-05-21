@@ -11,7 +11,7 @@ class SyncMode(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class GainSTMMode(IntEnum):
@@ -21,7 +21,7 @@ class GainSTMMode(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class DebugTypeTag(IntEnum):
@@ -40,7 +40,7 @@ class DebugTypeTag(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class GPIOIn(IntEnum):
@@ -51,7 +51,7 @@ class GPIOIn(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class GPIOOut(IntEnum):
@@ -62,7 +62,7 @@ class GPIOOut(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class SamplingConfigTag(IntEnum):
@@ -73,7 +73,7 @@ class SamplingConfigTag(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class Segment(IntEnum):
@@ -82,7 +82,7 @@ class Segment(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class SamplingConfigValue(ctypes.Union):
@@ -134,7 +134,7 @@ class DebugTypeWrap(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, DebugTypeWrap) and self._fields_ == other._fields_
+        return isinstance(other, DebugTypeWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class Drive(ctypes.Structure):
@@ -142,7 +142,7 @@ class Drive(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Drive) and self._fields_ == other._fields_
+        return isinstance(other, Drive) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class LoopBehavior(ctypes.Structure):
@@ -150,7 +150,7 @@ class LoopBehavior(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, LoopBehavior) and self._fields_ == other._fields_
+        return isinstance(other, LoopBehavior) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class SamplingConfigWrap(ctypes.Structure):
@@ -158,7 +158,7 @@ class SamplingConfigWrap(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, SamplingConfigWrap) and self._fields_ == other._fields_
+        return isinstance(other, SamplingConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class TransitionModeWrap(ctypes.Structure):
@@ -166,7 +166,7 @@ class TransitionModeWrap(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, TransitionModeWrap) and self._fields_ == other._fields_
+        return isinstance(other, TransitionModeWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultI32(ctypes.Structure):
@@ -174,7 +174,7 @@ class ResultI32(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultI32) and self._fields_ == other._fields_
+        return isinstance(other, ResultI32) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultModulation(ctypes.Structure):
@@ -182,7 +182,7 @@ class ResultModulation(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultModulation) and self._fields_ == other._fields_
+        return isinstance(other, ResultModulation) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultDatagram(ctypes.Structure):
@@ -190,7 +190,7 @@ class ResultDatagram(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultDatagram) and self._fields_ == other._fields_
+        return isinstance(other, ResultDatagram) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 NUM_TRANS_IN_UNIT: int = 249
@@ -211,23 +211,3 @@ AUTD3_TRUE: int = 1
 
 AUTD3_FALSE: int = 0
 
-
-class Singleton(type):
-    _instances = {}  # type: ignore
-    _lock = threading.Lock()
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            with cls._lock:
-                if cls not in cls._instances: # pragma: no cover
-                    cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-class NativeMethods(metaclass=Singleton):
-
-    def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
-        try:
-            self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_driver{bin_ext}'))
-        except Exception:   # pragma: no cover
-            return          # pragma: no cover

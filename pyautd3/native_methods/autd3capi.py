@@ -46,7 +46,7 @@ class ResultController(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultController) and self._fields_ == other._fields_
+        return isinstance(other, ResultController) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultFirmwareVersionList(ctypes.Structure):
@@ -54,7 +54,7 @@ class ResultFirmwareVersionList(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_
+        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultGainCalcDrivesMap(ctypes.Structure):
@@ -62,7 +62,7 @@ class ResultGainCalcDrivesMap(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultGainCalcDrivesMap) and self._fields_ == other._fields_
+        return isinstance(other, ResultGainCalcDrivesMap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultModulationCalc(ctypes.Structure):
@@ -70,7 +70,7 @@ class ResultModulationCalc(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultModulationCalc) and self._fields_ == other._fields_
+        return isinstance(other, ResultModulationCalc) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 

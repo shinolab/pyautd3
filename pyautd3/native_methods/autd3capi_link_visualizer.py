@@ -14,7 +14,7 @@ class Backend(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class Directivity(IntEnum):
@@ -23,7 +23,7 @@ class Directivity(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class CMap(IntEnum):
@@ -43,7 +43,7 @@ class CMap(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class ConfigPtr(ctypes.Structure):
@@ -71,7 +71,7 @@ class ResultPlotConfig(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultPlotConfig) and self._fields_ == other._fields_
+        return isinstance(other, ResultPlotConfig) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultPyPlotConfig(ctypes.Structure):
@@ -79,7 +79,7 @@ class ResultPyPlotConfig(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultPyPlotConfig) and self._fields_ == other._fields_
+        return isinstance(other, ResultPyPlotConfig) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 

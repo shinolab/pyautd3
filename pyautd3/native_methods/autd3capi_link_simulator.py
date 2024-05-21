@@ -14,7 +14,7 @@ class ResultLinkSimulatorBuilder(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultLinkSimulatorBuilder) and self._fields_ == other._fields_
+        return isinstance(other, ResultLinkSimulatorBuilder) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 

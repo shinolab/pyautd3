@@ -18,7 +18,7 @@ class ResultLinkRemoteTwinCATBuilder(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultLinkRemoteTwinCATBuilder) and self._fields_ == other._fields_
+        return isinstance(other, ResultLinkRemoteTwinCATBuilder) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 

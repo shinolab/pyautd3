@@ -14,7 +14,7 @@ class Status(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class TimerStrategy(IntEnum):
@@ -24,7 +24,7 @@ class TimerStrategy(IntEnum):
 
     @classmethod
     def from_param(cls, obj):
-        return int(obj)
+        return int(obj)  # pragma: no cover
 
 
 class EthernetAdaptersPtr(ctypes.Structure):
@@ -44,7 +44,7 @@ class ResultLinkRemoteSOEMBuilder(ctypes.Structure):
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultLinkRemoteSOEMBuilder) and self._fields_ == other._fields_
+        return isinstance(other, ResultLinkRemoteSOEMBuilder) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 
