@@ -3,6 +3,7 @@ from collections.abc import Iterable
 
 import numpy as np
 
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
 from pyautd3.driver.defined.freq import Freq
@@ -23,7 +24,11 @@ from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavio
 __all__ = []  # type: ignore[var-annotated]
 
 
-class GainSTM(IntoDatagramWithSegmentTransition, DatagramST[GainSTMPtr]):
+class GainSTM(
+    IntoDatagramWithSegmentTransition,
+    DatagramST[GainSTMPtr],
+    Datagram,
+):
     _gains: list[GainBase]
     _mode: GainSTMMode
 
@@ -64,8 +69,8 @@ class GainSTM(IntoDatagramWithSegmentTransition, DatagramST[GainSTMPtr]):
             ptr = Base().stm_gain_from_freq(self._freq.hz)
         elif self._freq_nearest is not None:
             ptr = Base().stm_gain_from_freq_nearest(self._freq_nearest.hz)
-        elif self._sampling_config is not None:
-            ptr = Base().stm_gain_from_sampling_config(self._sampling_config)
+        else:
+            ptr = Base().stm_gain_from_sampling_config(self._sampling_config)  # type: ignore[arg-type]
         ptr = Base().stm_gain_with_mode(ptr, self._mode)
         ptr = Base().stm_gain_with_loop_behavior(ptr, self._loop_behavior)
         return Base().stm_gain_add_gains(
@@ -74,7 +79,10 @@ class GainSTM(IntoDatagramWithSegmentTransition, DatagramST[GainSTMPtr]):
             len(self._gains),
         )
 
-    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+    def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
+        return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
+
+    def _into_segment_transition(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
         if transition_mode is None:
             return Base().stm_gain_into_datagram_with_segment(ptr, segment)
         return Base().stm_gain_into_datagram_with_segment_transition(ptr, segment, transition_mode)

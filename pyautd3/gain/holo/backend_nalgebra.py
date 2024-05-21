@@ -36,7 +36,7 @@ class NalgebraBackend(Backend):
         repeat: int,
         constraint: EmissionConstraintWrap,
     ) -> GainPtr:
-        return GainHolo().gain_holo_gspat_sphere(self._backend_ptr(), foci, amps, size, repeat, constraint)
+        return GainHolo().gain_holo_gs_sphere(self._backend_ptr(), foci, amps, size, repeat, constraint)
 
     def _gspat(
         self: "NalgebraBackend",

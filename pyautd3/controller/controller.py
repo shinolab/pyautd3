@@ -10,6 +10,7 @@ import numpy as np
 from pyautd3.autd_error import InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
+from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.driver.geometry import Device, Geometry
@@ -41,6 +42,10 @@ class _Builder(Generic[L]):
             q[2],
             q[3],
         )
+        return self
+
+    def with_ultrasound_freq(self: "_Builder[L]", freq: Freq[int]) -> "_Builder[L]":
+        self._ptr = Base().controller_builder_with_ultrasound_freq(self._ptr, freq.hz)
         return self
 
     async def open_async(self: "_Builder[L]", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":

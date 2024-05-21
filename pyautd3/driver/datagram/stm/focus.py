@@ -6,6 +6,7 @@ from ctypes import c_double, c_uint8
 import numpy as np
 from numpy.typing import ArrayLike
 
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
@@ -33,7 +34,11 @@ class ControlPoint:
         self.intensity = EmitIntensity(0xFF) if intensity is None else intensity
 
 
-class FocusSTM(IntoDatagramWithSegmentTransition, DatagramST[FocusSTMPtr]):
+class FocusSTM(
+    IntoDatagramWithSegmentTransition,
+    DatagramST[FocusSTMPtr],
+    Datagram,
+):
     _points: list[float]
     _intensities: list[EmitIntensity]
 
@@ -73,8 +78,8 @@ class FocusSTM(IntoDatagramWithSegmentTransition, DatagramST[FocusSTMPtr]):
             ptr = Base().stm_focus_from_freq(self._freq.hz)
         elif self._freq_nearest is not None:
             ptr = Base().stm_focus_from_freq_nearest(self._freq_nearest.hz)
-        elif self._sampling_config is not None:
-            ptr = Base().stm_focus_from_sampling_config(self._sampling_config)
+        else:
+            ptr = Base().stm_focus_from_sampling_config(self._sampling_config)  # type: ignore[arg-type]
         ptr = Base().stm_focus_with_loop_behavior(ptr, self._loop_behavior)
         return Base().stm_focus_add_foci(
             ptr,
@@ -83,7 +88,10 @@ class FocusSTM(IntoDatagramWithSegmentTransition, DatagramST[FocusSTMPtr]):
             len(self._intensities),
         )
 
-    def _into_segment(self: "FocusSTM", ptr: FocusSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+    def _datagram_ptr(self: "FocusSTM", geometry: Geometry) -> DatagramPtr:
+        return Base().stm_focus_into_datagram(self._raw_ptr(geometry))
+
+    def _into_segment_transition(self: "FocusSTM", ptr: FocusSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
         if transition_mode is None:
             return Base().stm_focus_into_datagram_with_segment(ptr, segment)
         return Base().stm_focus_into_datagram_with_segment_transition(ptr, segment, transition_mode)

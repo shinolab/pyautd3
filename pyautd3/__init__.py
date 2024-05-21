@@ -9,6 +9,7 @@ from .driver.datagram import (
     GainSTM,
     GainSTMMode,
     PhaseFilter,
+    PulseWidthEncoder,
     ReadsFPGAState,
     Silencer,
     SwapSegment,
@@ -17,6 +18,7 @@ from .driver.datagram.stm import ControlPoint
 from .driver.defined import Hz, deg, kHz, rad
 from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, SamplingConfig, TransitionMode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
+from .ethercat import DcSysTime
 from .gain import Bessel, Focus, Group, Null, Plane, Uniform
 from .link.nop import Nop
 from .modulation import Sine, Square, Static
@@ -66,6 +68,8 @@ __all__ = [
     "GPIOOut",
     "Hz",
     "kHz",
+    "DcSysTime",
+    "PulseWidthEncoder",
     "TransitionMode",
 ]
 

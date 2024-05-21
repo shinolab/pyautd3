@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pytest
 
 from pyautd3 import Controller, GainSTM, GainSTMMode, Hz, LoopBehavior, SamplingConfig, Segment, Silencer, Uniform
 from pyautd3.driver.datagram.segment import SwapSegment
@@ -23,6 +24,15 @@ def test_gain_stm():
             .add_gains_from_iter(Uniform(EmitIntensity(0xFF) // (i + 1)) for i in range(size))
             .with_loop_behavior(LoopBehavior.Once)
         )
+        autd.send(stm)
+        for dev in autd.geometry:
+            assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
+            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
+        assert stm.mode == GainSTMMode.PhaseIntensityFull
+        for dev in autd.geometry:
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+
+        stm = GainSTM.from_freq_nearest(1.0 * Hz).add_gain(Uniform(EmitIntensity(0xFF))).add_gain(Uniform(EmitIntensity(0x80)))
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -122,3 +132,8 @@ def test_gain_stm_segment():
 
         autd.send(SwapSegment.gain_stm(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S0
+
+
+def test_gain_stm_ctor():
+    with pytest.raises(NotImplementedError):
+        _ = GainSTM()

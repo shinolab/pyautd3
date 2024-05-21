@@ -1,7 +1,6 @@
 from abc import ABCMeta, abstractmethod
 from typing import Generic, TypeVar
 
-from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, Segment, TransitionModeWrap
 
@@ -13,17 +12,14 @@ DS = TypeVar("DS", bound="DatagramST")
 P = TypeVar("P")
 
 
-class DatagramST(Datagram, Generic[P], metaclass=ABCMeta):
+class DatagramST(Generic[P], metaclass=ABCMeta):
     @abstractmethod
-    def _into_segment(self: "DatagramST[P]", ptr: P, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+    def _into_segment_transition(self: "DatagramST[P]", ptr: P, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
         pass
 
     @abstractmethod
     def _raw_ptr(self: "DatagramST[P]", geometry: Geometry) -> P:
         pass
-
-    def _datagram_ptr(self: "DatagramST[P]", geometry: Geometry) -> DatagramPtr:
-        return self._into_segment(self._raw_ptr(geometry), Segment.S0, TransitionMode.Immediate)
 
 
 class DatagramWithSegmentTransition(Datagram, Generic[DS]):
@@ -38,7 +34,7 @@ class DatagramWithSegmentTransition(Datagram, Generic[DS]):
 
     def _datagram_ptr(self: "DatagramWithSegmentTransition[DS]", g: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._raw_ptr(g)
-        return self._datagram._into_segment(raw_ptr, self._segment, self._transition_mode)
+        return self._datagram._into_segment_transition(raw_ptr, self._segment, self._transition_mode)
 
 
 class IntoDatagramWithSegmentTransition(DatagramST, Generic[DS]):

@@ -11,11 +11,8 @@ class Phase:
         match phase:
             case int():
                 self._value = c_uint8(phase)
-            case Angle():
-                self._value = c_uint8(Base().phase_from_rad(phase.radian))  # type: ignore[arg-type]
             case _:
-                err = f"Invalid type: {type(phase)}"
-                raise TypeError(err)
+                self._value = c_uint8(Base().phase_from_rad(phase.radian))  # type: ignore[arg-type]
 
     @property
     def value(self: "Phase") -> int:

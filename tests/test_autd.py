@@ -114,22 +114,22 @@ async def test_send_async_single():
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
 
-        autd.send(Static())
+        await autd.send_async(Static())
         assert autd.link.last_timeout() == timedelta(milliseconds=200)
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
 
-        autd.send(Static(), timeout=timedelta(milliseconds=100))
+        await autd.send_async(Static(), timeout=timedelta(milliseconds=100))
         assert autd.link.last_timeout() == timedelta(milliseconds=100)
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
-            autd.send(Static())
+            await autd.send_async(Static())
         assert str(e.value) == "Failed to send data"
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
-            autd.send(Static())
+            await autd.send_async(Static())
         assert str(e.value) == "broken"
 
 
@@ -165,14 +165,14 @@ async def test_send_async_double():
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
-        autd.send((Static(), Uniform(EmitIntensity(0xFF))))
+        await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
-        autd.send(Static(), Uniform(EmitIntensity(0x80)))
+        await autd.send_async(Static(), Uniform(EmitIntensity(0x80)))
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -180,16 +180,16 @@ async def test_send_async_double():
             assert np.all(phases == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            autd.send(0)  # type: ignore[arg-type]
+            await autd.send_async(0)  # type: ignore[arg-type]
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(EmitIntensity(0xFF))))
+            await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "Failed to send data"
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(EmitIntensity(0xFF))))
+            await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "broken"
 
 
@@ -305,10 +305,9 @@ def test_group():
             autd.group(lambda dev: dev.idx).set_data(0, Null()).set_data(0, Null()).send()
 
 
-@pytest.mark.asyncio()
-async def test_group_check_only_for_enabled():
+def test_group_check_only_for_enabled():
     autd: Controller[Audit]
-    with await create_controller_async() as autd:
+    with create_controller() as autd:
         autd.geometry[0].enable = False
 
         check = np.zeros(autd.geometry.num_devices, dtype=bool)
@@ -317,7 +316,7 @@ async def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return 0
 
-        await autd.group(f).set_data(0, Sine(150 * Hz), Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).send_async()
+        autd.group(f).set_data(0, Sine(150 * Hz), Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).send()
 
         assert not check[0]
         assert check[1]

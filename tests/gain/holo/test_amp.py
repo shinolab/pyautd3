@@ -18,3 +18,9 @@ def test_holo_amp_pascal():
 def test_holo_amp_ctr():
     with pytest.raises(NotImplementedError):
         _ = Amplitude()
+
+    with pytest.raises(NotImplementedError):
+        _ = Amplitude._UnitPascal()
+
+    with pytest.raises(NotImplementedError):
+        _ = Amplitude._UnitSPL()

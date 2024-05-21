@@ -52,9 +52,9 @@ class SOEM(Link):
 
         def with_err_handler(self: "SOEM._Builder", handler: Callable[[int, Status, str], None]) -> "SOEM._Builder":
             def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8) -> None:
-                err = ctypes.create_string_buffer(128)
-                status_ = Status(int(status))
-                LinkSOEM().link_soem_status_get_msg(status_, err)
+                err = ctypes.create_string_buffer(128)  # pragma: no cover
+                status_ = Status(int(status))  # pragma: no cover
+                LinkSOEM().link_soem_status_get_msg(status_, err)  # pragma: no cover
                 handler(int(slave), status_, err.value.decode("utf-8"))  # pragma: no cover
 
             self._err_handler = ErrHandlerFunc(callback_native)

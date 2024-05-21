@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pytest
 
 from pyautd3 import Controller, ControlPoint, FocusSTM, Hz, LoopBehavior, SamplingConfig, Segment, Silencer
 from pyautd3.driver.datagram.segment import SwapSegment
@@ -27,6 +28,15 @@ def test_focus_stm():
             )
             .with_loop_behavior(LoopBehavior.Once)
         )
+        autd.send(stm)
+        for dev in autd.geometry:
+            assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
+            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
+            assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 1024.0)
+        for dev in autd.geometry:
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+
+        stm = FocusSTM.from_freq_nearest(1.0 * Hz).add_focus(center).add_focus(center)
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -106,3 +116,8 @@ def test_focus_stm_segment():
 
         autd.send(SwapSegment.focus_stm(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S0
+
+
+def test_focus_stm_ctor():
+    with pytest.raises(NotImplementedError):
+        _ = FocusSTM()

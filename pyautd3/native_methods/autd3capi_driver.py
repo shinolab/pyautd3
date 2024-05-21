@@ -85,6 +85,18 @@ class Segment(IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class TransitionModeTag(IntEnum):
+    SyncIdx = 0
+    SysTime = 1
+    GPIO = 2
+    Ext = 3
+    Immediate = 4
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class SamplingConfigValue(ctypes.Union):
     _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_double)]
 
@@ -162,7 +174,7 @@ class SamplingConfigWrap(ctypes.Structure):
                     
 
 class TransitionModeWrap(ctypes.Structure):
-    _fields_ = [("ty", ctypes.c_uint8), ("value", ctypes.c_uint64)]
+    _fields_ = [("tag", ctypes.c_uint8), ("value", ctypes.c_uint64)]
 
 
     def __eq__(self, other: object) -> bool:

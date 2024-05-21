@@ -28,11 +28,8 @@ class Square(Modulation["Square"]):
         match freq.hz:
             case int():
                 self.__private__init__(SamplingModeExact(freq))  # type: ignore[arg-type]
-            case float():
-                self.__private__init__(SamplingModeExactFloat(freq))
             case _:
-                msg = "Invalid frequency type"
-                raise ValueError(msg)
+                self.__private__init__(SamplingModeExactFloat(freq))
 
     @classmethod
     def with_freq_nearest(cls: "type[Square]", freq: Freq[float]) -> "Square":

@@ -146,3 +146,17 @@ class Audit(Link):
             np.ctypeslib.as_ctypes(p),
         )
         return p
+
+    def ultrasound_freq(self: "Audit", idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_ultrasound_freq(self._ptr, idx))
+
+    def pulse_width_encoder_table(self: "Audit", idx: int) -> np.ndarray:
+        p = np.zeros([65536]).astype(ctypes.c_uint8)
+        full_width_start = int(
+            LinkAudit().link_audit_fpga_pulse_width_encoder_table(
+                self._ptr,
+                idx,
+                np.ctypeslib.as_ctypes(p),
+            ),
+        )
+        return np.array([int(p[i]) if i < full_width_start else 0x100 | int(p[i]) for i in range(65536)], dtype=int)

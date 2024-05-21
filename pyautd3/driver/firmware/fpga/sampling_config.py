@@ -19,3 +19,6 @@ class SamplingConfig:
     @staticmethod
     def DivisionRaw(div: int) -> SamplingConfigWrap:  # noqa: N802
         return Base().sampling_config_from_division_raw(div)
+
+    def __new__(cls: type["SamplingConfig"]) -> "SamplingConfig":
+        raise NotImplementedError

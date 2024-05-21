@@ -58,21 +58,21 @@ class SwapSegment:
         def _datagram_ptr(self: "SwapSegment._FocusSTM", _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_focus_stm(self._segment, self._transition_mode)
 
-    class GainSTM(Datagram):
+    class _GainSTM(Datagram):
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
-        def __new__(cls: type["SwapSegment.GainSTM"]) -> "SwapSegment.GainSTM":
+        def __new__(cls: type["SwapSegment._GainSTM"]) -> "SwapSegment._GainSTM":
             raise NotImplementedError
 
         @classmethod
-        def __private_new__(cls: type["SwapSegment.GainSTM"], segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment.GainSTM":
+        def __private_new__(cls: type["SwapSegment._GainSTM"], segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._GainSTM":
             ins = super().__new__(cls)
             ins._segment = segment
             ins._transition_mode = transition_mode
             return ins
 
-        def _datagram_ptr(self: "SwapSegment.GainSTM", _: Geometry) -> DatagramPtr:
+        def _datagram_ptr(self: "SwapSegment._GainSTM", _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_gain_stm(self._segment, self._transition_mode)
 
     @staticmethod
@@ -88,5 +88,5 @@ class SwapSegment:
         return SwapSegment._FocusSTM.__private_new__(segment, transition_mode)
 
     @staticmethod
-    def gain_stm(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment.GainSTM":
-        return SwapSegment.GainSTM.__private_new__(segment, transition_mode)
+    def gain_stm(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._GainSTM":
+        return SwapSegment._GainSTM.__private_new__(segment, transition_mode)

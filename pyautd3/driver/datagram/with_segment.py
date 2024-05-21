@@ -12,7 +12,7 @@ DS = TypeVar("DS", bound="DatagramS")
 P = TypeVar("P")
 
 
-class DatagramS(Datagram, Generic[P], metaclass=ABCMeta):
+class DatagramS(Generic[P], metaclass=ABCMeta):
     @abstractmethod
     def _into_segment(self: "DatagramS[P]", ptr: P, segment: Segment, *, transition: bool) -> DatagramPtr:
         pass
@@ -20,9 +20,6 @@ class DatagramS(Datagram, Generic[P], metaclass=ABCMeta):
     @abstractmethod
     def _raw_ptr(self: "DatagramS[P]", geometry: Geometry) -> P:
         pass
-
-    def _datagram_ptr(self: "DatagramS[P]", geometry: Geometry) -> DatagramPtr:
-        return self._into_segment(self._raw_ptr(geometry), Segment.S0, transition=True)
 
 
 class DatagramWithSegment(Datagram, Generic[DS]):

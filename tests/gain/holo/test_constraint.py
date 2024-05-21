@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-def test_constraint():
+def test_constraint_uniform():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
@@ -28,6 +28,11 @@ def test_constraint():
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 
+
+def test_constraint_normalize():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        backend = NalgebraBackend()
         g = (
             Naive(backend)
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
@@ -40,6 +45,11 @@ def test_constraint():
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
+
+def test_constraint_clamp():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        backend = NalgebraBackend()
         g = (
             Naive(backend)
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
@@ -53,6 +63,11 @@ def test_constraint():
             assert np.all(intensities <= 85)
             assert not np.all(phases == 0)
 
+
+def test_constraint_dontcare():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        backend = NalgebraBackend()
         g = (
             Naive(backend)
             .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
@@ -63,6 +78,23 @@ def test_constraint():
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
+            assert not np.all(phases == 0)
+
+
+def test_constraint_multiply():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        backend = NalgebraBackend()
+        g = (
+            Naive(backend)
+            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
+            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
+            .with_constraint(EmissionConstraint.Multiply(0))
+        )
+        autd.send(g)
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(intensities == 0)
             assert not np.all(phases == 0)
 
 

@@ -43,10 +43,6 @@ class Holo(Gain[H], Generic[H]):
         self._constraint = constraint
         return self
 
-    @property
-    def constraint(self: H) -> EmissionConstraintWrap:
-        return self._constraint
-
 
 class HoloWithBackend(Holo[H], Generic[H]):
     _backend: Backend
