@@ -27,6 +27,8 @@ jobs:
             ./pyautd3/**/*.py
             ./tests/*.py
             ./tests/**/*.py
+            ./example/*.py
+            ./example/**/*.py
 
   build:
     needs: check
