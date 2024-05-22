@@ -11,7 +11,7 @@ class EulerAngles:
         raise NotImplementedError
 
     @staticmethod
-    def from_zyz(z1: Angle, y: Angle, z2: Angle) -> np.ndarray:
+    def ZYZ(z1: Angle, y: Angle, z2: Angle) -> np.ndarray:  # noqa: N802
         v = np.zeros([4]).astype(c_double)
         vp = np.ctypeslib.as_ctypes(v)
         Base().rotation_from_euler_zyz(z1.radian, y.radian, z2.radian, vp)

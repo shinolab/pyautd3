@@ -2,6 +2,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from pyautd3.driver.datagram.gain import Gain
+from pyautd3.driver.defined.angle import Angle
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
@@ -12,11 +13,11 @@ from pyautd3.native_methods.autd3capi_driver import GainPtr
 class Bessel(Gain["Bessel"]):
     _p: np.ndarray
     _d: np.ndarray
-    _theta: float
+    _theta: Angle
     _intensity: EmitIntensity
     _phase_offset: Phase
 
-    def __init__(self: "Bessel", pos: ArrayLike, direction: ArrayLike, theta: float) -> None:
+    def __init__(self: "Bessel", pos: ArrayLike, direction: ArrayLike, theta: Angle) -> None:
         super().__init__()
         self._p = np.array(pos)
         self._d = np.array(direction)
@@ -33,7 +34,7 @@ class Bessel(Gain["Bessel"]):
         return self._d
 
     @property
-    def theta(self: "Bessel") -> float:
+    def theta(self: "Bessel") -> Angle:
         return self._theta
 
     def with_intensity(self: "Bessel", intensity: EmitIntensity) -> "Bessel":
@@ -60,7 +61,7 @@ class Bessel(Gain["Bessel"]):
             self._d[0],
             self._d[1],
             self._d[2],
-            self._theta,
+            self._theta.radian,
             self._intensity.value,
             self._phase_offset.value,
         )

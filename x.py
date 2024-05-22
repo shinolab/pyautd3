@@ -119,18 +119,17 @@ class Config:
 
         self.release = hasattr(args, "release") and args.release
 
-        if self.is_linux() and hasattr(args, "arch") and args.arch is not None:
-            self.shaderc = False
-            match args.arch:
-                case "arm32":
-                    self.target = "armv7-unknown-linux-gnueabihf"
-                case "aarch64":
-                    self.target = "aarch64-unknown-linux-gnu"
-                case _:
-                    err(f'arch "{args.arch}" is not supported.')
-                    sys.exit(-1)
+        machine = platform.machine().lower()
+        if hasattr(args, "arch") and args.arch is not None:
+            machine = args.arch.lower()
+        if machine in ["amd64", "x86_64"]:
+            self.arch = "x64"
+        elif machine in ["arm64", "aarch64"]:
+            self.arch = "aarch64"
+        elif machine in ["arm32", "armv7l"]:
+            self.arch = "armv7l"
         else:
-            self.target = None
+            err(f"Unsupported platform: {machine}")
 
     def is_windows(self):
         return self._platform == "Windows"
@@ -164,7 +163,14 @@ def build_wheel(config: Config):
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
                 content = content.replace(r"${classifiers_os}", "Operating System :: Microsoft :: Windows")
-                content = content.replace(r"${plat_name}", "win-amd64")
+                match config.arch:
+                    case "x64":
+                        plat_name = "win-amd64"
+                    case "aarch64":
+                        plat_name = "win-arm64"
+                    case _:
+                        err(f"Unsupported architecture: {config.arch}")
+                content = content.replace(r"${plat_name}", plat_name)
                 with open("setup.cfg", "w") as f:
                     f.write(content)
             subprocess.run(config.python_module(["build", "-w"])).check_returncode()
@@ -180,20 +186,13 @@ def build_wheel(config: Config):
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
                 content = content.replace(r"${classifiers_os}", "Operating System :: POSIX")
-                plat_name = ""
-                if config.target is not None:
-                    match config.target:
-                        case "armv7-unknown-linux-gnueabihf":
-                            plat_name = "linux_armv7l"
-                        case "aarch64-unknown-linux-gnu":
-                            plat_name = "manylinux2014_aarch64"
-                else:
-                    if platform.machine() in ["ADM64", "x86_64"]:
-                        plat_name = "manylinux1-x86_64"
-                    elif platform.machine() in ["armv7l"]:
-                        plat_name = "linux_armv7l"
-                    elif platform.machine() in ["aarch64"]:
+                match config.arch:
+                    case "x64":
+                        plat_name = "manylinux1_x86_64"
+                    case "aarch64":
                         plat_name = "manylinux2014_aarch64"
+                    case "armv7l":
+                        plat_name = "linux_armv7l"
                 content = content.replace(r"${plat_name}", plat_name)
                 with open("setup.cfg", "w") as f:
                     f.write(content)
@@ -231,7 +230,13 @@ def copy_dll(config: Config):
 
     os.makedirs("pyautd3/bin", exist_ok=True)
     if config.is_windows():
-        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64-dll.zip"
+        match config.arch:
+            case "x64":
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64-dll.zip"
+            case "aarch64":
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-arm-dll.zip"
+            case _:
+                err(f"Unsupported platform: {platform.machine()}")
         urllib.request.urlretrieve(url, "tmp.zip")
         shutil.unpack_archive("tmp.zip", ".")
         rm_f("tmp.zip")
@@ -246,7 +251,13 @@ def copy_dll(config: Config):
         for dll in glob.glob("bin/*.dylib"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_linux():
-        url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-x64-shared.tar.gz"
+        match config.arch:
+            case "x64":
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-x64-shared.tar.gz"
+            case "aarch64":
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-armv7-shared.tar.gz"
+            case "armv7l":
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-linux-aarch64-shared.tar.gz"
         urllib.request.urlretrieve(url, "tmp.tar.gz")
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
             tar.extractall()
@@ -278,21 +289,27 @@ def py_build(args):
                 m = re.search("version = (.*)", content)
                 version = m.group(1)
             command = config.python_module(["pip", "install"])
-            plat_name = ""
             if config.is_windows():
-                plat_name = "win_amd64"
+                match config.arch:
+                    case "x64":
+                        plat_name = "win_amd64"
+                    case "aarch64":
+                        plat_name = "win_arm64"
+                    case _:
+                        err(f"Unsupported architecture: {config.arch}")
             elif config.is_macos():
                 if platform.machine() in ["ADM64", "x86_64"]:
                     err(f'platform "{platform.system()}/{platform.machine()}" is not supported.')
                 else:
                     plat_name = "macosx_11_0_arm64"
             elif config.is_linux():
-                if platform.machine() in ["ADM64", "x86_64"]:
-                    plat_name = "manylinux1_x86_64"
-                elif platform.machine() in ["armv7l"]:
-                    plat_name = "linux_armv7l"
-                elif platform.machine() in ["aarch64"]:
-                    plat_name = "manylinux2014_aarch64"
+                match config.arch:
+                    case "x64":
+                        plat_name = "manylinux1_x86_64"
+                    case "aarch64":
+                        plat_name = "manylinux2014_aarch64"
+                    case "armv7l":
+                        plat_name = "linux_armv7l"
             else:
                 err(f'platform "{platform.system()}/{platform.machine()}" is not supported.')
                 sys.exit(-1)

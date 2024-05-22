@@ -5,6 +5,8 @@ class EmitIntensity:
     _value: c_uint8
 
     def __init__(self: "EmitIntensity", intensity: int) -> None:
+        if isinstance(intensity, float):
+            raise TypeError
         self._value = c_uint8(intensity)
 
     @property

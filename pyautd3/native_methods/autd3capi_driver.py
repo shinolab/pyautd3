@@ -88,7 +88,7 @@ class Segment(IntEnum):
 class TransitionModeTag(IntEnum):
     SyncIdx = 0
     SysTime = 1
-    GPIO = 2
+    Gpio = 2
     Ext = 3
     Immediate = 4
 

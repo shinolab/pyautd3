@@ -370,6 +370,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainRawSet.argtypes = [GainPtr, ctypes.c_uint32, ctypes.POINTER(Drive), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainRawSet.restype = GainPtr
 
+        self.dll.AUTDGainWithTransform.argtypes = [GainPtr, ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
+        self.dll.AUTDGainWithTransform.restype = GainPtr
+
         self.dll.AUTDGainUniform.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainUniform.restype = GainPtr
 
@@ -903,6 +906,9 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_raw_set(self, custom: GainPtr, dev_idx: int, ptr: ctypes.Array | None, len: int) -> GainPtr:
         return self.dll.AUTDGainRawSet(custom, dev_idx, ptr, len)
+
+    def gain_with_transform(self, g: GainPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> GainPtr:
+        return self.dll.AUTDGainWithTransform(g, f, context, geometry)
 
     def gain_uniform(self, intensity: int, phase: int) -> GainPtr:
         return self.dll.AUTDGainUniform(intensity, phase)

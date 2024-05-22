@@ -25,6 +25,25 @@ jobs:
           python3 x.py build --no-install
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
 
+  publish_win_arm:
+    name: upload-release-asset-windows-arm
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Publish pypi
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install -U twine wheel build
+          python3 x.py build --arch arm64 --no-install
+          twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
+
   publish_linux:
     name: upload-release-asset-linux
     runs-on: ubuntu-latest
@@ -60,7 +79,7 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 x.py build --no-install --arch arm32
+          python3 x.py build --no-install --arch armv7l
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
   publish_linux-aarch64:

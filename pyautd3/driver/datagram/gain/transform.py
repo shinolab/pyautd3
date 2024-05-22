@@ -1,9 +1,6 @@
+import ctypes
 from collections.abc import Callable
-from ctypes import POINTER
-from functools import reduce
 from typing import Generic, TypeVar
-
-import numpy as np
 
 from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.datagram.with_segment import IntoDatagramWithSegment
@@ -12,8 +9,7 @@ from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import Drive as _Drive
-from pyautd3.native_methods.autd3capi_driver import GainPtr
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.autd3capi_driver import GainPtr, GeometryPtr
 
 from .cache import IntoGainCache
 
@@ -27,40 +23,30 @@ class Transform(
     Generic[G],
 ):
     _g: G
-    _f: Callable[[Device, Transducer, Drive], Drive]
 
-    def __init__(self: "Transform", g: G, f: Callable[[Device, Transducer, Drive], Drive]) -> None:
+    def __init__(self: "Transform", g: G, f: Callable[[Device], Callable[[Transducer, Drive], Drive]]) -> None:
         super().__init__()
         self._g = g
-        self._f = f
+
+        def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, tr_idx: int, src, raw) -> None:  # noqa: ANN001
+            dev = Device(dev_idx, Base().device(geometry_ptr, dev_idx))
+            tr = Transducer(tr_idx, dev._ptr)
+            d = f(dev)(tr, Drive(Phase(src.phase), EmitIntensity(src.intensity)))
+            raw[0] = _Drive(d.phase.value, d.intensity.value)
+
+        self._f_native = ctypes.CFUNCTYPE(None, ctypes.c_void_p, GeometryPtr, ctypes.c_uint32, ctypes.c_uint8, _Drive, ctypes.POINTER(_Drive))(
+            f_native,
+        )
 
     def _gain_ptr(self: "Transform[G]", geometry: Geometry) -> GainPtr:
-        res = _validate_ptr(Base().gain_calc(self._g._gain_ptr(geometry), geometry._geometry_ptr()))
-
-        drives: dict[int, np.ndarray] = {}
-        for dev in geometry.devices:
-            d = np.zeros(dev.num_transducers, dtype=_Drive)
-
-            Base().gain_calc_get_result(res, d.ctypes.data_as(POINTER(_Drive)), dev.idx)  # type: ignore[arg-type]
-            for tr in dev:
-                drive = self._f(dev, tr, Drive(Phase(int(d[tr.idx]["phase"])), EmitIntensity(int(d[tr.idx]["intensity"]))))
-                d[tr.idx] = np.void(_Drive(drive.phase._value, drive.intensity._value))  # type: ignore[call-overload]
-            drives[dev.idx] = d
-
-        Base().gain_calc_free_result(res)
-
-        return reduce(
-            lambda acc, dev: Base().gain_raw_set(
-                acc,
-                dev.idx,
-                drives[dev.idx].ctypes.data_as(POINTER(_Drive)),  # type: ignore[arg-type]
-                len(drives[dev.idx]),
-            ),
-            geometry.devices,
-            Base().gain_raw(),
+        return Base().gain_with_transform(
+            self._g._gain_ptr(geometry),
+            self._f_native,  # type: ignore[arg-type]
+            None,
+            geometry._ptr,
         )
 
 
 class IntoGainTransform(GainBase, Generic[G]):
-    def with_transform(self: G, f: Callable[[Device, Transducer, Drive], Drive]) -> Transform[G]:
+    def with_transform(self: G, f: Callable[[Device], Callable[[Transducer, Drive], Drive]]) -> Transform[G]:
         return Transform(self, f)

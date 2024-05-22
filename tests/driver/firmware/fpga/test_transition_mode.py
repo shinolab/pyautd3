@@ -20,7 +20,7 @@ def test_transition_mode_sys_time():
 
 def test_transition_mode_gpio():
     mode = TransitionMode.GPIO(GPIOIn.I1)
-    assert mode.tag == TransitionModeTag.GPIO
+    assert mode.tag == TransitionModeTag.Gpio
     assert mode.value == 1
 
 

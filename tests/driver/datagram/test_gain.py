@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -80,11 +81,10 @@ def test_transform():
     autd: Controller[Audit]
     with create_controller() as autd:
 
-        def transform(dev: Device, _tr: Transducer, d: Drive) -> Drive:
+        def transform(dev: Device) -> Callable[[Transducer, Drive], Drive]:
             if dev.idx == 0:
-                return Drive(Phase(d.phase.value + 32), d.intensity)
-
-            return Drive(Phase(d.phase.value - 32), d.intensity)
+                return lambda _, d: Drive(Phase(d.phase.value + 32), d.intensity)
+            return lambda _, d: Drive(Phase(d.phase.value - 32), d.intensity)
 
         autd.send(Uniform(EmitIntensity(0x80)).with_phase(Phase(128)).with_transform(transform))
 
@@ -104,9 +104,9 @@ def test_transform_check_only_for_enabled():
 
         check = np.zeros(2, dtype=bool)
 
-        def transform(dev: Device, _tr: Transducer, d: Drive) -> Drive:
+        def transform(dev: Device) -> Callable[[Transducer, Drive], Drive]:
             check[dev.idx] = True
-            return d
+            return lambda _, d: d
 
         autd.send(Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)).with_transform(transform))
 

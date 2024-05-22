@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -12,16 +13,16 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-def test_transtest():
+def test_custom():
     autd: Controller[Audit]
     with create_controller() as autd:
 
-        def f(dev: Device, tr: Transducer) -> Drive:
-            if dev.idx == 0 and tr.idx == 0:
-                return Drive(Phase(0x90), EmitIntensity(0x80))
-            if dev.idx == 1 and tr.idx == 248:
-                return Drive(Phase(0x91), EmitIntensity(0x81))
-            return Drive.null()
+        def f(dev: Device) -> Callable[[Transducer], Drive]:
+            if dev.idx == 0:
+                return lambda tr: Drive(Phase(0x90), EmitIntensity(0x80)) if tr.idx == 0 else Drive.null()
+            if dev.idx == 1:
+                return lambda tr: Drive(Phase(0x91), EmitIntensity(0x81)) if tr.idx == 248 else Drive.null()
+            return lambda _: Drive.null()
 
         autd.send(Custom(f))
 

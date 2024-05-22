@@ -32,27 +32,27 @@ def test_with_rotation():
     def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
         return Controller.builder().add_device(AUTD3([0.0, 0.0, 0.0]).with_rotation(q)).open(Audit.builder())
 
-    with open_with_rotation(EulerAngles.from_zyz(90 * deg, 0 * deg, 0 * deg)) as autd:
+    with open_with_rotation(EulerAngles.ZYZ(90 * deg, 0 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
 
-    with open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 0 * deg)) as autd:
+    with open_with_rotation(EulerAngles.ZYZ(0 * deg, 90 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
 
-    with open_with_rotation(EulerAngles.from_zyz(0 * deg, 0 * deg, 90 * deg)) as autd:
+    with open_with_rotation(EulerAngles.ZYZ(0 * deg, 0 * deg, 90 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 0.0, 1.0])
 
-    with open_with_rotation(EulerAngles.from_zyz(0 * deg, 90 * deg, 90 * deg)) as autd:
+    with open_with_rotation(EulerAngles.ZYZ(0 * deg, 90 * deg, 90 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 1.0, 0.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [0.0, 0.0, 1.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [1.0, 0.0, 0.0])
 
-    with open_with_rotation(EulerAngles.from_zyz(90 * deg, 90 * deg, 0 * deg)) as autd:
+    with open_with_rotation(EulerAngles.ZYZ(90 * deg, 90 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0][0].x_direction, [0.0, 0.0, -1.0])
         assert np.allclose(autd.geometry[0][0].y_direction, [-1.0, 0.0, 0.0])
         assert np.allclose(autd.geometry[0][0].z_direction, [0.0, 1.0, 0.0])
