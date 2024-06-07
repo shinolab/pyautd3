@@ -21,6 +21,7 @@ packages =
     pyautd3.bin
     pyautd3.controller
     pyautd3.driver
+    pyautd3.ethercat
     pyautd3.driver.defined
     pyautd3.driver.firmware
     pyautd3.driver.firmware.fpga
