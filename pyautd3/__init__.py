@@ -13,7 +13,17 @@ from .driver.datagram import (
     Silencer,
     SwapSegment,
 )
-from .driver.datagram.stm import ControlPoint
+from .driver.datagram.stm import (
+    ControlPoint,
+    ControlPoints1,
+    ControlPoints2,
+    ControlPoints3,
+    ControlPoints4,
+    ControlPoints5,
+    ControlPoints6,
+    ControlPoints7,
+    ControlPoints8,
+)
 from .driver.defined import Hz, deg, kHz, rad
 from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, SamplingConfig, TransitionMode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
@@ -38,6 +48,14 @@ __all__ = [
     "ReadsFPGAState",
     "ForceFan",
     "ControlPoint",
+    "ControlPoints1",
+    "ControlPoints2",
+    "ControlPoints3",
+    "ControlPoints4",
+    "ControlPoints5",
+    "ControlPoints6",
+    "ControlPoints7",
+    "ControlPoints8",
     "FociSTM",
     "GainSTM",
     "GainSTMMode",
