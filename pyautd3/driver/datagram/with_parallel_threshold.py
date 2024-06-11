@@ -1,8 +1,6 @@
+from abc import ABCMeta
 from typing import Generic, TypeVar
 
-from forbiddenfruit import curse
-
-from pyautd3.driver.datagram.datagram_tuple import DatagramTuple
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr
@@ -27,13 +25,6 @@ class DatagramWithParallelThreshold(Datagram, Generic[D]):
         return Base().datagram_with_parallel_threshold(raw_ptr, self._threshold)
 
 
-class IntoDatagramWithParallelThreshold(Generic[D]):
-    def with_parallel_threshold(self: D, threshold: int) -> DatagramWithParallelThreshold[D]:
+class IntoDatagramWithParallelThreshold(Generic[D], metaclass=ABCMeta):
+    def with_parallel_threshold(self: D, threshold: int) -> DatagramWithParallelThreshold[D]:  # type: ignore[misc]
         return DatagramWithParallelThreshold(self, threshold)
-
-
-def __with_parallel_threshold(self: tuple[Datagram, Datagram], threshold: int) -> DatagramWithParallelThreshold[D]:
-    return DatagramWithParallelThreshold(DatagramTuple(self), threshold)
-
-
-curse(tuple, "with_parallel_threshold", __with_parallel_threshold)

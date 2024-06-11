@@ -8,9 +8,9 @@ from .datagram import Datagram
 
 
 class Clear(
-    Datagram,
     IntoDatagramWithTimeout["Clear"],
     IntoDatagramWithParallelThreshold["Clear"],
+    Datagram,
 ):
     def __init__(self: "Clear") -> None:
         super().__init__()

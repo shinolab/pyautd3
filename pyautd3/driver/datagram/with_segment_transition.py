@@ -25,10 +25,10 @@ class DatagramST(Generic[P], metaclass=ABCMeta):
 
 
 class DatagramWithSegmentTransition(
-    Datagram,
-    Generic[DS],
     IntoDatagramWithTimeout["DatagramWithSegmentTransition[DS]"],
     IntoDatagramWithParallelThreshold["DatagramWithSegmentTransition[DS]"],
+    Datagram,
+    Generic[DS],
 ):
     _datagram: DS
     _segment: Segment

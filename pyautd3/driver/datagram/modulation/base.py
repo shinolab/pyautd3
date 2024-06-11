@@ -20,9 +20,9 @@ class ModulationBase(
     IntoDatagramWithSegmentTransition[M],
     DatagramST[ModulationPtr],
     Generic[M],
-    Datagram,
     IntoDatagramWithTimeout[M],
     IntoDatagramWithParallelThreshold[M],
+    Datagram,
     metaclass=ABCMeta,
 ):
     _loop_behavior: _LoopBehavior

@@ -19,12 +19,12 @@ G = TypeVar("G", bound=GainBase)
 
 
 class Transform(
-    IntoDatagramWithSegment["Transform[G]"],
     IntoGainCache["Transform[G]"],
-    GainBase,
-    Generic[G],
+    IntoDatagramWithSegment["Transform[G]"],
     IntoDatagramWithTimeout["Transform[G]"],
     IntoDatagramWithParallelThreshold["Transform[G]"],
+    GainBase,
+    Generic[G],
 ):
     _g: G
 

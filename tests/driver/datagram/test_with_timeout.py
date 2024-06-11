@@ -20,5 +20,5 @@ def test_with_timeout():
         autd.send(Null().with_timeout(timedelta(milliseconds=100)))
         assert autd.link.last_timeout() == timedelta(milliseconds=100)
 
-        autd.send((Null(), Null()).with_timeout(timedelta(milliseconds=200)))
+        autd.send((Null(), Null()).with_timeout(timedelta(milliseconds=200)))  # type: ignore[attr-defined]
         assert autd.link.last_timeout() == timedelta(milliseconds=200)

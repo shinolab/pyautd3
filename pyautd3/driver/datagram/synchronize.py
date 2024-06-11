@@ -7,7 +7,11 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr
 from .datagram import Datagram
 
 
-class Synchronize(Datagram, IntoDatagramWithTimeout["Synchronize"], IntoDatagramWithParallelThreshold["Synchronize"]):
+class Synchronize(
+    IntoDatagramWithTimeout["Synchronize"],
+    IntoDatagramWithParallelThreshold["Synchronize"],
+    Datagram,
+):
     def __init__(self: "Synchronize") -> None:
         super().__init__()
 

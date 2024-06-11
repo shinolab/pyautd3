@@ -302,7 +302,13 @@ def test_foci_stm_5():
             1.0 * Hz,
             [
                 ControlPoints5(
-                    (ControlPoint(center), ControlPoint(center), ControlPoint(center), ControlPoint(center), ControlPoint(center))
+                    (
+                        ControlPoint(center),
+                        ControlPoint(center),
+                        ControlPoint(center),
+                        ControlPoint(center),
+                        ControlPoint(center),
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -318,7 +324,13 @@ def test_foci_stm_5():
             SamplingConfig.Division(5120),
             [
                 ControlPoints5(
-                    (ControlPoint(center), ControlPoint(center), ControlPoint(center), ControlPoint(center), ControlPoint(center))
+                    (
+                        ControlPoint(center),
+                        ControlPoint(center),
+                        ControlPoint(center),
+                        ControlPoint(center),
+                        ControlPoint(center),
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -360,7 +372,7 @@ def test_foci_stm_6():
                         ControlPoint(center),
                         ControlPoint(center),
                         ControlPoint(center),
-                    )
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -383,7 +395,7 @@ def test_foci_stm_6():
                         ControlPoint(center),
                         ControlPoint(center),
                         ControlPoint(center),
-                    )
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -426,7 +438,7 @@ def test_foci_stm_7():
                         ControlPoint(center),
                         ControlPoint(center),
                         ControlPoint(center),
-                    )
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -450,7 +462,7 @@ def test_foci_stm_7():
                         ControlPoint(center),
                         ControlPoint(center),
                         ControlPoint(center),
-                    )
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -494,7 +506,7 @@ def test_foci_stm_8():
                         ControlPoint(center),
                         ControlPoint(center),
                         ControlPoint(center),
-                    )
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],
@@ -519,7 +531,7 @@ def test_foci_stm_8():
                         ControlPoint(center),
                         ControlPoint(center),
                         ControlPoint(center),
-                    )
+                    ),
                 ).with_intensity(i)
                 for i in range(size)
             ],

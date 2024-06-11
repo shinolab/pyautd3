@@ -12,9 +12,9 @@ from .datagram import Datagram
 
 
 class PulseWidthEncoder(
-    Datagram,
     IntoDatagramWithTimeout["PulseWidthEncoder"],
     IntoDatagramWithParallelThreshold["PulseWidthEncoder"],
+    Datagram,
 ):
     _cache: dict[int, Callable[[int], int]]
 

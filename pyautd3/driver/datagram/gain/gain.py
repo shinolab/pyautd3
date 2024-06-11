@@ -14,13 +14,13 @@ G = TypeVar("G", bound="Gain")
 
 
 class Gain(
+    IntoDatagramWithTimeout[G],
+    IntoDatagramWithParallelThreshold[G],
     IntoDatagramWithSegment[G],
     IntoGainCache[G],
     IntoGainTransform[G],
     GainBase,
     Generic[G],
-    IntoDatagramWithTimeout[G],
-    IntoDatagramWithParallelThreshold[G],
     metaclass=ABCMeta,
 ):
     def __init__(self: "Gain[G]") -> None:

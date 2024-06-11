@@ -16,5 +16,5 @@ def test_with_parallel_threshold():
         autd.send(Static().with_parallel_threshold(10))
         assert Base().controller_last_parallel_threshold(autd._ptr) == 10
 
-        autd.send((Static(), Static()).with_parallel_threshold(5))
+        autd.send((Static(), Static()).with_parallel_threshold(5))  # type: ignore[attr-defined]
         assert Base().controller_last_parallel_threshold(autd._ptr) == 5

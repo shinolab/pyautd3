@@ -25,10 +25,10 @@ class DatagramS(Generic[P], metaclass=ABCMeta):
 
 
 class DatagramWithSegment(
-    Datagram,
-    Generic[DS],
     IntoDatagramWithTimeout["DatagramWithSegment[DS]"],
     IntoDatagramWithParallelThreshold["DatagramWithSegment[DS]"],
+    Datagram,
+    Generic[DS],
 ):
     _datagram: DS
     _segment: Segment

@@ -11,9 +11,9 @@ from .datagram import Datagram
 
 
 class ReadsFPGAState(
-    Datagram,
     IntoDatagramWithTimeout["ReadsFPGAState"],
     IntoDatagramWithParallelThreshold["ReadsFPGAState"],
+    Datagram,
 ):
     def __init__(self: "ReadsFPGAState", f: Callable[[Device], bool]) -> None:
         super().__init__()

@@ -27,35 +27,76 @@ def test_control_points_1():
 
 
 def test_control_points_2():
-    c = ControlPoints2(([1.0, 2.0, 3.0], [4.0, 5.0, 6.0])).with_intensity(0x80)
+    c = ControlPoints2(
+        (
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+        ),
+    ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)
 
 
 def test_control_points_3():
-    c = ControlPoints3(([1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0])).with_intensity(0x80)
+    c = ControlPoints3(
+        (
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+            [7.0, 8.0, 9.0],
+        ),
+    ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)
 
 
 def test_control_points_4():
-    c = ControlPoints4(([1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0])).with_intensity(0x80)
+    c = ControlPoints4(
+        (
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+            [7.0, 8.0, 9.0],
+            [10.0, 11.0, 12.0],
+        ),
+    ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)
 
 
 def test_control_points_5():
-    c = ControlPoints5(([1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0], [13.0, 14.0, 15.0])).with_intensity(0x80)
+    c = ControlPoints5(
+        (
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+            [7.0, 8.0, 9.0],
+            [10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0],
+        ),
+    ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)
 
 
 def test_control_points_6():
     c = ControlPoints6(
-        ([1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0], [13.0, 14.0, 15.0], [16.0, 17.0, 18.0])
+        (
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+            [7.0, 8.0, 9.0],
+            [10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0],
+            [16.0, 17.0, 18.0],
+        ),
     ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)
 
 
 def test_control_points_7():
     c = ControlPoints7(
-        ([1.0, 2.0, 3.0], [4.0, 5.0, 6.0], [7.0, 8.0, 9.0], [10.0, 11.0, 12.0], [13.0, 14.0, 15.0], [16.0, 17.0, 18.0], [19.0, 20.0, 21.0])
+        (
+            [1.0, 2.0, 3.0],
+            [4.0, 5.0, 6.0],
+            [7.0, 8.0, 9.0],
+            [10.0, 11.0, 12.0],
+            [13.0, 14.0, 15.0],
+            [16.0, 17.0, 18.0],
+            [19.0, 20.0, 21.0],
+        ),
     ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)
 
@@ -71,6 +112,6 @@ def test_control_points_8():
             [16.0, 17.0, 18.0],
             [19.0, 20.0, 21.0],
             [22.0, 23.0, 24.0],
-        )
+        ),
     ).with_intensity(0x80)
     assert c.intensity == EmitIntensity(0x80)

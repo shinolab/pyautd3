@@ -29,10 +29,10 @@ __all__ = []  # type: ignore[var-annotated]
 
 class GainSTM(
     IntoDatagramWithSegmentTransition,
-    DatagramST[GainSTMPtr],
-    Datagram,
     IntoDatagramWithTimeout["GainSTM"],
     IntoDatagramWithParallelThreshold["GainSTM"],
+    DatagramST[GainSTMPtr],
+    Datagram,
 ):
     _gains: np.ndarray
     _mode: GainSTMMode

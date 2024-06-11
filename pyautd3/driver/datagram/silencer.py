@@ -7,11 +7,15 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr
 from .datagram import Datagram
 
 
-class Silencer(Datagram, IntoDatagramWithTimeout["Silencer"], IntoDatagramWithParallelThreshold["Silencer"]):
+class Silencer(
+    IntoDatagramWithTimeout["Silencer"],
+    IntoDatagramWithParallelThreshold["Silencer"],
+    Datagram,
+):
     class FixedUpdateRate(
-        Datagram,
         IntoDatagramWithTimeout["Silencer.FixedUpdateRate"],
         IntoDatagramWithParallelThreshold["Silencer.FixedUpdateRate"],
+        Datagram,
     ):
         _value_intensity: int
         _value_phase: int

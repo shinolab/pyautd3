@@ -46,9 +46,9 @@ class DebugType(metaclass=ConstantADT):
 
 
 class DebugSettings(
-    Datagram,
     IntoDatagramWithTimeout["DebugSettings"],
     IntoDatagramWithParallelThreshold["DebugSettings"],
+    Datagram,
 ):
     def __init__(self: "DebugSettings", f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
         super().__init__()

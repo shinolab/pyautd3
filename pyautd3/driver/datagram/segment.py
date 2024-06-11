@@ -12,9 +12,9 @@ class SwapSegment:
         raise NotImplementedError
 
     class Gain(
-        Datagram,
         IntoDatagramWithTimeout["SwapSegment.Gain"],
         IntoDatagramWithParallelThreshold["SwapSegment.Gain"],
+        Datagram,
     ):
         _segment: Segment
 
@@ -26,9 +26,9 @@ class SwapSegment:
             return Base().datagram_swap_segment_gain(self._segment)
 
     class Modulation(
-        Datagram,
         IntoDatagramWithTimeout["SwapSegment.Modulation"],
         IntoDatagramWithParallelThreshold["SwapSegment.Modulation"],
+        Datagram,
     ):
         _segment: Segment
         _transition_mode: TransitionModeWrap
@@ -42,9 +42,9 @@ class SwapSegment:
             return Base().datagram_swap_segment_modulation(self._segment, self._transition_mode)
 
     class FociSTM(
-        Datagram,
         IntoDatagramWithTimeout["SwapSegment.FociSTM"],
         IntoDatagramWithParallelThreshold["SwapSegment.FociSTM"],
+        Datagram,
     ):
         _segment: Segment
         _transition_mode: TransitionModeWrap
@@ -58,9 +58,9 @@ class SwapSegment:
             return Base().datagram_swap_segment_foci_stm(self._segment, self._transition_mode)
 
     class GainSTM(
-        Datagram,
         IntoDatagramWithTimeout["SwapSegment.GainSTM"],
         IntoDatagramWithParallelThreshold["SwapSegment.GainSTM"],
+        Datagram,
     ):
         _segment: Segment
         _transition_mode: TransitionModeWrap

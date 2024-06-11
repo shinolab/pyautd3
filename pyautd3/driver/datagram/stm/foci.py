@@ -40,12 +40,12 @@ C = TypeVar("C", bound=IControlPoints)
 
 
 class FociSTM(
+    IntoDatagramWithTimeout["FociSTM[C]"],
+    IntoDatagramWithParallelThreshold["FociSTM[C]"],
     IntoDatagramWithSegmentTransition,
     DatagramST[FociSTMPtr],
     Datagram,
     Generic[C],
-    IntoDatagramWithTimeout["FociSTM[C]"],
-    IntoDatagramWithParallelThreshold["FociSTM[C]"],
 ):
     _points: list[C]
 

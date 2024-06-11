@@ -11,9 +11,9 @@ from .datagram import Datagram
 
 
 class ForceFan(
-    Datagram,
     IntoDatagramWithTimeout["ForceFan"],
     IntoDatagramWithParallelThreshold["ForceFan"],
+    Datagram,
 ):
     def __init__(self: "ForceFan", f: Callable[[Device], bool]) -> None:
         super().__init__()

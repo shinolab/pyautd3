@@ -17,11 +17,11 @@ G = TypeVar("G", bound=GainBase)
 
 
 class Cache(
+    IntoDatagramWithTimeout["Cache[G]"],
+    IntoDatagramWithParallelThreshold["Cache[G]"],
     GainBase,
     IntoDatagramWithSegment["Cache[G]"],
     Generic[G],
-    IntoDatagramWithTimeout["Cache[G]"],
-    IntoDatagramWithParallelThreshold["Cache[G]"],
 ):
     _g: G
     _cache: dict[int, np.ndarray]
