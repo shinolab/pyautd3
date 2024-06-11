@@ -16,12 +16,12 @@ class Static(
 ):
     _intensity: EmitIntensity
 
-    def __init__(self: "Static", intensity: EmitIntensity | None = None) -> None:
+    def __init__(self: "Static", intensity: int | EmitIntensity | None = None) -> None:
         super().__init__()
-        self._intensity = EmitIntensity.maximum() if intensity is None else intensity
+        self._intensity = EmitIntensity.maximum() if intensity is None else EmitIntensity(intensity)
 
     @staticmethod
-    def with_intensity(intensity: EmitIntensity) -> "Static":
+    def with_intensity(intensity: int | EmitIntensity) -> "Static":
         return Static(intensity)
 
     @property

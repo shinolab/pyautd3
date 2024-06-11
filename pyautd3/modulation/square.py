@@ -37,16 +37,16 @@ class Square(Modulation["Square"]):
         sine.__private__init__(SamplingModeNearest(freq))
         return sine
 
-    def with_low(self: "Square", low: EmitIntensity) -> "Square":
-        self._low = low
+    def with_low(self: "Square", low: int | EmitIntensity) -> "Square":
+        self._low = EmitIntensity(low)
         return self
 
     @property
     def low(self: "Square") -> EmitIntensity:
         return self._low
 
-    def with_high(self: "Square", high: EmitIntensity) -> "Square":
-        self._high = high
+    def with_high(self: "Square", high: int | EmitIntensity) -> "Square":
+        self._high = EmitIntensity(high)
         return self
 
     @property

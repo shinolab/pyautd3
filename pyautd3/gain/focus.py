@@ -25,16 +25,16 @@ class Focus(Gain["Focus"]):
     def pos(self: "Focus") -> np.ndarray:
         return self._p
 
-    def with_intensity(self: "Focus", intensity: EmitIntensity) -> "Focus":
-        self._intensity = intensity
+    def with_intensity(self: "Focus", intensity: int | EmitIntensity) -> "Focus":
+        self._intensity = EmitIntensity(intensity)
         return self
 
     @property
     def intensity(self: "Focus") -> EmitIntensity:
         return self._intensity
 
-    def with_phase_offset(self: "Focus", phase: Phase) -> "Focus":
-        self._phase_offset = phase
+    def with_phase_offset(self: "Focus", phase: int | Phase) -> "Focus":
+        self._phase_offset = Phase(phase)
         return self
 
     @property

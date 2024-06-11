@@ -25,16 +25,16 @@ class Plane(Gain["Plane"]):
     def dir(self: "Plane") -> np.ndarray:
         return self._d
 
-    def with_intensity(self: "Plane", intensity: EmitIntensity) -> "Plane":
-        self._intensity = intensity
+    def with_intensity(self: "Plane", intensity: int | EmitIntensity) -> "Plane":
+        self._intensity = EmitIntensity(intensity)
         return self
 
     @property
     def intensity(self: "Plane") -> EmitIntensity:
         return self._intensity
 
-    def with_phase_offset(self: "Plane", phase: Phase) -> "Plane":
-        self._phase_offset = phase
+    def with_phase_offset(self: "Plane", phase: int | Phase) -> "Plane":
+        self._phase_offset = Phase(phase)
         return self
 
     @property

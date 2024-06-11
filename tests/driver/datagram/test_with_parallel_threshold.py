@@ -1,8 +1,5 @@
-from datetime import timedelta
-
 from pyautd3.controller.controller import Controller
 from pyautd3.driver.autd3_device import AUTD3
-from pyautd3.gain.null import Null
 from pyautd3.link.audit import Audit
 from pyautd3.modulation.static import Static
 from pyautd3.native_methods.autd3capi import NativeMethods as Base

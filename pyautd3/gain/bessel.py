@@ -38,16 +38,16 @@ class Bessel(Gain["Bessel"]):
     def theta(self: "Bessel") -> Angle:
         return self._theta
 
-    def with_intensity(self: "Bessel", intensity: EmitIntensity) -> "Bessel":
-        self._intensity = intensity
+    def with_intensity(self: "Bessel", intensity: int | EmitIntensity) -> "Bessel":
+        self._intensity = EmitIntensity(intensity)
         return self
 
     @property
     def intensity(self: "Bessel") -> EmitIntensity:
         return self._intensity
 
-    def with_phase_offset(self: "Bessel", phase: Phase) -> "Bessel":
-        self._phase_offset = phase
+    def with_phase_offset(self: "Bessel", phase: int | Phase) -> "Bessel":
+        self._phase_offset = Phase(phase)
         return self
 
     @property

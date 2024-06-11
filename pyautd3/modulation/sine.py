@@ -38,16 +38,16 @@ class Sine(Modulation["Sine"]):
         sine.__private__init__(SamplingModeNearest(freq))
         return sine
 
-    def with_intensity(self: "Sine", intensity: EmitIntensity) -> "Sine":
-        self._intensity = intensity
+    def with_intensity(self: "Sine", intensity: int | EmitIntensity) -> "Sine":
+        self._intensity = EmitIntensity(intensity)
         return self
 
     @property
     def intensity(self: "Sine") -> EmitIntensity:
         return self._intensity
 
-    def with_offset(self: "Sine", offset: EmitIntensity) -> "Sine":
-        self._offset = offset
+    def with_offset(self: "Sine", offset: int | EmitIntensity) -> "Sine":
+        self._offset = EmitIntensity(offset)
         return self
 
     @property
