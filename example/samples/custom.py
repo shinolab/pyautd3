@@ -14,4 +14,4 @@ def transtest(autd: Controller) -> None:
     g = Custom(f)
     m = Sine(150 * Hz)
 
-    autd.send(m, g)
+    autd.send((m, g))

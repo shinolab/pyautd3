@@ -7,7 +7,7 @@ def flag(autd: Controller) -> None:
     print("press any key to run fan...")
     _ = input()
 
-    autd.send(ReadsFPGAState(lambda _: True), ForceFan(lambda _: True))
+    autd.send((ReadsFPGAState(lambda _: True), ForceFan(lambda _: True)))
 
     fin = False
 
@@ -31,4 +31,4 @@ def flag(autd: Controller) -> None:
     print("\x1b[1F\x1b[0J")
 
     th.join()
-    autd.send(ReadsFPGAState(lambda _: False), ForceFan(lambda _: False))
+    autd.send((ReadsFPGAState(lambda _: False), ForceFan(lambda _: False)))

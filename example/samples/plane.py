@@ -10,4 +10,4 @@ def plane(autd: Controller) -> None:
     f = Plane(np.array([0.0, 0.0, 1.0]))
     m = Sine(150 * Hz)
 
-    autd.send(m, f)
+    autd.send((m, f))

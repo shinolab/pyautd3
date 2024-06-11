@@ -10,7 +10,7 @@ def holo(autd: Controller) -> None:
 
     center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
     backend = NalgebraBackend()
-    f = GSPAT(backend).add_focus(center - np.array([30.0, 0.0, 0.0]), 10e3 * Pa).add_focus(center + np.array([30.0, 0.0, 0.0]), 10e3 * Pa)
+    f = GSPAT(backend, [(center - np.array([30.0, 0.0, 0.0]), 10e3 * Pa), (center + np.array([30.0, 0.0, 0.0]), 10e3 * Pa)])
     m = Sine(150 * Hz)
 
-    autd.send(m, f)
+    autd.send((m, f))

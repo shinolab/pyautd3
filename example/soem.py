@@ -19,11 +19,7 @@ def err_handler(slave: int, status: Status, msg: str) -> None:
 
 
 if __name__ == "__main__":
-    with (
-        Controller.builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open(
-            SOEM.builder().with_err_handler(err_handler),
-        ) as autd
-    ):
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).open(
+        SOEM.builder().with_err_handler(err_handler),
+    ) as autd:
         runner.run(autd)
