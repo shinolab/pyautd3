@@ -1,3 +1,4 @@
+from .custom import Custom
 from .fourier import Fourier
 from .mixer import Mixer
 from .modulation import Modulation
@@ -12,4 +13,5 @@ __all__ = [
     "Fourier",
     "Mixer",
     "Square",
+    "Custom",
 ]

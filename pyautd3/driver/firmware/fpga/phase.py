@@ -1,26 +1,24 @@
-from ctypes import c_uint8
-
 from pyautd3.driver.defined import Angle
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 
 class Phase:
-    _value: c_uint8
+    _value: int
 
     def __init__(self: "Phase", phase: "int | Angle | Phase") -> None:
         match phase:
             case int():
-                self._value = c_uint8(phase)
+                self._value = phase
             case Angle():
-                self._value = c_uint8(Base().phase_from_rad(phase.radian))  # type: ignore[arg-type]
+                self._value = int(Base().phase_from_rad(phase.radian))
             case Phase():
-                self = phase
+                self._value = phase._value
             case _:
                 raise TypeError
 
     @property
     def value(self: "Phase") -> int:
-        return int(self._value.value)
+        return int(self._value)
 
     @property
     def radian(self: "Phase") -> float:
