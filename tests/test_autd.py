@@ -115,6 +115,29 @@ def test_send_single():
 
 
 @pytest.mark.asyncio()
+async def test_send_async_single():
+    autd: Controller[Audit]
+    with await create_controller_async() as autd:
+        for dev in autd.geometry:
+            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+
+        await autd.send_async(Static())
+
+        for dev in autd.geometry:
+            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+
+        autd.link.down()
+        with pytest.raises(AUTDError) as e:
+            await autd.send_async(Static())
+        assert str(e.value) == "Failed to send data"
+
+        autd.link.break_down()
+        with pytest.raises(AUTDError) as e:
+            await autd.send_async(Static())
+        assert str(e.value) == "broken"
+
+
+@pytest.mark.asyncio()
 async def test_send_async_tuple():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
