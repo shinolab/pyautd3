@@ -113,7 +113,7 @@ def test_silencer_small_freq_div_stm():
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
         with pytest.raises(AUTDError) as e:
-            autd.send(GainSTM.from_sampling_config(SamplingConfig.Division(512)).add_gain(Null()).add_gain(Null()))
+            autd.send(GainSTM.from_sampling_config(SamplingConfig.Division(512), [Null(), Null()]))
         assert str(e.value) == "Sampling frequency division is too small or silencer completion steps is too large"
 
         autd.send(Silencer.fixed_completion_steps(10, 40).with_strict_mode(mode=False))
@@ -123,5 +123,5 @@ def test_silencer_small_freq_div_stm():
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
         autd.send(
-            GainSTM.from_sampling_config(SamplingConfig.Division(512)).add_gain(Null()).add_gain(Null()),
+            GainSTM.from_sampling_config(SamplingConfig.Division(512), [Null(), Null()]),
         )

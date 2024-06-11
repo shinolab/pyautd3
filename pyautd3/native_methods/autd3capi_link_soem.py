@@ -2,6 +2,7 @@
 import threading
 import ctypes
 import os
+from pyautd3.native_methods.structs import Vector3, Quaternion
 from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, SyncMode
 
 from enum import IntEnum
@@ -105,7 +106,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithStateCheckInterval.restype = LinkSOEMBuilderPtr
 
         self.dll.AUTDLinkSOEMStatusGetMsg.argtypes = [Status, ctypes.c_char_p]  # type: ignore 
-        self.dll.AUTDLinkSOEMStatusGetMsg.restype = None
+        self.dll.AUTDLinkSOEMStatusGetMsg.restype = ctypes.c_uint32
 
         self.dll.AUTDLinkSOEMWithErrHandler.argtypes = [LinkSOEMBuilderPtr, ctypes.c_void_p, ctypes.c_void_p]  # type: ignore 
         self.dll.AUTDLinkSOEMWithErrHandler.restype = LinkSOEMBuilderPtr
@@ -161,7 +162,7 @@ class NativeMethods(metaclass=Singleton):
     def link_soem_with_state_check_interval(self, soem: LinkSOEMBuilderPtr, interval_ms: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithStateCheckInterval(soem, interval_ms)
 
-    def link_soem_status_get_msg(self, src: Status, dst: ctypes.Array[ctypes.c_char] | None) -> None:
+    def link_soem_status_get_msg(self, src: Status, dst: ctypes.Array[ctypes.c_char] | None) -> ctypes.c_uint32:
         return self.dll.AUTDLinkSOEMStatusGetMsg(src, dst)
 
     def link_soem_with_err_handler(self, soem: LinkSOEMBuilderPtr, handler: ctypes.c_void_p | None, context: ctypes.c_void_p | None) -> LinkSOEMBuilderPtr:

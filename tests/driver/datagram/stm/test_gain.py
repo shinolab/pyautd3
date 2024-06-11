@@ -5,7 +5,6 @@ import pytest
 
 from pyautd3 import Controller, GainSTM, GainSTMMode, Hz, LoopBehavior, SamplingConfig, Segment, Silencer, Uniform
 from pyautd3.driver.datagram.segment import SwapSegment
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from tests.test_autd import create_controller
 
@@ -19,11 +18,7 @@ def test_gain_stm():
         autd.send(Silencer.disable())
 
         size = 2
-        stm = (
-            GainSTM.from_freq(1.0 * Hz)
-            .add_gains_from_iter(Uniform(EmitIntensity(0xFF) // (i + 1)) for i in range(size))
-            .with_loop_behavior(LoopBehavior.Once)
-        )
+        stm = GainSTM.from_freq(1.0 * Hz, (Uniform(0xFF // (i + 1)) for i in range(size))).with_loop_behavior(LoopBehavior.Once)
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -32,7 +27,7 @@ def test_gain_stm():
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
 
-        stm = GainSTM.from_freq_nearest(1.0 * Hz).add_gain(Uniform(EmitIntensity(0xFF))).add_gain(Uniform(EmitIntensity(0x80)))
+        stm = GainSTM.from_freq_nearest(1.0 * Hz, [Uniform(0xFF), Uniform(0x80)])
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -41,7 +36,7 @@ def test_gain_stm():
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
 
-        stm = GainSTM.from_sampling_config(SamplingConfig.Division(512)).add_gain(Uniform(EmitIntensity(0xFF))).add_gain(Uniform(EmitIntensity(0x80)))
+        stm = GainSTM.from_sampling_config(SamplingConfig.Division(512), [Uniform(0xFF), Uniform(0x80)])
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 512
@@ -85,8 +80,9 @@ def test_gain_stm_segment():
         assert autd.link.current_stm_segment(0) == Segment.S0
 
         autd.send(
-            GainSTM.from_sampling_config(SamplingConfig.DivisionRaw(0x12345678)).add_gains_from_iter(
-                [Uniform(EmitIntensity(0x01)), Uniform(EmitIntensity(0x02))],
+            GainSTM.from_sampling_config(
+                SamplingConfig.DivisionRaw(0x12345678),
+                [Uniform(0x01), Uniform(0x02)],
             ),
         )
         assert autd.link.current_stm_segment(0) == Segment.S0
@@ -98,11 +94,10 @@ def test_gain_stm_segment():
             assert np.all(autd.link.drives(dev.idx, Segment.S1, 0)[0] == 0x00)
 
         autd.send(
-            GainSTM.from_sampling_config(SamplingConfig.DivisionRaw(0x9ABCDEF0))
-            .add_gains_from_iter(
-                [Uniform(EmitIntensity(0x03)), Uniform(EmitIntensity(0x04))],
-            )
-            .with_segment(Segment.S1, TransitionMode.Immediate),
+            GainSTM.from_sampling_config(
+                SamplingConfig.DivisionRaw(0x9ABCDEF0),
+                [Uniform(0x03), Uniform(0x04)],
+            ).with_segment(Segment.S1, TransitionMode.Immediate),
         )
         assert autd.link.current_stm_segment(0) == Segment.S1
         assert autd.link.stm_cycle(0, Segment.S1) == 2
@@ -114,11 +109,10 @@ def test_gain_stm_segment():
             assert np.all(autd.link.drives(dev.idx, Segment.S1, 1)[0] == 0x04)
 
         autd.send(
-            GainSTM.from_sampling_config(SamplingConfig.DivisionRaw(0x87654321))
-            .add_gains_from_iter(
-                [Uniform(EmitIntensity(0x05)), Uniform(EmitIntensity(0x06)), Uniform(EmitIntensity(0x07))],
-            )
-            .with_segment(Segment.S0, None),
+            GainSTM.from_sampling_config(
+                SamplingConfig.DivisionRaw(0x87654321),
+                [Uniform(0x05), Uniform(0x06), Uniform(0x07)],
+            ).with_segment(Segment.S0, None),
         )
         assert autd.link.current_stm_segment(0) == Segment.S1
         assert autd.link.stm_cycle(0, Segment.S0) == 3
@@ -130,7 +124,7 @@ def test_gain_stm_segment():
             assert np.all(autd.link.drives(dev.idx, Segment.S1, 0)[0] == 0x03)
             assert np.all(autd.link.drives(dev.idx, Segment.S1, 1)[0] == 0x04)
 
-        autd.send(SwapSegment.gain_stm(Segment.S0, TransitionMode.Immediate))
+        autd.send(SwapSegment.GainSTM(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S0
 
 

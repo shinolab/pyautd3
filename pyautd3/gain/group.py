@@ -16,9 +16,9 @@ K = TypeVar("K")
 
 class Group(Gain["Group[K]"], Generic[K]):
     _map: dict[K, GainBase]
-    _f: Callable[[Device, Transducer], K | None]
+    _f: Callable[[Device], Callable[[Transducer], K | None]]
 
-    def __init__(self: "Group", f: Callable[[Device, Transducer], K | None]) -> None:
+    def __init__(self: "Group", f: Callable[[Device], Callable[[Transducer], K | None]]) -> None:
         super().__init__()
         self._map = {}
         self._f = f
@@ -35,9 +35,10 @@ class Group(Gain["Group[K]"], Generic[K]):
         gain_group_map = Base().gain_group_create_map(np.ctypeslib.as_ctypes(device_indices.astype(c_uint32)), len(device_indices))
         k: int = 0
         for dev in geometry.devices:
+            f = self._f(dev)
             m = np.zeros(dev.num_transducers, dtype=np.int32)
             for tr in dev:
-                key = self._f(dev, tr)
+                key = f(tr)
                 if key is not None:
                     if key not in keymap:
                         keymap[key] = k

@@ -2,6 +2,7 @@
 import threading
 import ctypes
 import os
+from pyautd3.native_methods.structs import Vector3, Quaternion
 from enum import IntEnum
 
 
@@ -98,7 +99,11 @@ class TransitionModeTag(IntEnum):
 
 
 class SamplingConfigValue(ctypes.Union):
-    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_double)]
+    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_float)]
+
+
+class ContextPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
 
 
 class LinkBuilderPtr(ctypes.Structure):
@@ -133,7 +138,7 @@ class ModulationPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class FocusSTMPtr(ctypes.Structure):
+class FociSTMPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -181,12 +186,12 @@ class TransitionModeWrap(ctypes.Structure):
         return isinstance(other, TransitionModeWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-class ResultI32(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_int32), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class ResultDatagram(ctypes.Structure):
+    _fields_ = [("result", DatagramPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultI32) and self._fields_ == other._fields_ # pragma: no cover
+        return isinstance(other, ResultDatagram) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultModulation(ctypes.Structure):
@@ -197,12 +202,28 @@ class ResultModulation(ctypes.Structure):
         return isinstance(other, ResultModulation) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-class ResultDatagram(ctypes.Structure):
-    _fields_ = [("result", DatagramPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class ResultFociSTM(ctypes.Structure):
+    _fields_ = [("result", FociSTMPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultDatagram) and self._fields_ == other._fields_ # pragma: no cover
+        return isinstance(other, ResultFociSTM) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultGainSTM(ctypes.Structure):
+    _fields_ = [("result", GainSTMPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultGainSTM) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultI32(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_int32), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultI32) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 NUM_TRANS_IN_UNIT: int = 249

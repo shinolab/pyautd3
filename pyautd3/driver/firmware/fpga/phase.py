@@ -7,12 +7,16 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 class Phase:
     _value: c_uint8
 
-    def __init__(self: "Phase", phase: int | Angle) -> None:
+    def __init__(self: "Phase", phase: "int | Angle | Phase") -> None:
         match phase:
             case int():
                 self._value = c_uint8(phase)
-            case _:
+            case Angle():
                 self._value = c_uint8(Base().phase_from_rad(phase.radian))  # type: ignore[arg-type]
+            case Phase():
+                self = phase
+            case _:
+                raise TypeError
 
     @property
     def value(self: "Phase") -> int:

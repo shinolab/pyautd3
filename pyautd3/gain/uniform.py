@@ -10,17 +10,17 @@ class Uniform(Gain["Uniform"]):
     _intensity: EmitIntensity
     _phase: Phase
 
-    def __init__(self: "Uniform", intensity: EmitIntensity) -> None:
+    def __init__(self: "Uniform", intensity: int | EmitIntensity) -> None:
         super().__init__()
-        self._intensity = intensity
+        self._intensity = EmitIntensity(intensity)
         self._phase = Phase(0)
 
     @property
     def intensity(self: "Uniform") -> EmitIntensity:
         return self._intensity
 
-    def with_phase(self: "Uniform", phase: Phase) -> "Uniform":
-        self._phase = phase
+    def with_phase(self: "Uniform", phase: int | Phase) -> "Uniform":
+        self._phase = Phase(phase)
         return self
 
     @property

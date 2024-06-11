@@ -7,11 +7,11 @@ from pyautd3.native_methods.utils import ConstantADT
 
 class AUTD3(metaclass=ConstantADT):
     _pos: np.ndarray
-    _rot: np.ndarray | None
+    _rot: np.ndarray
 
     def __init__(self: "AUTD3", pos: ArrayLike) -> None:
         self._pos = np.array(pos)
-        self._rot = None
+        self._rot = np.array([1, 0, 0, 0])
 
     def with_rotation(self: "AUTD3", rot: ArrayLike) -> "AUTD3":
         self._rot = np.array(rot)

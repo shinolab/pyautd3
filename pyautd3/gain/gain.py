@@ -1,45 +1,36 @@
-import functools
+import ctypes
 from abc import ABCMeta, abstractmethod
 from collections.abc import Callable
-from ctypes import POINTER
 from typing import Generic, TypeVar
-
-import numpy as np
 
 from pyautd3.driver.datagram.gain.gain import Gain as _Gain
 from pyautd3.driver.firmware.fpga import Drive
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi_driver import ContextPtr, GainPtr, GeometryPtr
 from pyautd3.native_methods.autd3capi_driver import Drive as _Drive
-from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 G = TypeVar("G", bound="Gain")
 
 
 class Gain(_Gain[G], Generic[G], metaclass=ABCMeta):
     @abstractmethod
-    def calc(self: "Gain[G]", geometry: Geometry) -> dict[int, np.ndarray]:
+    def calc(self: "Gain[G]", geometry: Geometry) -> Callable[[Device], Callable[[Transducer], Drive]]:
         pass
 
     def _gain_ptr(self: "Gain[G]", geometry: Geometry) -> GainPtr:
-        drives = self.calc(geometry)
-        return functools.reduce(
-            lambda acc, dev: Base().gain_raw_set(
-                acc,
-                dev.idx,
-                drives[dev.idx].ctypes.data_as(POINTER(_Drive)),  # type: ignore[arg-type]
-                len(drives[dev.idx]),
-            ),
-            geometry.devices,
-            Base().gain_raw(),
-        )
+        f = self.calc(geometry)
+
+        def f_native(_context: ContextPtr, geometry_ptr: GeometryPtr, dev_idx: int, tr_idx: int, raw) -> None:  # noqa: ANN001
+            dev = Device(dev_idx, Base().device(geometry_ptr, dev_idx))
+            tr = Transducer(tr_idx, dev._ptr)
+            d = f(dev)(tr)
+            raw[0] = _Drive(d.phase.value, d.intensity.value)
+
+        self._f_native = ctypes.CFUNCTYPE(None, ContextPtr, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8, ctypes.POINTER(_Drive))(f_native)
+
+        return Base().gain_custom(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
 
     @staticmethod
-    def _transform(geometry: Geometry, f: Callable[[Device], Callable[[Transducer], Drive]]) -> dict[int, np.ndarray]:
-        return {
-            dev.idx: np.fromiter(
-                (np.void(_Drive(d.phase._value, d.intensity._value)) for d in (f(dev)(tr) for tr in dev)),  # type: ignore[call-overload]
-                dtype=_Drive,
-            )
-            for dev in geometry.devices
-        }
+    def _transform(f: Callable[[Device], Callable[[Transducer], Drive]]) -> Callable[[Device], Callable[[Transducer], Drive]]:
+        return f

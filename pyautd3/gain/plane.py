@@ -7,6 +7,7 @@ from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import GainPtr
+from pyautd3.native_methods.structs import Vector3
 
 
 class Plane(Gain["Plane"]):
@@ -41,4 +42,4 @@ class Plane(Gain["Plane"]):
         return self._phase_offset
 
     def _gain_ptr(self: "Plane", _: Geometry) -> GainPtr:
-        return Base().gain_plane(self._d[0], self._d[1], self._d[2], self._intensity.value, self._phase_offset.value)
+        return Base().gain_plane(Vector3(self._d), self._intensity.value, self._phase_offset.value)

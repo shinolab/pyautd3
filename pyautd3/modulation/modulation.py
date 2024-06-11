@@ -1,5 +1,5 @@
+import ctypes
 from abc import ABCMeta, abstractmethod
-from ctypes import POINTER, c_uint8
 from typing import Generic, TypeVar
 
 import numpy as np
@@ -21,11 +21,11 @@ class Modulation(_Modulation[M], Generic[M], metaclass=ABCMeta):
         pass
 
     def _modulation_ptr(self: "Modulation", geometry: Geometry) -> ModulationPtr:
-        data = np.fromiter((m.value for m in self.calc(geometry)), dtype=c_uint8)
+        data = self.calc(geometry)
         size = len(data)
         return Base().modulation_raw(
             self._config,
             self._loop_behavior,
-            data.ctypes.data_as(POINTER(c_uint8)),  # type: ignore[arg-type]
+            data.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]
             size,
         )

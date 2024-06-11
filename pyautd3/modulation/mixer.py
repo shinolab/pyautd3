@@ -12,23 +12,23 @@ from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from .sine import Sine
 
 
-class Fourier(
-    IntoModulationCache["Fourier"],
-    IntoModulationRadiationPressure["Fourier"],
-    IntoModulationTransform["Fourier"],
-    ModulationBase["Fourier"],
+class Mixer(
+    IntoModulationCache["Mixer"],
+    IntoModulationRadiationPressure["Mixer"],
+    IntoModulationTransform["Mixer"],
+    ModulationBase["Mixer"],
 ):
     _components: list[Sine]
 
-    def __init__(self: "Fourier", iterable: Iterable[Sine]) -> None:
+    def __init__(self: "Mixer", iterable: Iterable[Sine]) -> None:
         super().__init__()
         self._components = list(iterable)
 
-    def _modulation_ptr(self: "Fourier", geometry: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Mixer", geometry: Geometry) -> ModulationPtr:
         components: np.ndarray = np.ndarray(len(self._components), dtype=ModulationPtr)
         for i, m in enumerate(self._components):
             components[i]["_0"] = m._modulation_ptr(geometry)._0
-        return self._components[0]._mode.fourier_ptr(
+        return self._components[0]._mode.mixer_ptr(
             components,
             len(self._components),
             self._loop_behavior,

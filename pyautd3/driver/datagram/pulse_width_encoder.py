@@ -1,30 +1,35 @@
 import ctypes
-
-import numpy as np
+from collections.abc import Callable
 
 from pyautd3.driver.geometry import Geometry
+from pyautd3.driver.geometry.device import Device
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
 
 from .datagram import Datagram
 
 
 class PulseWidthEncoder(Datagram):
-    _buf: np.ndarray | None
+    _cache: dict[int, Callable[[int], int]]
 
-    def __init__(self: "PulseWidthEncoder", buf: np.ndarray | None = None) -> None:
+    def __init__(self: "PulseWidthEncoder", f: Callable[[Device], Callable[[int], int]] | None = None) -> None:
         super().__init__()
-        self._buf = buf
+        self._cache = {}
 
-    def _datagram_ptr(self: "PulseWidthEncoder", _: Geometry) -> DatagramPtr:
+        if f is None:
+            self._f_native = None
+        else:
+
+            def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, idx: int) -> int:
+                if dev_idx not in self._cache:
+                    self._cache[dev_idx] = f(Device(dev_idx, Base().device(geometry_ptr, dev_idx)))
+                return self._cache[dev_idx](idx)
+
+            self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint16, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint16)(f_native)
+
+    def _datagram_ptr(self: "PulseWidthEncoder", geometry: Geometry) -> DatagramPtr:
         return (
             Base().datagram_pulse_width_encoder_default()
-            if self._buf is None
-            else _validate_ptr(
-                Base().datagram_pulse_width_encoder(
-                    self._buf.ctypes.data_as(ctypes.POINTER(ctypes.c_uint16)),  # type: ignore [arg-type]
-                    len(self._buf),
-                ),
-            )
+            if self._f_native is None
+            else Base().datagram_pulse_width_encoder(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
         )

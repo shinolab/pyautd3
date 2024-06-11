@@ -1,8 +1,9 @@
-from ctypes import Array, c_double
+from ctypes import Array, c_float
 
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintWrap
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
+from pyautd3.native_methods.structs import Vector3
 
 from .backend import Backend
 
@@ -18,8 +19,8 @@ class NalgebraBackend(Backend):
 
     def _sdp(
         self: "NalgebraBackend",
-        foci: Array[c_double],
-        amps: Array[c_double],
+        foci: Array[Vector3],
+        amps: Array[c_float],
         size: int,
         alpha: float,
         lambda_: float,
@@ -30,8 +31,8 @@ class NalgebraBackend(Backend):
 
     def _gs(
         self: "NalgebraBackend",
-        foci: Array[c_double],
-        amps: Array[c_double],
+        foci: Array[Vector3],
+        amps: Array[c_float],
         size: int,
         repeat: int,
         constraint: EmissionConstraintWrap,
@@ -40,27 +41,27 @@ class NalgebraBackend(Backend):
 
     def _gspat(
         self: "NalgebraBackend",
-        foci: Array[c_double],
-        amps: Array[c_double],
+        foci: Array[Vector3],
+        amps: Array[c_float],
         size: int,
         repeat: int,
         constraint: EmissionConstraintWrap,
     ) -> GainPtr:
         return GainHolo().gain_holo_gspat_sphere(self._backend_ptr(), foci, amps, size, repeat, constraint)
 
-    def _naive(self: "NalgebraBackend", foci: Array[c_double], amps: Array[c_double], size: int, constraint: EmissionConstraintWrap) -> GainPtr:
+    def _naive(self: "NalgebraBackend", foci: Array[Vector3], amps: Array[c_float], size: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return GainHolo().gain_holo_naive_sphere(self._backend_ptr(), foci, amps, size, constraint)
 
     def _lm(
         self: "NalgebraBackend",
-        foci: Array[c_double],
-        amps: Array[c_double],
+        foci: Array[Vector3],
+        amps: Array[c_float],
         size: int,
         eps1: float,
         eps2: float,
         tau: float,
         kmax: int,
-        initial: Array[c_double],
+        initial: Array[c_float],
         initial_size: int,
         constraint: EmissionConstraintWrap,
     ) -> GainPtr:

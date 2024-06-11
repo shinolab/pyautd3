@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, EmitIntensity, SamplingConfig, Segment
+from pyautd3 import Controller, SamplingConfig, Segment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.modulation import Modulation
@@ -17,8 +17,8 @@ class Burst(Modulation):
         super().__init__(SamplingConfig.Freq(4000 * Hz))
 
     def calc(self: "Burst", _: Geometry):
-        buf = np.array([EmitIntensity(0)] * 10)
-        buf[0] = EmitIntensity(0xFF)
+        buf = np.array([0] * 10)
+        buf[0] = 0xFF
         return buf
 
 

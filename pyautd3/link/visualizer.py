@@ -25,6 +25,7 @@ from pyautd3.native_methods.autd3capi_link_visualizer import (
 from pyautd3.native_methods.autd3capi_link_visualizer import (
     NativeMethods as LinkVisualizer,
 )
+from pyautd3.native_methods.structs import Vector3
 from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
 __all__ = [
@@ -122,7 +123,7 @@ class PlotRange:
     def observe_points(self: "PlotRange") -> list[np.ndarray]:
         plot_range = self._ptr()
         points_len = int(LinkVisualizer().link_visualizer_plot_range_observe_points_len(plot_range))
-        buf = np.zeros(3 * points_len).astype(ctypes.c_double)
+        buf = np.zeros(3 * points_len).astype(ctypes.c_float)
         LinkVisualizer().link_visualizer_plot_range_observe_points(plot_range, np.ctypeslib.as_ctypes(buf))
         return [np.array([buf[3 * i], buf[3 * i + 1], buf[3 * i + 2]]) for i in range(points_len)]
 
@@ -355,25 +356,24 @@ class Visualizer(Link):
         size = LinkVisualizer().link_visualizer_intensities(self._ptr, self._backend, self._directivity, segment, idx, None)
         intensities = np.zeros(int(size)).astype(ctypes.c_uint8)
         LinkVisualizer().link_visualizer_intensities(self._ptr, self._backend, self._directivity, segment, idx, np.ctypeslib.as_ctypes(intensities))
-        return np.fromiter((EmitIntensity(x) for x in intensities), dtype=EmitIntensity)
+        return np.fromiter((EmitIntensity(int(x)) for x in intensities), dtype=EmitIntensity)
 
     def modulation(self: "Visualizer", segment: Segment) -> np.ndarray:
         size = LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, None)
         modulation = np.zeros(int(size)).astype(ctypes.c_uint8)
         LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, np.ctypeslib.as_ctypes(modulation))
-        return np.fromiter((EmitIntensity(x) for x in modulation), dtype=EmitIntensity)
+        return modulation
 
     def calc_field(self: "Visualizer", points_iter: Iterable[np.ndarray], geometry: Geometry, segment: Segment, idx: int) -> np.ndarray:
-        points = np.fromiter(points_iter, dtype=np.ndarray)
+        points = np.fromiter((np.void(Vector3(d)) for d in points_iter), dtype=Vector3)  # type: ignore[type-var,call-overload]
         points_len = len(points)
-        points = np.ravel(np.stack(points))  # type: ignore[call-overload]
-        buf = np.zeros(points_len * 2).astype(ctypes.c_double)
+        buf = np.zeros(points_len * 2).astype(ctypes.c_float)
         _validate_int(
             LinkVisualizer().link_visualizer_calc_field(
                 self._ptr,
                 self._backend,
                 self._directivity,
-                np.ctypeslib.as_ctypes(points),
+                points.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
                 points_len,
                 geometry._geometry_ptr(),
                 segment,

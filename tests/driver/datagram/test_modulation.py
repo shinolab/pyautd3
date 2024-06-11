@@ -33,7 +33,7 @@ def test_cache():
 
         mod_expect = autd1.link.modulation(0, Segment.S0)
         assert m2.buffer is not None
-        buf = np.fromiter((m.value for m in m2.buffer), dtype=np.uint8)
+        buf = np.fromiter((m for m in m2.buffer), dtype=np.uint8)
         assert np.array_equal(buf, mod_expect)
 
 
@@ -46,7 +46,7 @@ class CacheTest(Modulation["CacheTest"]):
 
     def calc(self: "CacheTest", _geometry: Geometry):
         self.calc_cnt += 1
-        return np.array([EmitIntensity(0xFF)] * 2)
+        return np.array([0xFF] * 2)
 
 
 def test_cache_check_once():
@@ -72,8 +72,7 @@ def test_transform():
     autd2: Controller[Audit]
     with create_controller() as autd1, create_controller() as autd2:
         m1 = Sine(150 * Hz)
-        m2 = Sine(150 * Hz).with_transform(lambda _i, v: EmitIntensity(v.value // 2))
-        print(m2)
+        m2 = Sine(150 * Hz).with_transform(lambda _i, v: v // 2)
 
         autd1.send(m1)
         autd2.send(m2)
@@ -213,5 +212,5 @@ def test_mod_segment():
             mod = autd.link.modulation(dev.idx, Segment.S1)
             assert np.all(mod == 0x02)
 
-        autd.send(SwapSegment.modulation(Segment.S0, TransitionMode.Immediate))
+        autd.send(SwapSegment.Modulation(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_mod_segment(0) == Segment.S0

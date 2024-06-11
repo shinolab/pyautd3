@@ -1,17 +1,18 @@
-from ctypes import c_uint8
-
-
 class EmitIntensity:
-    _value: c_uint8
+    _value: int
 
-    def __init__(self: "EmitIntensity", intensity: int) -> None:
-        if isinstance(intensity, float):
-            raise TypeError
-        self._value = c_uint8(intensity)
+    def __init__(self: "EmitIntensity", intensity: "int | EmitIntensity") -> None:
+        match intensity:
+            case EmitIntensity():
+                self._value = intensity._value
+            case int():
+                self._value = intensity
+            case _:
+                raise TypeError
 
     @property
     def value(self: "EmitIntensity") -> int:
-        return self._value.value
+        return self._value
 
     @staticmethod
     def maximum() -> "EmitIntensity":

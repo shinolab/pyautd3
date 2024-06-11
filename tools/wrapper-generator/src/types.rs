@@ -34,6 +34,7 @@ impl Type {
             "u64" => Type::UInt64,
             "c_char" => Type::Char,
             "ConstPtr" => Type::VoidPtr,
+            "ContextPtr" => Type::VoidPtr,
             "c_void" => Type::Void,
             "float" => Type::Float64,
             "f32" => Type::Float32,

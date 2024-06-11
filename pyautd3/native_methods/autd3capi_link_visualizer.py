@@ -2,6 +2,7 @@
 import threading
 import ctypes
 import os
+from pyautd3.native_methods.structs import Vector3, Quaternion
 from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32, Segment
 
 from enum import IntEnum
@@ -103,31 +104,31 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDLinkVisualizerPlotRange.argtypes = [ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double, ctypes.c_double] 
+        self.dll.AUTDLinkVisualizerPlotRange.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float] 
         self.dll.AUTDLinkVisualizerPlotRange.restype = PlotRangePtr
 
         self.dll.AUTDLinkVisualizerPlotRangeObservePointsLen.argtypes = [PlotRangePtr]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotRangeObservePointsLen.restype = ctypes.c_uint64
 
-        self.dll.AUTDLinkVisualizerPlotRangeObservePoints.argtypes = [PlotRangePtr, ctypes.POINTER(ctypes.c_double)]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotRangeObservePoints.argtypes = [PlotRangePtr, ctypes.POINTER(ctypes.c_float)]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotRangeObservePoints.restype = None
 
-        self.dll.AUTDLinkVisualizerPhasesOf.argtypes = [LinkPtr, Backend, Directivity, Segment, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPhasesOf.argtypes = [LinkPtr, Backend, Directivity, Segment, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkVisualizerPhasesOf.restype = ctypes.c_uint32
 
-        self.dll.AUTDLinkVisualizerIntensities.argtypes = [LinkPtr, Backend, Directivity, Segment, ctypes.c_uint32, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
+        self.dll.AUTDLinkVisualizerIntensities.argtypes = [LinkPtr, Backend, Directivity, Segment, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkVisualizerIntensities.restype = ctypes.c_uint32
 
         self.dll.AUTDLinkVisualizerModulation.argtypes = [LinkPtr, Backend, Directivity, Segment, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkVisualizerModulation.restype = ctypes.c_uint32
 
-        self.dll.AUTDLinkVisualizerCalcField.argtypes = [LinkPtr, Backend, Directivity, ctypes.POINTER(ctypes.c_double), ctypes.c_uint32, GeometryPtr, Segment, ctypes.c_uint32, ctypes.POINTER(ctypes.c_double)]  # type: ignore 
+        self.dll.AUTDLinkVisualizerCalcField.argtypes = [LinkPtr, Backend, Directivity, ctypes.POINTER(Vector3), ctypes.c_uint32, GeometryPtr, Segment, ctypes.c_uint16, ctypes.POINTER(ctypes.c_float)]  # type: ignore 
         self.dll.AUTDLinkVisualizerCalcField.restype = ResultI32
 
-        self.dll.AUTDLinkVisualizerPlotField.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, PlotRangePtr, GeometryPtr, Segment, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotField.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, PlotRangePtr, GeometryPtr, Segment, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotField.restype = ResultI32
 
-        self.dll.AUTDLinkVisualizerPlotPhase.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, GeometryPtr, Segment, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotPhase.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, GeometryPtr, Segment, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotPhase.restype = ResultI32
 
         self.dll.AUTDLinkVisualizerPlotModulation.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, Segment]  # type: ignore 
@@ -148,7 +149,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerT4010A1Plotters.argtypes = [ctypes.c_bool, ctypes.c_int32] 
         self.dll.AUTDLinkVisualizerT4010A1Plotters.restype = LinkBuilderPtr
 
-        self.dll.AUTDLinkVisualizerPlotConfig.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_double, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_double, CMap, ctypes.c_char_p]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotConfig.argtypes = [ctypes.c_uint32, ctypes.c_uint32, ctypes.c_float, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_float, CMap, ctypes.c_char_p]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotConfig.restype = ResultPlotConfig
 
         self.dll.AUTDLinkVisualizerPlotConfigIsDefault.argtypes = [PlotConfigPtr]  # type: ignore 
@@ -160,7 +161,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerT4010A1Python.argtypes = [ctypes.c_bool, ctypes.c_int32] 
         self.dll.AUTDLinkVisualizerT4010A1Python.restype = LinkBuilderPtr
 
-        self.dll.AUTDLinkVisualizerPyPlotConfig.argtypes = [ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int32, ctypes.c_double, ctypes.c_char_p, ctypes.c_bool, ctypes.c_char_p] 
+        self.dll.AUTDLinkVisualizerPyPlotConfig.argtypes = [ctypes.c_int32, ctypes.c_int32, ctypes.c_int32, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p, ctypes.c_int32, ctypes.c_float, ctypes.c_char_p, ctypes.c_bool, ctypes.c_char_p] 
         self.dll.AUTDLinkVisualizerPyPlotConfig.restype = ResultPyPlotConfig
 
         self.dll.AUTDLinkVisualizerPyPlotConfigIsDefault.argtypes = [PyPlotConfigPtr]  # type: ignore 
@@ -172,7 +173,7 @@ class NativeMethods(metaclass=Singleton):
     def link_visualizer_plot_range_observe_points_len(self, range: PlotRangePtr) -> ctypes.c_uint64:
         return self.dll.AUTDLinkVisualizerPlotRangeObservePointsLen(range)
 
-    def link_visualizer_plot_range_observe_points(self, range: PlotRangePtr, points: ctypes.Array[ctypes.c_double] | None) -> None:
+    def link_visualizer_plot_range_observe_points(self, range: PlotRangePtr, points: ctypes.Array[ctypes.c_float] | None) -> None:
         return self.dll.AUTDLinkVisualizerPlotRangeObservePoints(range, points)
 
     def link_visualizer_phases_of(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, segment: Segment, idx: int, buf: ctypes.Array[ctypes.c_uint8] | None) -> ctypes.c_uint32:
@@ -184,7 +185,7 @@ class NativeMethods(metaclass=Singleton):
     def link_visualizer_modulation(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, segment: Segment, buf: ctypes.Array[ctypes.c_uint8] | None) -> ctypes.c_uint32:
         return self.dll.AUTDLinkVisualizerModulation(visualizer, backend, directivity, segment, buf)
 
-    def link_visualizer_calc_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, points: ctypes.Array[ctypes.c_double] | None, points_len: int, geometry: GeometryPtr, segment: Segment, idx: int, buf: ctypes.Array[ctypes.c_double] | None) -> ResultI32:
+    def link_visualizer_calc_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, points: ctypes.Array | None, points_len: int, geometry: GeometryPtr, segment: Segment, idx: int, buf: ctypes.Array[ctypes.c_float] | None) -> ResultI32:
         return self.dll.AUTDLinkVisualizerCalcField(visualizer, backend, directivity, points, points_len, geometry, segment, idx, buf)
 
     def link_visualizer_plot_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, config: ConfigPtr, range: PlotRangePtr, geometry: GeometryPtr, segment: Segment, idx: int) -> ResultI32:

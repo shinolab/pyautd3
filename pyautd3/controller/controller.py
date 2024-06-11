@@ -1,6 +1,6 @@
 import asyncio
 import ctypes
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from datetime import timedelta
 from types import TracebackType
 from typing import Generic, TypeVar
@@ -15,9 +15,10 @@ from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.driver.geometry import Device, Geometry
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, GroupKVMapPtr
+from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
+from pyautd3.native_methods.structs import Quaternion, Vector3
 from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
 K = TypeVar("K")
@@ -27,25 +28,22 @@ L = TypeVar("L", bound=Link)
 class _Builder:
     _ptr: ControllerBuilderPtr
 
-    def __init__(self: "_Builder") -> None:
-        self._ptr = Base().controller_builder()
-
-    def add_device(self: "_Builder", device: AUTD3) -> "_Builder":
-        q = device._rot if device._rot is not None else np.array([1.0, 0.0, 0.0, 0.0])
-        self._ptr = Base().controller_builder_add_device(
-            self._ptr,
-            device._pos[0],
-            device._pos[1],
-            device._pos[2],
-            q[0],
-            q[1],
-            q[2],
-            q[3],
+    def __init__(self: "_Builder", iterable: Iterable[AUTD3]) -> None:
+        devices = list(iterable)
+        pos = np.fromiter((np.void(Vector3(d._pos)) for d in devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
+        rot = np.fromiter((np.void(Quaternion(d._rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+        self._ptr = Base().controller_builder(
+            pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
+            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
+            len(pos),
         )
-        return self
 
     def with_ultrasound_freq(self: "_Builder", freq: Freq[int]) -> "_Builder":
         self._ptr = Base().controller_builder_with_ultrasound_freq(self._ptr, freq.hz)
+        return self
+
+    def with_parallel_threshold(self: "_Builder", threshold: int) -> "_Builder":
+        self._ptr = Base().controller_builder_with_parallel_threshold(self._ptr, threshold)
         return self
 
     async def open_async(self: "_Builder", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
@@ -57,93 +55,83 @@ class _Builder:
 
 class _GroupGuard(Generic[K]):
     _controller: "Controller"
-    _map: Callable[[Device], K | None]
-    _kv_map: GroupKVMapPtr
+    _keys: list[int]
+    _datagrams: list[DatagramPtr]
     _keymap: dict[K, int]
     _k: int
 
     def __init__(self: "_GroupGuard", group_map: Callable[[Device], K | None], controller: "Controller") -> None:
-        self._map = group_map
+        def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> int:
+            dev = Device(dev_idx, Base().device(geometry_ptr, dev_idx))
+            key = group_map(dev)
+            return self._keymap[key] if key is not None else -1
+
+        self._f_native = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
         self._controller = controller
-        self._kv_map = Base().controller_group_create_kv_map()
+        self._keys = []
+        self._datagrams = []
         self._keymap = {}
         self._k = 0
 
     def set(
         self: "_GroupGuard",
         key: K,
-        d1: Datagram | tuple[Datagram, Datagram],
-        d2: Datagram | None = None,
-        *,
-        timeout: timedelta | None = None,
+        d: Datagram | tuple[Datagram, Datagram],
     ) -> "_GroupGuard":
         if key in self._keymap:
             raise KeyAlreadyExistsError
-        self._keymap[key] = self._k
-
-        timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
-
-        match (d1, d2):
-            case (Datagram(), None):
-                Base().controller_group_kv_map_set(
-                    self._kv_map,
-                    self._k,
-                    d1._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                    DatagramPtr(None),
-                    timeout_ns,
-                )
-            case ((Datagram(), Datagram()), None):
-                (d11, d12) = d1  # type: ignore[misc]
-                Base().controller_group_kv_map_set(
-                    self._kv_map,
-                    self._k,
-                    d11._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                    d12._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                    timeout_ns,
-                )
+        match d:
+            case Datagram():
+                ptr = d._datagram_ptr(self._controller._geometry)
+                self._datagrams.append(ptr)
             case (Datagram(), Datagram()):
-                Base().controller_group_kv_map_set(
-                    self._kv_map,
-                    self._k,
-                    d1._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                    d2._datagram_ptr(self._controller._geometry),  # type: ignore[union-attr]
-                    timeout_ns,
-                )
+                (d1, d2) = d
+                ptr = Base().datagram_tuple(d1._datagram_ptr(self._controller._geometry), d2._datagram_ptr(self._controller._geometry))
+                self._datagrams.append(ptr)
             case _:
                 raise InvalidDatagramTypeError
-
+        self._keys.append(self._k)
+        self._keymap[key] = self._k
         self._k += 1
 
         return self
 
     async def send_async(self: "_GroupGuard") -> None:
-        m = np.fromiter(
-            (self._keymap[k] if k is not None else -1 for k in (self._map(dev) if dev.enable else None for dev in self._controller.geometry)),
-            dtype=np.int32,
-        )
+        keys = np.array(self._keys, dtype=np.int32)
+        datagrams: np.ndarray = np.ndarray(len(self._datagrams), dtype=DatagramPtr)
+        for i, d in enumerate(self._datagrams):
+            datagrams[i]["_0"] = d._0
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         loop.call_soon(
             lambda *_: future.set_result(
                 Base().controller_group(
                     self._controller._ptr,
-                    np.ctypeslib.as_ctypes(m.astype(ctypes.c_int32)),
-                    self._kv_map,
+                    self._f_native,  # type: ignore[arg-type]
+                    None,
+                    self._controller._geometry._ptr,
+                    keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
+                    datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
+                    len(self._keys),
                 ),
             ),
         )
         _validate_int(await future)
 
     def send(self: "_GroupGuard") -> None:
-        m = np.fromiter(
-            (self._keymap[k] if k is not None else -1 for k in (self._map(dev) if dev.enable else None for dev in self._controller.geometry)),
-            dtype=np.int32,
-        )
+        keys = np.array(self._keys, dtype=np.int32)
+        datagrams: np.ndarray = np.ndarray(len(self._datagrams), dtype=DatagramPtr)
+        for i, d in enumerate(self._datagrams):
+            datagrams[i]["_0"] = d._0
         _validate_int(
             Base().controller_group(
                 self._controller._ptr,
-                np.ctypeslib.as_ctypes(m.astype(ctypes.c_int32)),
-                self._kv_map,
+                self._f_native,  # type: ignore[arg-type]
+                None,
+                self._controller._geometry._ptr,
+                keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
+                datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
+                len(self._keys),
             ),
         )
 
@@ -159,8 +147,8 @@ class Controller(Generic[L]):
         self.link = link
 
     @staticmethod
-    def builder() -> "_Builder":
-        return _Builder()
+    def builder(iterable: Iterable[AUTD3]) -> "_Builder":
+        return _Builder(iterable)
 
     def __del__(self: "Controller") -> None:
         self._dispose()
@@ -281,52 +269,27 @@ class Controller(Generic[L]):
 
     async def send_async(
         self: "Controller",
-        d1: Datagram | tuple[Datagram, Datagram],
-        d2: Datagram | None = None,
-        *,
-        timeout: timedelta | None = None,
+        d: Datagram | tuple[Datagram, Datagram],
     ) -> None:
-        timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
-        match (d1, d2):
-            case (Datagram(), None):
-                d_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
+        match d:
+            case Datagram():
+                d_ptr: DatagramPtr = d._datagram_ptr(self.geometry)  # type: ignore[union-attr]
                 loop.call_soon(
                     lambda *_: future.set_result(
                         Base().controller_send(
                             self._ptr,
                             d_ptr,
-                            DatagramPtr(None),
-                            timeout_,
-                        ),
-                    ),
-                )
-            case ((Datagram(), Datagram()), None):
-                (d11, d12) = d1  # type: ignore[misc]
-                d11_ptr: DatagramPtr = d11._datagram_ptr(self.geometry)
-                d22_ptr: DatagramPtr = d12._datagram_ptr(self.geometry)
-                loop.call_soon(
-                    lambda *_: future.set_result(
-                        Base().controller_send(
-                            self._ptr,
-                            d11_ptr,
-                            d22_ptr,
-                            timeout_,
                         ),
                     ),
                 )
             case (Datagram(), Datagram()):
-                d1_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
-                d2_ptr: DatagramPtr = d2._datagram_ptr(self.geometry)  # type: ignore[union-attr]
+                (d1, d2) = d  # type: ignore[misc]
+                d_tuple = Base().datagram_tuple(d1._datagram_ptr(self.geometry), d2._datagram_ptr(self.geometry))
                 loop.call_soon(
                     lambda *_: future.set_result(
-                        Base().controller_send(
-                            self._ptr,
-                            d1_ptr,
-                            d2_ptr,
-                            timeout_,
-                        ),
+                        Base().controller_send(self._ptr, d_tuple),
                     ),
                 )
             case _:
@@ -335,45 +298,17 @@ class Controller(Generic[L]):
 
     def send(
         self: "Controller",
-        d1: Datagram | tuple[Datagram, Datagram],
-        d2: Datagram | None = None,
-        *,
-        timeout: timedelta | None = None,
+        d: Datagram | tuple[Datagram, Datagram],
     ) -> None:
-        timeout_ = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
-        match (d1, d2):
-            case (Datagram(), None):
-                d_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
-                _validate_int(
-                    Base().controller_send(
-                        self._ptr,
-                        d_ptr,
-                        DatagramPtr(None),
-                        timeout_,
-                    ),
-                )
-            case ((Datagram(), Datagram()), None):
-                (d11, d12) = d1  # type: ignore[misc]
-                d11_ptr: DatagramPtr = d11._datagram_ptr(self.geometry)
-                d22_ptr: DatagramPtr = d12._datagram_ptr(self.geometry)
-                _validate_int(
-                    Base().controller_send(
-                        self._ptr,
-                        d11_ptr,
-                        d22_ptr,
-                        timeout_,
-                    ),
-                )
+        match d:
+            case Datagram():
+                d_ptr: DatagramPtr = d._datagram_ptr(self.geometry)  # type: ignore[union-attr]
+                _validate_int(Base().controller_send(self._ptr, d_ptr))
             case (Datagram(), Datagram()):
-                d1_ptr: DatagramPtr = d1._datagram_ptr(self.geometry)  # type: ignore[union-attr]
-                d2_ptr: DatagramPtr = d2._datagram_ptr(self.geometry)  # type: ignore[union-attr]
+                (d1, d2) = d  # type: ignore[misc]
+                d_tuple = Base().datagram_tuple(d1._datagram_ptr(self.geometry), d2._datagram_ptr(self.geometry))
                 _validate_int(
-                    Base().controller_send(
-                        self._ptr,
-                        d1_ptr,
-                        d2_ptr,
-                        timeout_,
-                    ),
+                    Base().controller_send(self._ptr, d_tuple),
                 )
             case _:
                 raise InvalidDatagramTypeError

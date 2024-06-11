@@ -24,7 +24,7 @@ class Uniform(Gain):
         self._phase = phase
         self.check = np.array(check)
 
-    def calc(self: "Uniform", geometry: Geometry) -> dict[int, np.ndarray]:
+    def calc(self: "Uniform", _: Geometry) -> Callable[[Device], Callable[[Transducer], Drive]]:
         def f(dev: Device) -> Callable[[Transducer], Drive]:
             self.check[dev.idx] = True
             return lambda _: Drive(
@@ -32,7 +32,7 @@ class Uniform(Gain):
                 self._intensity,
             )
 
-        return Gain._transform(geometry, f)
+        return Gain._transform(f)
 
 
 def test_gain():

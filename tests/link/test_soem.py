@@ -23,9 +23,7 @@ def test_soem():
     with (
         pytest.raises(AUTDError) as _,
         (
-            Controller.builder()
-            .add_device(AUTD3([0.0, 0.0, 0.0]))
-            .open(
+            Controller.builder([AUTD3([0.0, 0.0, 0.0])]).open(
                 SOEM.builder()
                 .with_ifname("")
                 .with_buf_size(32)

@@ -1,11 +1,11 @@
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, Device, Phase, Segment, Transducer
+from pyautd3 import Controller, Device, Segment, Transducer
 from pyautd3.autd_error import AUTDError
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.gain import Group, Null, Uniform
 from tests.test_autd import create_controller
 
@@ -19,8 +19,8 @@ def test_group():
         cx = autd.geometry.center[0]
 
         autd.send(
-            Group(lambda _, tr: "uniform" if tr.position[0] < cx else "null")
-            .set("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)))
+            Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
+            .set("uniform", Uniform(0x80).with_phase(0x90))
             .set("null", Null()),
         )
         for dev in autd.geometry:
@@ -34,9 +34,9 @@ def test_group():
                     assert np.all(phases[tr.idx] == 0)
 
         autd.send(
-            Group(lambda _, tr: "uniform" if tr.position[0] < cx else None).set(
+            Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else None).set(
                 "uniform",
-                Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90)),
+                Uniform(0x80).with_phase(0x90),
             ),
         )
         for dev in autd.geometry:
@@ -53,13 +53,7 @@ def test_group():
 def test_group_unknown_key():
     autd: Controller[Audit]
     with create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
-        autd.send(Group(lambda _, _tr: "null").set("uniform", Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))).set("null", Null()))
-
-
-def test_group_unspecified_key():
-    autd: Controller[Audit]
-    with create_controller() as autd, pytest.raises(AUTDError, match="Unspecified group key"):
-        autd.send(Group(lambda _, _tr: "null"))
+        autd.send(Group(lambda _: lambda _tr: "null").set("uniform", Uniform(0x80).with_phase(0x90)).set("null", Null()))
 
 
 def test_group_check_only_for_enabled():
@@ -69,11 +63,11 @@ def test_group_check_only_for_enabled():
 
         check = np.zeros(autd.geometry.num_devices, dtype=bool)
 
-        def f(dev: Device, _tr: Transducer) -> int:
+        def f(dev: Device) -> Callable[[Transducer], int]:
             check[dev.idx] = True
-            return 0
+            return lambda _: 0
 
-        autd.send(Group(f).set(0, Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))))
+        autd.send(Group(f).set(0, Uniform(0x80).with_phase(0x90)))
 
         assert not check[0]
         assert check[1]

@@ -3,10 +3,9 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, SamplingConfig, Segment
+from pyautd3 import Controller, Segment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation.audio_file import RawPCM
-from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -105,16 +104,6 @@ def test_rawpcm():
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
 
-        autd.send(
-            RawPCM(Path(__file__).parent / "sin150.dat", 4000 * Hz).with_sampling_config(
-                SamplingConfig.Division(10240),
-            ),
-        )
+        autd.send(RawPCM(Path(__file__).parent / "sin150.dat", 2000 * Hz))
         for dev in autd.geometry:
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10240
-
-
-def test_rawpcm_default():
-    with create_controller() as autd:
-        m = RawPCM(Path(__file__), 4000 * Hz)
-        assert AudioFile().modulation_raw_pcm_is_default(m._modulation_ptr(autd.geometry))

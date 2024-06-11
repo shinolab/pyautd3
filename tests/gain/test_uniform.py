@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 def test_uniform():
     autd: Controller[Audit]
     with create_controller() as autd:
-        g = Uniform(EmitIntensity(0x80)).with_phase(Phase(0x90))
+        g = Uniform(0x80).with_phase(0x90)
         assert g.intensity == EmitIntensity(0x80)
         assert g.phase == Phase(0x90)
         autd.send(g)
@@ -27,6 +27,6 @@ def test_uniform():
 
 
 def test_bessel_default():
-    g = Uniform(EmitIntensity(0x00))
+    g = Uniform(0x00)
     assert g.intensity.value == 0x00
     assert Base().gain_uniform_is_default(g._gain_ptr(0))  # type: ignore [arg-type]

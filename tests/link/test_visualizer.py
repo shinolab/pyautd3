@@ -25,7 +25,7 @@ from pyautd3.native_methods.autd3capi_link_visualizer import NativeMethods as Vi
 def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     center = autd.geometry.center + np.array([0, 0, 150])
 
-    g = Uniform(EmitIntensity(0x80)).with_phase(Phase(0x81))
+    g = Uniform(0x80).with_phase(0x81)
     m = Static().with_intensity(EmitIntensity(0x82))
 
     autd.send((m, g))
@@ -72,7 +72,7 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     assert np.array_equal(intensities, np.array([EmitIntensity(0x80)] * autd.geometry.num_transducers))
     phases = autd.link.phases(Segment.S0, 0)
     assert np.array_equal(phases, np.array([Phase(0x81)] * autd.geometry.num_transducers))
-    assert np.array_equal(autd.link.modulation(Segment.S0), np.array([EmitIntensity(0x82)] * 2))
+    assert np.array_equal(autd.link.modulation(Segment.S0), np.array([0x82] * 2))
 
     points = [center]
     autd.link.calc_field(points, autd.geometry, Segment.S0, 0)
@@ -100,8 +100,7 @@ def test_plot_range():
 def test_visualizer_plotters():
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
         ) as autd
@@ -113,8 +112,7 @@ def test_visualizer_plotters():
 
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.plotters().with_directivity(T4010A1()),  # type: ignore[arg-type]
         ) as autd
@@ -137,8 +135,7 @@ def test_visualizer_plotters():
 def test_visualizer_python():
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.builder().with_backend(PythonBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
         ) as autd
@@ -150,8 +147,7 @@ def test_visualizer_python():
 
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.python().with_directivity(T4010A1()),  # type: ignore[arg-type]
         ) as autd
@@ -176,8 +172,7 @@ def test_visualizer_python():
 def test_visualizer_null():
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.builder().with_backend(NullBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
         ) as autd
@@ -186,8 +181,7 @@ def test_visualizer_null():
 
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.null().with_directivity(T4010A1()),  # type: ignore[arg-type]
         ) as autd
@@ -199,8 +193,7 @@ def test_visualizer_null():
 def test_visualizer_gpu():
     with (
         Controller[Visualizer]
-        .builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
+        .builder([AUTD3([0.0, 0.0, 0.0])])
         .open(
             Visualizer.null().with_gpu(-1),  # type: ignore[arg-type]
         ) as autd
@@ -210,12 +203,8 @@ def test_visualizer_gpu():
 
 def test_visualizer_invalid_config():
     autd: Controller[Visualizer]
-    with (
-        Controller.builder()
-        .add_device(AUTD3([0.0, 0.0, 0.0]))
-        .open(
-            Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
-        )
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).open(
+        Visualizer.builder().with_backend(PlottersBackend()).with_directivity(Sphere()),  # type: ignore[arg-type]
     ) as autd:
         center = autd.geometry.center + np.array([0, 0, 150])
         with pytest.raises(InvalidPlotConfigError):

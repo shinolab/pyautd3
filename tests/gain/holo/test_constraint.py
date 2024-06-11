@@ -16,11 +16,8 @@ def test_constraint_uniform():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = (
-            Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
-            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
+        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+            EmissionConstraint.Uniform(0x80),
         )
         autd.send(g)
         for dev in autd.geometry:
@@ -33,11 +30,8 @@ def test_constraint_normalize():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = (
-            Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
-            .with_constraint(EmissionConstraint.Normalize)
+        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+            EmissionConstraint.Normalize,
         )
         autd.send(g)
         for dev in autd.geometry:
@@ -50,11 +44,8 @@ def test_constraint_clamp():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = (
-            Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
-            .with_constraint(EmissionConstraint.Clamp(EmitIntensity(67), EmitIntensity(85)))
+        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+            EmissionConstraint.Clamp(EmitIntensity(67), EmitIntensity(85)),
         )
         autd.send(g)
         for dev in autd.geometry:
@@ -68,12 +59,7 @@ def test_constraint_dontcare():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = (
-            Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
-            .with_constraint(EmissionConstraint.DontCare)
-        )
+        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(EmissionConstraint.DontCare)
         autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -85,11 +71,8 @@ def test_constraint_multiply():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = (
-            Naive(backend)
-            .add_focus(autd.geometry.center + np.array([30, 0, 150]), 5e3 * Pa)
-            .add_focus(autd.geometry.center + np.array([-30, 0, 150]), 5e3 * Pa)
-            .with_constraint(EmissionConstraint.Multiply(0))
+        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+            EmissionConstraint.Multiply(0),
         )
         autd.send(g)
         for dev in autd.geometry:

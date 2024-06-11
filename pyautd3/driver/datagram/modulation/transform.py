@@ -2,7 +2,6 @@ import ctypes
 from collections.abc import Callable
 from typing import Generic, TypeVar
 
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -22,14 +21,11 @@ class Transform(
 ):
     _m: M
 
-    def __init__(self: "Transform[M]", m: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> None:
+    def __init__(self: "Transform[M]", m: M, f: Callable[[int, int], int]) -> None:
         self._m = m
         self._loop_behavior = m._loop_behavior
-        self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint8)(
-            lambda _, i, d: f(
-                int(i),
-                EmitIntensity(d),
-            ).value,
+        self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, ctypes.c_uint16, ctypes.c_uint8)(
+            lambda _, i, d: f(int(i), int(d)),
         )
 
     def _modulation_ptr(self: "Transform[M]", geometry: Geometry) -> ModulationPtr:
@@ -42,5 +38,5 @@ class Transform(
 
 
 class IntoModulationTransform(ModulationBase[M], Generic[M]):
-    def with_transform(self: M, f: Callable[[int, EmitIntensity], EmitIntensity]) -> "Transform[M]":
+    def with_transform(self: M, f: Callable[[int, int], int]) -> "Transform[M]":
         return Transform(self, f)

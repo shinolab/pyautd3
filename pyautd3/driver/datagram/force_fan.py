@@ -15,7 +15,7 @@ class ForceFan(Datagram):
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> bool:
             return f(Device(dev_idx, Base().device(geometry_ptr, dev_idx)))
 
-        self._f_native = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, GeometryPtr, ctypes.c_uint32)(f_native)
+        self._f_native = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
 
     def _datagram_ptr(self: "ForceFan", geometry: Geometry) -> DatagramPtr:
         return Base().datagram_force_fan(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]

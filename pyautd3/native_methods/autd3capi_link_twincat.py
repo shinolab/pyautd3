@@ -2,6 +2,7 @@
 import threading
 import ctypes
 import os
+from pyautd3.native_methods.structs import Vector3, Quaternion
 from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
 
 

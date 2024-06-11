@@ -34,7 +34,7 @@ class Transform(
             d = f(dev)(tr, Drive(Phase(src.phase), EmitIntensity(src.intensity)))
             raw[0] = _Drive(d.phase.value, d.intensity.value)
 
-        self._f_native = ctypes.CFUNCTYPE(None, ctypes.c_void_p, GeometryPtr, ctypes.c_uint32, ctypes.c_uint8, _Drive, ctypes.POINTER(_Drive))(
+        self._f_native = ctypes.CFUNCTYPE(None, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8, _Drive, ctypes.POINTER(_Drive))(
             f_native,
         )
 

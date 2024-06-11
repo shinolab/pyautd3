@@ -13,25 +13,33 @@ from pyautd3.native_methods.autd3capi_modulation_audio_file import (
 from pyautd3.native_methods.utils import _validate_ptr
 
 
-class RawPCM(
-    IntoModulationCache["RawPCM"],
-    IntoModulationTransform["RawPCM"],
-    IntoModulationRadiationPressure["RawPCM"],
-    ModulationBase["RawPCM"],
+class Csv(
+    IntoModulationCache["Csv"],
+    IntoModulationTransform["Csv"],
+    IntoModulationRadiationPressure["Csv"],
+    ModulationBase["Csv"],
 ):
     _path: Path
     _sample_rate: Freq[int]
+    _deliminator: str
 
-    def __init__(self: "RawPCM", path: Path, sample_rate: Freq[int]) -> None:
+    def __init__(self: "Csv", path: Path, sample_rate: Freq[int]) -> None:
         super().__init__()
         self._path = path
         self._sample_rate = sample_rate
+        self._deliminator = ","
 
-    def _modulation_ptr(self: "RawPCM", _: Geometry) -> ModulationPtr:
+    def with_deliminator(self: "Csv", deliminator: str) -> "Csv":
+        self._deliminator = deliminator
+        return self
+
+    def _modulation_ptr(self: "Csv", _: Geometry) -> ModulationPtr:
+        delim = self._deliminator.encode("utf-8")
         return _validate_ptr(
-            ModulationAudioFile().modulation_raw_pcm(
+            ModulationAudioFile().modulation_csv(
                 str(self._path).encode("utf-8"),
                 self._sample_rate.hz,
+                delim[0],
                 self._loop_behavior,
             ),
         )

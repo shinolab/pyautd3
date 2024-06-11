@@ -1,7 +1,6 @@
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr
-from pyautd3.native_methods.utils import _validate_ptr
 
 from .datagram import Datagram
 
@@ -17,7 +16,7 @@ class Silencer(Datagram):
             self._value_phase = value_phase
 
         def _datagram_ptr(self: "Silencer.FixedUpdateRate", _: Geometry) -> DatagramPtr:
-            return _validate_ptr(Base().datagram_silencer_fixed_update_rate(self._value_intensity, self._value_phase))
+            return Base().datagram_silencer_fixed_update_rate(self._value_intensity, self._value_phase)
 
     class FixedCompletionSteps(Datagram):
         _value_intensity: int
@@ -35,12 +34,10 @@ class Silencer(Datagram):
             return self
 
         def _datagram_ptr(self: "Silencer.FixedCompletionSteps", _: Geometry) -> DatagramPtr:
-            return _validate_ptr(
-                Base().datagram_silencer_fixed_completion_steps(
-                    self._value_intensity,
-                    self._value_phase,
-                    self._strict_mode,
-                ),
+            return Base().datagram_silencer_fixed_completion_steps(
+                self._value_intensity,
+                self._value_phase,
+                self._strict_mode,
             )
 
     @staticmethod

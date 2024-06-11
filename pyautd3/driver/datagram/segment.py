@@ -41,22 +41,22 @@ class SwapSegment:
         def _datagram_ptr(self: "SwapSegment._Modulation", _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_modulation(self._segment, self._transition_mode)
 
-    class _FocusSTM(Datagram):
+    class _FociSTM(Datagram):
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
-        def __new__(cls: type["SwapSegment._FocusSTM"]) -> "SwapSegment._FocusSTM":
+        def __new__(cls: type["SwapSegment._FociSTM"]) -> "SwapSegment._FociSTM":
             raise NotImplementedError
 
         @classmethod
-        def __private_new__(cls: type["SwapSegment._FocusSTM"], segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._FocusSTM":
+        def __private_new__(cls: type["SwapSegment._FociSTM"], segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._FociSTM":
             ins = super().__new__(cls)
             ins._segment = segment
             ins._transition_mode = transition_mode
             return ins
 
-        def _datagram_ptr(self: "SwapSegment._FocusSTM", _: Geometry) -> DatagramPtr:
-            return Base().datagram_swap_segment_focus_stm(self._segment, self._transition_mode)
+        def _datagram_ptr(self: "SwapSegment._FociSTM", _: Geometry) -> DatagramPtr:
+            return Base().datagram_swap_segment_foci_stm(self._segment, self._transition_mode)
 
     class _GainSTM(Datagram):
         _segment: Segment
@@ -76,17 +76,17 @@ class SwapSegment:
             return Base().datagram_swap_segment_gain_stm(self._segment, self._transition_mode)
 
     @staticmethod
-    def gain(segment: Segment) -> "SwapSegment._Gain":
+    def Gain(segment: Segment) -> "SwapSegment._Gain":  # noqa: N802
         return SwapSegment._Gain.__private_new__(segment)
 
     @staticmethod
-    def modulation(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._Modulation":
+    def Modulation(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._Modulation":  # noqa: N802
         return SwapSegment._Modulation.__private_new__(segment, transition_mode)
 
     @staticmethod
-    def focus_stm(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._FocusSTM":
-        return SwapSegment._FocusSTM.__private_new__(segment, transition_mode)
+    def FociSTM(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._FociSTM":  # noqa: N802
+        return SwapSegment._FociSTM.__private_new__(segment, transition_mode)
 
     @staticmethod
-    def gain_stm(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._GainSTM":
+    def GainSTM(segment: Segment, transition_mode: TransitionModeWrap) -> "SwapSegment._GainSTM":  # noqa: N802
         return SwapSegment._GainSTM.__private_new__(segment, transition_mode)

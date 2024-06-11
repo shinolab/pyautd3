@@ -1,5 +1,4 @@
 from collections.abc import Iterator
-from ctypes import c_double
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -8,6 +7,7 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
     DevicePtr,
 )
+from pyautd3.native_methods.structs import Quaternion, Vector3
 
 from .transducer import Transducer
 
@@ -44,14 +44,6 @@ class Device:
         Base().device_set_sound_speed_from_temp(self._ptr, temp, k, r, m)
 
     @property
-    def attenuation(self: "Device") -> float:
-        return float(Base().device_get_attenuation(self._ptr))
-
-    @attenuation.setter
-    def attenuation(self: "Device", attenuation: float) -> None:
-        Base().device_set_attenuation(self._ptr, attenuation)
-
-    @property
     def enable(self: "Device") -> bool:
         return bool(Base().device_enable_get(self._ptr))
 
@@ -65,23 +57,16 @@ class Device:
 
     @property
     def center(self: "Device") -> np.ndarray:
-        v = np.zeros([3]).astype(c_double)
-        vp = np.ctypeslib.as_ctypes(v)
-        Base().device_center(self._ptr, vp)
-        return v
+        return Base().device_center(self._ptr).ndarray()
 
     def translate(self: "Device", t: ArrayLike) -> None:
-        t = np.array(t)
-        Base().device_translate(self._ptr, t[0], t[1], t[2])
+        Base().device_translate(self._ptr, Vector3(np.array(t)))
 
     def rotate(self: "Device", r: ArrayLike) -> None:
-        r = np.array(r)
-        Base().device_rotate(self._ptr, r[0], r[1], r[2], r[3])
+        Base().device_rotate(self._ptr, Quaternion(np.array(r)))
 
     def affine(self: "Device", t: ArrayLike, r: ArrayLike) -> None:
-        t = np.array(t)
-        r = np.array(r)
-        Base().device_affine(self._ptr, t[0], t[1], t[2], r[0], r[1], r[2], r[3])
+        Base().device_affine(self._ptr, Vector3(np.array(t)), Quaternion(np.array(r)))
 
     @property
     def wavelength(self: "Device") -> float:
@@ -90,6 +75,22 @@ class Device:
     @property
     def wavenumber(self: "Device") -> float:
         return float(Base().device_wavenumber(self._ptr))
+
+    @property
+    def rotation(self: "Device") -> np.ndarray:
+        return Base().device_rotation(self._ptr).ndarray()
+
+    @property
+    def x_direction(self: "Device") -> np.ndarray:
+        return Base().device_direction_x(self._ptr).ndarray()
+
+    @property
+    def y_direction(self: "Device") -> np.ndarray:
+        return Base().device_direction_y(self._ptr).ndarray()
+
+    @property
+    def axial_direction(self: "Device") -> np.ndarray:
+        return Base().device_direction_axial(self._ptr).ndarray()
 
     def __getitem__(self: "Device", key: int) -> Transducer:
         return self._transducers[key]

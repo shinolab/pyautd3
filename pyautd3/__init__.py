@@ -4,11 +4,10 @@ from .driver.datagram import (
     Clear,
     DebugSettings,
     DebugType,
-    FocusSTM,
+    FociSTM,
     ForceFan,
     GainSTM,
     GainSTMMode,
-    PhaseFilter,
     PulseWidthEncoder,
     ReadsFPGAState,
     Silencer,
@@ -37,10 +36,9 @@ __all__ = [
     "DebugSettings",
     "DebugType",
     "ReadsFPGAState",
-    "PhaseFilter",
     "ForceFan",
     "ControlPoint",
-    "FocusSTM",
+    "FociSTM",
     "GainSTM",
     "GainSTMMode",
     "Device",
@@ -73,4 +71,4 @@ __all__ = [
     "TransitionMode",
 ]
 
-__version__ = "24.1.0.1"
+__version__ = "25.1.0"

@@ -9,7 +9,7 @@ def run(autd: Controller) -> None:
         (bessel.bessel, "Bessel beam test"),
         (plane.plane, "Plane wave test"),
         (wav.wav, "Wav modulation test"),
-        (stm.stm_focus, "FocusSTM test"),
+        (stm.stm_focus, "FociSTM test"),
         (stm.stm_gain, "GainSTM test"),
         (holo.holo, "Multiple foci test"),
         (user_defined.user_defined, "User-defined Gain & Modulation test"),
@@ -42,6 +42,6 @@ def run(autd: Controller) -> None:
         _ = input()
 
         print("finish.")
-        autd.send(Null(), Silencer.default())
+        autd.send((Null(), Silencer.default()))
 
     autd.close()

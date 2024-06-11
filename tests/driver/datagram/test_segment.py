@@ -14,7 +14,7 @@ def test_swap_segment_ctor():
         _ = SwapSegment._Modulation()
 
     with pytest.raises(NotImplementedError):
-        _ = SwapSegment._FocusSTM()
+        _ = SwapSegment._FociSTM()
 
     with pytest.raises(NotImplementedError):
         _ = SwapSegment._GainSTM()

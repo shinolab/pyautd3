@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def test_fourier_exact():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier(Sine(50 * Hz)).add_components_from_iter(Sine(x * Hz) for x in [100, 150]) + Sine(200 * Hz) + Sine(250 * Hz)
+        m = Fourier(Sine(x * Hz) for x in [50, 100, 150, 200, 250])
         autd.send(m)
 
         for dev in autd.geometry:
@@ -108,7 +108,7 @@ def test_fourier_exact():
 def test_fourier_exact_float():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier(Sine(50.0 * Hz)).add_components_from_iter(Sine(x * Hz) for x in [100.0, 150.0]) + Sine(200.0 * Hz) + Sine(250.0 * Hz)
+        m = Fourier(Sine(x * Hz) for x in [50.0, 100.0, 150.0, 200.0, 250.0])
         autd.send(m)
 
         for dev in autd.geometry:
@@ -202,7 +202,7 @@ def test_fourier_exact_float():
 def test_fourier_nearest():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier(Sine.with_freq_nearest(50.0 * Hz)) + Sine.with_freq_nearest(100.0 * Hz)
+        m = Fourier([Sine.with_freq_nearest(50.0 * Hz), Sine.with_freq_nearest(100.0 * Hz)])
         autd.send(m)
 
         for dev in autd.geometry:

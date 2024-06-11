@@ -4,7 +4,6 @@ from typing import Generic, TypeVar
 import numpy as np
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import ModulationCalcPtr, ResultModulationCalc
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -34,14 +33,14 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
             self._sampling_config = res.config
             Base().modulation_calc_get_result(ptr, buf.ctypes.data_as(POINTER(c_uint8)))  # type: ignore[arg-type]
             Base().modulation_calc_free_result(ptr)
-            self._cache = np.fromiter((EmitIntensity(int(x)) for x in buf), dtype=EmitIntensity)
+            self._cache = buf
         return self._cache
 
     def calc(self: "Cache[M]", geometry: Geometry) -> np.ndarray:
         return self._init(geometry)
 
     def _modulation_ptr(self: "Cache[M]", geometry: Geometry) -> ModulationPtr:
-        data = np.fromiter((m.value for m in self.calc(geometry)), dtype=c_uint8)
+        data = np.fromiter((m for m in self.calc(geometry)), dtype=c_uint8)
         size = len(data)
         return Base().modulation_raw(
             self._sampling_config,  # type: ignore[arg-type]

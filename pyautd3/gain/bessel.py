@@ -8,6 +8,7 @@ from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import GainPtr
+from pyautd3.native_methods.structs import Vector3
 
 
 class Bessel(Gain["Bessel"]):
@@ -55,12 +56,8 @@ class Bessel(Gain["Bessel"]):
 
     def _gain_ptr(self: "Bessel", _: Geometry) -> GainPtr:
         return Base().gain_bessel(
-            self._p[0],
-            self._p[1],
-            self._p[2],
-            self._d[0],
-            self._d[1],
-            self._d[2],
+            Vector3(self._p),
+            Vector3(self._d),
             self._theta.radian,
             self._intensity.value,
             self._phase_offset.value,

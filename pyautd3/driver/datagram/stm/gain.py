@@ -20,6 +20,7 @@ from pyautd3.native_methods.autd3capi_driver import (
     TransitionModeWrap,
 )
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
+from pyautd3.native_methods.utils import _validate_ptr
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -29,7 +30,7 @@ class GainSTM(
     DatagramST[GainSTMPtr],
     Datagram,
 ):
-    _gains: list[GainBase]
+    _gains: np.ndarray
     _mode: GainSTMMode
 
     _freq: Freq[float] | None
@@ -46,10 +47,11 @@ class GainSTM(
         freq: Freq[float] | None,
         freq_nearest: Freq[float] | None,
         sampling_config: SamplingConfigWrap | None,
+        iterable: Iterable[GainBase],
     ) -> "GainSTM":
         ins = super().__new__(cls)
 
-        ins._gains = []
+        ins._gains = np.array(list(iterable))
         ins._mode = GainSTMMode.PhaseIntensityFull
 
         ins._freq = freq
@@ -66,18 +68,26 @@ class GainSTM(
             gains[i]["_0"] = g._gain_ptr(geometry)._0
         ptr: GainSTMPtr
         if self._freq is not None:
-            ptr = Base().stm_gain_from_freq(self._freq.hz)
+            ptr = _validate_ptr(
+                Base().stm_gain_from_freq(self._freq.hz, gains.ctypes.data_as(ctypes.POINTER(GainPtr)), len(self._gains)),  # type: ignore[arg-type]
+            )
         elif self._freq_nearest is not None:
-            ptr = Base().stm_gain_from_freq_nearest(self._freq_nearest.hz)
+            ptr = _validate_ptr(
+                Base().stm_gain_from_freq_nearest(
+                    self._freq_nearest.hz,
+                    gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
+                    len(self._gains),
+                ),
+            )
         else:
-            ptr = Base().stm_gain_from_sampling_config(self._sampling_config)  # type: ignore[arg-type]
+            ptr = Base().stm_gain_from_sampling_config(
+                self._sampling_config,  # type: ignore[arg-type]
+                gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
+                len(self._gains),
+            )
         ptr = Base().stm_gain_with_mode(ptr, self._mode)
         ptr = Base().stm_gain_with_loop_behavior(ptr, self._loop_behavior)
-        return Base().stm_gain_add_gains(
-            ptr,
-            gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
-            len(self._gains),
-        )
+        return ptr
 
     def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
         return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
@@ -88,24 +98,16 @@ class GainSTM(
         return Base().stm_gain_into_datagram_with_segment_transition(ptr, segment, transition_mode)
 
     @staticmethod
-    def from_freq(freq: Freq[float]) -> "GainSTM":
-        return GainSTM.__private_new__(freq, None, None)
+    def from_freq(freq: Freq[float], iterable: Iterable[GainBase]) -> "GainSTM":
+        return GainSTM.__private_new__(freq, None, None, iterable)
 
     @staticmethod
-    def from_freq_nearest(freq: Freq[float]) -> "GainSTM":
-        return GainSTM.__private_new__(None, freq, None)
+    def from_freq_nearest(freq: Freq[float], iterable: Iterable[GainBase]) -> "GainSTM":
+        return GainSTM.__private_new__(None, freq, None, iterable)
 
     @staticmethod
-    def from_sampling_config(config: SamplingConfigWrap) -> "GainSTM":
-        return GainSTM.__private_new__(None, None, config)
-
-    def add_gain(self: "GainSTM", gain: GainBase) -> "GainSTM":
-        self._gains.append(gain)
-        return self
-
-    def add_gains_from_iter(self: "GainSTM", iterable: Iterable[GainBase]) -> "GainSTM":
-        self._gains.extend(iterable)
-        return self
+    def from_sampling_config(config: SamplingConfigWrap, iterable: Iterable[GainBase]) -> "GainSTM":
+        return GainSTM.__private_new__(None, None, config, iterable)
 
     def with_mode(self: "GainSTM", mode: GainSTMMode) -> "GainSTM":
         self._mode = mode
