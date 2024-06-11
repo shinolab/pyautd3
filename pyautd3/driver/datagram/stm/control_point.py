@@ -8,9 +8,15 @@ from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.native_methods.structs import Vector3
 
+# _pad is not required for python 3.12+?
+
 
 class ControlPoint(ctypes.Structure):
-    _fields_ = [("_point", Vector3), ("_offset", ctypes.c_uint8)]  # noqa: RUF012
+    _fields_ = [  # noqa: RUF012
+        ("_point", Vector3),
+        ("_offset", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
+    ]
 
     def __init__(self: "ControlPoint", point: ArrayLike) -> None:
         super().__init__()
@@ -38,7 +44,11 @@ class IControlPoints:
 
 
 class ControlPoints1(ctypes.Structure, IControlPoints):
-    _fields_ = [("_point", ControlPoint), ("_intensity", ctypes.c_uint8)]  # noqa: RUF012
+    _fields_ = [  # noqa: RUF012
+        ("_point", ControlPoint),
+        ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
+    ]
 
     def __init__(self: "ControlPoints1", point: ArrayLike | ControlPoint) -> None:
         super().__init__()
@@ -63,7 +73,12 @@ class ControlPoints1(ctypes.Structure, IControlPoints):
 
 
 class ControlPoints2(ctypes.Structure, IControlPoints):
-    _fields_ = [("_point1", ControlPoint), ("_point2", ControlPoint), ("_intensity", ctypes.c_uint8)]  # noqa: RUF012
+    _fields_ = [  # noqa: RUF012
+        ("_point1", ControlPoint),
+        ("_point2", ControlPoint),
+        ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
+    ]
 
     def __init__(self: "ControlPoints2", points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint]) -> None:
         super().__init__()
@@ -88,7 +103,13 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
 
 
 class ControlPoints3(ctypes.Structure, IControlPoints):
-    _fields_ = [("_point1", ControlPoint), ("_point2", ControlPoint), ("_point3", ControlPoint), ("_intensity", ctypes.c_uint8)]  # noqa: RUF012
+    _fields_ = [  # noqa: RUF012
+        ("_point1", ControlPoint),
+        ("_point2", ControlPoint),
+        ("_point3", ControlPoint),
+        ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
+    ]
 
     def __init__(self: "ControlPoints3", points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint]) -> None:
         super().__init__()
@@ -119,6 +140,7 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
         ("_point3", ControlPoint),
         ("_point4", ControlPoint),
         ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
     ]
 
     def __init__(
@@ -159,6 +181,7 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
         ("_point4", ControlPoint),
         ("_point5", ControlPoint),
         ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
     ]
 
     def __init__(
@@ -202,6 +225,7 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
         ("_point5", ControlPoint),
         ("_point6", ControlPoint),
         ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
     ]
 
     def __init__(
@@ -247,6 +271,7 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
         ("_point6", ControlPoint),
         ("_point7", ControlPoint),
         ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
     ]
 
     def __init__(
@@ -302,6 +327,7 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
         ("_point7", ControlPoint),
         ("_point8", ControlPoint),
         ("_intensity", ctypes.c_uint8),
+        ("_pad", ctypes.c_uint8 * 3),
     ]
 
     def __init__(
