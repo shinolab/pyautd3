@@ -1,6 +1,8 @@
 import ctypes
 from collections.abc import Callable
 
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, GeometryPtr, GPIOOut
@@ -43,7 +45,11 @@ class DebugType(metaclass=ConstantADT):
         return Base().debug_type_direct(value)
 
 
-class DebugSettings(Datagram):
+class DebugSettings(
+    Datagram,
+    IntoDatagramWithTimeout["DebugSettings"],
+    IntoDatagramWithParallelThreshold["DebugSettings"],
+):
     def __init__(self: "DebugSettings", f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
         super().__init__()
 

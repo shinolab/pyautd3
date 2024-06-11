@@ -5,7 +5,9 @@ from typing import Generic, TypeVar
 import numpy as np
 
 from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment import IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import Drive, GainPtr
@@ -14,7 +16,13 @@ from pyautd3.native_methods.utils import _validate_ptr
 G = TypeVar("G", bound=GainBase)
 
 
-class Cache(GainBase, IntoDatagramWithSegment["Cache[G]"], Generic[G]):
+class Cache(
+    GainBase,
+    IntoDatagramWithSegment["Cache[G]"],
+    Generic[G],
+    IntoDatagramWithTimeout["Cache[G]"],
+    IntoDatagramWithParallelThreshold["Cache[G]"],
+):
     _g: G
     _cache: dict[int, np.ndarray]
 

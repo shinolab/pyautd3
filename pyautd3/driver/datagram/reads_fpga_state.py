@@ -1,6 +1,8 @@
 import ctypes
 from collections.abc import Callable
 
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Device, Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
@@ -8,7 +10,11 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
 from .datagram import Datagram
 
 
-class ReadsFPGAState(Datagram):
+class ReadsFPGAState(
+    Datagram,
+    IntoDatagramWithTimeout["ReadsFPGAState"],
+    IntoDatagramWithParallelThreshold["ReadsFPGAState"],
+):
     def __init__(self: "ReadsFPGAState", f: Callable[[Device], bool]) -> None:
         super().__init__()
 

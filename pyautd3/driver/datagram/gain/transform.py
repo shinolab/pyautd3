@@ -3,7 +3,9 @@ from collections.abc import Callable
 from typing import Generic, TypeVar
 
 from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment import IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.firmware.fpga import Drive, Phase
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry import Device, Geometry, Transducer
@@ -21,6 +23,8 @@ class Transform(
     IntoGainCache["Transform[G]"],
     GainBase,
     Generic[G],
+    IntoDatagramWithTimeout["Transform[G]"],
+    IntoDatagramWithParallelThreshold["Transform[G]"],
 ):
     _g: G
 

@@ -2,7 +2,9 @@ from abc import ABCMeta, abstractmethod
 from typing import Generic, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -19,6 +21,8 @@ class ModulationBase(
     DatagramST[ModulationPtr],
     Generic[M],
     Datagram,
+    IntoDatagramWithTimeout[M],
+    IntoDatagramWithParallelThreshold[M],
     metaclass=ABCMeta,
 ):
     _loop_behavior: _LoopBehavior

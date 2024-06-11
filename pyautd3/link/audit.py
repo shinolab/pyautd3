@@ -52,8 +52,9 @@ class Audit(Link):
     def timeout(self: "Audit") -> timedelta:
         return timedelta(microseconds=int(LinkAudit().link_audit_timeout_ns(self._ptr)) / 1000)
 
-    def last_timeout(self: "Audit") -> timedelta:
-        return timedelta(microseconds=int(LinkAudit().link_audit_last_timeout_ns(self._ptr)) / 1000)
+    def last_timeout(self: "Audit") -> timedelta | None:
+        us = int(LinkAudit().link_audit_last_timeout_ns(self._ptr)) / 1000
+        return None if us < 0 else timedelta(microseconds=us)
 
     def silencer_update_rate_intensity(self: "Audit", idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_update_rate_intensity(self._ptr, idx))

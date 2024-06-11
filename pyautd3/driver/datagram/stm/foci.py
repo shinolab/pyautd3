@@ -17,7 +17,9 @@ from pyautd3.driver.datagram.stm.control_point import (
     ControlPoints8,
     IControlPoints,
 )
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.geometry import Geometry
@@ -42,6 +44,8 @@ class FociSTM(
     DatagramST[FociSTMPtr],
     Datagram,
     Generic[C],
+    IntoDatagramWithTimeout["FociSTM[C]"],
+    IntoDatagramWithParallelThreshold["FociSTM[C]"],
 ):
     _points: list[C]
 

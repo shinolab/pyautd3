@@ -8,6 +8,8 @@ from .segment import SwapSegment
 from .silencer import Silencer
 from .stm import FociSTM, GainSTM, GainSTMMode
 from .synchronize import Synchronize
+from .with_parallel_threshold import IntoDatagramWithParallelThreshold
+from .with_timeout import IntoDatagramWithTimeout
 
 __all__ = [
     "Clear",
@@ -24,3 +26,6 @@ __all__ = [
     "SwapSegment",
     "PulseWidthEncoder",
 ]
+
+_ = IntoDatagramWithParallelThreshold()
+_ = IntoDatagramWithTimeout()

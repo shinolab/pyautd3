@@ -5,7 +5,9 @@ import numpy as np
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.geometry import Geometry
@@ -29,6 +31,8 @@ class GainSTM(
     IntoDatagramWithSegmentTransition,
     DatagramST[GainSTMPtr],
     Datagram,
+    IntoDatagramWithTimeout["GainSTM"],
+    IntoDatagramWithParallelThreshold["GainSTM"],
 ):
     _gains: np.ndarray
     _mode: GainSTMMode
