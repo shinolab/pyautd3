@@ -2,8 +2,8 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr
 
 
 class LinkSimulatorBuilderPtr(ctypes.Structure):
@@ -52,7 +52,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSimulatorIntoBuilder.restype = LinkBuilderPtr
 
         self.dll.AUTDLinkSimulatorUpdateGeometry.argtypes = [LinkPtr, GeometryPtr]  # type: ignore 
-        self.dll.AUTDLinkSimulatorUpdateGeometry.restype = ResultI32
+        self.dll.AUTDLinkSimulatorUpdateGeometry.restype = FfiFuture
 
     def link_simulator(self, port: int) -> LinkSimulatorBuilderPtr:
         return self.dll.AUTDLinkSimulator(port)
@@ -66,5 +66,5 @@ class NativeMethods(metaclass=Singleton):
     def link_simulator_into_builder(self, simulator: LinkSimulatorBuilderPtr) -> LinkBuilderPtr:
         return self.dll.AUTDLinkSimulatorIntoBuilder(simulator)
 
-    def link_simulator_update_geometry(self, simulator: LinkPtr, geometry: GeometryPtr) -> ResultI32:
+    def link_simulator_update_geometry(self, simulator: LinkPtr, geometry: GeometryPtr) -> FfiFuture:
         return self.dll.AUTDLinkSimulatorUpdateGeometry(simulator, geometry)

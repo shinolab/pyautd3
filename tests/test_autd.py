@@ -1,14 +1,9 @@
+from datetime import timedelta
+
 import numpy as np
 import pytest
 
-from pyautd3 import (
-    AUTD3,
-    Clear,
-    Controller,
-    Device,
-    ForceFan,
-    Segment,
-)
+from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Level, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
@@ -19,14 +14,24 @@ from pyautd3.modulation import Sine, Static
 
 
 async def create_controller_async() -> Controller[Audit]:
-    return await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])]).open_async(
-        Audit.builder(),
+    return (
+        await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
+        .with_send_interval(timedelta(milliseconds=1))
+        .with_timer_resolution(1)
+        .open_async(
+            Audit.builder(),
+        )
     )
 
 
 def create_controller() -> Controller[Audit]:
-    return Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])]).open(
-        Audit.builder(),
+    return (
+        Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
+        .with_send_interval(timedelta(milliseconds=1))
+        .with_timer_resolution(1)
+        .open(
+            Audit.builder(),
+        )
     )
 
 
@@ -37,10 +42,11 @@ def test_firmware_info():
             assert firm.info == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
             assert str(firm) == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
 
-        autd.link.break_down()
+        autd.link.down()
         with pytest.raises(AUTDError) as e:
             autd.firmware_version()
         assert str(e.value) == "Read firmware info failed: 0, 1"
+        autd.link.up()
 
 
 @pytest.mark.asyncio()
@@ -53,10 +59,11 @@ async def test_firmware_info_async():
             assert firm.info == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
             assert str(firm) == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
 
-        autd.link.break_down()
+        autd.link.down()
         with pytest.raises(AUTDError) as e:
             await autd.firmware_version_async()
         assert str(e.value) == "Read firmware info failed: 0, 1"
+        autd.link.up()
 
 
 def test_close():
@@ -74,6 +81,8 @@ def test_close():
             autd.close()
         assert str(e.value) == "broken"
 
+        autd.link.repair()
+
 
 @pytest.mark.asyncio()
 async def test_close_async():
@@ -90,6 +99,7 @@ async def test_close_async():
         with pytest.raises(AUTDError) as e:
             await autd.close_async()
         assert str(e.value) == "broken"
+        autd.link.repair()
 
 
 def test_send_single():
@@ -107,11 +117,13 @@ def test_send_single():
         with pytest.raises(AUTDError) as e:
             autd.send(Static())
         assert str(e.value) == "Failed to send data"
+        autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             autd.send(Static())
         assert str(e.value) == "broken"
+        autd.link.repair()
 
 
 @pytest.mark.asyncio()
@@ -130,11 +142,13 @@ async def test_send_async_single():
         with pytest.raises(AUTDError) as e:
             await autd.send_async(Static())
         assert str(e.value) == "Failed to send data"
+        autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             await autd.send_async(Static())
         assert str(e.value) == "broken"
+        autd.link.repair()
 
 
 @pytest.mark.asyncio()
@@ -161,11 +175,13 @@ async def test_send_async_tuple():
         with pytest.raises(AUTDError) as e:
             await autd.send_async((Static(), Uniform(0xFF)))
         assert str(e.value) == "Failed to send data"
+        autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             await autd.send_async((Static(), Uniform(0xFF)))
         assert str(e.value) == "broken"
+        autd.link.repair()
 
 
 def test_send_tuple():
@@ -191,11 +207,13 @@ def test_send_tuple():
         with pytest.raises(AUTDError) as e:
             autd.send((Static(), Uniform(0xFF)))
         assert str(e.value) == "Failed to send data"
+        autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             autd.send((Static(), Uniform(0xFF)))
         assert str(e.value) == "broken"
+        autd.link.repair()
 
 
 @pytest.mark.asyncio()
@@ -310,3 +328,10 @@ def test_force_fan():
         autd.send(ForceFan(lambda dev: dev.idx == 1))
         assert not autd.link.is_force_fan(0)
         assert autd.link.is_force_fan(1)
+
+
+def test_tracing():
+    tracing_init(Level.DEBUG)
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        autd.close()

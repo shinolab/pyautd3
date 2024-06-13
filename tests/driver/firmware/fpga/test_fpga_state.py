@@ -78,6 +78,7 @@ def test_fpga_state():
         with pytest.raises(AUTDError) as e:
             _ = autd.fpga_state()
         assert str(e.value) == "broken"
+        autd.link.repair()
 
 
 @pytest.mark.asyncio()
@@ -110,3 +111,4 @@ async def test_fpga_state_async():
         with pytest.raises(AUTDError) as e:
             _ = await autd.fpga_state_async()
         assert str(e.value) == "broken"
+        autd.link.repair()

@@ -241,6 +241,7 @@ impl PythonGenerator {
                     | "DynamicDatagramWithTimeout"
                     | "DynamicOperationGenerator"
                     | "DynamicOperationGeneratorPack"
+                    | "ControllerWrap"
             )
         }));
         self
@@ -267,7 +268,7 @@ impl PythonGenerator {
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion"
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture"
         )?;
 
         let owns = |ty: &Type| {

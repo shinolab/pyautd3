@@ -3,7 +3,7 @@ from datetime import timedelta
 
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr
+from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import LinkPtr
 from pyautd3.native_methods.autd3capi_link_simulator import (
@@ -17,8 +17,6 @@ from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
 
 class Simulator(Link):
-    _ptr: LinkPtr
-
     class _Builder(LinkBuilder["Simulator"]):
         _builder: LinkSimulatorBuilderPtr
 
@@ -36,11 +34,11 @@ class Simulator(Link):
         def _link_builder_ptr(self: "Simulator._Builder") -> LinkBuilderPtr:
             return LinkSimulator().link_simulator_into_builder(self._builder)  # pragma: no cover
 
-        def _resolve_link(self: "Simulator._Builder", ptr: ControllerPtr) -> "Simulator":
-            return Simulator(Base().link_get(ptr))  # pragma: no cover
+        def _resolve_link(self: "Simulator._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "Simulator":
+            return Simulator(runtime, Base().link_get(ptr))  # pragma: no cover
 
-    def __init__(self: "Simulator", ptr: LinkPtr) -> None:
-        super().__init__(ptr)  # pragma: no cover
+    def __init__(self: "Simulator", runtime: RuntimePtr, ptr: LinkPtr) -> None:
+        super().__init__(runtime, ptr)  # pragma: no cover
 
     @staticmethod
     def builder(port: int) -> _Builder:
@@ -49,20 +47,22 @@ class Simulator(Link):
     async def update_geometry_async(self: "Simulator", geometry: Geometry) -> None:
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
+        ffi_future = LinkSimulator().link_simulator_update_geometry(
+            self._ptr,
+            geometry._geometry_ptr(),
+        )
         loop.call_soon(
-            lambda *_: future.set_result(
-                LinkSimulator().link_simulator_update_geometry(
-                    self._ptr,
-                    geometry._geometry_ptr(),
-                ),
-            ),
+            lambda *_: future.set_result(Base().wait_result_i_32(self._runtime, ffi_future)),
         )
         _validate_int(await future)
 
     def update_geometry(self: "Simulator", geometry: Geometry) -> None:
         _validate_int(
-            LinkSimulator().link_simulator_update_geometry(
-                self._ptr,
-                geometry._geometry_ptr(),
+            Base().wait_result_i_32(
+                self._runtime,
+                LinkSimulator().link_simulator_update_geometry(
+                    self._ptr,
+                    geometry._geometry_ptr(),
+                ),
             ),
         )

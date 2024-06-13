@@ -9,7 +9,7 @@ from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr
+from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import LinkPtr, Segment
 from pyautd3.native_methods.autd3capi_link_visualizer import (
@@ -310,8 +310,8 @@ class Visualizer(Link):
                 case _:  # pragma: no cover
                     raise NotImplementedError
 
-        def _resolve_link(self: "Visualizer._Builder", ptr: ControllerPtr) -> "Visualizer":
-            return Visualizer(Base().link_get(ptr), self._backend, self._directivity)
+        def _resolve_link(self: "Visualizer._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "Visualizer":
+            return Visualizer(runtime, Base().link_get(ptr), self._backend, self._directivity)
 
         def with_gpu(self: "Visualizer._Builder", gpu_idx: int) -> "Visualizer._Builder":  # pragma: no cover
             self._gpu_idx = gpu_idx
@@ -325,8 +325,8 @@ class Visualizer(Link):
             self._directivity = directivity._directivity
             return self
 
-    def __init__(self: "Visualizer", ptr: LinkPtr, backend: Backend, directivity: Directivity) -> None:
-        super().__init__(ptr)
+    def __init__(self: "Visualizer", runtime: RuntimePtr, ptr: LinkPtr, backend: Backend, directivity: Directivity) -> None:
+        super().__init__(runtime, ptr)
         self._backend = backend
         self._directivity = directivity
 

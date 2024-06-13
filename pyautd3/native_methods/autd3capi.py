@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, DevicePtr, Drive, FociSTMPtr, GPIOIn, GainPtr, GainSTMMode, GainSTMPtr, GeometryPtr, LinkBuilderPtr, LinkPtr, LoopBehavior, ModulationPtr, ResultFociSTM, ResultGainSTM, ResultI32, ResultModulation, SamplingConfigWrap, Segment, TransducerPtr, TransitionModeWrap
 
 
@@ -11,6 +11,10 @@ class ControllerBuilderPtr(ctypes.Structure):
 
 
 class ControllerPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class FPGAStateListPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -23,6 +27,10 @@ class GroupGainMapPtr(ctypes.Structure):
 
 
 class GainCalcDrivesMapPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class RuntimePtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -40,6 +48,14 @@ class ResultController(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultController) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultFPGAStateList(ctypes.Structure):
+    _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultFirmwareVersionList(ctypes.Structure):
@@ -65,6 +81,16 @@ class ResultModulationCalc(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultModulationCalc) and self._fields_ == other._fields_ # pragma: no cover
                     
+
+TRACE_LEVEL_ERROR: int = 1
+
+TRACE_LEVEL_WARN: int = 2
+
+TRACE_LEVEL_INFO: int = 3
+
+TRACE_LEVEL_DEBUG: int = 4
+
+TRACE_LEVEL_TRACE: int = 5
 
 
 class Singleton(type):
@@ -96,26 +122,38 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDControllerBuilderWithParallelThreshold.argtypes = [ControllerBuilderPtr, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDControllerBuilderWithParallelThreshold.restype = ControllerBuilderPtr
 
+        self.dll.AUTDControllerBuilderWithSendInterval.argtypes = [ControllerBuilderPtr, ctypes.c_uint64]  # type: ignore 
+        self.dll.AUTDControllerBuilderWithSendInterval.restype = ControllerBuilderPtr
+
+        self.dll.AUTDControllerBuilderWithTimerResolution.argtypes = [ControllerBuilderPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDControllerBuilderWithTimerResolution.restype = ControllerBuilderPtr
+
         self.dll.AUTDControllerOpen.argtypes = [ControllerBuilderPtr, LinkBuilderPtr, ctypes.c_int64]  # type: ignore 
-        self.dll.AUTDControllerOpen.restype = ResultController
+        self.dll.AUTDControllerOpen.restype = FfiFuture
 
         self.dll.AUTDControllerGroup.argtypes = [ControllerPtr, ctypes.c_void_p, ctypes.c_void_p, GeometryPtr, ctypes.POINTER(ctypes.c_int32), ctypes.POINTER(DatagramPtr), ctypes.c_uint16]  # type: ignore 
-        self.dll.AUTDControllerGroup.restype = ResultI32
+        self.dll.AUTDControllerGroup.restype = LocalFfiFuture
 
         self.dll.AUTDControllerClose.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerClose.restype = ResultI32
+        self.dll.AUTDControllerClose.restype = FfiFuture
 
         self.dll.AUTDControllerDelete.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerDelete.restype = ResultI32
+        self.dll.AUTDControllerDelete.restype = None
 
         self.dll.AUTDControllerLastParallelThreshold.argtypes = [ControllerPtr]  # type: ignore 
         self.dll.AUTDControllerLastParallelThreshold.restype = ctypes.c_uint16
 
-        self.dll.AUTDControllerFPGAState.argtypes = [ControllerPtr, ctypes.POINTER(ctypes.c_int32)]  # type: ignore 
-        self.dll.AUTDControllerFPGAState.restype = ResultI32
+        self.dll.AUTDControllerFPGAState.argtypes = [ControllerPtr]  # type: ignore 
+        self.dll.AUTDControllerFPGAState.restype = FfiFuture
+
+        self.dll.AUTDControllerFPGAStateGet.argtypes = [FPGAStateListPtr, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDControllerFPGAStateGet.restype = ctypes.c_int16
+
+        self.dll.AUTDControllerFPGAStateDelete.argtypes = [FPGAStateListPtr]  # type: ignore 
+        self.dll.AUTDControllerFPGAStateDelete.restype = None
 
         self.dll.AUTDControllerFirmwareVersionListPointer.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerFirmwareVersionListPointer.restype = ResultFirmwareVersionList
+        self.dll.AUTDControllerFirmwareVersionListPointer.restype = FfiFuture
 
         self.dll.AUTDControllerFirmwareVersionGet.argtypes = [FirmwareVersionListPtr, ctypes.c_uint32, ctypes.c_char_p]  # type: ignore 
         self.dll.AUTDControllerFirmwareVersionGet.restype = None
@@ -127,7 +165,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDFirmwareLatest.restype = None
 
         self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr]  # type: ignore 
-        self.dll.AUTDControllerSend.restype = ResultI32
+        self.dll.AUTDControllerSend.restype = FfiFuture
 
         self.dll.AUTDDatagramClear.argtypes = [] 
         self.dll.AUTDDatagramClear.restype = DatagramPtr
@@ -435,6 +473,30 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDTransducerPosition.argtypes = [TransducerPtr]  # type: ignore 
         self.dll.AUTDTransducerPosition.restype = Vector3
 
+        self.dll.AUTDCreateRuntime.argtypes = [] 
+        self.dll.AUTDCreateRuntime.restype = RuntimePtr
+
+        self.dll.AUTDDeleteRuntime.argtypes = [RuntimePtr]  # type: ignore 
+        self.dll.AUTDDeleteRuntime.restype = None
+
+        self.dll.AUTDWaitResultI32.argtypes = [RuntimePtr, FfiFuture]  # type: ignore 
+        self.dll.AUTDWaitResultI32.restype = ResultI32
+
+        self.dll.AUTDWaitLocalResultI32.argtypes = [RuntimePtr, LocalFfiFuture]  # type: ignore 
+        self.dll.AUTDWaitLocalResultI32.restype = ResultI32
+
+        self.dll.AUTDWaitResultController.argtypes = [RuntimePtr, FfiFuture]  # type: ignore 
+        self.dll.AUTDWaitResultController.restype = ResultController
+
+        self.dll.AUTDWaitResultFPGAStateList.argtypes = [RuntimePtr, FfiFuture]  # type: ignore 
+        self.dll.AUTDWaitResultFPGAStateList.restype = ResultFPGAStateList
+
+        self.dll.AUTDWaitResultFirmwareVersionList.argtypes = [RuntimePtr, FfiFuture]  # type: ignore 
+        self.dll.AUTDWaitResultFirmwareVersionList.restype = ResultFirmwareVersionList
+
+        self.dll.AUTDTracingInit.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDTracingInit.restype = None
+
         self.dll.AUTDLinkAudit.argtypes = [] 
         self.dll.AUTDLinkAudit.restype = LinkAuditBuilderPtr
 
@@ -456,8 +518,14 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditDown.argtypes = [LinkPtr]  # type: ignore 
         self.dll.AUTDLinkAuditDown.restype = None
 
+        self.dll.AUTDLinkAuditUp.argtypes = [LinkPtr]  # type: ignore 
+        self.dll.AUTDLinkAuditUp.restype = None
+
         self.dll.AUTDLinkAuditBreakDown.argtypes = [LinkPtr]  # type: ignore 
         self.dll.AUTDLinkAuditBreakDown.restype = None
+
+        self.dll.AUTDLinkAuditRepair.argtypes = [LinkPtr]  # type: ignore 
+        self.dll.AUTDLinkAuditRepair.restype = None
 
         self.dll.AUTDLinkAuditCpuNumTransducers.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkAuditCpuNumTransducers.restype = ctypes.c_uint32
@@ -630,25 +698,37 @@ class NativeMethods(metaclass=Singleton):
     def controller_builder_with_parallel_threshold(self, builder: ControllerBuilderPtr, parallel_threshold: int) -> ControllerBuilderPtr:
         return self.dll.AUTDControllerBuilderWithParallelThreshold(builder, parallel_threshold)
 
-    def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout_ns: int) -> ResultController:
+    def controller_builder_with_send_interval(self, builder: ControllerBuilderPtr, interval_ns: int) -> ControllerBuilderPtr:
+        return self.dll.AUTDControllerBuilderWithSendInterval(builder, interval_ns)
+
+    def controller_builder_with_timer_resolution(self, builder: ControllerBuilderPtr, resolution: int) -> ControllerBuilderPtr:
+        return self.dll.AUTDControllerBuilderWithTimerResolution(builder, resolution)
+
+    def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout_ns: int) -> FfiFuture:
         return self.dll.AUTDControllerOpen(builder, link_builder, timeout_ns)
 
-    def controller_group(self, cnt: ControllerPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr, keys: ctypes.Array[ctypes.c_int32] | None, d: ctypes.Array | None, n: int) -> ResultI32:
+    def controller_group(self, cnt: ControllerPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr, keys: ctypes.Array[ctypes.c_int32] | None, d: ctypes.Array | None, n: int) -> LocalFfiFuture:
         return self.dll.AUTDControllerGroup(cnt, f, context, geometry, keys, d, n)
 
-    def controller_close(self, cnt: ControllerPtr) -> ResultI32:
+    def controller_close(self, cnt: ControllerPtr) -> FfiFuture:
         return self.dll.AUTDControllerClose(cnt)
 
-    def controller_delete(self, cnt: ControllerPtr) -> ResultI32:
+    def controller_delete(self, cnt: ControllerPtr) -> None:
         return self.dll.AUTDControllerDelete(cnt)
 
     def controller_last_parallel_threshold(self, cnt: ControllerPtr) -> ctypes.c_uint16:
         return self.dll.AUTDControllerLastParallelThreshold(cnt)
 
-    def controller_fpga_state(self, cnt: ControllerPtr, out: ctypes.Array[ctypes.c_int32] | None) -> ResultI32:
-        return self.dll.AUTDControllerFPGAState(cnt, out)
+    def controller_fpga_state(self, cnt: ControllerPtr) -> FfiFuture:
+        return self.dll.AUTDControllerFPGAState(cnt)
 
-    def controller_firmware_version_list_pointer(self, cnt: ControllerPtr) -> ResultFirmwareVersionList:
+    def controller_fpga_state_get(self, p: FPGAStateListPtr, idx: int) -> ctypes.c_int16:
+        return self.dll.AUTDControllerFPGAStateGet(p, idx)
+
+    def controller_fpga_state_delete(self, p: FPGAStateListPtr) -> None:
+        return self.dll.AUTDControllerFPGAStateDelete(p)
+
+    def controller_firmware_version_list_pointer(self, cnt: ControllerPtr) -> FfiFuture:
         return self.dll.AUTDControllerFirmwareVersionListPointer(cnt)
 
     def controller_firmware_version_get(self, p_info_list: FirmwareVersionListPtr, idx: int, info: ctypes.Array[ctypes.c_char] | None) -> None:
@@ -660,7 +740,7 @@ class NativeMethods(metaclass=Singleton):
     def firmware_latest(self, latest: ctypes.Array[ctypes.c_char] | None) -> None:
         return self.dll.AUTDFirmwareLatest(latest)
 
-    def controller_send(self, cnt: ControllerPtr, d: DatagramPtr) -> ResultI32:
+    def controller_send(self, cnt: ControllerPtr, d: DatagramPtr) -> FfiFuture:
         return self.dll.AUTDControllerSend(cnt, d)
 
     def datagram_clear(self) -> DatagramPtr:
@@ -969,6 +1049,30 @@ class NativeMethods(metaclass=Singleton):
     def transducer_position(self, tr: TransducerPtr) -> Vector3:
         return self.dll.AUTDTransducerPosition(tr)
 
+    def create_runtime(self) -> RuntimePtr:
+        return self.dll.AUTDCreateRuntime()
+
+    def delete_runtime(self, runtime: RuntimePtr) -> None:
+        return self.dll.AUTDDeleteRuntime(runtime)
+
+    def wait_result_i_32(self, runtime: RuntimePtr, future: FfiFuture) -> ResultI32:
+        return self.dll.AUTDWaitResultI32(runtime, future)
+
+    def wait_local_result_i_32(self, runtime: RuntimePtr, future: LocalFfiFuture) -> ResultI32:
+        return self.dll.AUTDWaitLocalResultI32(runtime, future)
+
+    def wait_result_controller(self, runtime: RuntimePtr, future: FfiFuture) -> ResultController:
+        return self.dll.AUTDWaitResultController(runtime, future)
+
+    def wait_result_fpga_state_list(self, runtime: RuntimePtr, future: FfiFuture) -> ResultFPGAStateList:
+        return self.dll.AUTDWaitResultFPGAStateList(runtime, future)
+
+    def wait_result_firmware_version_list(self, runtime: RuntimePtr, future: FfiFuture) -> ResultFirmwareVersionList:
+        return self.dll.AUTDWaitResultFirmwareVersionList(runtime, future)
+
+    def tracing_init(self, level: int) -> None:
+        return self.dll.AUTDTracingInit(level)
+
     def link_audit(self) -> LinkAuditBuilderPtr:
         return self.dll.AUTDLinkAudit()
 
@@ -990,8 +1094,14 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_down(self, audit: LinkPtr) -> None:
         return self.dll.AUTDLinkAuditDown(audit)
 
+    def link_audit_up(self, audit: LinkPtr) -> None:
+        return self.dll.AUTDLinkAuditUp(audit)
+
     def link_audit_break_down(self, audit: LinkPtr) -> None:
         return self.dll.AUTDLinkAuditBreakDown(audit)
+
+    def link_audit_repair(self, audit: LinkPtr) -> None:
+        return self.dll.AUTDLinkAuditRepair(audit)
 
     def link_audit_cpu_num_transducers(self, audit: LinkPtr, idx: int) -> ctypes.c_uint32:
         return self.dll.AUTDLinkAuditCpuNumTransducers(audit, idx)

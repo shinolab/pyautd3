@@ -1,3 +1,5 @@
+from enum import Enum
+
 from .controller import Controller
 from .driver.autd3_device import AUTD3
 from .driver.datagram import (
@@ -31,9 +33,25 @@ from .ethercat import DcSysTime
 from .gain import Bessel, Focus, Group, Null, Plane, Uniform
 from .link.nop import Nop
 from .modulation import Sine, Square, Static
+from .native_methods.autd3capi import TRACE_LEVEL_DEBUG, TRACE_LEVEL_ERROR, TRACE_LEVEL_INFO, TRACE_LEVEL_TRACE, TRACE_LEVEL_WARN
+from .native_methods.autd3capi import NativeMethods as Base
 from .native_methods.autd3capi_driver import GPIOIn, GPIOOut, Segment
 
+
+class Level(Enum):
+    DEBUG = TRACE_LEVEL_DEBUG
+    INFO = TRACE_LEVEL_INFO
+    WARN = TRACE_LEVEL_WARN
+    ERROR = TRACE_LEVEL_ERROR
+    TRACE = TRACE_LEVEL_TRACE
+
+
+def tracing_init(level: Level) -> None:
+    Base().tracing_init(level.value)
+
+
 __all__ = [
+    "tracing_init",
     "Controller",
     "AUTD3",
     "Drive",
@@ -89,4 +107,4 @@ __all__ = [
     "TransitionMode",
 ]
 
-__version__ = "25.1.0"
+__version__ = "25.2.1"

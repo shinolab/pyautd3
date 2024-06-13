@@ -4,7 +4,7 @@ from datetime import timedelta
 import numpy as np
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr
+from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
 from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, LoopBehavior, Segment
 
@@ -27,11 +27,11 @@ class Audit(Link):
         def _link_builder_ptr(self: "Audit._Builder") -> LinkBuilderPtr:
             return LinkAudit().link_audit_into_builder(self._builder)
 
-        def _resolve_link(self: "Audit._Builder", ptr: ControllerPtr) -> "Audit":
-            return Audit(LinkAudit().link_get(ptr))
+        def _resolve_link(self: "Audit._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "Audit":
+            return Audit(runtime, LinkAudit().link_get(ptr))
 
-    def __init__(self: "Audit", ptr: LinkPtr) -> None:
-        super().__init__(ptr)
+    def __init__(self: "Audit", runtime: RuntimePtr, ptr: LinkPtr) -> None:
+        super().__init__(runtime, ptr)
 
     @staticmethod
     def builder() -> _Builder:
@@ -39,6 +39,9 @@ class Audit(Link):
 
     def down(self: "Audit") -> None:
         LinkAudit().link_audit_down(self._ptr)
+
+    def up(self: "Audit") -> None:
+        LinkAudit().link_audit_up(self._ptr)
 
     def is_open(self: "Audit") -> bool:
         return bool(LinkAudit().link_audit_is_open(self._ptr))
@@ -48,6 +51,9 @@ class Audit(Link):
 
     def break_down(self: "Audit") -> None:
         LinkAudit().link_audit_break_down(self._ptr)
+
+    def repair(self: "Audit") -> None:
+        LinkAudit().link_audit_repair(self._ptr)
 
     def timeout(self: "Audit") -> timedelta:
         return timedelta(microseconds=int(LinkAudit().link_audit_timeout_ns(self._ptr)) / 1000)

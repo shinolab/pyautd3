@@ -3,7 +3,7 @@ from collections.abc import Callable
 from datetime import timedelta
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr
+from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
@@ -80,8 +80,8 @@ class SOEM(Link):
         def _link_builder_ptr(self: "SOEM._Builder") -> LinkBuilderPtr:
             return LinkSOEM().link_soem_into_builder(self._builder)
 
-        def _resolve_link(self: "SOEM._Builder", _ptr: ControllerPtr) -> "SOEM":
-            return SOEM(Base().link_get(_ptr), self._err_handler)  # pragma: no cover
+        def _resolve_link(self: "SOEM._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "SOEM":
+            return SOEM(runtime, Base().link_get(ptr), self._err_handler)  # pragma: no cover
 
     @staticmethod
     def enumerate_adapters() -> list[EtherCATAdapter]:
@@ -100,8 +100,8 @@ class SOEM(Link):
 
         return res
 
-    def __init__(self: "SOEM", ptr: LinkPtr, err_handler) -> None:  # noqa: ANN001
-        super().__init__(ptr)  # pragma: no cover
+    def __init__(self: "SOEM", runtime: RuntimePtr, ptr: LinkPtr, err_handler) -> None:  # noqa: ANN001
+        super().__init__(runtime, ptr)  # pragma: no cover
         self._err_handler = err_handler  # pragma: no cover
 
     @staticmethod
@@ -123,11 +123,11 @@ class RemoteSOEM(Link):
         def _link_builder_ptr(self: "RemoteSOEM._Builder") -> LinkBuilderPtr:
             return LinkSOEM().link_remote_soem_into_builder(self._builder)  # pragma: no cover
 
-        def _resolve_link(self: "RemoteSOEM._Builder", _ptr: ControllerPtr) -> "RemoteSOEM":
-            return RemoteSOEM(Base().link_get(_ptr))  # pragma: no cover
+        def _resolve_link(self: "RemoteSOEM._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "RemoteSOEM":
+            return RemoteSOEM(runtime, Base().link_get(ptr))  # pragma: no cover
 
-    def __init__(self: "RemoteSOEM", ptr: LinkPtr) -> None:
-        super().__init__(ptr)  # pragma: no cover
+    def __init__(self: "RemoteSOEM", runtime: RuntimePtr, ptr: LinkPtr) -> None:
+        super().__init__(runtime, ptr)  # pragma: no cover
 
     @staticmethod
     def builder(addr: str) -> _Builder:
