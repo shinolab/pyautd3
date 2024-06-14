@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pytest
 
 from pyautd3 import Controller, Segment
 from pyautd3.modulation import Static
@@ -29,3 +30,8 @@ def test_static_default():
     with create_controller() as autd:
         m = Static()
         assert Base().modulation_static_is_default(m._modulation_ptr(autd.geometry))
+
+
+def test_static_error():
+    with pytest.raises(TypeError):
+        _ = Static.with_intensity(1.0)

@@ -16,3 +16,7 @@ def test_emit_intensity():
 def test_emit_intensity_min_max():
     assert EmitIntensity.minimum().value == 0x00
     assert EmitIntensity.maximum().value == 0xFF
+
+
+def test_emit_intensity_floordiv():
+    assert EmitIntensity(0xFF) // 2 == EmitIntensity(0x7F)

@@ -141,3 +141,11 @@ def test_sine_default():
     with create_controller() as autd:
         m = Sine(150.0 * Hz)
         assert Base().modulation_sine_is_default(m._modulation_ptr(autd.geometry))
+
+
+def test_sine_error():
+    with pytest.raises(TypeError):
+        _ = Sine(100 * Hz).with_intensity(1.0)
+
+    with pytest.raises(TypeError):
+        _ = Sine(100 * Hz).with_offset(1.0)

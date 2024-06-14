@@ -58,3 +58,11 @@ def test_square_default():
     with create_controller() as autd:
         m = Square(150.0 * Hz)
         assert Base().modulation_square_is_default(m._modulation_ptr(autd.geometry))
+
+
+def test_square_error():
+    with pytest.raises(TypeError):
+        _ = Square(100 * Hz).with_low(1.0)
+
+    with pytest.raises(TypeError):
+        _ = Square(100 * Hz).with_high(1.0)
