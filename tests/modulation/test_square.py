@@ -62,7 +62,7 @@ def test_square_default():
 
 def test_square_error():
     with pytest.raises(TypeError):
-        _ = Square(100 * Hz).with_low(1.0)
+        _ = Square(100 * Hz).with_low(1.0)  # type: ignore[arg-type]
 
     with pytest.raises(TypeError):
-        _ = Square(100 * Hz).with_high(1.0)
+        _ = Square(100 * Hz).with_high(1.0)  # type: ignore[arg-type]

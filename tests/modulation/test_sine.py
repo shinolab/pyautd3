@@ -145,7 +145,7 @@ def test_sine_default():
 
 def test_sine_error():
     with pytest.raises(TypeError):
-        _ = Sine(100 * Hz).with_intensity(1.0)
+        _ = Sine(100 * Hz).with_intensity(1.0)  # type: ignore[arg-type]
 
     with pytest.raises(TypeError):
-        _ = Sine(100 * Hz).with_offset(1.0)
+        _ = Sine(100 * Hz).with_offset(1.0)  # type: ignore[arg-type]
