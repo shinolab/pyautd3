@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, EmitIntensity, SamplingConfig, Segment, Static
+from pyautd3 import Controller, SamplingConfig, Segment, Static
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
@@ -185,7 +185,7 @@ def test_mod_segment():
     with create_controller() as autd:
         assert autd.link.current_mod_segment(0) == Segment.S0
 
-        autd.send(Static.with_intensity(EmitIntensity(0x01)))
+        autd.send(Static.with_intensity(0x01))
         assert autd.link.current_mod_segment(0) == Segment.S0
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -194,7 +194,7 @@ def test_mod_segment():
             mod = autd.link.modulation(dev.idx, Segment.S1)
             assert np.all(mod == 0xFF)
 
-        autd.send(Static.with_intensity(EmitIntensity(0x02)).with_segment(Segment.S1, TransitionMode.Immediate))
+        autd.send(Static.with_intensity(0x02).with_segment(Segment.S1, TransitionMode.Immediate))
         assert autd.link.current_mod_segment(0) == Segment.S1
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -203,7 +203,7 @@ def test_mod_segment():
             mod = autd.link.modulation(dev.idx, Segment.S1)
             assert np.all(mod == 0x02)
 
-        autd.send(Static.with_intensity(EmitIntensity(0x03)).with_segment(Segment.S0, None))
+        autd.send(Static.with_intensity(0x03).with_segment(Segment.S0, None))
         assert autd.link.current_mod_segment(0) == Segment.S1
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)

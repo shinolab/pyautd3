@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, EmitIntensity, LoopBehavior, SamplingConfig, Segment, rad
+from pyautd3 import Controller, LoopBehavior, SamplingConfig, Segment, rad
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation import Sine
@@ -17,15 +17,9 @@ if TYPE_CHECKING:
 def test_sine():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = (
-            Sine(150 * Hz)
-            .with_intensity(EmitIntensity.maximum() // 2)
-            .with_offset(EmitIntensity.maximum() // 4)
-            .with_phase(np.pi / 2 * rad)
-            .with_loop_behavior(LoopBehavior.Once)
-        )
-        assert m.intensity == EmitIntensity.maximum() // 2
-        assert m.offset == EmitIntensity.maximum() // 4
+        m = Sine(150 * Hz).with_intensity(0xFF // 2).with_offset(0xFF // 4).with_phase(np.pi / 2 * rad).with_loop_behavior(LoopBehavior.Once)
+        assert m.intensity == 0xFF // 2
+        assert m.offset == 0xFF // 4
         assert m.phase == np.pi / 2 * rad
         assert m.loop_behavior == LoopBehavior.Once
         autd.send(m)

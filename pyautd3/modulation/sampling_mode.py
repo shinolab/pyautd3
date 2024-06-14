@@ -5,7 +5,6 @@ import numpy as np
 
 from pyautd3.driver.defined.angle import Angle
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.firmware.fpga import EmitIntensity
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior, ModulationPtr, SamplingConfigWrap
 from pyautd3.native_methods.utils import _validate_ptr
@@ -16,8 +15,8 @@ class ISamplingMode(metaclass=ABCMeta):
     def sine_ptr(
         self: "ISamplingMode",
         config: SamplingConfigWrap,
-        intensity: EmitIntensity,
-        offset: EmitIntensity,
+        intensity: int,
+        offset: int,
         phase: Angle,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
@@ -35,8 +34,8 @@ class ISamplingMode(metaclass=ABCMeta):
     def square_ptr(
         self: "ISamplingMode",
         config: SamplingConfigWrap,
-        low: EmitIntensity,
-        high: EmitIntensity,
+        low: int,
+        high: int,
         duty: float,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
@@ -52,12 +51,12 @@ class SamplingModeExact(ISamplingMode):
     def sine_ptr(
         self: "SamplingModeExact",
         config: SamplingConfigWrap,
-        intensity: EmitIntensity,
-        offset: EmitIntensity,
+        intensity: int,
+        offset: int,
         phase: Angle,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
-        return Base().modulation_sine_exact(self._freq.hz, config, intensity.value, offset.value, phase.radian, loop_behavior)
+        return Base().modulation_sine_exact(self._freq.hz, config, intensity, offset, phase.radian, loop_behavior)
 
     def fourier_ptr(self: "SamplingModeExact", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return _validate_ptr(
@@ -80,12 +79,12 @@ class SamplingModeExact(ISamplingMode):
     def square_ptr(
         self: "SamplingModeExact",
         config: SamplingConfigWrap,
-        low: EmitIntensity,
-        high: EmitIntensity,
+        low: int,
+        high: int,
         duty: float,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
-        return Base().modulation_square_exact(self._freq.hz, config, low.value, high.value, duty, loop_behavior)
+        return Base().modulation_square_exact(self._freq.hz, config, low, high, duty, loop_behavior)
 
 
 class SamplingModeExactFloat(ISamplingMode):
@@ -97,12 +96,12 @@ class SamplingModeExactFloat(ISamplingMode):
     def sine_ptr(
         self: "SamplingModeExactFloat",
         config: SamplingConfigWrap,
-        intensity: EmitIntensity,
-        offset: EmitIntensity,
+        intensity: int,
+        offset: int,
         phase: Angle,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
-        return Base().modulation_sine_exact_float(self._freq.hz, config, intensity.value, offset.value, phase.radian, loop_behavior)
+        return Base().modulation_sine_exact_float(self._freq.hz, config, intensity, offset, phase.radian, loop_behavior)
 
     def fourier_ptr(self: "SamplingModeExactFloat", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return _validate_ptr(
@@ -125,12 +124,12 @@ class SamplingModeExactFloat(ISamplingMode):
     def square_ptr(
         self: "SamplingModeExactFloat",
         config: SamplingConfigWrap,
-        low: EmitIntensity,
-        high: EmitIntensity,
+        low: int,
+        high: int,
         duty: float,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
-        return Base().modulation_square_exact_float(self._freq.hz, config, low.value, high.value, duty, loop_behavior)
+        return Base().modulation_square_exact_float(self._freq.hz, config, low, high, duty, loop_behavior)
 
 
 class SamplingModeNearest(ISamplingMode):
@@ -142,12 +141,12 @@ class SamplingModeNearest(ISamplingMode):
     def sine_ptr(
         self: "SamplingModeNearest",
         config: SamplingConfigWrap,
-        intensity: EmitIntensity,
-        offset: EmitIntensity,
+        intensity: int,
+        offset: int,
         phase: Angle,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
-        return Base().modulation_sine_nearest(self._freq.hz, config, intensity.value, offset.value, phase.radian, loop_behavior)
+        return Base().modulation_sine_nearest(self._freq.hz, config, intensity, offset, phase.radian, loop_behavior)
 
     def fourier_ptr(self: "SamplingModeNearest", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return _validate_ptr(
@@ -170,9 +169,9 @@ class SamplingModeNearest(ISamplingMode):
     def square_ptr(
         self: "SamplingModeNearest",
         config: SamplingConfigWrap,
-        low: EmitIntensity,
-        high: EmitIntensity,
+        low: int,
+        high: int,
         duty: float,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
-        return Base().modulation_square_nearest(self._freq.hz, config, low.value, high.value, duty, loop_behavior)
+        return Base().modulation_square_nearest(self._freq.hz, config, low, high, duty, loop_behavior)

@@ -26,7 +26,7 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     center = autd.geometry.center + np.array([0, 0, 150])
 
     g = Uniform(0x80).with_phase(0x81)
-    m = Static().with_intensity(EmitIntensity(0x82))
+    m = Static().with_intensity(0x82)
 
     autd.send((m, g))
 

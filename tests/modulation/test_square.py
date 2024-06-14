@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, EmitIntensity, SamplingConfig, Segment
+from pyautd3 import Controller, SamplingConfig, Segment
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation import Square
@@ -17,9 +17,9 @@ if TYPE_CHECKING:
 def test_square():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Square(200 * Hz).with_low(EmitIntensity(32)).with_high(EmitIntensity(85)).with_duty(0.1)
-        assert m.low == EmitIntensity(32)
-        assert m.high == EmitIntensity(85)
+        m = Square(200 * Hz).with_low(32).with_high(85).with_duty(0.1)
+        assert m.low == 32
+        assert m.high == 85
         assert m.duty == 0.1
         autd.send(m)
 

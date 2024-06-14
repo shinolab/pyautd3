@@ -2,7 +2,6 @@ from typing import TypeVar
 
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
@@ -13,15 +12,15 @@ T = TypeVar("T", int, float)
 
 class Square(Modulation["Square"]):
     _mode: ISamplingMode
-    _low: EmitIntensity
-    _high: EmitIntensity
+    _low: int
+    _high: int
     _duty: float
 
     def __private__init__(self: "Square", mode: ISamplingMode) -> None:
         super().__init__(SamplingConfig.Division(5120))
         self._mode = mode
-        self._low = EmitIntensity.minimum()
-        self._high = EmitIntensity.maximum()
+        self._low = 0x00
+        self._high = 0xFF
         self._duty = 0.5
 
     def __init__(self: "Square", freq: Freq[T]) -> None:
@@ -37,20 +36,24 @@ class Square(Modulation["Square"]):
         sine.__private__init__(SamplingModeNearest(freq))
         return sine
 
-    def with_low(self: "Square", low: int | EmitIntensity) -> "Square":
-        self._low = EmitIntensity(low)
+    def with_low(self: "Square", low: int) -> "Square":
+        if isinstance(low, float):
+            raise TypeError
+        self._low = low
         return self
 
     @property
-    def low(self: "Square") -> EmitIntensity:
+    def low(self: "Square") -> int:
         return self._low
 
-    def with_high(self: "Square", high: int | EmitIntensity) -> "Square":
-        self._high = EmitIntensity(high)
+    def with_high(self: "Square", high: int) -> "Square":
+        if isinstance(high, float):
+            raise TypeError
+        self._high = high
         return self
 
     @property
-    def high(self: "Square") -> EmitIntensity:
+    def high(self: "Square") -> int:
         return self._high
 
     def with_duty(self: "Square", duty: float) -> "Square":

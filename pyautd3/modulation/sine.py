@@ -3,7 +3,6 @@ from typing import TypeVar
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.angle import Angle, rad
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.geometry import Geometry
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
@@ -14,15 +13,15 @@ T = TypeVar("T", int, float)
 
 class Sine(Modulation["Sine"]):
     _mode: ISamplingMode
-    _intensity: EmitIntensity
-    _offset: EmitIntensity
+    _intensity: int
+    _offset: int
     _phase: Angle
 
     def __private__init__(self: "Sine", mode: ISamplingMode) -> None:
         super().__init__(SamplingConfig.Division(5120))
         self._mode = mode
-        self._intensity = EmitIntensity.maximum()
-        self._offset = EmitIntensity.maximum() // 2
+        self._intensity = 0xFF
+        self._offset = 0xFF // 2
         self._phase = 0 * rad
 
     def __init__(self: "Sine", freq: Freq[T]) -> None:
@@ -38,20 +37,24 @@ class Sine(Modulation["Sine"]):
         sine.__private__init__(SamplingModeNearest(freq))
         return sine
 
-    def with_intensity(self: "Sine", intensity: int | EmitIntensity) -> "Sine":
-        self._intensity = EmitIntensity(intensity)
+    def with_intensity(self: "Sine", intensity: int) -> "Sine":
+        if isinstance(intensity, float):
+            raise TypeError
+        self._intensity = intensity
         return self
 
     @property
-    def intensity(self: "Sine") -> EmitIntensity:
+    def intensity(self: "Sine") -> int:
         return self._intensity
 
-    def with_offset(self: "Sine", offset: int | EmitIntensity) -> "Sine":
-        self._offset = EmitIntensity(offset)
+    def with_offset(self: "Sine", offset: int) -> "Sine":
+        if isinstance(offset, float):
+            raise TypeError
+        self._offset = offset
         return self
 
     @property
-    def offset(self: "Sine") -> EmitIntensity:
+    def offset(self: "Sine") -> int:
         return self._offset
 
     def with_phase(self: "Sine", phase: Angle) -> "Sine":
