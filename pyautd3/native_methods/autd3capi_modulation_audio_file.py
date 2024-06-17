@@ -3,7 +3,7 @@ import threading
 import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3capi_driver import LoopBehavior, ModulationPtr, ResultModulation, SamplingConfigWrap
+from pyautd3.native_methods.autd3capi_driver import LoopBehavior, ModulationPtr, ResultModulation
 
 
 
@@ -27,7 +27,7 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDModulationWav.argtypes = [ctypes.c_char_p, SamplingConfigWrap, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationWav.argtypes = [ctypes.c_char_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWav.restype = ResultModulation
 
         self.dll.AUTDModulationWavIsDefault.argtypes = [ModulationPtr]  # type: ignore 
@@ -39,8 +39,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationCsv.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationCsv.restype = ResultModulation
 
-    def modulation_wav(self, path: bytes, config: SamplingConfigWrap, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationWav(path, config, loop_behavior)
+    def modulation_wav(self, path: bytes, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationWav(path, loop_behavior)
 
     def modulation_wav_is_default(self, wav: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationWavIsDefault(wav)

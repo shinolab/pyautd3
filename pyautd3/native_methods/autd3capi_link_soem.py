@@ -3,7 +3,7 @@ import threading
 import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, SyncMode
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
 
 from enum import IntEnum
 
@@ -69,6 +69,9 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
+        self.dll.AUTDAUTDLinkSOEMTracingInit.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDAUTDLinkSOEMTracingInit.restype = None
+
         self.dll.AUTDAdapterPointer.argtypes = [] 
         self.dll.AUTDAdapterPointer.restype = EthernetAdaptersPtr
 
@@ -96,8 +99,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithTimerStrategy.argtypes = [LinkSOEMBuilderPtr, TimerStrategy]  # type: ignore 
         self.dll.AUTDLinkSOEMWithTimerStrategy.restype = LinkSOEMBuilderPtr
 
-        self.dll.AUTDLinkSOEMWithSyncMode.argtypes = [LinkSOEMBuilderPtr, SyncMode]  # type: ignore 
-        self.dll.AUTDLinkSOEMWithSyncMode.restype = LinkSOEMBuilderPtr
+        self.dll.AUTDLinkSOEMWithSyncTolerance.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint64]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithSyncTolerance.restype = LinkSOEMBuilderPtr
+
+        self.dll.AUTDLinkSOEMWithSyncTimeout.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint64]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithSyncTimeout.restype = LinkSOEMBuilderPtr
 
         self.dll.AUTDLinkSOEMWithIfname.argtypes = [LinkSOEMBuilderPtr, ctypes.c_char_p]  # type: ignore 
         self.dll.AUTDLinkSOEMWithIfname.restype = LinkSOEMBuilderPtr
@@ -126,6 +132,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.argtypes = [LinkRemoteSOEMBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.restype = LinkBuilderPtr
 
+    def autd_link_soem_tracing_init(self, level: int) -> None:
+        return self.dll.AUTDAUTDLinkSOEMTracingInit(level)
+
     def adapter_pointer(self) -> EthernetAdaptersPtr:
         return self.dll.AUTDAdapterPointer()
 
@@ -153,8 +162,11 @@ class NativeMethods(metaclass=Singleton):
     def link_soem_with_timer_strategy(self, soem: LinkSOEMBuilderPtr, timer_strategy: TimerStrategy) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithTimerStrategy(soem, timer_strategy)
 
-    def link_soem_with_sync_mode(self, soem: LinkSOEMBuilderPtr, mode: SyncMode) -> LinkSOEMBuilderPtr:
-        return self.dll.AUTDLinkSOEMWithSyncMode(soem, mode)
+    def link_soem_with_sync_tolerance(self, soem: LinkSOEMBuilderPtr, tolerance_ns: int) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithSyncTolerance(soem, tolerance_ns)
+
+    def link_soem_with_sync_timeout(self, soem: LinkSOEMBuilderPtr, timeout_ns: int) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithSyncTimeout(soem, timeout_ns)
 
     def link_soem_with_ifname(self, soem: LinkSOEMBuilderPtr, ifname: bytes) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithIfname(soem, ifname)

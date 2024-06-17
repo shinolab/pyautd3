@@ -1,3 +1,4 @@
+import contextlib
 from enum import Enum
 
 from .controller import Controller
@@ -33,9 +34,18 @@ from .ethercat import DcSysTime
 from .gain import Bessel, Focus, Group, Null, Plane, Uniform
 from .link.nop import Nop
 from .modulation import Sine, Square, Static
-from .native_methods.autd3capi import TRACE_LEVEL_DEBUG, TRACE_LEVEL_ERROR, TRACE_LEVEL_INFO, TRACE_LEVEL_TRACE, TRACE_LEVEL_WARN
 from .native_methods.autd3capi import NativeMethods as Base
-from .native_methods.autd3capi_driver import GPIOIn, GPIOOut, Segment
+from .native_methods.autd3capi_driver import (
+    TRACE_LEVEL_DEBUG,
+    TRACE_LEVEL_ERROR,
+    TRACE_LEVEL_INFO,
+    TRACE_LEVEL_TRACE,
+    TRACE_LEVEL_WARN,
+    GPIOIn,
+    GPIOOut,
+    Segment,
+)
+from .native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
 
 
 class Level(Enum):
@@ -48,6 +58,8 @@ class Level(Enum):
 
 def tracing_init(level: Level) -> None:
     Base().tracing_init(level.value)
+    with contextlib.suppress(BaseException):
+        LinkSOEM().autd_link_soem_tracing_init(level.value)
 
 
 __all__ = [
@@ -107,4 +119,4 @@ __all__ = [
     "TransitionMode",
 ]
 
-__version__ = "25.2.3.1"
+__version__ = "25.3.1"

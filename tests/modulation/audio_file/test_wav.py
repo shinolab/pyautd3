@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, SamplingConfig, Segment
+from pyautd3 import Controller, Segment
 from pyautd3.modulation.audio_file import Wav
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 from tests.test_autd import create_controller
@@ -103,14 +103,6 @@ def test_wav():
             ]
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
-
-        autd.send(
-            Wav(Path(__file__).parent / "sin150.wav").with_sampling_config(
-                SamplingConfig.Division(10240),
-            ),
-        )
-        for dev in autd.geometry:
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10240
 
 
 def test_wav_default():

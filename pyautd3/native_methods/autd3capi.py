@@ -82,16 +82,6 @@ class ResultModulationCalc(ctypes.Structure):
         return isinstance(other, ResultModulationCalc) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-TRACE_LEVEL_ERROR: int = 1
-
-TRACE_LEVEL_WARN: int = 2
-
-TRACE_LEVEL_INFO: int = 3
-
-TRACE_LEVEL_DEBUG: int = 4
-
-TRACE_LEVEL_TRACE: int = 5
-
 
 class Singleton(type):
     _instances = {}  # type: ignore

@@ -7,7 +7,7 @@ from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, SyncMode
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, Status, TimerStrategy
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
 from pyautd3.native_methods.utils import _validate_ptr
@@ -65,8 +65,12 @@ class SOEM(Link):
             self._builder = LinkSOEM().link_soem_with_timer_strategy(self._builder, strategy)
             return self
 
-        def with_sync_mode(self: "SOEM._Builder", mode: SyncMode) -> "SOEM._Builder":
-            self._builder = LinkSOEM().link_soem_with_sync_mode(self._builder, mode)
+        def with_sync_tolerance(self: "SOEM._Builder", tolerance: timedelta) -> "SOEM._Builder":
+            self._builder = LinkSOEM().link_soem_with_sync_tolerance(self._builder, int(tolerance.total_seconds() * 1000 * 1000 * 1000))
+            return self
+
+        def with_sync_timeout(self: "SOEM._Builder", timeout: timedelta) -> "SOEM._Builder":
+            self._builder = LinkSOEM().link_soem_with_sync_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
             return self
 
         def with_state_check_interval(self: "SOEM._Builder", interval: timedelta) -> "SOEM._Builder":

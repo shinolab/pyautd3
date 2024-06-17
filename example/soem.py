@@ -2,7 +2,7 @@ import os
 
 from samples import runner  # type: ignore[import,import-not-found]
 
-from pyautd3 import AUTD3, Controller
+from pyautd3 import AUTD3, Controller, Level, tracing_init
 from pyautd3.link.soem import SOEM, Status
 
 
@@ -19,6 +19,8 @@ def err_handler(slave: int, status: Status, msg: str) -> None:
 
 
 if __name__ == "__main__":
+    tracing_init(Level.INFO)
+
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).open(
         SOEM.builder().with_err_handler(err_handler),
     ) as autd:

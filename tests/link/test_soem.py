@@ -4,7 +4,7 @@ import pytest
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
-from pyautd3.link.soem import SOEM, RemoteSOEM, Status, SyncMode, TimerStrategy
+from pyautd3.link.soem import SOEM, RemoteSOEM, Status, TimerStrategy
 
 
 @pytest.mark.soem()
@@ -31,7 +31,8 @@ def test_soem():
                 .with_sync0_cycle(2)
                 .with_err_handler(err_handler)
                 .with_timer_strategy(TimerStrategy.Sleep)
-                .with_sync_mode(SyncMode.FreeRun)
+                .with_sync_tolerance(timedelta(microseconds=1))
+                .with_sync_timeout(timedelta(seconds=10))
                 .with_state_check_interval(timedelta(milliseconds=100))
                 .with_timeout(timedelta(milliseconds=200)),
             )
