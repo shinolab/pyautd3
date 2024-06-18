@@ -3,7 +3,7 @@ import threading
 import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, SyncMode
 
 from enum import IntEnum
 
@@ -99,6 +99,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithTimerStrategy.argtypes = [LinkSOEMBuilderPtr, TimerStrategy]  # type: ignore 
         self.dll.AUTDLinkSOEMWithTimerStrategy.restype = LinkSOEMBuilderPtr
 
+        self.dll.AUTDLinkSOEMWithSyncMode.argtypes = [LinkSOEMBuilderPtr, SyncMode]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithSyncMode.restype = LinkSOEMBuilderPtr
+
         self.dll.AUTDLinkSOEMWithSyncTolerance.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDLinkSOEMWithSyncTolerance.restype = LinkSOEMBuilderPtr
 
@@ -161,6 +164,9 @@ class NativeMethods(metaclass=Singleton):
 
     def link_soem_with_timer_strategy(self, soem: LinkSOEMBuilderPtr, timer_strategy: TimerStrategy) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithTimerStrategy(soem, timer_strategy)
+
+    def link_soem_with_sync_mode(self, soem: LinkSOEMBuilderPtr, mode: SyncMode) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithSyncMode(soem, mode)
 
     def link_soem_with_sync_tolerance(self, soem: LinkSOEMBuilderPtr, tolerance_ns: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithSyncTolerance(soem, tolerance_ns)
