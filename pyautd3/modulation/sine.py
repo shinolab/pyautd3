@@ -5,6 +5,7 @@ from pyautd3.driver.defined.angle import Angle, rad
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.geometry import Geometry
+from pyautd3.driver.utils import _validate_u8
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
@@ -38,9 +39,7 @@ class Sine(Modulation["Sine"]):
         return sine
 
     def with_intensity(self: "Sine", intensity: int) -> "Sine":
-        if isinstance(intensity, float):
-            raise TypeError
-        self._intensity = intensity
+        self._intensity = _validate_u8(intensity)
         return self
 
     @property
@@ -48,9 +47,7 @@ class Sine(Modulation["Sine"]):
         return self._intensity
 
     def with_offset(self: "Sine", offset: int) -> "Sine":
-        if isinstance(offset, float):
-            raise TypeError
-        self._offset = offset
+        self._offset = _validate_u8(offset)
         return self
 
     @property

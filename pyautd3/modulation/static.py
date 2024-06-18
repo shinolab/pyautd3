@@ -3,6 +3,7 @@ from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 from pyautd3.driver.geometry.geometry import Geometry
+from pyautd3.driver.utils import _validate_u8
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
@@ -19,7 +20,7 @@ class Static(
         if isinstance(intensity, float):
             raise TypeError
         super().__init__()
-        self._intensity = 0xFF if intensity is None else intensity
+        self._intensity = 0xFF if intensity is None else _validate_u8(intensity)
 
     @staticmethod
     def with_intensity(intensity: int) -> "Static":

@@ -4,6 +4,7 @@ from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.geometry.geometry import Geometry
+from pyautd3.driver.utils import _validate_u8
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
@@ -37,9 +38,7 @@ class Square(Modulation["Square"]):
         return sine
 
     def with_low(self: "Square", low: int) -> "Square":
-        if isinstance(low, float):
-            raise TypeError
-        self._low = low
+        self._low = _validate_u8(low)
         return self
 
     @property
@@ -47,9 +46,7 @@ class Square(Modulation["Square"]):
         return self._low
 
     def with_high(self: "Square", high: int) -> "Square":
-        if isinstance(high, float):
-            raise TypeError
-        self._high = high
+        self._high = _validate_u8(high)
         return self
 
     @property

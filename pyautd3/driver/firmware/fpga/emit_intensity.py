@@ -1,3 +1,6 @@
+from pyautd3.driver.utils import _validate_u8
+
+
 class EmitIntensity:
     _value: int
 
@@ -6,7 +9,7 @@ class EmitIntensity:
             case EmitIntensity():
                 self._value = intensity._value
             case int():
-                self._value = intensity
+                self._value = _validate_u8(intensity)
             case _:
                 raise TypeError
 
