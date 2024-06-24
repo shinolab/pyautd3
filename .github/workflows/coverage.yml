@@ -35,7 +35,7 @@ jobs:
 
       - name: Generate code coverage for python
         run: |
-          python3 -m pip install -U pytest pytest-asyncio pytest-cov
+          python3 -m pip install -U pytest pytest-asyncio pytest-cov pytest-xdist
           python3 -m pip install -U numpy matplotlib forbiddenfruit
           python3 x.py cov --cov_report=xml
 

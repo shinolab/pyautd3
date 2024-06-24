@@ -36,7 +36,7 @@ class Csv(
     def _modulation_ptr(self: "Csv", _: Geometry) -> ModulationPtr:
         delim = self._deliminator.encode("utf-8")
         return _validate_ptr(
-            ModulationAudioFile().modulation_csv(
+            ModulationAudioFile().modulation_audio_file_csv(
                 str(self._path).encode("utf-8"),
                 self._sample_rate.hz,
                 delim[0],

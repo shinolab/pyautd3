@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Iterable
+from datetime import timedelta
 from typing import Generic, TypeVar
 
 import numpy as np
@@ -20,19 +21,19 @@ from pyautd3.driver.datagram.stm.control_point import (
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
-from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.defined.freq import Freq, Hz
 from pyautd3.driver.firmware.fpga import LoopBehavior
+from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
     DatagramPtr,
     FociSTMPtr,
-    SamplingConfigWrap,
     Segment,
     TransitionModeWrap,
 )
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.utils import _validate_f32, _validate_ptr, _validate_u64
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -51,7 +52,9 @@ class FociSTM(
 
     _freq: Freq[float] | None
     _freq_nearest: Freq[float] | None
-    _sampling_config: SamplingConfigWrap | None
+    _period: timedelta | None
+    _period_nearest: timedelta | None
+    _sampling_config: SamplingConfig | None
     _loop_behavior: _LoopBehavior
 
     def __new__(cls: type["FociSTM"]) -> "FociSTM":
@@ -62,7 +65,9 @@ class FociSTM(
         cls: type["FociSTM"],
         freq: Freq[float] | None,
         freq_nearest: Freq[float] | None,
-        sampling_config: SamplingConfigWrap | None,
+        period: timedelta | None,
+        period_nearest: timedelta | None,
+        sampling_config: SamplingConfig | None,
         iterable: Iterable[C],
     ) -> "FociSTM":
         ins = super().__new__(cls)
@@ -71,6 +76,8 @@ class FociSTM(
 
         ins._freq = freq
         ins._freq_nearest = freq_nearest
+        ins._period = period
+        ins._period_nearest = period_nearest
         ins._sampling_config = sampling_config
 
         ins._loop_behavior = LoopBehavior.Infinite
@@ -78,6 +85,9 @@ class FociSTM(
         return ins
 
     def _raw_ptr(self: "FociSTM", _: Geometry) -> FociSTMPtr:
+        return self._ptr()
+
+    def _ptr(self: "FociSTM") -> FociSTMPtr:
         n = self._points[0]._value()
         points = np.fromiter((np.void(p) for p in self._points), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
         ptr: FociSTMPtr
@@ -99,9 +109,27 @@ class FociSTM(
                     n,
                 ),
             )
+        elif self._period is not None:
+            ptr = _validate_ptr(
+                Base().stm_foci_from_period(
+                    int(self._period.total_seconds() * 1000 * 1000 * 1000),
+                    points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
+                    len(self._points),
+                    n,
+                ),
+            )
+        elif self._period_nearest is not None:
+            ptr = _validate_ptr(
+                Base().stm_foci_from_period_nearest(
+                    int(self._period_nearest.total_seconds() * 1000 * 1000 * 1000),
+                    points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
+                    len(self._points),
+                    n,
+                ),
+            )
         else:
             ptr = Base().stm_foci_from_sampling_config(
-                self._sampling_config,  # type: ignore[arg-type]
+                self._sampling_config._inner,  # type: ignore[union-attr]
                 points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
                 len(self._points),
                 n,
@@ -142,9 +170,9 @@ class FociSTM(
                 | ControlPoints7()
                 | ControlPoints8()
             ):
-                return FociSTM.__private_new__(freq, None, None, foci)
+                return FociSTM.__private_new__(freq, None, None, None, None, foci)
             case _:
-                return FociSTM.__private_new__(freq, None, None, (ControlPoints1(p) for p in foci))
+                return FociSTM.__private_new__(freq, None, None, None, None, (ControlPoints1(p) for p in foci))
 
     @staticmethod
     def from_freq_nearest(
@@ -171,13 +199,13 @@ class FociSTM(
                 | ControlPoints7()
                 | ControlPoints8()
             ):
-                return FociSTM.__private_new__(None, freq, None, foci)
+                return FociSTM.__private_new__(None, freq, None, None, None, foci)
             case _:
-                return FociSTM.__private_new__(None, freq, None, (ControlPoints1(p) for p in foci))
+                return FociSTM.__private_new__(None, freq, None, None, None, (ControlPoints1(p) for p in foci))
 
     @staticmethod
-    def from_sampling_config(
-        sampling_config: SamplingConfigWrap,
+    def from_period(
+        period: timedelta,
         iterable: Iterable[ArrayLike]
         | Iterable[ControlPoints1]
         | Iterable[ControlPoints2]
@@ -200,10 +228,76 @@ class FociSTM(
                 | ControlPoints7()
                 | ControlPoints8()
             ):
-                return FociSTM.__private_new__(None, None, sampling_config, foci)
+                return FociSTM.__private_new__(None, None, period, None, None, foci)
             case _:
-                return FociSTM.__private_new__(None, None, sampling_config, (ControlPoints1(p) for p in foci))
+                return FociSTM.__private_new__(None, None, period, None, None, (ControlPoints1(p) for p in foci))
+
+    @staticmethod
+    def from_period_nearest(
+        period: timedelta,
+        iterable: Iterable[ArrayLike]
+        | Iterable[ControlPoints1]
+        | Iterable[ControlPoints2]
+        | Iterable[ControlPoints3]
+        | Iterable[ControlPoints4]
+        | Iterable[ControlPoints5]
+        | Iterable[ControlPoints6]
+        | Iterable[ControlPoints7]
+        | Iterable[ControlPoints8],
+    ) -> "FociSTM":
+        foci = list(iterable)
+        match foci[0]:
+            case (
+                ControlPoints1()
+                | ControlPoints2()
+                | ControlPoints3()
+                | ControlPoints4()
+                | ControlPoints5()
+                | ControlPoints6()
+                | ControlPoints7()
+                | ControlPoints8()
+            ):
+                return FociSTM.__private_new__(None, None, None, period, None, foci)
+            case _:
+                return FociSTM.__private_new__(None, None, None, period, None, (ControlPoints1(p) for p in foci))
+
+    @staticmethod
+    def from_sampling_config(
+        sampling_config: SamplingConfig | Freq[int] | timedelta,
+        iterable: Iterable[ArrayLike]
+        | Iterable[ControlPoints1]
+        | Iterable[ControlPoints2]
+        | Iterable[ControlPoints3]
+        | Iterable[ControlPoints4]
+        | Iterable[ControlPoints5]
+        | Iterable[ControlPoints6]
+        | Iterable[ControlPoints7]
+        | Iterable[ControlPoints8],
+    ) -> "FociSTM":
+        foci = list(iterable)
+        match foci[0]:
+            case (
+                ControlPoints1()
+                | ControlPoints2()
+                | ControlPoints3()
+                | ControlPoints4()
+                | ControlPoints5()
+                | ControlPoints6()
+                | ControlPoints7()
+                | ControlPoints8()
+            ):
+                return FociSTM.__private_new__(None, None, None, None, SamplingConfig(sampling_config), foci)
+            case _:
+                return FociSTM.__private_new__(None, None, None, None, SamplingConfig(sampling_config), (ControlPoints1(p) for p in foci))
 
     def with_loop_behavior(self: "FociSTM", value: _LoopBehavior) -> "FociSTM":
         self._loop_behavior = value
         return self
+
+    @property
+    def freq(self: "FociSTM") -> Freq[float]:
+        return _validate_f32(Base().stm_foci_freq(self._ptr(), self._points[0]._value())) * Hz
+
+    @property
+    def period(self: "FociSTM") -> timedelta:
+        return timedelta(microseconds=_validate_u64(Base().stm_foci_period(self._ptr(), self._points[0]._value())) / 1000)

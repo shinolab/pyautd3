@@ -10,7 +10,6 @@ class EmissionConstraint(metaclass=ConstantADT):
     def __new__(cls: type["EmissionConstraint"]) -> "EmissionConstraint":
         raise NotImplementedError
 
-    DontCare: EmissionConstraintWrap = GainHolo().gain_holo_constraint_dot_care()
     Normalize: EmissionConstraintWrap = GainHolo().gain_holo_constraint_normalize()
 
     @staticmethod

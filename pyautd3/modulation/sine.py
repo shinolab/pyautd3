@@ -64,7 +64,7 @@ class Sine(Modulation["Sine"]):
 
     def _modulation_ptr(self: "Sine", _: Geometry) -> ModulationPtr:
         return self._mode.sine_ptr(
-            self._config,
+            self._config._inner,
             self._intensity,
             self._offset,
             self._phase,

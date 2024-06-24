@@ -21,7 +21,7 @@ class LM(HoloWithBackend["LM"]):
     _initial: np.ndarray
 
     def __init__(self: "LM", backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
-        super().__init__(EmissionConstraint.DontCare, backend, iterable)
+        super().__init__(EmissionConstraint.Clamp(0x00, 0xFF), backend, iterable)
         self._eps1 = 1e-8
         self._eps2 = 1e-8
         self._tau = 1e-3

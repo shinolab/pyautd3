@@ -63,7 +63,7 @@ class Square(Modulation["Square"]):
 
     def _modulation_ptr(self: "Square", _: Geometry) -> ModulationPtr:
         return self._mode.square_ptr(
-            self._config,
+            self._config._inner,
             self._low,
             self._high,
             self._duty,

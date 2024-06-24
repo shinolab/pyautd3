@@ -17,7 +17,7 @@ class GSPAT(HoloWithBackend["GSPAT"]):
     _repeat: int
 
     def __init__(self: "GSPAT", backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
-        super().__init__(EmissionConstraint.DontCare, backend, iterable)
+        super().__init__(EmissionConstraint.Clamp(0x00, 0xFF), backend, iterable)
         self._repeat = 100
 
     def with_repeat(self: "GSPAT", value: int) -> "GSPAT":

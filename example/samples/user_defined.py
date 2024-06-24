@@ -1,12 +1,13 @@
 from collections.abc import Callable
+from datetime import timedelta
 
 import numpy as np
 from numpy.typing import ArrayLike
 
 from pyautd3 import Controller, Device, Drive, EmitIntensity, Geometry, Hz, Phase, SamplingConfig, Silencer, Transducer, rad
+from pyautd3.driver.defined.freq import Freq
 from pyautd3.gain import Gain
 from pyautd3.modulation import Modulation
-from pyautd3.native_methods.autd3capi_driver import SamplingConfigWrap
 
 
 class Focus(Gain["Focus"]):
@@ -25,7 +26,7 @@ class Focus(Gain["Focus"]):
 class Burst(Modulation["Burst"]):
     _length: int
 
-    def __init__(self: "Burst", length: int, config: SamplingConfigWrap | None = None) -> None:
+    def __init__(self: "Burst", length: int, config: SamplingConfig | Freq[int] | timedelta | None = None) -> None:
         super().__init__(config if config is not None else SamplingConfig.Freq(4000 * Hz))
         self._length = length
 

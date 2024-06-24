@@ -15,7 +15,7 @@ from .holo import HoloWithBackend
 
 class Naive(HoloWithBackend["Naive"]):
     def __init__(self: "Naive", backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
-        super().__init__(EmissionConstraint.DontCare, backend, iterable)
+        super().__init__(EmissionConstraint.Clamp(0x00, 0xFF), backend, iterable)
 
     def _gain_ptr(self: "Naive", _: Geometry) -> GainPtr:
         size = len(self._amps)

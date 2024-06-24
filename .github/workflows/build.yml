@@ -58,7 +58,7 @@ jobs:
       - name: Install tools
         if: needs.check.outputs.status
         run: |
-          python3 -m pip install -U mypy numpy forbiddenfruit build wheel pytest pytest-asyncio matplotlib ruff
+          python3 -m pip install -U mypy numpy forbiddenfruit build wheel pytest pytest-asyncio pytest-xdist matplotlib ruff
 
       - name: Build python library on ${{ matrix.os-and-python.os }}
         if: needs.check.outputs.status

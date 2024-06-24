@@ -1,6 +1,8 @@
 import contextlib
 from enum import Enum
 
+from pyautd3.driver.defined.freq import Freq
+
 from .controller import Controller
 from .driver.autd3_device import AUTD3
 from .driver.datagram import (
@@ -35,6 +37,7 @@ from .gain import Bessel, Focus, Group, Null, Plane, Uniform
 from .link.nop import Nop
 from .modulation import Sine, Square, Static
 from .native_methods.autd3capi import NativeMethods as Base
+from .native_methods.autd3capi_backend_cuda import NativeMethods as BackendCUDA
 from .native_methods.autd3capi_driver import (
     TRACE_LEVEL_DEBUG,
     TRACE_LEVEL_ERROR,
@@ -45,7 +48,12 @@ from .native_methods.autd3capi_driver import (
     GPIOOut,
     Segment,
 )
-from .native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
+from .native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
+from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
+from .native_methods.autd3capi_link_soem import NativeMethods as Soem
+from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
+from .native_methods.autd3capi_link_visualizer import NativeMethods as Visualizer
+from .native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 
 
 class Level(Enum):
@@ -59,7 +67,25 @@ class Level(Enum):
 def tracing_init(level: Level) -> None:
     Base().tracing_init(level.value)
     with contextlib.suppress(BaseException):
-        LinkSOEM().autd_link_soem_tracing_init(level.value)
+        Soem().autd_link_soem_tracing_init(level.value)
+
+
+def set_ultrasound_freq(freq: Freq[int]) -> None:
+    Base().set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        Soem().link_soem_set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        TwinCAT().link_twin_cat_set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        Simulator().link_simulator_set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        Visualizer().link_visualizer_set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        BackendCUDA().cuda_set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        GainHolo().gain_holo_set_ultrasound_freq(freq.hz)
+    with contextlib.suppress(BaseException):
+        ModulationAudioFile().modulation_audio_file_set_ultrasound_freq(freq.hz)
 
 
 __all__ = [
@@ -119,4 +145,4 @@ __all__ = [
     "TransitionMode",
 ]
 
-__version__ = "25.3.2"
+__version__ = "26.0.0-alpha.1"

@@ -29,7 +29,7 @@ class RawPCM(
 
     def _modulation_ptr(self: "RawPCM", _: Geometry) -> ModulationPtr:
         return _validate_ptr(
-            ModulationAudioFile().modulation_raw_pcm(
+            ModulationAudioFile().modulation_audio_file_raw_pcm(
                 str(self._path).encode("utf-8"),
                 self._sample_rate.hz,
                 self._loop_behavior,

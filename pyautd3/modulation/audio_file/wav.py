@@ -26,7 +26,7 @@ class Wav(
 
     def _modulation_ptr(self: "Wav", _: Geometry) -> ModulationPtr:
         return _validate_ptr(
-            ModulationAudioFile().modulation_wav(
+            ModulationAudioFile().modulation_audio_file_wav(
                 str(self._path).encode("utf-8"),
                 self._loop_behavior,
             ),

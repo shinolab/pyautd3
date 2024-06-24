@@ -19,6 +19,9 @@ class Freq(Generic[T]):
     def hz(self: "Freq[T]") -> T:
         return self._freq
 
+    def __eq__(self: "Freq[T]", value: object) -> bool:
+        return isinstance(value, Freq) and self._freq == value._freq
+
 
 class _UnitHz:
     def __new__(cls: type["_UnitHz"]) -> "_UnitHz":

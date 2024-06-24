@@ -71,6 +71,8 @@ class SamplingConfigTag(IntEnum):
     DivisionRaw = 1
     Freq = 2
     FreqNearest = 3
+    Period = 4
+    PeriodNearest = 5
 
     @classmethod
     def from_param(cls, obj):
@@ -99,10 +101,10 @@ class TransitionModeTag(IntEnum):
 
 
 class SamplingConfigValue(ctypes.Union):
-    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_float)]
+    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_float), ("period_ns", ctypes.c_uint64)]
 
 
-class ContextPtr(ctypes.Structure):
+class ConstPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -224,6 +226,30 @@ class ResultI32(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultI32) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultU32(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_uint32), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultU32) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultF32(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_float), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultF32) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultU64(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_uint64), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultU64) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 NUM_TRANS_IN_UNIT: int = 249

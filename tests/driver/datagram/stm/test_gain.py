@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -19,6 +20,8 @@ def test_gain_stm():
 
         size = 2
         stm = GainSTM.from_freq(1.0 * Hz, (Uniform(0xFF // (i + 1)) for i in range(size))).with_loop_behavior(LoopBehavior.Once)
+        assert stm.freq == 1.0 * Hz
+        assert stm.period == timedelta(seconds=1.0)
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -28,6 +31,24 @@ def test_gain_stm():
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
 
         stm = GainSTM.from_freq_nearest(1.0 * Hz, [Uniform(0xFF), Uniform(0x80)])
+        autd.send(stm)
+        for dev in autd.geometry:
+            assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
+            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
+        assert stm.mode == GainSTMMode.PhaseIntensityFull
+        for dev in autd.geometry:
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+
+        stm = GainSTM.from_period(timedelta(seconds=1.0), [Uniform(0xFF), Uniform(0x80)])
+        autd.send(stm)
+        for dev in autd.geometry:
+            assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
+            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
+        assert stm.mode == GainSTMMode.PhaseIntensityFull
+        for dev in autd.geometry:
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+
+        stm = GainSTM.from_period_nearest(timedelta(seconds=1.0), [Uniform(0xFF), Uniform(0x80)])
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)

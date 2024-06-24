@@ -12,6 +12,12 @@ def test_emit_intensity():
     with pytest.raises(TypeError):
         _ = EmitIntensity(0.0)  # type: ignore[arg-type]
 
+    with pytest.raises(ValueError):  # noqa: PT011
+        _ = EmitIntensity(-1)
+
+    with pytest.raises(ValueError):  # noqa: PT011
+        _ = EmitIntensity(256)
+
 
 def test_emit_intensity_min_max():
     assert EmitIntensity.minimum().value == 0x00

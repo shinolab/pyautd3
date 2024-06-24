@@ -19,7 +19,7 @@ class SDP(HoloWithBackend["SDP"]):
     _repeat: int
 
     def __init__(self: "SDP", backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
-        super().__init__(EmissionConstraint.DontCare, backend, iterable)
+        super().__init__(EmissionConstraint.Clamp(0x00, 0xFF), backend, iterable)
         self._alpha = 1e-3
         self._lambda = 0.9
         self._repeat = 100

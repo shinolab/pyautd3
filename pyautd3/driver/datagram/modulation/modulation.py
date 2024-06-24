@@ -1,11 +1,13 @@
 from abc import ABCMeta
+from datetime import timedelta
 from typing import Generic, TypeVar
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
-from pyautd3.native_methods.autd3capi_driver import SamplingConfigWrap
+from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -20,12 +22,12 @@ class Modulation(
     Generic[M],
     metaclass=ABCMeta,
 ):
-    _config: SamplingConfigWrap
+    _config: SamplingConfig
 
-    def __init__(self: "Modulation[M]", config: SamplingConfigWrap) -> None:
+    def __init__(self: "Modulation[M]", config: SamplingConfig | Freq[int] | timedelta) -> None:
         super().__init__()
-        self._config = config
+        self._config = SamplingConfig(config)
 
-    def with_sampling_config(self: M, config: SamplingConfigWrap) -> M:
-        self._config = config
+    def with_sampling_config(self: M, config: SamplingConfig | Freq[int] | timedelta) -> M:
+        self._config = SamplingConfig(config)
         return self

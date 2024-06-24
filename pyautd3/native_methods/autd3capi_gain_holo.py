@@ -9,7 +9,6 @@ from enum import IntEnum
 
 
 class EmissionConstraintTag(IntEnum):
-    DontCare = 0
     Normalize = 1
     Uniform = 2
     Multiply = 3
@@ -65,9 +64,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDGainHoloConstraintDotCare.argtypes = [] 
-        self.dll.AUTDGainHoloConstraintDotCare.restype = EmissionConstraintWrap
-
         self.dll.AUTDGainHoloConstraintNormalize.argtypes = [] 
         self.dll.AUTDGainHoloConstraintNormalize.restype = EmissionConstraintWrap
 
@@ -106,6 +102,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDGainGSPATIsDefault.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainGSPATIsDefault.restype = ctypes.c_bool
+
+        self.dll.AUTDGainHoloSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDGainHoloSetUltrasoundFreq.restype = None
 
         self.dll.AUTDGainHoloSPLToPascal.argtypes = [ctypes.c_float] 
         self.dll.AUTDGainHoloSPLToPascal.restype = ctypes.c_float
@@ -152,9 +151,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainSDPIsDefault.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainSDPIsDefault.restype = ctypes.c_bool
 
-    def gain_holo_constraint_dot_care(self) -> EmissionConstraintWrap:
-        return self.dll.AUTDGainHoloConstraintDotCare()
-
     def gain_holo_constraint_normalize(self) -> EmissionConstraintWrap:
         return self.dll.AUTDGainHoloConstraintNormalize()
 
@@ -193,6 +189,9 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_gspat_is_default(self, gs: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainGSPATIsDefault(gs)
+
+    def gain_holo_set_ultrasound_freq(self, f: int) -> None:
+        return self.dll.AUTDGainHoloSetUltrasoundFreq(f)
 
     def gain_holo_spl_to_pascal(self, value: float) -> ctypes.c_float:
         return self.dll.AUTDGainHoloSPLToPascal(value)

@@ -55,18 +55,6 @@ def test_constraint_clamp():
             assert not np.all(phases == 0)
 
 
-def test_constraint_dontcare():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        backend = NalgebraBackend()
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(EmissionConstraint.DontCare)
-        autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
-            assert not np.all(intensities == 0)
-            assert not np.all(phases == 0)
-
-
 def test_constraint_multiply():
     autd: Controller[Audit]
     with create_controller() as autd:

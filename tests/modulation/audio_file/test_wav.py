@@ -108,4 +108,4 @@ def test_wav():
 def test_wav_default():
     with create_controller() as autd:
         m = Wav(Path(__file__))
-        assert AudioFile().modulation_wav_is_default(m._modulation_ptr(autd.geometry))
+        assert AudioFile().modulation_audio_file_wav_is_default(m._modulation_ptr(autd.geometry))

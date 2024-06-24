@@ -43,6 +43,9 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
+        self.dll.AUTDLinkTwinCATSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
+        self.dll.AUTDLinkTwinCATSetUltrasoundFreq.restype = None
+
         self.dll.AUTDLinkTwinCAT.argtypes = [] 
         self.dll.AUTDLinkTwinCAT.restype = LinkTwinCATBuilderPtr
 
@@ -66,6 +69,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkRemoteTwinCATIntoBuilder.argtypes = [LinkRemoteTwinCATBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteTwinCATIntoBuilder.restype = LinkBuilderPtr
+
+    def link_twin_cat_set_ultrasound_freq(self, f: int) -> None:
+        return self.dll.AUTDLinkTwinCATSetUltrasoundFreq(f)
 
     def link_twin_cat(self) -> LinkTwinCATBuilderPtr:
         return self.dll.AUTDLinkTwinCAT()

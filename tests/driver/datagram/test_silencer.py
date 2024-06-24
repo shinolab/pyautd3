@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import pytest
@@ -19,7 +20,7 @@ if TYPE_CHECKING:
     from pyautd3.link.audit import Audit
 
 
-def test_silencer_fixed_completion_steps():
+def test_silencer_from_completion_steps():
     autd: Controller[Audit]
     with create_controller() as autd:
         for dev in autd.geometry:
@@ -27,7 +28,7 @@ def test_silencer_fixed_completion_steps():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        autd.send(Silencer.fixed_completion_steps(2, 3))
+        autd.send(Silencer.from_completion_steps(2, 3))
 
         for dev in autd.geometry:
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
@@ -48,10 +49,10 @@ def test_silencer_fixed_completion_steps():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        assert Base().datagram_silencer_fixed_completion_steps_is_default(Silencer.default()._datagram_ptr(0))  # type: ignore [arg-type]
+        assert Base().datagram_silencer_from_completion_steps_is_default(Silencer.default()._datagram_ptr(0))  # type: ignore [arg-type]
 
 
-def test_silencer_fixed_update_rate():
+def test_silencer_from_completion_time():
     autd: Controller[Audit]
     with create_controller() as autd:
         for dev in autd.geometry:
@@ -59,7 +60,30 @@ def test_silencer_fixed_update_rate():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        autd.send(Silencer.fixed_update_rate(2, 3))
+        autd.send(Silencer.from_completion_time(timedelta(microseconds=25 * 2), timedelta(microseconds=25 * 3)))
+
+        for dev in autd.geometry:
+            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
+            assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
+            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+
+        autd.send(Silencer.from_completion_time(timedelta(microseconds=25 * 2), timedelta(microseconds=25 * 3)).with_strict_mode(mode=False))
+
+        for dev in autd.geometry:
+            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
+            assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
+            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+
+
+def test_silencer_from_update_rate():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        for dev in autd.geometry:
+            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
+            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
+            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+
+        autd.send(Silencer.from_update_rate(2, 3))
 
         for dev in autd.geometry:
             assert autd.link.silencer_update_rate_intensity(dev.idx) == 2
@@ -79,8 +103,11 @@ def test_silencer_large_steps():
         autd.send(Sine(150 * Hz).with_sampling_config(SamplingConfig.Division(512)))
 
         with pytest.raises(AUTDError) as e:
-            autd.send(Silencer.fixed_completion_steps(10, 40))
-        assert str(e.value) == "Sampling frequency division is too small or silencer completion steps is too large"
+            autd.send(Silencer.from_completion_steps(10, 40))
+        assert (
+            str(e.value)
+            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+        )
 
 
 def test_silencer_small_freq_div_mod():
@@ -93,9 +120,12 @@ def test_silencer_small_freq_div_mod():
 
         with pytest.raises(AUTDError) as e:
             autd.send(Sine(150 * Hz).with_sampling_config(SamplingConfig.Division(512)))
-        assert str(e.value) == "Sampling frequency division is too small or silencer completion steps is too large"
+        assert (
+            str(e.value)
+            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+        )
 
-        autd.send(Silencer.fixed_completion_steps(10, 40).with_strict_mode(mode=False))
+        autd.send(Silencer.from_completion_steps(10, 40).with_strict_mode(mode=False))
         for dev in autd.geometry:
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
@@ -114,9 +144,12 @@ def test_silencer_small_freq_div_stm():
 
         with pytest.raises(AUTDError) as e:
             autd.send(GainSTM.from_sampling_config(SamplingConfig.Division(512), [Null(), Null()]))
-        assert str(e.value) == "Sampling frequency division is too small or silencer completion steps is too large"
+        assert (
+            str(e.value)
+            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+        )
 
-        autd.send(Silencer.fixed_completion_steps(10, 40).with_strict_mode(mode=False))
+        autd.send(Silencer.from_completion_steps(10, 40).with_strict_mode(mode=False))
         for dev in autd.geometry:
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40

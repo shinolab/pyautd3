@@ -223,7 +223,7 @@ def copy_dll(config: Config):
     with open("pyautd3/__init__.py", "r") as f:
         content = f.read()
         version = re.search(r'__version__ = "(.*)"', content).group(1).split(".")
-        version = ".".join(version) if version[2].endswith("rc") else ".".join(version[:3])
+        version = ".".join(version) if version[2].endswith("rc") or version[2].endswith("alpha") else ".".join(version[:3])
 
     if not should_update_dll(config, version):
         return
@@ -331,7 +331,7 @@ def py_test(args):
         subprocess.run(config.python_module(["mypy", "tests", "--check-untyped-defs"])).check_returncode()
         subprocess.run(config.python_module(["ruff", "check", "tests"])).check_returncode()
 
-        command = config.python_module(["pytest"])
+        command = config.python_module(["pytest", "--dist", "loadfile", "-n", "auto"])
         if config.is_pcap_available():
             command.append("--soem")
         if config.is_cuda_available():
@@ -345,7 +345,7 @@ def py_cov(args):
     copy_dll(config)
 
     with working_dir("."):
-        command = config.python_module(["pytest"])
+        command = config.python_module(["pytest", "--dist", "loadfile", "-n", "auto"])
         if config.is_pcap_available():
             command.append("--soem")
         if config.is_cuda_available():
