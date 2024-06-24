@@ -4,7 +4,6 @@ from typing import Generic, TypeVar
 import numpy as np
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import ModulationCalcPtr, ResultModulationCalc
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr, SamplingConfigWrap
@@ -25,9 +24,9 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
         self._sampling_config = None
         self._loop_behavior = m._loop_behavior
 
-    def _init(self: "Cache[M]", geometry: Geometry) -> np.ndarray:
+    def _init(self: "Cache[M]") -> np.ndarray:
         if self._cache is None:
-            res: ResultModulationCalc = Base().modulation_calc(self._m._modulation_ptr(geometry), geometry._ptr)
+            res: ResultModulationCalc = Base().modulation_calc(self._m._modulation_ptr())
             ptr: ModulationCalcPtr = _validate_ptr(res)
             buf = np.zeros(int(Base().modulation_calc_get_size(ptr)), dtype=c_uint8)
             self._sampling_config = res.config
@@ -36,11 +35,11 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
             self._cache = buf
         return self._cache
 
-    def calc(self: "Cache[M]", geometry: Geometry) -> np.ndarray:
-        return self._init(geometry)
+    def calc(self: "Cache[M]") -> np.ndarray:
+        return self._init()
 
-    def _modulation_ptr(self: "Cache[M]", geometry: Geometry) -> ModulationPtr:
-        data = np.fromiter((m for m in self.calc(geometry)), dtype=c_uint8)
+    def _modulation_ptr(self: "Cache[M]") -> ModulationPtr:
+        data = np.fromiter((m for m in self.calc()), dtype=c_uint8)
         size = len(data)
         return Base().modulation_raw(
             self._sampling_config,  # type: ignore[arg-type]

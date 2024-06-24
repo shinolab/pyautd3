@@ -4,7 +4,6 @@ from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.angle import Angle, rad
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.utils import _validate_u8
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -62,7 +61,7 @@ class Sine(Modulation["Sine"]):
     def phase(self: "Sine") -> Angle:
         return self._phase
 
-    def _modulation_ptr(self: "Sine", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Sine") -> ModulationPtr:
         return self._mode.sine_ptr(
             self._config._inner,
             self._intensity,

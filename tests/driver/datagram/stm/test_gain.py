@@ -20,8 +20,9 @@ def test_gain_stm():
 
         size = 2
         stm = GainSTM.from_freq(1.0 * Hz, (Uniform(0xFF // (i + 1)) for i in range(size))).with_loop_behavior(LoopBehavior.Once)
-        assert stm.freq == 1.0 * Hz
+        assert stm.freq == (1.0 * Hz)
         assert stm.period == timedelta(seconds=1.0)
+        assert stm.sampling_config == SamplingConfig.Division(10240000)
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)

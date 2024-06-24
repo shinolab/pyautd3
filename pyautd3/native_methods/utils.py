@@ -1,7 +1,7 @@
 import ctypes
 
 from pyautd3.autd_error import AUTDError
-from .autd3capi_driver import AUTD3_ERR, ResultI32, ResultF32, ResultU64, ResultU32
+from .autd3capi_driver import AUTD3_ERR, ResultSamplingConfigWrap, ResultI32, ResultF32, ResultU64, ResultU32, SamplingConfigWrap
 from .autd3capi import NativeMethods as Base
 
 
@@ -35,6 +35,14 @@ def _validate_f32(res: ResultF32) -> float:
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return float(res.result)
+
+
+def _validate_sampling_config(res: ResultSamplingConfigWrap) -> SamplingConfigWrap:
+    if int(res.err_len) != 0:
+        err = ctypes.create_string_buffer(int(res.err_len))
+        Base().get_err(res.err, err)
+        raise AUTDError(err)
+    return res.result
 
 
 def _validate_ptr(res):  # noqa: ANN001, ANN202

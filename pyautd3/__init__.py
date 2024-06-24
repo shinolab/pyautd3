@@ -145,4 +145,4 @@ __all__ = [
     "TransitionMode",
 ]
 
-__version__ = "26.0.0-alpha.1"
+__version__ = "26.0.0-alpha.3"

@@ -2,7 +2,6 @@ import ctypes
 from collections.abc import Callable
 from typing import Generic, TypeVar
 
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
@@ -28,9 +27,9 @@ class Transform(
             lambda _, i, d: f(int(i), int(d)),
         )
 
-    def _modulation_ptr(self: "Transform[M]", geometry: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Transform[M]") -> ModulationPtr:
         return Base().modulation_with_transform(
-            self._m._modulation_ptr(geometry),
+            self._m._modulation_ptr(),
             self._f_native,  # type: ignore[arg-type]
             None,
             self._loop_behavior,

@@ -88,6 +88,18 @@ class Segment(IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class STMSamplingConfigTag(IntEnum):
+    Freq = 1
+    FreqNearest = 2
+    Period = 3
+    PeriodNearest = 4
+    SamplingConfig = 5
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class TransitionModeTag(IntEnum):
     SyncIdx = 0
     SysTime = 1
@@ -98,10 +110,6 @@ class TransitionModeTag(IntEnum):
     @classmethod
     def from_param(cls, obj):
         return int(obj)  # pragma: no cover
-
-
-class SamplingConfigValue(ctypes.Union):
-    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_float), ("period_ns", ctypes.c_uint64)]
 
 
 class ConstPtr(ctypes.Structure):
@@ -146,6 +154,10 @@ class FociSTMPtr(ctypes.Structure):
 
 class GainSTMPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class SamplingConfigValue(ctypes.Union):
+    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_float), ("period_ns", ctypes.c_uint64)]
 
 
 class DebugTypeWrap(ctypes.Structure):
@@ -250,6 +262,26 @@ class ResultU64(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultU64) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class ResultSamplingConfigWrap(ctypes.Structure):
+    _fields_ = [("result", SamplingConfigWrap), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultSamplingConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class STMSamplingConfigValue(ctypes.Union):
+    _fields_ = [("freq", ctypes.c_float), ("period_ns", ctypes.c_uint64), ("sampling_config", SamplingConfigWrap)]
+
+
+class STMSamplingConfigWrap(ctypes.Structure):
+    _fields_ = [("tag", ctypes.c_uint8), ("value", STMSamplingConfigValue)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, STMSamplingConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 NUM_TRANS_IN_UNIT: int = 249

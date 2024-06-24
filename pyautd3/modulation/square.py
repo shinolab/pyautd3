@@ -3,7 +3,6 @@ from typing import TypeVar
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.utils import _validate_u8
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -61,7 +60,7 @@ class Square(Modulation["Square"]):
     def duty(self: "Square") -> float:
         return self._duty
 
-    def _modulation_ptr(self: "Square", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Square") -> ModulationPtr:
         return self._mode.square_ptr(
             self._config._inner,
             self._low,

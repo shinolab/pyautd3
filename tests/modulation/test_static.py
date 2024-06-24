@@ -27,9 +27,8 @@ def test_static():
 
 
 def test_static_default():
-    with create_controller() as autd:
-        m = Static()
-        assert Base().modulation_static_is_default(m._modulation_ptr(autd.geometry))
+    m = Static()
+    assert Base().modulation_static_is_default(m._modulation_ptr())
 
 
 def test_static_error():

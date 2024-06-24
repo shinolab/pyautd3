@@ -4,7 +4,6 @@ import numpy as np
 
 from pyautd3 import Controller, SamplingConfig, Segment
 from pyautd3.driver.defined.freq import Hz
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.modulation import Modulation
 from tests.test_autd import create_controller
 
@@ -16,7 +15,7 @@ class Burst(Modulation):
     def __init__(self: "Burst") -> None:
         super().__init__(SamplingConfig.Freq(4000 * Hz))
 
-    def calc(self: "Burst", _: Geometry):
+    def calc(self: "Burst"):
         buf = np.array([0] * 10)
         buf[0] = 0xFF
         return buf

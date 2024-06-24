@@ -6,7 +6,6 @@ import numpy as np
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
@@ -18,7 +17,7 @@ class Custom(Modulation["Custom"]):
         super().__init__(config)
         self._buf = buf
 
-    def _modulation_ptr(self: "Custom", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Custom") -> ModulationPtr:
         return Base().modulation_raw(
             self._config._inner,
             self._loop_behavior,

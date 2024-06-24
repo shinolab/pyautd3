@@ -8,7 +8,6 @@ import numpy as np
 from pyautd3 import SamplingConfig
 from pyautd3.driver.datagram.modulation.modulation import Modulation as _Modulation
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
@@ -20,11 +19,11 @@ class Modulation(_Modulation[M], Generic[M], metaclass=ABCMeta):
         super().__init__(config)
 
     @abstractmethod
-    def calc(self: "Modulation", geometry: Geometry) -> np.ndarray:
+    def calc(self: "Modulation") -> np.ndarray:
         pass
 
-    def _modulation_ptr(self: "Modulation", geometry: Geometry) -> ModulationPtr:
-        data = self.calc(geometry)
+    def _modulation_ptr(self: "Modulation") -> ModulationPtr:
+        data = self.calc()
         size = len(data)
         return Base().modulation_raw(
             self._config._inner,

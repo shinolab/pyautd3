@@ -304,6 +304,7 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
             "LinkPtr",
             "ControllerPtr",
             "SamplingConfigWrap",
+            "STMSamplingConfigWrap",
             "LinkBuilderPtr",
             "CachePtr",
             "ResultI32",
@@ -324,6 +325,7 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
             "DevicePtr",
             "GainCalcDrivesMapPtr",
             "ResultGainCalcDrivesMap",
+            "ResultSamplingConfigWrap",
             "GroupGainMapPtr",
             "GainSTMMode",
             "Drive",
@@ -408,8 +410,29 @@ class {}(IntEnum):",
             })
             .try_collect()?;
 
+        self.structs
+            .iter()
+            .filter(|e| e.name.ends_with("Ptr"))
+            .map(|p| {
+                writeln!(
+                    w,
+                    r"
+class {}(ctypes.Structure):",
+                    p.name
+                )?;
+
+                writeln!(
+                    w,
+                    "    _fields_ = [(\"_0\", ctypes.c_void_p)]
+"
+                )
+            })
+            .try_collect()?;
+
+        // TODO: Resolve dependencies and define unions and structs in the correct order
         self.unions
             .iter()
+            .filter(|u| u.name != "STMSamplingConfigValue")
             .map(|u| {
                 writeln!(
                     w,
@@ -431,7 +454,8 @@ class {}(ctypes.Union):",
 
         self.structs
             .iter()
-            .filter(|e| e.name.ends_with("Ptr"))
+            .filter(|u| u.name != "STMSamplingConfigWrap")
+            .filter(|e| !e.name.ends_with("Ptr"))
             .map(|p| {
                 writeln!(
                     w,
@@ -442,15 +466,49 @@ class {}(ctypes.Structure):",
 
                 writeln!(
                     w,
-                    "    _fields_ = [(\"_0\", ctypes.c_void_p)]
-"
+                    "    _fields_ = [{}]
+",
+                    p.fields
+                        .iter()
+                        .map(|(ty, name)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
+                        .join(", ")
+                )?;
+                writeln!(
+                    w,
+                    "
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, {}) and self._fields_ == other._fields_ # pragma: no cover
+                    ",
+                    p.name
+                )
+            })
+            .try_collect()?;
+
+        self.unions
+            .iter()
+            .filter(|u| u.name == "STMSamplingConfigValue")
+            .map(|u| {
+                writeln!(
+                    w,
+                    r"
+class {}(ctypes.Union):",
+                    u.name
+                )?;
+                writeln!(
+                    w,
+                    "    _fields_ = [{}]
+",
+                    u.values
+                        .iter()
+                        .map(|(name, ty)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
+                        .join(", ")
                 )
             })
             .try_collect()?;
 
         self.structs
             .iter()
-            .filter(|e| !e.name.ends_with("Ptr"))
+            .filter(|u| u.name == "STMSamplingConfigWrap")
             .map(|p| {
                 writeln!(
                     w,

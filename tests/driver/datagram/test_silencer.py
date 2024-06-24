@@ -27,6 +27,7 @@ def test_silencer_from_completion_steps():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
 
         autd.send(Silencer.from_completion_steps(2, 3))
 
@@ -34,6 +35,7 @@ def test_silencer_from_completion_steps():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
 
         autd.send(Silencer.disable())
 
@@ -41,6 +43,7 @@ def test_silencer_from_completion_steps():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 1
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 1
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
 
         autd.send(Silencer.default())
 
@@ -48,8 +51,9 @@ def test_silencer_from_completion_steps():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
 
-        assert Base().datagram_silencer_from_completion_steps_is_default(Silencer.default()._datagram_ptr(0))  # type: ignore [arg-type]
+        assert Base().datagram_silencer_fixed_completion_steps_is_default(Silencer.default()._datagram_ptr(0))  # type: ignore [arg-type]
 
 
 def test_silencer_from_completion_time():
@@ -59,6 +63,7 @@ def test_silencer_from_completion_time():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
 
         autd.send(Silencer.from_completion_time(timedelta(microseconds=25 * 2), timedelta(microseconds=25 * 3)))
 
@@ -66,6 +71,7 @@ def test_silencer_from_completion_time():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
 
         autd.send(Silencer.from_completion_time(timedelta(microseconds=25 * 2), timedelta(microseconds=25 * 3)).with_strict_mode(mode=False))
 
@@ -73,6 +79,7 @@ def test_silencer_from_completion_time():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert not autd.link.silencer_strict_mode(dev.idx)
 
 
 def test_silencer_from_update_rate():

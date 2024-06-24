@@ -55,9 +55,8 @@ def test_square_mode():
 
 
 def test_square_default():
-    with create_controller() as autd:
-        m = Square(150.0 * Hz)
-        assert Base().modulation_square_is_default(m._modulation_ptr(autd.geometry))
+    m = Square(150.0 * Hz)
+    assert Base().modulation_square_is_default(m._modulation_ptr())
 
 
 def test_square_error():

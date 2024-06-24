@@ -376,7 +376,7 @@ def py_clear(_):
 
 
 def util_update_ver(args):
-    version = args.version
+    version: str = args.version
 
     with working_dir("."):
         with open("pyautd3/__init__.py", "r") as f:
@@ -392,7 +392,7 @@ def util_update_ver(args):
 
         with open("setup.cfg.template", "r") as f:
             content = f.read()
-            content = re.sub(r"version = (.*)", f"version = {version}", content, flags=re.MULTILINE)
+            content = re.sub(r"version = (.*)", f"version = {version.replace("-", "")}", content, flags=re.MULTILINE)
         with open("setup.cfg.template", "w") as f:
             f.write(content)
 

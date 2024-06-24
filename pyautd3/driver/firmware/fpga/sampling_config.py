@@ -57,3 +57,6 @@ class SamplingConfig:
     @property
     def period(self: "SamplingConfig") -> timedelta:
         return timedelta(microseconds=_validate_u64(Base().sampling_config_period(self._inner)) / 1000)
+
+    def __eq__(self: "SamplingConfig", value: object) -> bool:
+        return isinstance(value, SamplingConfig) and self.division == value.division

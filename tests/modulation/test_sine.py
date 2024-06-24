@@ -22,6 +22,7 @@ def test_sine():
         assert m.offset == 0xFF // 4
         assert m.phase == np.pi / 2 * rad
         assert m.loop_behavior == LoopBehavior.Once
+        assert m.sampling_config == SamplingConfig.Division(5120)
         autd.send(m)
 
         for dev in autd.geometry:
@@ -112,11 +113,11 @@ def test_sine():
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
 
-        autd.send(
-            Sine(150 * Hz).with_sampling_config(
-                SamplingConfig.Division(10240),
-            ),
+        m = Sine(150 * Hz).with_sampling_config(
+            SamplingConfig.Division(10240),
         )
+        autd.send(m)
+        assert m.sampling_config == SamplingConfig.Division(10240)
         for dev in autd.geometry:
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10240
 
@@ -138,9 +139,8 @@ def test_sine_mode():
 
 
 def test_sine_default():
-    with create_controller() as autd:
-        m = Sine(150.0 * Hz)
-        assert Base().modulation_sine_is_default(m._modulation_ptr(autd.geometry))
+    m = Sine(150.0 * Hz)
+    assert Base().modulation_sine_is_default(m._modulation_ptr())
 
 
 def test_sine_error():

@@ -4,7 +4,6 @@ from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
@@ -24,7 +23,7 @@ class Wav(
         super().__init__()
         self._path = path
 
-    def _modulation_ptr(self: "Wav", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Wav") -> ModulationPtr:
         return _validate_ptr(
             ModulationAudioFile().modulation_audio_file_wav(
                 str(self._path).encode("utf-8"),

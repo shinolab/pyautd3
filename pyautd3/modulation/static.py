@@ -2,7 +2,6 @@ from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.utils import _validate_u8
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -30,5 +29,5 @@ class Static(
     def intensity(self: "Static") -> int:
         return self._intensity
 
-    def _modulation_ptr(self: "Static", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Static") -> ModulationPtr:
         return Base().modulation_static(self._intensity, self._loop_behavior)

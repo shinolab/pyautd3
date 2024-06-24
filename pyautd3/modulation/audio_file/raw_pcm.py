@@ -5,7 +5,6 @@ from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
@@ -27,7 +26,7 @@ class RawPCM(
         self._path = path
         self._sample_rate = sample_rate
 
-    def _modulation_ptr(self: "RawPCM", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "RawPCM") -> ModulationPtr:
         return _validate_ptr(
             ModulationAudioFile().modulation_audio_file_raw_pcm(
                 str(self._path).encode("utf-8"),

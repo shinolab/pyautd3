@@ -19,12 +19,12 @@ class EmissionConstraintTag(IntEnum):
         return int(obj)  # pragma: no cover
 
 
-class EmissionConstraintValue(ctypes.Union):
-    _fields_ = [("null", ctypes.c_uint8), ("uniform", ctypes.c_uint8), ("multiply", ctypes.c_float), ("clamp", ctypes.c_uint8 * 2)]
-
-
 class BackendPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class EmissionConstraintValue(ctypes.Union):
+    _fields_ = [("null", ctypes.c_uint8), ("uniform", ctypes.c_uint8), ("multiply", ctypes.c_float), ("clamp", ctypes.c_uint8 * 2)]
 
 
 class EmissionConstraintWrap(ctypes.Structure):

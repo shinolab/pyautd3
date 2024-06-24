@@ -6,7 +6,6 @@ from pyautd3 import Controller, SamplingConfig, Segment, Static
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.modulation import Modulation, Sine
 from tests.test_autd import create_controller
 
@@ -44,7 +43,7 @@ class CacheTest(Modulation["CacheTest"]):
         super().__init__(SamplingConfig.Freq(4000 * Hz))
         self.calc_cnt = 0
 
-    def calc(self: "CacheTest", _geometry: Geometry):
+    def calc(self: "CacheTest"):
         self.calc_cnt += 1
         return np.array([0xFF] * 2)
 

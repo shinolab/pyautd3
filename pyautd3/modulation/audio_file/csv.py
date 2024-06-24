@@ -5,7 +5,6 @@ from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import (
     NativeMethods as ModulationAudioFile,
@@ -33,7 +32,7 @@ class Csv(
         self._deliminator = deliminator
         return self
 
-    def _modulation_ptr(self: "Csv", _: Geometry) -> ModulationPtr:
+    def _modulation_ptr(self: "Csv") -> ModulationPtr:
         delim = self._deliminator.encode("utf-8")
         return _validate_ptr(
             ModulationAudioFile().modulation_audio_file_csv(

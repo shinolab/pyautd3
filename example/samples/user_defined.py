@@ -30,7 +30,7 @@ class Burst(Modulation["Burst"]):
         super().__init__(config if config is not None else SamplingConfig.Freq(4000 * Hz))
         self._length = length
 
-    def calc(self: "Burst", _: Geometry) -> np.ndarray:
+    def calc(self: "Burst") -> np.ndarray:
         buf = np.array([EmitIntensity.minimum()] * self._length)
         buf[0] = EmitIntensity.maximum()
         return buf
