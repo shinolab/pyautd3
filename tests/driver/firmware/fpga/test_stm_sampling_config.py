@@ -19,15 +19,15 @@ def test_stm_sampl_config_from_freq():
 
     with pytest.raises(AUTDError) as e:
         _ = STMSamplingConfig.Freq(0.1 * Hz).sampling_config(1)
-    assert str(e.value) == "STM frequency (0.1 Hz, size=1) must divide ultrasound frequency"
+    assert str(e.value) == "STM sampling frequency (0.1 Hz*1) must be integer"
 
     with pytest.raises(AUTDError) as e:
         _ = STMSamplingConfig.Freq(0.1 * Hz).freq(1)
-    assert str(e.value) == "STM frequency (0.1 Hz, size=1) must divide ultrasound frequency"
+    assert str(e.value) == "STM sampling frequency (0.1 Hz*1) must be integer"
 
     with pytest.raises(AUTDError) as e:
         _ = STMSamplingConfig.Freq(0.1 * Hz).period(1)
-    assert str(e.value) == "STM frequency (0.1 Hz, size=1) must divide ultrasound frequency"
+    assert str(e.value) == "STM sampling frequency (0.1 Hz*1) must be integer"
 
 
 def test_stm_sampl_config_from_freq_nearest():

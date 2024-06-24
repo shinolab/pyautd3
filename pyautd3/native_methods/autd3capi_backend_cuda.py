@@ -29,9 +29,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDCUDASetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDCUDASetUltrasoundFreq.restype = None
-
         self.dll.AUTDCUDABackend.argtypes = [] 
         self.dll.AUTDCUDABackend.restype = ResultBackend
 
@@ -52,9 +49,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDGainHoloCUDALM.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, EmissionConstraintWrap, ctypes.POINTER(ctypes.c_float), ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDGainHoloCUDALM.restype = GainPtr
-
-    def cuda_set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDCUDASetUltrasoundFreq(f)
 
     def cuda_backend(self) -> ResultBackend:
         return self.dll.AUTDCUDABackend()

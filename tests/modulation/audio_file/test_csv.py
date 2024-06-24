@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, Segment, kHz, set_ultrasound_freq
+from pyautd3 import Controller, Segment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation.audio_file import Csv
 from tests.test_autd import create_controller
@@ -13,8 +13,6 @@ if TYPE_CHECKING:
 
 
 def test_csv():
-    set_ultrasound_freq(40 * kHz)
-
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.send(Csv(Path(__file__).parent / "sin150.csv", 4000 * Hz).with_deliminator(","))

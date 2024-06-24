@@ -104,9 +104,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDLinkVisualizerSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDLinkVisualizerSetUltrasoundFreq.restype = None
-
         self.dll.AUTDLinkVisualizerPlotRange.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float] 
         self.dll.AUTDLinkVisualizerPlotRange.restype = PlotRangePtr
 
@@ -169,9 +166,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkVisualizerPyPlotConfigIsDefault.argtypes = [PyPlotConfigPtr]  # type: ignore 
         self.dll.AUTDLinkVisualizerPyPlotConfigIsDefault.restype = ctypes.c_bool
-
-    def link_visualizer_set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDLinkVisualizerSetUltrasoundFreq(f)
 
     def link_visualizer_plot_range(self, x_min: float, x_max: float, y_min: float, y_max: float, z_min: float, z_max: float, resolution: float) -> PlotRangePtr:
         return self.dll.AUTDLinkVisualizerPlotRange(x_min, x_max, y_min, y_max, z_min, z_max, resolution)

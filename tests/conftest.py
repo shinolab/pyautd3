@@ -9,8 +9,8 @@ def pytest_addoption(parser):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "soem: soem tests")
-    config.addinivalue_line("markers", "cuda: mark test as cuda test")
-    config.addinivalue_line("markers", "gpu: mark test as gpu test")
+    config.addinivalue_line("markers", "cuda: cuda test")
+    config.addinivalue_line("markers", "gpu: gpu test")
 
 
 def pytest_collection_modifyitems(session, config, items):

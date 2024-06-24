@@ -247,11 +247,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMSamplingConfigFromSamplingConfig.argtypes = [SamplingConfigWrap]  # type: ignore 
         self.dll.AUTDSTMSamplingConfigFromSamplingConfig.restype = STMSamplingConfigWrap
 
-        self.dll.AUTDSTMSamplingFreq.argtypes = [STMSamplingConfigWrap, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDSTMSamplingFreq.restype = ResultF32
+        self.dll.AUTDSTMFreq.argtypes = [STMSamplingConfigWrap, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMFreq.restype = ResultF32
 
-        self.dll.AUTDSTMSamplingPeriod.argtypes = [STMSamplingConfigWrap, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDSTMSamplingPeriod.restype = ResultU64
+        self.dll.AUTDSTMPeriod.argtypes = [STMSamplingConfigWrap, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMPeriod.restype = ResultU64
 
         self.dll.AUTDSTMSamplingSamplingConfig.argtypes = [STMSamplingConfigWrap, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDSTMSamplingSamplingConfig.restype = ResultSamplingConfigWrap
@@ -489,9 +489,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDTransducerPosition.argtypes = [TransducerPtr]  # type: ignore 
         self.dll.AUTDTransducerPosition.restype = Vector3
-
-        self.dll.AUTDSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDSetUltrasoundFreq.restype = None
 
         self.dll.AUTDCreateRuntime.argtypes = [] 
         self.dll.AUTDCreateRuntime.restype = RuntimePtr
@@ -859,11 +856,11 @@ class NativeMethods(metaclass=Singleton):
     def stm_sampling_config_from_sampling_config(self, c: SamplingConfigWrap) -> STMSamplingConfigWrap:
         return self.dll.AUTDSTMSamplingConfigFromSamplingConfig(c)
 
-    def stm_sampling_freq(self, c: STMSamplingConfigWrap, n: int) -> ResultF32:
-        return self.dll.AUTDSTMSamplingFreq(c, n)
+    def stm_freq(self, c: STMSamplingConfigWrap, n: int) -> ResultF32:
+        return self.dll.AUTDSTMFreq(c, n)
 
-    def stm_sampling_period(self, c: STMSamplingConfigWrap, n: int) -> ResultU64:
-        return self.dll.AUTDSTMSamplingPeriod(c, n)
+    def stm_period(self, c: STMSamplingConfigWrap, n: int) -> ResultU64:
+        return self.dll.AUTDSTMPeriod(c, n)
 
     def stm_sampling_sampling_config(self, c: STMSamplingConfigWrap, n: int) -> ResultSamplingConfigWrap:
         return self.dll.AUTDSTMSamplingSamplingConfig(c, n)
@@ -1101,9 +1098,6 @@ class NativeMethods(metaclass=Singleton):
 
     def transducer_position(self, tr: TransducerPtr) -> Vector3:
         return self.dll.AUTDTransducerPosition(tr)
-
-    def set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDSetUltrasoundFreq(f)
 
     def create_runtime(self) -> RuntimePtr:
         return self.dll.AUTDCreateRuntime()

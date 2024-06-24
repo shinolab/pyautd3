@@ -105,6 +105,17 @@ def working_dir(path):
         os.chdir(cwd)
 
 
+@contextlib.contextmanager
+def set_env(key, value):
+    env = os.environ.copy()
+    os.environ[key] = value
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(env)
+
+
 class Config:
     _platform: str
     release: bool
@@ -223,7 +234,9 @@ def copy_dll(config: Config):
     with open("pyautd3/__init__.py", "r") as f:
         content = f.read()
         version = re.search(r'__version__ = "(.*)"', content).group(1).split(".")
-        version = ".".join(version) if version[2].endswith("rc") or version[2].endswith("alpha") else ".".join(version[:3])
+        version = (
+            ".".join(version) if version[2].endswith("rc") or version[2].endswith("alpha") or version[2].endswith("beta") else ".".join(version[:3])
+        )
 
     if not should_update_dll(config, version):
         return
@@ -331,12 +344,16 @@ def py_test(args):
         subprocess.run(config.python_module(["mypy", "tests", "--check-untyped-defs"])).check_returncode()
         subprocess.run(config.python_module(["ruff", "check", "tests"])).check_returncode()
 
-        command = config.python_module(["pytest", "--dist", "loadfile", "-n", "auto"])
+        command = config.python_module(["pytest", "-n", "auto"])
         if config.is_pcap_available():
             command.append("--soem")
         if config.is_cuda_available():
             command.append("--cuda")
         subprocess.run(command).check_returncode()
+
+        with set_env("AUTD3_ULTRASOUND_FREQ", "41000"):
+            command = config.python_module(["pytest", "-n", "auto", "-m", "dynamic_freq"])
+            subprocess.run(command).check_returncode()
 
 
 def py_cov(args):
@@ -345,7 +362,7 @@ def py_cov(args):
     copy_dll(config)
 
     with working_dir("."):
-        command = config.python_module(["pytest", "--dist", "loadfile", "-n", "auto"])
+        command = config.python_module(["pytest", "-n", "auto"])
         if config.is_pcap_available():
             command.append("--soem")
         if config.is_cuda_available():

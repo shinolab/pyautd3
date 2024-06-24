@@ -39,9 +39,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDLinkSimulatorSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDLinkSimulatorSetUltrasoundFreq.restype = None
-
         self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_uint16] 
         self.dll.AUTDLinkSimulator.restype = LinkSimulatorBuilderPtr
 
@@ -56,9 +53,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkSimulatorUpdateGeometry.argtypes = [LinkPtr, GeometryPtr]  # type: ignore 
         self.dll.AUTDLinkSimulatorUpdateGeometry.restype = FfiFuture
-
-    def link_simulator_set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDLinkSimulatorSetUltrasoundFreq(f)
 
     def link_simulator(self, port: int) -> LinkSimulatorBuilderPtr:
         return self.dll.AUTDLinkSimulator(port)

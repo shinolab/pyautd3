@@ -36,10 +36,10 @@ class STMSamplingConfig:
         return STMSamplingConfig(Base().stm_sampling_config_from_sampling_config(config._inner))
 
     def freq(self: "STMSamplingConfig", n: int) -> _Freq[float]:
-        return _validate_f32(Base().stm_sampling_freq(self._inner, n)) / n * Hz
+        return _validate_f32(Base().stm_freq(self._inner, n)) * Hz
 
     def period(self: "STMSamplingConfig", n: int) -> timedelta:
-        return timedelta(microseconds=_validate_u64(Base().stm_sampling_period(self._inner, n)) * n / 1000)
+        return timedelta(microseconds=_validate_u64(Base().stm_period(self._inner, n)) / 1000)
 
     def sampling_config(self: "STMSamplingConfig", n: int) -> _SamplingConfig:
         return _SamplingConfig(_validate_sampling_config(Base().stm_sampling_sampling_config(self._inner, n)))

@@ -69,9 +69,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDLinkSOEMSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDLinkSOEMSetUltrasoundFreq.restype = None
-
         self.dll.AUTDAUTDLinkSOEMTracingInit.argtypes = [ctypes.c_uint8] 
         self.dll.AUTDAUTDLinkSOEMTracingInit.restype = None
 
@@ -137,9 +134,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.argtypes = [LinkRemoteSOEMBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.restype = LinkBuilderPtr
-
-    def link_soem_set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDLinkSOEMSetUltrasoundFreq(f)
 
     def autd_link_soem_tracing_init(self, level: int) -> None:
         return self.dll.AUTDAUTDLinkSOEMTracingInit(level)

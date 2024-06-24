@@ -103,9 +103,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainGSPATIsDefault.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainGSPATIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainHoloSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDGainHoloSetUltrasoundFreq.restype = None
-
         self.dll.AUTDGainHoloSPLToPascal.argtypes = [ctypes.c_float] 
         self.dll.AUTDGainHoloSPLToPascal.restype = ctypes.c_float
 
@@ -189,9 +186,6 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_gspat_is_default(self, gs: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainGSPATIsDefault(gs)
-
-    def gain_holo_set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDGainHoloSetUltrasoundFreq(f)
 
     def gain_holo_spl_to_pascal(self, value: float) -> ctypes.c_float:
         return self.dll.AUTDGainHoloSPLToPascal(value)

@@ -27,9 +27,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDModulationAudioFileSetUltrasoundFreq.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDModulationAudioFileSetUltrasoundFreq.restype = None
-
         self.dll.AUTDModulationAudioFileWav.argtypes = [ctypes.c_char_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileWav.restype = ResultModulation
 
@@ -41,9 +38,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDModulationAudioFileCsv.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileCsv.restype = ResultModulation
-
-    def modulation_audio_file_set_ultrasound_freq(self, f: int) -> None:
-        return self.dll.AUTDModulationAudioFileSetUltrasoundFreq(f)
 
     def modulation_audio_file_wav(self, path: bytes, loop_behavior: LoopBehavior) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path, loop_behavior)
