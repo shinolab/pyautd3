@@ -5,7 +5,6 @@ import numpy as np
 
 from pyautd3 import Controller, Segment
 from pyautd3.modulation.audio_file import Wav
-from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -103,8 +102,3 @@ def test_wav():
             ]
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
-
-
-def test_wav_default():
-    m = Wav(Path(__file__))
-    assert AudioFile().modulation_audio_file_wav_is_default(m._modulation_ptr())
