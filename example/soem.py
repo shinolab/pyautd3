@@ -19,7 +19,7 @@ def err_handler(slave: int, status: Status, msg: str) -> None:
 
 
 if __name__ == "__main__":
-    os.environ["RUST_LOG"] = "autd3=INFO,autd3_driver=INFO,autd3_link_soem=INFO"
+    os.environ["RUST_LOG"] = "autd3=INFO"
 
     tracing_init()
 
