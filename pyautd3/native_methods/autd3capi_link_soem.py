@@ -69,7 +69,7 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDAUTDLinkSOEMTracingInit.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDAUTDLinkSOEMTracingInit.argtypes = [] 
         self.dll.AUTDAUTDLinkSOEMTracingInit.restype = None
 
         self.dll.AUTDAdapterPointer.argtypes = [] 
@@ -135,8 +135,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.argtypes = [LinkRemoteSOEMBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.restype = LinkBuilderPtr
 
-    def autd_link_soem_tracing_init(self, level: int) -> None:
-        return self.dll.AUTDAUTDLinkSOEMTracingInit(level)
+    def autd_link_soem_tracing_init(self) -> None:
+        return self.dll.AUTDAUTDLinkSOEMTracingInit()
 
     def adapter_pointer(self) -> EthernetAdaptersPtr:
         return self.dll.AUTDAdapterPointer()

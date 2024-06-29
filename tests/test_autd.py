@@ -3,7 +3,7 @@ from datetime import timedelta
 import numpy as np
 import pytest
 
-from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Level, Segment, tracing_init
+from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
@@ -331,7 +331,7 @@ def test_force_fan():
 
 
 def test_tracing():
-    tracing_init(Level.DEBUG)
+    tracing_init()
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.close()

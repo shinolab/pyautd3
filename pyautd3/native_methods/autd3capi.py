@@ -511,7 +511,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDWaitResultFirmwareVersionList.argtypes = [RuntimePtr, FfiFuture]  # type: ignore 
         self.dll.AUTDWaitResultFirmwareVersionList.restype = ResultFirmwareVersionList
 
-        self.dll.AUTDTracingInit.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDTracingInit.argtypes = [] 
         self.dll.AUTDTracingInit.restype = None
 
         self.dll.AUTDLinkAudit.argtypes = [] 
@@ -1120,8 +1120,8 @@ class NativeMethods(metaclass=Singleton):
     def wait_result_firmware_version_list(self, runtime: RuntimePtr, future: FfiFuture) -> ResultFirmwareVersionList:
         return self.dll.AUTDWaitResultFirmwareVersionList(runtime, future)
 
-    def tracing_init(self, level: int) -> None:
-        return self.dll.AUTDTracingInit(level)
+    def tracing_init(self) -> None:
+        return self.dll.AUTDTracingInit()
 
     def link_audit(self) -> LinkAuditBuilderPtr:
         return self.dll.AUTDLinkAudit()

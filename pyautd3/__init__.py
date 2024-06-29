@@ -1,5 +1,4 @@
 import contextlib
-from enum import Enum
 
 from .controller import Controller
 from .driver.autd3_device import AUTD3
@@ -36,11 +35,6 @@ from .link.nop import Nop
 from .modulation import Sine, Square, Static
 from .native_methods.autd3capi import NativeMethods as Base
 from .native_methods.autd3capi_driver import (
-    TRACE_LEVEL_DEBUG,
-    TRACE_LEVEL_ERROR,
-    TRACE_LEVEL_INFO,
-    TRACE_LEVEL_TRACE,
-    TRACE_LEVEL_WARN,
     GPIOIn,
     GPIOOut,
     Segment,
@@ -48,18 +42,10 @@ from .native_methods.autd3capi_driver import (
 from .native_methods.autd3capi_link_soem import NativeMethods as Soem
 
 
-class Level(Enum):
-    DEBUG = TRACE_LEVEL_DEBUG
-    INFO = TRACE_LEVEL_INFO
-    WARN = TRACE_LEVEL_WARN
-    ERROR = TRACE_LEVEL_ERROR
-    TRACE = TRACE_LEVEL_TRACE
-
-
-def tracing_init(level: Level) -> None:
-    Base().tracing_init(level.value)
+def tracing_init() -> None:
+    Base().tracing_init()
     with contextlib.suppress(BaseException):
-        Soem().autd_link_soem_tracing_init(level.value)
+        Soem().autd_link_soem_tracing_init()
 
 
 __all__ = [
@@ -119,4 +105,4 @@ __all__ = [
     "TransitionMode",
 ]
 
-__version__ = "26.0.0-rc.0"
+__version__ = "26.0.0"
