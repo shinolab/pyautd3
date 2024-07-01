@@ -32,7 +32,7 @@ class Sine(Modulation["Sine"]):
                 self.__private__init__(SamplingModeExactFloat(freq))
 
     @classmethod
-    def with_freq_nearest(cls: "type[Sine]", freq: Freq[float]) -> "Sine":
+    def from_freq_nearest(cls: "type[Sine]", freq: Freq[float]) -> "Sine":
         sine = super().__new__(cls)
         sine.__private__init__(SamplingModeNearest(freq))
         return sine

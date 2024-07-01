@@ -202,7 +202,7 @@ def test_mixer_exact_float():
 def test_mixer_nearest():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Mixer([Sine.with_freq_nearest(50.0 * Hz), Sine.with_freq_nearest(100.0 * Hz)])
+        m = Mixer([Sine.from_freq_nearest(50.0 * Hz), Sine.from_freq_nearest(100.0 * Hz)])
         autd.send(m)
 
         for dev in autd.geometry:

@@ -125,7 +125,7 @@ def test_sine():
 def test_sine_mode():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Sine.with_freq_nearest(150 * Hz)
+        m = Sine.from_freq_nearest(150 * Hz)
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -135,7 +135,7 @@ def test_sine_mode():
         with pytest.raises(AUTDError):
             autd.send(Sine(100.1 * Hz))
 
-        autd.send(Sine.with_freq_nearest(100.1 * Hz))
+        autd.send(Sine.from_freq_nearest(100.1 * Hz))
 
 
 def test_sine_default():
