@@ -33,3 +33,7 @@ class Quaternion(ctypes.Structure):
 
     def ndarray(self):
         return np.array([self.w, self.x, self.y, self.z])
+
+
+class SamplingConfig(ctypes.Structure):
+    _fields_ = [("div", ctypes.c_uint16)]

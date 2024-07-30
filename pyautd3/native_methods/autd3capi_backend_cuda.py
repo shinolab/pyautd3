@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr, EmissionConstraintWrap, ResultBackend
@@ -35,9 +35,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDCUDABackendDelete.argtypes = [BackendPtr]  # type: ignore 
         self.dll.AUTDCUDABackendDelete.restype = None
 
-        self.dll.AUTDGainHoloCUDASDP.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
-        self.dll.AUTDGainHoloCUDASDP.restype = GainPtr
-
         self.dll.AUTDGainHoloCUDAGS.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloCUDAGS.restype = GainPtr
 
@@ -55,9 +52,6 @@ class NativeMethods(metaclass=Singleton):
 
     def cuda_backend_delete(self, backend: BackendPtr) -> None:
         return self.dll.AUTDCUDABackendDelete(backend)
-
-    def gain_holo_cudasdp(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, alpha: float, lambda_: float, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
-        return self.dll.AUTDGainHoloCUDASDP(backend, points, amps, size, alpha, lambda_, repeat, constraint)
 
     def gain_holo_cudags(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloCUDAGS(backend, points, amps, size, repeat, constraint)

@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior, ResultModulation
 
 
@@ -30,17 +30,17 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationAudioFileWav.argtypes = [ctypes.c_char_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileWav.restype = ResultModulation
 
-        self.dll.AUTDModulationAudioFileRawPCM.argtypes = [ctypes.c_char_p, ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationAudioFileRawPCM.argtypes = [ctypes.c_char_p, SamplingConfig, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileRawPCM.restype = ResultModulation
 
-        self.dll.AUTDModulationAudioFileCsv.argtypes = [ctypes.c_char_p, ctypes.c_uint32, ctypes.c_uint8, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationAudioFileCsv.argtypes = [ctypes.c_char_p, SamplingConfig, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileCsv.restype = ResultModulation
 
     def modulation_audio_file_wav(self, path: bytes, loop_behavior: LoopBehavior) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path, loop_behavior)
 
-    def modulation_audio_file_raw_pcm(self, path: bytes, sample_rate: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationAudioFileRawPCM(path, sample_rate, loop_behavior)
+    def modulation_audio_file_raw_pcm(self, path: bytes, config: SamplingConfig, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationAudioFileRawPCM(path, config, loop_behavior)
 
-    def modulation_audio_file_csv(self, path: bytes, sample_rate: int, deliminator: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationAudioFileCsv(path, sample_rate, deliminator, loop_behavior)
+    def modulation_audio_file_csv(self, path: bytes, config: SamplingConfig, deliminator: int, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationAudioFileCsv(path, config, deliminator, loop_behavior)

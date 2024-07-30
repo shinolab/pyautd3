@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
 from enum import IntEnum
 
 
@@ -66,19 +66,6 @@ class GPIOOut(IntEnum):
         return int(obj)  # pragma: no cover
 
 
-class SamplingConfigTag(IntEnum):
-    Division = 0
-    DivisionRaw = 1
-    Freq = 2
-    FreqNearest = 3
-    Period = 4
-    PeriodNearest = 5
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
 class Segment(IntEnum):
     S0 = 0
     S1 = 1
@@ -88,7 +75,16 @@ class Segment(IntEnum):
         return int(obj)  # pragma: no cover
 
 
-class STMSamplingConfigTag(IntEnum):
+class SilencerTarget(IntEnum):
+    Intensity = 0
+    PulseWidth = 1
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
+class STMConfigTag(IntEnum):
     Freq = 1
     FreqNearest = 2
     Period = 3
@@ -156,10 +152,6 @@ class GainSTMPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class SamplingConfigValue(ctypes.Union):
-    _fields_ = [("div", ctypes.c_uint32), ("freq", ctypes.c_uint32), ("freq_nearest", ctypes.c_float), ("period_ns", ctypes.c_uint64)]
-
-
 class DebugTypeWrap(ctypes.Structure):
     _fields_ = [("ty", ctypes.c_uint8), ("value", ctypes.c_uint16)]
 
@@ -177,19 +169,11 @@ class Drive(ctypes.Structure):
                     
 
 class LoopBehavior(ctypes.Structure):
-    _fields_ = [("rep", ctypes.c_uint32)]
+    _fields_ = [("rep", ctypes.c_uint16)]
 
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, LoopBehavior) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
-class SamplingConfigWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", SamplingConfigValue)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SamplingConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class TransitionModeWrap(ctypes.Structure):
@@ -240,14 +224,6 @@ class ResultI32(ctypes.Structure):
         return isinstance(other, ResultI32) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-class ResultU32(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_uint32), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultU32) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
 class ResultF32(ctypes.Structure):
     _fields_ = [("result", ctypes.c_float), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
@@ -264,24 +240,24 @@ class ResultU64(ctypes.Structure):
         return isinstance(other, ResultU64) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-class ResultSamplingConfigWrap(ctypes.Structure):
-    _fields_ = [("result", SamplingConfigWrap), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class ResultSamplingConfig(ctypes.Structure):
+    _fields_ = [("result", SamplingConfig), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultSamplingConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
+        return isinstance(other, ResultSamplingConfig) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-class STMSamplingConfigValue(ctypes.Union):
-    _fields_ = [("freq", ctypes.c_float), ("period_ns", ctypes.c_uint64), ("sampling_config", SamplingConfigWrap)]
+class STMConfigValue(ctypes.Union):
+    _fields_ = [("freq", ctypes.c_float), ("period_ns", ctypes.c_uint64), ("sampling_config", SamplingConfig)]
 
 
-class STMSamplingConfigWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", STMSamplingConfigValue)]
+class STMConfigWrap(ctypes.Structure):
+    _fields_ = [("tag", ctypes.c_uint8), ("value", STMConfigValue)]
 
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, STMSamplingConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
+        return isinstance(other, STMConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 NUM_TRANS_IN_UNIT: int = 249
