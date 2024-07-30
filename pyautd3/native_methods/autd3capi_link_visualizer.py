@@ -2,8 +2,8 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr, ResultI32, Segment
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, ResultI32, Segment
 
 from enum import IntEnum
 
@@ -122,13 +122,13 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkVisualizerModulation.argtypes = [LinkPtr, Backend, Directivity, Segment, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkVisualizerModulation.restype = ctypes.c_uint32
 
-        self.dll.AUTDLinkVisualizerCalcField.argtypes = [LinkPtr, Backend, Directivity, ctypes.POINTER(Vector3), ctypes.c_uint32, GeometryPtr, Segment, ctypes.c_uint16, ctypes.POINTER(ctypes.c_float)]  # type: ignore 
+        self.dll.AUTDLinkVisualizerCalcField.argtypes = [LinkPtr, Backend, Directivity, ctypes.POINTER(Vector3), ctypes.c_uint32, Segment, ctypes.c_uint16, ctypes.POINTER(ctypes.c_float)]  # type: ignore 
         self.dll.AUTDLinkVisualizerCalcField.restype = ResultI32
 
-        self.dll.AUTDLinkVisualizerPlotField.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, PlotRangePtr, GeometryPtr, Segment, ctypes.c_uint16]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotField.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, PlotRangePtr, Segment, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotField.restype = ResultI32
 
-        self.dll.AUTDLinkVisualizerPlotPhase.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, GeometryPtr, Segment, ctypes.c_uint16]  # type: ignore 
+        self.dll.AUTDLinkVisualizerPlotPhase.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, Segment, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkVisualizerPlotPhase.restype = ResultI32
 
         self.dll.AUTDLinkVisualizerPlotModulation.argtypes = [LinkPtr, Backend, Directivity, ConfigPtr, Segment]  # type: ignore 
@@ -185,14 +185,14 @@ class NativeMethods(metaclass=Singleton):
     def link_visualizer_modulation(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, segment: Segment, buf: ctypes.Array[ctypes.c_uint8] | None) -> ctypes.c_uint32:
         return self.dll.AUTDLinkVisualizerModulation(visualizer, backend, directivity, segment, buf)
 
-    def link_visualizer_calc_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, points: ctypes.Array | None, points_len: int, geometry: GeometryPtr, segment: Segment, idx: int, buf: ctypes.Array[ctypes.c_float] | None) -> ResultI32:
-        return self.dll.AUTDLinkVisualizerCalcField(visualizer, backend, directivity, points, points_len, geometry, segment, idx, buf)
+    def link_visualizer_calc_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, points: ctypes.Array | None, points_len: int, segment: Segment, idx: int, buf: ctypes.Array[ctypes.c_float] | None) -> ResultI32:
+        return self.dll.AUTDLinkVisualizerCalcField(visualizer, backend, directivity, points, points_len, segment, idx, buf)
 
-    def link_visualizer_plot_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, config: ConfigPtr, range: PlotRangePtr, geometry: GeometryPtr, segment: Segment, idx: int) -> ResultI32:
-        return self.dll.AUTDLinkVisualizerPlotField(visualizer, backend, directivity, config, range, geometry, segment, idx)
+    def link_visualizer_plot_field(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, config: ConfigPtr, range: PlotRangePtr, segment: Segment, idx: int) -> ResultI32:
+        return self.dll.AUTDLinkVisualizerPlotField(visualizer, backend, directivity, config, range, segment, idx)
 
-    def link_visualizer_plot_phase(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, config: ConfigPtr, geometry: GeometryPtr, segment: Segment, idx: int) -> ResultI32:
-        return self.dll.AUTDLinkVisualizerPlotPhase(visualizer, backend, directivity, config, geometry, segment, idx)
+    def link_visualizer_plot_phase(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, config: ConfigPtr, segment: Segment, idx: int) -> ResultI32:
+        return self.dll.AUTDLinkVisualizerPlotPhase(visualizer, backend, directivity, config, segment, idx)
 
     def link_visualizer_plot_modulation(self, visualizer: LinkPtr, backend: Backend, directivity: Directivity, config: ConfigPtr, segment: Segment) -> ResultI32:
         return self.dll.AUTDLinkVisualizerPlotModulation(visualizer, backend, directivity, config, segment)

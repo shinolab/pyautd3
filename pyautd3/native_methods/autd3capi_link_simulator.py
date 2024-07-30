@@ -2,8 +2,8 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
 
 
 class LinkSimulatorBuilderPtr(ctypes.Structure):
@@ -39,11 +39,8 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_uint16] 
-        self.dll.AUTDLinkSimulator.restype = LinkSimulatorBuilderPtr
-
-        self.dll.AUTDLinkSimulatorWithAddr.argtypes = [LinkSimulatorBuilderPtr, ctypes.c_char_p]  # type: ignore 
-        self.dll.AUTDLinkSimulatorWithAddr.restype = ResultLinkSimulatorBuilder
+        self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDLinkSimulator.restype = ResultLinkSimulatorBuilder
 
         self.dll.AUTDLinkSimulatorWithTimeout.argtypes = [LinkSimulatorBuilderPtr, ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDLinkSimulatorWithTimeout.restype = LinkSimulatorBuilderPtr
@@ -51,20 +48,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSimulatorIntoBuilder.argtypes = [LinkSimulatorBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkSimulatorIntoBuilder.restype = LinkBuilderPtr
 
-        self.dll.AUTDLinkSimulatorUpdateGeometry.argtypes = [LinkPtr, GeometryPtr]  # type: ignore 
-        self.dll.AUTDLinkSimulatorUpdateGeometry.restype = FfiFuture
-
-    def link_simulator(self, port: int) -> LinkSimulatorBuilderPtr:
-        return self.dll.AUTDLinkSimulator(port)
-
-    def link_simulator_with_addr(self, simulator: LinkSimulatorBuilderPtr, addr: bytes) -> ResultLinkSimulatorBuilder:
-        return self.dll.AUTDLinkSimulatorWithAddr(simulator, addr)
+    def link_simulator(self, addr: bytes) -> ResultLinkSimulatorBuilder:
+        return self.dll.AUTDLinkSimulator(addr)
 
     def link_simulator_with_timeout(self, simulator: LinkSimulatorBuilderPtr, timeout_ns: int) -> LinkSimulatorBuilderPtr:
         return self.dll.AUTDLinkSimulatorWithTimeout(simulator, timeout_ns)
 
     def link_simulator_into_builder(self, simulator: LinkSimulatorBuilderPtr) -> LinkBuilderPtr:
         return self.dll.AUTDLinkSimulatorIntoBuilder(simulator)
-
-    def link_simulator_update_geometry(self, simulator: LinkPtr, geometry: GeometryPtr) -> FfiFuture:
-        return self.dll.AUTDLinkSimulatorUpdateGeometry(simulator, geometry)

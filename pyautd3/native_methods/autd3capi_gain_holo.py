@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from enum import IntEnum
@@ -139,15 +139,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDeleteNalgebraBackendT4010A1.argtypes = [BackendPtr]  # type: ignore 
         self.dll.AUTDDeleteNalgebraBackendT4010A1.restype = None
 
-        self.dll.AUTDGainHoloSDPSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
-        self.dll.AUTDGainHoloSDPSphere.restype = GainPtr
-
-        self.dll.AUTDGainHoloSDPT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
-        self.dll.AUTDGainHoloSDPT4010A1.restype = GainPtr
-
-        self.dll.AUTDGainSDPIsDefault.argtypes = [GainPtr]  # type: ignore 
-        self.dll.AUTDGainSDPIsDefault.restype = ctypes.c_bool
-
     def gain_holo_constraint_normalize(self) -> EmissionConstraintWrap:
         return self.dll.AUTDGainHoloConstraintNormalize()
 
@@ -222,12 +213,3 @@ class NativeMethods(metaclass=Singleton):
 
     def delete_nalgebra_backend_t_4010_a_1(self, backend: BackendPtr) -> None:
         return self.dll.AUTDDeleteNalgebraBackendT4010A1(backend)  # pragma: no cover
-
-    def gain_holo_sdp_sphere(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, alpha: float, lambda_: float, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
-        return self.dll.AUTDGainHoloSDPSphere(backend, points, amps, size, alpha, lambda_, repeat, constraint)
-
-    def gain_holo_sdpt_4010_a_1(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, alpha: float, lambda_: float, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
-        return self.dll.AUTDGainHoloSDPT4010A1(backend, points, amps, size, alpha, lambda_, repeat, constraint)  # pragma: no cover
-
-    def gain_sdp_is_default(self, gs: GainPtr) -> ctypes.c_bool:
-        return self.dll.AUTDGainSDPIsDefault(gs)
