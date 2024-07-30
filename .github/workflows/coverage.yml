@@ -2,46 +2,26 @@ name: Coverage
 
 on:
   push:
-    branches:
-      - 'develop'
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  check-src:
-    runs-on: ubuntu-latest
-    name: check if src files changed
-    outputs:
-      status: ${{ steps.changed-files.outputs.modified_files }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: tj-actions/changed-files@v42
-        id: changed-files
-        with:
-          files: |
-            x.py
-            .github/workflows/coverage.yml
-            setup.cfg.template
-            MANIFEST.in
-            ./pyautd3/*.py
-            ./pyautd3/**/*.py
-            ./tests/*.py
-            ./tests/**/*.py
-
   coverage:
-    needs: check-src
-    if: needs.check-src.outputs.status
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Generate code coverage for python
-        run: |
+      - run: |
           python3 -m pip install -U pytest pytest-asyncio pytest-cov pytest-xdist
           python3 -m pip install -U numpy matplotlib forbiddenfruit
           python3 x.py cov --cov_report=xml
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
+      - uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
+          disable_search: true
           fail_ci_if_error: true

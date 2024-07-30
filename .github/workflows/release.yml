@@ -5,117 +5,37 @@ on:
     tags:
     - 'v*'
 
+env:
+  PYTHON_VERSION: "3.12"
+
 jobs:
-  publish_win:
-    name: upload-release-asset-windows
-    runs-on: windows-latest
+  publish:
+    name: publish-to-pypi-${{ matrix.os }}-${{ matrix.arch }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            arch: amd64
+          - os: windows-latest
+            arch: arm64
+          - os: ubuntu-latest
+            arch: amd64
+          - os: ubuntu-latest
+            arch: armv7l
+          - os: ubuntu-latest
+            arch: aarch64
+          - os: macos-latest
+            arch: aarch64
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
-
-      - name: Publish pypi
-        run: |
+          python-version: ${{ env.PYTHON_VERSION }}
+      - run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install -U twine wheel build
-          python3 x.py build --no-install
-          twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
-
-  publish_win_arm:
-    name: upload-release-asset-windows-arm
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Publish pypi
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -U twine wheel build
-          python3 x.py build --arch arm64 --no-install
-          twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
-
-  publish_linux:
-    name: upload-release-asset-linux
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Publish pypi
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -U twine wheel build
-          python3 x.py build --no-install
+          python3 x.py build --no-install --arch ${{ matrix.arch }}
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
-  publish_linux-arm32:
-    name: upload-release-asset-linux-arm32
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-              
-      - name: Publish pypi
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -U twine wheel build
-          python3 x.py build --no-install --arch armv7l
-          twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
-  
-  publish_linux-aarch64:
-    name: upload-release-asset-linux-aarch64
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Publish pypi
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -U twine wheel build
-          python3 x.py build --no-install --arch aarch64
-          twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
-  
-  publish_mac:
-    name: upload-release-asset-macos
-    runs-on: macos-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Publish pypi
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -U twine wheel build
-          python3 x.py build --no-install
-          twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
