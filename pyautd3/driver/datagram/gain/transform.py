@@ -28,14 +28,14 @@ class Transform(
 ):
     _g: G
 
-    def __init__(self: "Transform", g: G, f: Callable[[Device], Callable[[Transducer, Drive], Drive]]) -> None:
+    def __init__(self: "Transform", g: G, f: Callable[[Device], Callable[[Transducer, Drive], Drive | EmitIntensity | Phase | tuple]]) -> None:
         super().__init__()
         self._g = g
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, tr_idx: int, src, raw) -> None:  # noqa: ANN001
             dev = Device(dev_idx, Base().device(geometry_ptr, dev_idx))
             tr = Transducer(tr_idx, dev._ptr)
-            d = f(dev)(tr, Drive(Phase(src.phase), EmitIntensity(src.intensity)))
+            d = Drive(f(dev)(tr, Drive((Phase(src.phase), EmitIntensity(src.intensity)))))
             raw[0] = _Drive(d.phase.value, d.intensity.value)
 
         self._f_native = ctypes.CFUNCTYPE(None, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8, _Drive, ctypes.POINTER(_Drive))(
@@ -52,5 +52,5 @@ class Transform(
 
 
 class IntoGainTransform(GainBase, Generic[G]):
-    def with_transform(self: G, f: Callable[[Device], Callable[[Transducer, Drive], Drive]]) -> Transform[G]:
+    def with_transform(self: G, f: Callable[[Device], Callable[[Transducer, Drive], Drive | EmitIntensity | Phase | tuple]]) -> Transform[G]:
         return Transform(self, f)
