@@ -6,7 +6,6 @@ from .gs import GS
 from .gspat import GSPAT
 from .lm import LM
 from .naive import Naive
-from .sdp import SDP
 
 __all__ = [
     "dB",
@@ -14,7 +13,6 @@ __all__ = [
     "Amplitude",
     "NalgebraBackend",
     "EmissionConstraint",
-    "SDP",
     "GS",
     "GSPAT",
     "LM",
