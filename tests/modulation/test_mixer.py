@@ -102,7 +102,7 @@ def test_mixer_exact():
                 1,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
 
 def test_mixer_exact_float():
@@ -196,13 +196,13 @@ def test_mixer_exact_float():
                 1,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
 
 def test_mixer_nearest():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Mixer([Sine.from_freq_nearest(50.0 * Hz), Sine.from_freq_nearest(100.0 * Hz)])
+        m = Mixer([Sine.nearest(50.0 * Hz), Sine.nearest(100.0 * Hz)])
         autd.send(m)
 
         for dev in autd.geometry:
@@ -290,4 +290,4 @@ def test_mixer_nearest():
                 49,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10

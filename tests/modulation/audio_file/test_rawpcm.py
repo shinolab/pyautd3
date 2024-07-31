@@ -102,8 +102,8 @@ def test_rawpcm():
                 128,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
         autd.send(RawPCM(Path(__file__).parent / "sin150.dat", 2000 * Hz))
         for dev in autd.geometry:
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10240
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 20

@@ -2,7 +2,6 @@ from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import numpy as np
-import pytest
 
 from pyautd3 import Controller, ControlPoint, FociSTM, Hz, LoopBehavior, SamplingConfig, Segment, Silencer
 from pyautd3.driver.datagram.segment import SwapSegment
@@ -31,52 +30,52 @@ def test_foci_stm():
         radius = 30.0
         size = 2
         center = np.array([0.0, 0.0, 150.0])
-        stm = FociSTM.from_freq(
+        stm = FociSTM(
             1.0 * Hz,
             (center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
         ).with_loop_behavior(LoopBehavior.Once)
         assert stm.freq == 1.0 * Hz
         assert stm.period == timedelta(seconds=1.0)
-        assert stm.sampling_config == SamplingConfig.Division(10240000)
+        assert stm.sampling_config == SamplingConfig(20000)
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
             assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
             assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = FociSTM.from_freq_nearest(1.0 * Hz, [center, center])
+        stm = FociSTM.nearest(1.0 * Hz, [center, center])
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
             assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
             assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = FociSTM.from_period(timedelta(seconds=1.0), [center, center])
+        stm = FociSTM(timedelta(seconds=1.0), [center, center])
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
             assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
             assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = FociSTM.from_period_nearest(timedelta(seconds=1.0), [center, center])
+        stm = FociSTM.nearest(timedelta(seconds=1.0), [center, center])
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
             assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
             assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 10240000
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = FociSTM.from_sampling_config(SamplingConfig.Division(512), [center, center])
+        stm = FociSTM(SamplingConfig(1), [center, center])
         autd.send(stm)
         for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 512
+            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 1
         for dev in autd.geometry:
             assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -93,42 +92,37 @@ def test_foci_stm_segment():
         assert autd.link.current_stm_segment(0) == Segment.S0
 
         autd.send(
-            FociSTM.from_sampling_config(
-                SamplingConfig.DivisionRaw(0x12345678),
+            FociSTM(
+                SamplingConfig(0x1234),
                 [np.zeros(3), np.zeros(3)],
             ),
         )
         assert autd.link.current_stm_segment(0) == Segment.S0
         assert autd.link.stm_cycle(0, Segment.S0) == 2
-        assert autd.link.stm_freqency_division(0, Segment.S0) == 0x12345678
+        assert autd.link.stm_freqency_division(0, Segment.S0) == 0x1234
 
         autd.send(
-            FociSTM.from_sampling_config(
-                SamplingConfig.DivisionRaw(0x9ABCDEF0),
+            FociSTM(
+                SamplingConfig(0xDEF0),
                 [np.zeros(3), np.zeros(3)],
             ).with_segment(Segment.S1, TransitionMode.Immediate),
         )
         assert autd.link.current_stm_segment(0) == Segment.S1
         assert autd.link.stm_cycle(0, Segment.S1) == 2
-        assert autd.link.stm_freqency_division(0, Segment.S1) == 0x9ABCDEF0
+        assert autd.link.stm_freqency_division(0, Segment.S1) == 0xDEF0
 
         autd.send(
-            FociSTM.from_sampling_config(
-                SamplingConfig.DivisionRaw(0x87654321),
+            FociSTM(
+                SamplingConfig(0x8765),
                 [np.zeros(3), np.zeros(3), np.zeros(3)],
             ).with_segment(Segment.S0, None),
         )
         assert autd.link.current_stm_segment(0) == Segment.S1
         assert autd.link.stm_cycle(0, Segment.S0) == 3
-        assert autd.link.stm_freqency_division(0, Segment.S0) == 0x87654321
+        assert autd.link.stm_freqency_division(0, Segment.S0) == 0x8765
 
         autd.send(SwapSegment.FociSTM(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S0
-
-
-def test_foci_stm_ctor():
-    with pytest.raises(NotImplementedError):
-        _ = FociSTM()
 
 
 def foci_stm_n(control_points):  # noqa: ANN001
@@ -137,7 +131,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
         autd.send(Silencer.disable())
 
         size = len(control_points)
-        stm = FociSTM.from_freq(
+        stm = FociSTM(
             1.0 * Hz,
             control_points,
         )
@@ -147,14 +141,14 @@ def foci_stm_n(control_points):  # noqa: ANN001
                 intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM.from_freq_nearest(1.0 * Hz, control_points)
+        stm = FociSTM.nearest(1.0 * Hz, control_points)
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):
                 intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM.from_period(
+        stm = FociSTM(
             timedelta(seconds=1.0),
             control_points,
         )
@@ -164,7 +158,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
                 intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM.from_period_nearest(
+        stm = FociSTM.nearest(
             timedelta(seconds=1.0),
             control_points,
         )
@@ -174,7 +168,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
                 intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM.from_sampling_config(SamplingConfig.Division(5120), control_points)
+        stm = FociSTM(SamplingConfig(10), control_points)
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):

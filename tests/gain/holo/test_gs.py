@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Controller, Segment
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.gain.holo import GS, EmissionConstraint, NalgebraBackend, Pa
 from pyautd3.link.audit import Audit
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
@@ -21,7 +22,7 @@ def test_gs():
         g = (
             GS(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
             .with_repeat(50)
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
         assert g.repeat == 50
         autd.send(g)
@@ -48,7 +49,7 @@ def test_gs_cuda():
         g = (
             GS(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
             .with_repeat(50)
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
         autd.send(g)
         for dev in autd.geometry:

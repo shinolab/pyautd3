@@ -25,14 +25,13 @@ from pyautd3.native_methods.autd3capi_link_visualizer import NativeMethods as Vi
 def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     center = autd.geometry.center + np.array([0, 0, 150])
 
-    g = Uniform(0x80).with_phase(0x81)
+    g = Uniform((EmitIntensity(0x80), Phase(0x81)))
     m = Static().with_intensity(0x82)
 
     autd.send((m, g))
 
     autd.link.plot_phase(
         config,
-        autd.geometry,
         Segment.S0,
         0,
     )
@@ -47,7 +46,6 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
             z_end=center[2],
             resolution=1,
         ),
-        autd.geometry,
         Segment.S0,
         0,
     )
@@ -62,7 +60,6 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
             z_end=center[2],
             resolution=1,
         ),
-        autd.geometry,
         Segment.S0,
         0,
     )
@@ -75,7 +72,7 @@ def visualizer_test_with(autd: Controller[Visualizer], config: IPlotConfig):
     assert np.array_equal(autd.link.modulation(Segment.S0), np.array([0x82] * 2))
 
     points = [center]
-    autd.link.calc_field(points, autd.geometry, Segment.S0, 0)
+    autd.link.calc_field(points, Segment.S0, 0)
 
     autd.close()
 
@@ -219,14 +216,12 @@ def test_visualizer_invalid_config():
                     z_end=center[2],
                     resolution=1,
                 ),
-                autd.geometry,
                 Segment.S0,
                 0,
             )
         with pytest.raises(InvalidPlotConfigError):
             autd.link.plot_phase(
                 PyPlotConfig(fname="test.png"),
-                autd.geometry,
                 Segment.S0,
                 0,
             )

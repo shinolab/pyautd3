@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, SamplingConfig, Segment
+from pyautd3 import Controller, Segment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation import Modulation
 from tests.test_autd import create_controller
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 class Burst(Modulation):
     def __init__(self: "Burst") -> None:
-        super().__init__(SamplingConfig.Freq(4000 * Hz))
+        super().__init__(4000 * Hz)
 
     def calc(self: "Burst"):
         buf = np.array([0] * 10)
@@ -33,4 +33,4 @@ def test_modulation():
             assert len(mod) == 10
             assert mod[0] == 0xFF
             assert np.all(mod[1:] == 0)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10

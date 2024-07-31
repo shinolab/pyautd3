@@ -7,6 +7,8 @@ from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.gain import Null, Uniform
 from pyautd3.link.audit import Audit
@@ -39,8 +41,8 @@ def test_firmware_info():
     autd: Controller[Audit]
     with create_controller() as autd:
         for i, firm in enumerate(autd.firmware_version()):
-            assert firm.info == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
+            assert firm.info == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -53,11 +55,11 @@ def test_firmware_info():
 async def test_firmware_info_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
-        assert FirmwareInfo.latest_version() == "v8.0.1"
+        assert FirmwareInfo.latest_version() == "v9.0.0"
 
         for i, firm in enumerate(await autd.firmware_version_async()):
-            assert firm.info == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v8.0.1, FPGA = v8.0.1 [Emulator]"
+            assert firm.info == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -161,7 +163,7 @@ async def test_send_async_tuple():
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
-        await autd.send_async((Static(), Uniform(0x80)))
+        await autd.send_async((Static(), Uniform(EmitIntensity(0x80))))
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -173,13 +175,13 @@ async def test_send_async_tuple():
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
-            await autd.send_async((Static(), Uniform(0xFF)))
+            await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "Failed to send data"
         autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
-            await autd.send_async((Static(), Uniform(0xFF)))
+            await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "broken"
         autd.link.repair()
 
@@ -193,7 +195,7 @@ def test_send_tuple():
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
-        autd.send((Static(), Uniform(0x80)))
+        autd.send((Static(), Uniform(EmitIntensity(0x80))))
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -205,13 +207,13 @@ def test_send_tuple():
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(0xFF)))
+            autd.send((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "Failed to send data"
         autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(0xFF)))
+            autd.send((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "broken"
         autd.link.repair()
 
@@ -220,7 +222,7 @@ def test_send_tuple():
 async def test_group_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
-        await autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(0xFF))).send_async()
+        await autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send_async()
 
         mod = autd.link.modulation(0, Segment.S0)
         assert len(mod) == 80
@@ -242,7 +244,7 @@ async def test_group_async():
 def test_group():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(0xFF))).send()
+        autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send()
 
         mod = autd.link.modulation(0, Segment.S0)
         assert len(mod) == 80
@@ -272,7 +274,7 @@ def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return 0
 
-        autd.group(f).set(0, (Sine(150 * Hz), Uniform(0x80).with_phase(0x90))).send()
+        autd.group(f).set(0, (Sine(150 * Hz), Uniform((EmitIntensity(0x80), Phase(0x90))))).send()
 
         assert not check[0]
         assert check[1]
@@ -292,7 +294,7 @@ def test_group_check_only_for_enabled():
 def test_clear():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send((Static(), Uniform(0xFF).with_phase(0x90)))
+        autd.send((Static(), Uniform((EmitIntensity(0xFF), Phase(0x90)))))
 
         for dev in autd.geometry:
             assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)

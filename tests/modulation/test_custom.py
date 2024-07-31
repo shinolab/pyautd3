@@ -15,7 +15,7 @@ def test_modulation_custom():
     with create_controller() as autd:
         buf = np.array([0] * 10)
         buf[0] = 0xFF
-        m = Custom(buf, SamplingConfig.Division(5120))
+        m = Custom(buf, SamplingConfig(10))
 
         autd.send(m)
 
@@ -24,4 +24,4 @@ def test_modulation_custom():
             assert len(mod) == 10
             assert mod[0] == 0xFF
             assert np.all(mod[1:] == 0)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10

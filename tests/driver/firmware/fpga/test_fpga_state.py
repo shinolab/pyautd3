@@ -56,7 +56,7 @@ def test_fpga_state():
         assert infos[1].current_mod_segment == Segment.S1
         assert infos[1].current_stm_segment is None
 
-        autd.send(GainSTM.from_freq(1.0 * Hz, [Null(), Null()]).with_segment(Segment.S0, TransitionMode.Immediate))
+        autd.send(GainSTM(1.0 * Hz, [Null(), Null()]).with_segment(Segment.S0, TransitionMode.Immediate))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert infos[0].current_gain_segment is None
@@ -65,7 +65,7 @@ def test_fpga_state():
         assert infos[1].current_gain_segment is None
         assert infos[1].current_stm_segment == Segment.S0
 
-        autd.send(GainSTM.from_freq(1.0 * Hz, [Null(), Null()]).with_segment(Segment.S1, TransitionMode.Immediate))
+        autd.send(GainSTM(1.0 * Hz, [Null(), Null()]).with_segment(Segment.S1, TransitionMode.Immediate))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert infos[0].current_gain_segment is None
