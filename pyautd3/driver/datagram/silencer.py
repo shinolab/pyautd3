@@ -4,7 +4,7 @@ from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithPara
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, SilencerTarget
 
 from .datagram import Datagram
 
@@ -21,47 +21,41 @@ class Silencer(
     ):
         _value_intensity: int
         _value_phase: int
+        _target: SilencerTarget
 
         def __init__(self: "Silencer.FixedUpdateRate", value_intensity: int, value_phase: int) -> None:
             super().__init__()
             self._value_intensity = value_intensity
             self._value_phase = value_phase
+            self._target = SilencerTarget.Intensity
 
-        def _datagram_ptr(self: "Silencer.FixedUpdateRate", _: Geometry) -> DatagramPtr:
-            return Base().datagram_silencer_from_update_rate(self._value_intensity, self._value_phase)
-
-    class FixedCompletionSteps(Datagram):
-        _value_intensity: int
-        _value_phase: int
-        _strict_mode: bool
-
-        def __init__(self: "Silencer.FixedCompletionSteps", value_intensity: int, value_phase: int) -> None:
-            super().__init__()
-            self._value_intensity = value_intensity
-            self._value_phase = value_phase
-            self._strict_mode = True
-
-        def with_strict_mode(self: "Silencer.FixedCompletionSteps", mode: bool) -> "Silencer.FixedCompletionSteps":  # noqa: FBT001
-            self._strict_mode = mode
+        def with_target(self: "Silencer.FixedUpdateRate", target: SilencerTarget) -> "Silencer.FixedUpdateRate":
+            self._target = target
             return self
 
-        def _datagram_ptr(self: "Silencer.FixedCompletionSteps", _: Geometry) -> DatagramPtr:
-            return Base().datagram_silencer_from_completion_steps(
+        def _datagram_ptr(self: "Silencer.FixedUpdateRate", _: Geometry) -> DatagramPtr:
+            return Base().datagram_silencer_from_update_rate(
                 self._value_intensity,
                 self._value_phase,
-                self._strict_mode,
+                self._target,
             )
 
     class FixedCompletionTime(Datagram):
         _value_intensity: timedelta
         _value_phase: timedelta
         _strict_mode: bool
+        _target: SilencerTarget
 
         def __init__(self: "Silencer.FixedCompletionTime", value_intensity: timedelta, value_phase: timedelta) -> None:
             super().__init__()
             self._value_intensity = value_intensity
             self._value_phase = value_phase
             self._strict_mode = True
+            self._target = SilencerTarget.Intensity
+
+        def with_target(self: "Silencer.FixedCompletionTime", target: SilencerTarget) -> "Silencer.FixedCompletionTime":
+            self._target = target
+            return self
 
         def with_strict_mode(self: "Silencer.FixedCompletionTime", mode: bool) -> "Silencer.FixedCompletionTime":  # noqa: FBT001
             self._strict_mode = mode
@@ -72,6 +66,7 @@ class Silencer(
                 int(self._value_intensity.total_seconds() * 1000 * 1000 * 1000),
                 int(self._value_phase.total_seconds() * 1000 * 1000 * 1000),
                 self._strict_mode,
+                self._target,
             )
 
     @staticmethod
@@ -79,17 +74,13 @@ class Silencer(
         return Silencer.FixedUpdateRate(value_intensity, value_phase)
 
     @staticmethod
-    def from_completion_steps(value_intensity: int, value_phase: int) -> "FixedCompletionSteps":
-        return Silencer.FixedCompletionSteps(value_intensity, value_phase)
-
-    @staticmethod
     def from_completion_time(value_intensity: timedelta, value_phase: timedelta) -> "FixedCompletionTime":
         return Silencer.FixedCompletionTime(value_intensity, value_phase)
 
     @staticmethod
-    def disable() -> "FixedCompletionSteps":
-        return Silencer.from_completion_steps(1, 1)
+    def disable() -> "FixedCompletionTime":
+        return Silencer.from_completion_time(timedelta(microseconds=25), timedelta(microseconds=25))
 
     @staticmethod
-    def default() -> "FixedCompletionSteps":
-        return Silencer.from_completion_steps(10, 40)
+    def default() -> "FixedCompletionTime":
+        return Silencer.from_completion_time(timedelta(microseconds=250), timedelta(microseconds=1000))

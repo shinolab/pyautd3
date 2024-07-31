@@ -6,7 +6,8 @@ import numpy as np
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.native_methods.autd3capi import ModulationCalcPtr, ResultModulationCalc
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import ModulationPtr, SamplingConfigWrap
+from pyautd3.native_methods.autd3capi_driver import ModulationPtr
+from pyautd3.native_methods.structs import SamplingConfig
 from pyautd3.native_methods.utils import _validate_ptr
 
 M = TypeVar("M", bound=ModulationBase)
@@ -15,7 +16,7 @@ M = TypeVar("M", bound=ModulationBase)
 class Cache(ModulationBase["Cache[M]"], Generic[M]):
     _m: M
     _cache: np.ndarray | None
-    _sampling_config: SamplingConfigWrap | None
+    _sampling_config: SamplingConfig | None
 
     def __init__(self: "Cache[M]", m: M) -> None:
         super().__init__()

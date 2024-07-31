@@ -18,7 +18,7 @@ class Sine(Modulation["Sine"]):
     _phase: Angle
 
     def __private__init__(self: "Sine", mode: ISamplingMode) -> None:
-        super().__init__(SamplingConfig.Division(5120))
+        super().__init__(SamplingConfig(10))
         self._mode = mode
         self._intensity = 0xFF
         self._offset = 0xFF // 2
@@ -32,7 +32,7 @@ class Sine(Modulation["Sine"]):
                 self.__private__init__(SamplingModeExactFloat(freq))
 
     @classmethod
-    def from_freq_nearest(cls: "type[Sine]", freq: Freq[float]) -> "Sine":
+    def nearest(cls: "type[Sine]", freq: Freq[float]) -> "Sine":
         sine = super().__new__(cls)
         sine.__private__init__(SamplingModeNearest(freq))
         return sine

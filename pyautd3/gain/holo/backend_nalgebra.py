@@ -17,18 +17,6 @@ class NalgebraBackend(Backend):
             GainHolo().delete_nalgebra_backend_sphere(self._ptr)
             self._ptr._0 = None
 
-    def _sdp(
-        self: "NalgebraBackend",
-        foci: Array[Vector3],
-        amps: Array[c_float],
-        size: int,
-        alpha: float,
-        lambda_: float,
-        repeat: int,
-        constraint: EmissionConstraintWrap,
-    ) -> GainPtr:
-        return GainHolo().gain_holo_sdp_sphere(self._backend_ptr(), foci, amps, size, alpha, lambda_, repeat, constraint)
-
     def _gs(
         self: "NalgebraBackend",
         foci: Array[Vector3],

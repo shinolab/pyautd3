@@ -17,7 +17,7 @@ class Square(Modulation["Square"]):
     _duty: float
 
     def __private__init__(self: "Square", mode: ISamplingMode) -> None:
-        super().__init__(SamplingConfig.Division(5120))
+        super().__init__(SamplingConfig(10))
         self._mode = mode
         self._low = 0x00
         self._high = 0xFF
@@ -31,7 +31,7 @@ class Square(Modulation["Square"]):
                 self.__private__init__(SamplingModeExactFloat(freq))
 
     @classmethod
-    def from_freq_nearest(cls: "type[Square]", freq: Freq[float]) -> "Square":
+    def nearest(cls: "type[Square]", freq: Freq[float]) -> "Square":
         sine = super().__new__(cls)
         sine.__private__init__(SamplingModeNearest(freq))
         return sine

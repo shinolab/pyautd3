@@ -17,11 +17,19 @@ K = TypeVar("K")
 class Group(Gain["Group[K]"], Generic[K]):
     _map: dict[K, GainBase]
     _f: Callable[[Device], Callable[[Transducer], K | None]]
+    _parallel: bool
 
     def __init__(self: "Group", f: Callable[[Device], Callable[[Transducer], K | None]]) -> None:
         super().__init__()
         self._map = {}
         self._f = f
+        self._parallel = False
+
+    @staticmethod
+    def with_paralell(f: Callable[[Device], Callable[[Transducer], K | None]]) -> "Group":
+        group = Group(f)
+        group._parallel = True
+        return group
 
     def set(self: "Group", key: K, gain: GainBase) -> "Group":
         self._map[key] = gain
@@ -60,4 +68,5 @@ class Group(Gain["Group[K]"], Generic[K]):
             np.ctypeslib.as_ctypes(keys.astype(c_int32)),
             values.ctypes.data_as(POINTER(GainPtr)),  # type: ignore[arg-type]
             len(keys),
+            self._parallel,
         )
