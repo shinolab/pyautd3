@@ -14,14 +14,13 @@ if TYPE_CHECKING:
 def test_pulse_width_encoder():
     autd: Controller[Audit]
     with create_controller() as autd:
-        buf = np.array(sorted([secrets.randbelow(257) for _ in range(32768)]), dtype=np.uint16)
+        buf = np.array([secrets.randbelow(257) for _ in range(256)], dtype=np.uint8)
         autd.send(PulseWidthEncoder(lambda _: lambda i: buf[i]))
         for dev in autd.geometry:
             table = autd.link.pulse_width_encoder_table(dev.idx)
             assert np.array_equal(table, buf)
 
-        buf_default = [np.round(np.arcsin(i / (255 * 255 // 2)) / np.pi * 512).astype(np.uint16) for i in range(255 * 255 // 2)]
-        buf_default.extend([256] * (32768 - 255 * 255 // 2))
+        buf_default = [np.round(np.arcsin(i / 255) / np.pi * 256).astype(np.uint8) for i in range(256)]
         autd.send(PulseWidthEncoder())
         for dev in autd.geometry:
             table = autd.link.pulse_width_encoder_table(dev.idx)

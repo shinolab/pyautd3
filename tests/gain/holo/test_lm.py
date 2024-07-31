@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Controller, Segment
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.gain.holo import LM, EmissionConstraint, NalgebraBackend, Pa
 from pyautd3.link.audit import Audit
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
@@ -26,7 +27,7 @@ def test_lm():
             .with_tau(1e-3)
             .with_kmax(5)
             .with_initial(np.zeros(1))
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
         assert g.eps1 == 1e-3
         assert g.eps2 == 1e-3
@@ -61,7 +62,7 @@ def test_lm_cuda():
             .with_tau(1e-3)
             .with_kmax(5)
             .with_initial(np.zeros(1))
-            .with_constraint(EmissionConstraint.Uniform(0x80))
+            .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )
         autd.send(g)
         for dev in autd.geometry:

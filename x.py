@@ -351,10 +351,6 @@ def py_test(args):
             command.append("--cuda")
         subprocess.run(command).check_returncode()
 
-        with set_env("AUTD3_ULTRASOUND_FREQ", "41000"):
-            command = config.python_module(["pytest", "-n", "auto", "-m", "dynamic_freq"])
-            subprocess.run(command).check_returncode()
-
 
 def py_cov(args):
     config = Config(args)

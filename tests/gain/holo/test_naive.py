@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Controller, Segment
+from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, Pa
 from pyautd3.link.audit import Audit
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
@@ -20,7 +21,7 @@ def test_naive():
             assert not np.all(phases == 0)
 
         g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
-            EmissionConstraint.Uniform(0x80),
+            EmissionConstraint.Uniform(EmitIntensity(0x80)),
         )
         autd.send(g)
         for dev in autd.geometry:
@@ -45,7 +46,7 @@ def test_naive_cuda():
             assert not np.all(phases == 0)
 
         g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
-            EmissionConstraint.Uniform(0x80),
+            EmissionConstraint.Uniform(EmitIntensity(0x80)),
         )
         autd.send(g)
         for dev in autd.geometry:

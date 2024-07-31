@@ -27,21 +27,19 @@ def test_square():
             mod = autd.link.modulation(dev.idx, Segment.S0)
             mod_expect = [85, 85, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
         autd.send(
-            Square(150 * Hz).with_sampling_config(
-                SamplingConfig.Division(10240),
-            ),
+            Square(150 * Hz).with_sampling_config(SamplingConfig(20)),
         )
         for dev in autd.geometry:
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10240
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 20
 
 
 def test_square_mode():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Square.from_freq_nearest(150.0 * Hz)
+        m = Square.nearest(150.0 * Hz)
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -51,7 +49,7 @@ def test_square_mode():
         with pytest.raises(AUTDError):
             autd.send(Square(100.1 * Hz))
 
-        autd.send(Square.from_freq_nearest(100.1 * Hz))
+        autd.send(Square.nearest(100.1 * Hz))
 
 
 def test_square_default():

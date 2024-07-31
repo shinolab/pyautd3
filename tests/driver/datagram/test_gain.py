@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def test_cache():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send(Uniform(0x80).with_phase(0x90).with_cache())
+        autd.send(Uniform((EmitIntensity(0x80), Phase(0x90))).with_cache())
 
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -28,14 +28,9 @@ class CacheTest(Gain["CacheTest"]):
     def __init__(self: "CacheTest") -> None:
         self.calc_cnt = 0
 
-    def calc(self: "CacheTest", _: Geometry) -> Callable[[Device], Callable[[Transducer], Drive]]:
+    def calc(self: "CacheTest", _: Geometry) -> Callable[[Device], Callable[[Transducer], Drive | EmitIntensity | Phase | tuple]]:
         self.calc_cnt += 1
-        return Gain._transform(
-            lambda _dev: lambda _tr: Drive(
-                Phase(0x90),
-                EmitIntensity(0x80),
-            ),
-        )
+        return Gain._transform(lambda _dev: lambda _tr: Drive((Phase(0x90), EmitIntensity(0x80))))
 
 
 def test_cache_check_once():
@@ -82,10 +77,10 @@ def test_transform():
 
         def transform(dev: Device) -> Callable[[Transducer, Drive], Drive]:
             if dev.idx == 0:
-                return lambda _, d: Drive(Phase(d.phase.value + 32), d.intensity)
-            return lambda _, d: Drive(Phase(d.phase.value - 32), d.intensity)
+                return lambda _, d: Drive((Phase(d.phase.value + 32), d.intensity))
+            return lambda _, d: Drive((Phase(d.phase.value - 32), d.intensity))
 
-        autd.send(Uniform(0x80).with_phase(128).with_transform(transform))
+        autd.send(Uniform((EmitIntensity(0x80), Phase(128))).with_transform(transform))
 
         intensities, phases = autd.link.drives(0, Segment.S0, 0)
         assert np.all(intensities == 0x80)
@@ -107,7 +102,7 @@ def test_transform_check_only_for_enabled():
             check[dev.idx] = True
             return lambda _, d: d
 
-        autd.send(Uniform(0x80).with_phase(0x90).with_transform(transform))
+        autd.send(Uniform((EmitIntensity(0x80), Phase(0x90))).with_transform(transform))
 
         assert not check[0]
         assert check[1]
@@ -126,10 +121,10 @@ def test_gain_segment():
     with create_controller() as autd:
         assert autd.link.current_stm_segment(0) == Segment.S0
 
-        autd.send(Uniform(0x01).with_phase(0x02))
+        autd.send(Uniform((EmitIntensity(0x01), Phase(0x02))))
         assert autd.link.current_stm_segment(0) == Segment.S0
         assert autd.link.stm_cycle(0, Segment.S0) == 1
-        assert autd.link.stm_freqency_division(0, Segment.S0) == 0xFFFFFFFF
+        assert autd.link.stm_freqency_division(0, Segment.S0) == 0xFFFF
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x01)
@@ -139,7 +134,7 @@ def test_gain_segment():
             assert np.all(intensities == 0x00)
             assert np.all(phases == 0x00)
 
-        autd.send(Uniform(0x03).with_phase(0x04).with_segment(Segment.S1, transition=True))
+        autd.send(Uniform((EmitIntensity(0x03), Phase(0x04))).with_segment(Segment.S1, transition=True))
         assert autd.link.current_stm_segment(0) == Segment.S1
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
@@ -150,7 +145,7 @@ def test_gain_segment():
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
-        autd.send(Uniform(0x05).with_phase(0x06).with_segment(Segment.S0, transition=False))
+        autd.send(Uniform((EmitIntensity(0x05), Phase(0x06))).with_segment(Segment.S0, transition=False))
         assert autd.link.current_stm_segment(0) == Segment.S1
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)

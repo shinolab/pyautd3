@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, SamplingConfig, Segment, Static
+from pyautd3 import Controller, Segment, Static
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
@@ -28,7 +28,7 @@ def test_cache():
             mod_expect = autd1.link.modulation(dev.idx, Segment.S0)
             mod = autd2.link.modulation(dev.idx, Segment.S0)
             assert np.array_equal(mod, mod_expect)
-            assert autd2.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd2.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
         mod_expect = autd1.link.modulation(0, Segment.S0)
         assert m2.buffer is not None
@@ -40,7 +40,7 @@ class CacheTest(Modulation["CacheTest"]):
     calc_cnt: int
 
     def __init__(self: "CacheTest") -> None:
-        super().__init__(SamplingConfig.Freq(4000 * Hz))
+        super().__init__(4000 * Hz)
         self.calc_cnt = 0
 
     def calc(self: "CacheTest"):
@@ -81,7 +81,7 @@ def test_transform():
             mod = autd2.link.modulation(dev.idx, Segment.S0)
             for i in range(len(mod_expect)):
                 assert mod[i] == mod_expect[i] // 2
-            assert autd2.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd2.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
 
 def test_radiation_pressure():
@@ -176,7 +176,7 @@ def test_radiation_pressure():
                 157,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 5120
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
 
 def test_mod_segment():

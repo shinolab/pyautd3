@@ -27,10 +27,7 @@ class Uniform(Gain):
     def calc(self: "Uniform", _: Geometry) -> Callable[[Device], Callable[[Transducer], Drive]]:
         def f(dev: Device) -> Callable[[Transducer], Drive]:
             self.check[dev.idx] = True
-            return lambda _: Drive(
-                self._phase,
-                self._intensity,
-            )
+            return lambda _: Drive((self._phase, self._intensity))
 
         return Gain._transform(f)
 

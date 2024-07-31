@@ -17,7 +17,7 @@ def test_constraint_uniform():
     with create_controller() as autd:
         backend = NalgebraBackend()
         g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
-            EmissionConstraint.Uniform(0x80),
+            EmissionConstraint.Uniform(EmitIntensity(0x80)),
         )
         autd.send(g)
         for dev in autd.geometry:

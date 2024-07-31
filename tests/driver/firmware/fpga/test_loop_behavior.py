@@ -12,5 +12,5 @@ def test_loop_behavior():
         _ = LoopBehavior.Finite(0)
 
     assert LoopBehavior.Finite(1) == LoopBehavior.Once
-    assert LoopBehavior.Infinite.rep == 0xFFFFFFFF
+    assert LoopBehavior.Infinite.rep == 0xFFFF
     assert LoopBehavior.Finite(1).rep == 0
