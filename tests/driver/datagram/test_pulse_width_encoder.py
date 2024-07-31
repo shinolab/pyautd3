@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def test_pulse_width_encoder():
     autd: Controller[Audit]
     with create_controller() as autd:
-        buf = np.array([secrets.randbelow(257) for _ in range(256)], dtype=np.uint8)
+        buf = np.array([secrets.randbelow(256) for _ in range(256)], dtype=np.uint8)
         autd.send(PulseWidthEncoder(lambda _: lambda i: buf[i]))
         for dev in autd.geometry:
             table = autd.link.pulse_width_encoder_table(dev.idx)
