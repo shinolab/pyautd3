@@ -8,7 +8,7 @@ if __name__ == "__main__":
         Controller[Simulator]
         .builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([AUTD3.DEVICE_WIDTH, 0.0, 0.0])])
         .open(
-            Simulator.builder(8080),
+            Simulator.builder("127.0.0.1:8080"),
         ) as autd
     ):
         runner.run(autd)
