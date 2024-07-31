@@ -10,8 +10,9 @@ from pyautd3.native_methods.utils import _validate_f32, _validate_sampling_confi
 
 class STMSamplingConfig:
     _inner: STMConfigWrap
+    _is_nearest: bool
 
-    def __init__(self: "STMSamplingConfig", inner: "STMConfigWrap | SamplingConfig | Freq[float] | timedelta") -> None:
+    def __init__(self: "STMSamplingConfig", inner: "STMConfigWrap | SamplingConfig | Freq[float] | timedelta", *, nearest: bool = False) -> None:
         if isinstance(inner, STMConfigWrap):
             self._inner = inner
         elif isinstance(inner, SamplingConfig):
@@ -22,15 +23,16 @@ class STMSamplingConfig:
             self._inner = Base().stm_config_from_period(
                 int(inner.total_seconds() * 1000 * 1000 * 1000),
             )
+        else:
+            raise TypeError
+        self._is_nearest = nearest
 
     @staticmethod
     def _nearest(inner: "Freq[float] | timedelta") -> "STMSamplingConfig":
         if isinstance(inner, Freq):
-            return STMSamplingConfig(Base().stm_config_from_freq_nearest(inner.hz))
+            return STMSamplingConfig(Base().stm_config_from_freq_nearest(inner.hz), nearest=True)
         if isinstance(inner, timedelta):
-            return STMSamplingConfig(
-                Base().stm_config_from_period_nearest(int(inner.total_seconds() * 1000 * 1000 * 1000)),
-            )
+            return STMSamplingConfig(Base().stm_config_from_period_nearest(int(inner.total_seconds() * 1000 * 1000 * 1000)), nearest=True)
         raise TypeError
 
     @staticmethod

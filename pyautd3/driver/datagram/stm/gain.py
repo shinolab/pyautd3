@@ -78,7 +78,13 @@ class GainSTM(
 
     def _ptr(self: "GainSTM", gains: np.ndarray) -> GainSTMPtr:
         ptr: GainSTMPtr = _validate_ptr(
-            Base().stm_gain(
+            Base().stm_gain_nearest(
+                self._stm_sampling_config._inner,
+                gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
+                len(gains),
+            )
+            if self._stm_sampling_config._is_nearest
+            else Base().stm_gain(
                 self._stm_sampling_config._inner,
                 gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
                 len(gains),
