@@ -15,7 +15,7 @@ M = TypeVar("M", bound="Modulation")
 
 
 class Modulation(_Modulation[M], Generic[M], metaclass=ABCMeta):
-    def __init__(self: "Modulation", config: SamplingConfig | Freq[int] | timedelta) -> None:
+    def __init__(self: "Modulation", config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         super().__init__(config)
 
     @abstractmethod

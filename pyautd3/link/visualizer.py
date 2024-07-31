@@ -7,7 +7,6 @@ import numpy as np
 from pyautd3.autd_error import InvalidPlotConfigError
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
-from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -364,7 +363,7 @@ class Visualizer(Link):
         LinkVisualizer().link_visualizer_modulation(self._ptr, self._backend, self._directivity, segment, np.ctypeslib.as_ctypes(modulation))
         return modulation
 
-    def calc_field(self: "Visualizer", points_iter: Iterable[np.ndarray], geometry: Geometry, segment: Segment, idx: int) -> np.ndarray:
+    def calc_field(self: "Visualizer", points_iter: Iterable[np.ndarray], segment: Segment, idx: int) -> np.ndarray:
         points = np.fromiter((np.void(Vector3(d)) for d in points_iter), dtype=Vector3)  # type: ignore[type-var,call-overload]
         points_len = len(points)
         buf = np.zeros(points_len * 2).astype(ctypes.c_float)
@@ -375,7 +374,6 @@ class Visualizer(Link):
                 self._directivity,
                 points.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
                 points_len,
-                geometry._geometry_ptr(),
                 segment,
                 idx,
                 np.ctypeslib.as_ctypes(buf),
@@ -383,7 +381,7 @@ class Visualizer(Link):
         )
         return np.fromiter([buf[2 * i] + buf[2 * i + 1] * 1j for i in range(points_len)], dtype=np.complex128, count=points_len)
 
-    def plot_field(self: "Visualizer", config: IPlotConfig, plot_range: PlotRange, geometry: Geometry, segment: Segment, idx: int) -> None:
+    def plot_field(self: "Visualizer", config: IPlotConfig, plot_range: PlotRange, segment: Segment, idx: int) -> None:
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(
@@ -393,13 +391,12 @@ class Visualizer(Link):
                 self._directivity,
                 config._config_ptr(),
                 plot_range._ptr(),
-                geometry._geometry_ptr(),
                 segment,
                 idx,
             ),
         )
 
-    def plot_phase(self: "Visualizer", config: IPlotConfig, geometry: Geometry, segment: Segment, idx: int) -> None:
+    def plot_phase(self: "Visualizer", config: IPlotConfig, segment: Segment, idx: int) -> None:
         if self._backend != config._backend():
             raise InvalidPlotConfigError
         _validate_int(
@@ -408,7 +405,6 @@ class Visualizer(Link):
                 self._backend,
                 self._directivity,
                 config._config_ptr(),
-                geometry._geometry_ptr(),
                 segment,
                 idx,
             ),

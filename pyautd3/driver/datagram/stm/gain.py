@@ -6,13 +6,13 @@ import numpy as np
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.driver.firmware.fpga.stm_sampling_config import STMSamplingConfig
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
@@ -42,24 +42,32 @@ class GainSTM(
     _stm_sampling_config: STMSamplingConfig
     _loop_behavior: _LoopBehavior
 
-    def __new__(cls: type["GainSTM"]) -> "GainSTM":
-        raise NotImplementedError
-
-    @classmethod
-    def __private_new__(
-        cls: type["GainSTM"],
+    def __private_init__(
+        self: "GainSTM",
         sampling_config: STMSamplingConfig,
         iterable: Iterable[GainBase],
+    ) -> None:
+        self._gains = np.array(list(iterable))
+        self._mode = GainSTMMode.PhaseIntensityFull
+
+        self._stm_sampling_config = sampling_config
+        self._loop_behavior = LoopBehavior.Infinite
+
+    def __init__(
+        self: "GainSTM",
+        config: "SamplingConfig | Freq[float] | timedelta",
+        iterable: Iterable[GainBase],
+    ) -> None:
+        self.__private_init__(STMSamplingConfig(config), iterable)
+
+    @classmethod
+    def nearest(
+        cls: type["GainSTM"],
+        config: "Freq[float] | timedelta",
+        iterable: Iterable[GainBase],
     ) -> "GainSTM":
-        ins = super().__new__(cls)
-
-        ins._gains = np.array(list(iterable))
-        ins._mode = GainSTMMode.PhaseIntensityFull
-
-        ins._stm_sampling_config = sampling_config
-
-        ins._loop_behavior = LoopBehavior.Infinite
-
+        ins = cls.__new__(cls)
+        ins.__private_init__(STMSamplingConfig._nearest(config), iterable)
         return ins
 
     def _raw_ptr(self: "GainSTM", geometry: Geometry) -> GainSTMPtr:
@@ -86,26 +94,6 @@ class GainSTM(
         if transition_mode is None:
             return Base().stm_gain_into_datagram_with_segment(ptr, segment)
         return Base().stm_gain_into_datagram_with_segment_transition(ptr, segment, transition_mode)
-
-    @staticmethod
-    def from_freq(freq: Freq[float], iterable: Iterable[GainBase]) -> "GainSTM":
-        return GainSTM.__private_new__(STMSamplingConfig.Freq(freq), iterable)
-
-    @staticmethod
-    def from_freq_nearest(freq: Freq[float], iterable: Iterable[GainBase]) -> "GainSTM":
-        return GainSTM.__private_new__(STMSamplingConfig.FreqNearest(freq), iterable)
-
-    @staticmethod
-    def from_period(period: timedelta, iterable: Iterable[GainBase]) -> "GainSTM":
-        return GainSTM.__private_new__(STMSamplingConfig.Period(period), iterable)
-
-    @staticmethod
-    def from_period_nearest(period: timedelta, iterable: Iterable[GainBase]) -> "GainSTM":
-        return GainSTM.__private_new__(STMSamplingConfig.PeriodNearest(period), iterable)
-
-    @staticmethod
-    def from_sampling_config(config: SamplingConfig | Freq[int] | timedelta, iterable: Iterable[GainBase]) -> "GainSTM":
-        return GainSTM.__private_new__(STMSamplingConfig.SamplingConfig(SamplingConfig(config)), iterable)
 
     def with_mode(self: "GainSTM", mode: GainSTMMode) -> "GainSTM":
         self._mode = mode

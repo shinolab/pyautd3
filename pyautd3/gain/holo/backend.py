@@ -16,19 +16,6 @@ class Backend(metaclass=ABCMeta):
         return self._ptr
 
     @abstractmethod
-    def _sdp(
-        self: "Backend",
-        foci: Array[Vector3],
-        amps: Array[c_float],
-        size: int,
-        alpha: float,
-        lambda_: float,
-        repeat: int,
-        constraint: EmissionConstraintWrap,
-    ) -> GainPtr:
-        pass
-
-    @abstractmethod
     def _gs(self: "Backend", foci: Array[Vector3], amps: Array[c_float], size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
         pass
 

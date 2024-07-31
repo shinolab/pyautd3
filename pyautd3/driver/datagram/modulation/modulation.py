@@ -24,10 +24,14 @@ class Modulation(
 ):
     _config: SamplingConfig
 
-    def __init__(self: "Modulation[M]", config: SamplingConfig | Freq[int] | timedelta) -> None:
+    def __init__(self: "Modulation[M]", config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         super().__init__()
         self._config = SamplingConfig(config)
 
-    def with_sampling_config(self: M, config: SamplingConfig | Freq[int] | timedelta) -> M:
+    def with_sampling_config(self: M, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> M:
         self._config = SamplingConfig(config)
+        return self
+
+    def with_sampling_config_nearest(self: M, config: Freq[float] | timedelta) -> M:
+        self._config = SamplingConfig._nearest(config)
         return self
