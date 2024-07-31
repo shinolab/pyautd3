@@ -24,8 +24,8 @@ class Uniform(Gain):
         self._phase = phase
         self.check = np.array(check)
 
-    def calc(self: "Uniform", _: Geometry) -> Callable[[Device], Callable[[Transducer], Drive]]:
-        def f(dev: Device) -> Callable[[Transducer], Drive]:
+    def calc(self: "Uniform", _: Geometry) -> Callable[[Device], Callable[[Transducer], Drive | EmitIntensity | Phase | tuple]]:
+        def f(dev: Device) -> Callable[[Transducer], Drive | EmitIntensity | Phase | tuple]:
             self.check[dev.idx] = True
             return lambda _: Drive((self._phase, self._intensity))
 
