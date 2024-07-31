@@ -127,7 +127,14 @@ class FociSTM(
         n = self._points[0]._value()
         points = np.fromiter((np.void(p) for p in self._points), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
         ptr: FociSTMPtr = _validate_ptr(
-            Base().stm_foci(
+            Base().stm_foci_nearest(
+                self._stm_sampling_config._inner,
+                points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
+                len(self._points),
+                n,
+            )
+            if self._stm_sampling_config._is_nearest
+            else Base().stm_foci(
                 self._stm_sampling_config._inner,
                 points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
                 len(self._points),
