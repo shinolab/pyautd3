@@ -247,7 +247,7 @@ def copy_dll(config: Config):
             case "x64":
                 url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64-shared.zip"
             case "aarch64":
-                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-arm-shared.zip"
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-aarch64-shared.zip"
             case _:
                 err(f"Unsupported platform: {platform.machine()}")
         urllib.request.urlretrieve(url, "tmp.zip")
