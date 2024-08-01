@@ -52,6 +52,27 @@ def test_group():
                     assert np.all(phases[tr.idx] == 0)
 
 
+def test_group_with_parallel():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        cx = autd.geometry.center[0]
+
+        autd.send(
+            Group.with_paralell(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
+            .set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90))))
+            .set("null", Null()),
+        )
+        for dev in autd.geometry:
+            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            for tr in dev:
+                if tr.position[0] < cx:
+                    assert np.all(intensities[tr.idx] == 0x80)
+                    assert np.all(phases[tr.idx] == 0x90)
+                else:
+                    assert np.all(intensities[tr.idx] == 0)
+                    assert np.all(phases[tr.idx] == 0)
+
+
 def test_group_unknown_key():
     autd: Controller[Audit]
     with create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):

@@ -13,6 +13,8 @@ from pyautd3.autd_error import AUTDError
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.gain import Null
 from pyautd3.modulation import Sine
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi_driver import SilencerTarget
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -35,14 +37,30 @@ def test_silencer_from_completion_time():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
             assert autd.link.silencer_strict_mode(dev.idx)
+            assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
 
-        autd.send(Silencer.from_completion_time(timedelta(microseconds=25 * 2), timedelta(microseconds=25 * 3)).with_strict_mode(mode=False))
+        autd.send(
+            Silencer.from_completion_time(timedelta(microseconds=25 * 2), timedelta(microseconds=25 * 3))
+            .with_strict_mode(mode=False)
+            .with_target(SilencerTarget.PulseWidth),
+        )
 
         for dev in autd.geometry:
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
             assert not autd.link.silencer_strict_mode(dev.idx)
+            assert autd.link.silencer_target(dev.idx) == SilencerTarget.PulseWidth
+
+        autd.send(Silencer.default())
+
+        for dev in autd.geometry:
+            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
+            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
+            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_strict_mode(dev.idx)
+            assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
+            assert bool(Base().datagram_silencer_fixed_completion_time_is_default(Silencer.default()._datagram_ptr(None)))  # type: ignore[arg-type]
 
 
 def test_silencer_from_update_rate():
@@ -52,13 +70,15 @@ def test_silencer_from_update_rate():
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
 
-        autd.send(Silencer.from_update_rate(2, 3))
+        autd.send(Silencer.from_update_rate(2, 3).with_target(SilencerTarget.PulseWidth))
 
         for dev in autd.geometry:
             assert autd.link.silencer_update_rate_intensity(dev.idx) == 2
             assert autd.link.silencer_update_rate_phase(dev.idx) == 3
             assert not autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+            assert autd.link.silencer_target(dev.idx) == SilencerTarget.PulseWidth
 
 
 def test_silencer_large_steps():
