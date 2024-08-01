@@ -84,18 +84,6 @@ class SilencerTarget(IntEnum):
         return int(obj)  # pragma: no cover
 
 
-class STMConfigTag(IntEnum):
-    Freq = 1
-    FreqNearest = 2
-    Period = 3
-    PeriodNearest = 4
-    SamplingConfig = 5
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
 class TransitionModeTag(IntEnum):
     SyncIdx = 0
     SysTime = 1
@@ -224,40 +212,12 @@ class ResultI32(ctypes.Structure):
         return isinstance(other, ResultI32) and self._fields_ == other._fields_ # pragma: no cover
                     
 
-class ResultF32(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_float), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultF32) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
-class ResultU64(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_uint64), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultU64) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
 class ResultSamplingConfig(ctypes.Structure):
     _fields_ = [("result", SamplingConfig), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultSamplingConfig) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
-class STMConfigValue(ctypes.Union):
-    _fields_ = [("freq", ctypes.c_float), ("period_ns", ctypes.c_uint64), ("sampling_config", SamplingConfig)]
-
-
-class STMConfigWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", STMConfigValue)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, STMConfigWrap) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 NUM_TRANS_IN_UNIT: int = 249
