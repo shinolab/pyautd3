@@ -38,6 +38,7 @@ from .native_methods.autd3capi_driver import (
     GPIOIn,
     GPIOOut,
     Segment,
+    SilencerTarget,
 )
 from .native_methods.autd3capi_link_soem import NativeMethods as Soem
 
@@ -103,6 +104,7 @@ __all__ = [
     "DcSysTime",
     "PulseWidthEncoder",
     "TransitionMode",
+    "SilencerTarget",
 ]
 
 __version__ = "27.0.0-rc.2"
