@@ -26,6 +26,12 @@ def test_stm_sampl_config_from_freq():
         _ = STMSamplingConfig(0.1 * Hz, 1).period()
     assert str(e.value) == "Sampling frequency (0.1 Hz) is out of range ([0.61036086 Hz, 40000 Hz])"
 
+    with pytest.raises(TypeError):
+        _ = STMSamplingConfig(1 * Hz, 1)
+
+    with pytest.raises(TypeError):
+        _ = STMSamplingConfig(1, 1)  # type: ignore[arg-type]
+
 
 def test_stm_sampl_config_from_period():
     config = STMSamplingConfig(timedelta(microseconds=25), 1)
@@ -46,6 +52,12 @@ def test_stm_sampl_config_from_freq_nearest():
     assert config.freq() == 40000.0 * Hz
     assert config.period() == timedelta(microseconds=25)
     assert config.sampling_config() == SamplingConfig(40000 * Hz)
+
+    with pytest.raises(TypeError):
+        _ = STMSamplingConfig._nearest(1 * Hz, 1)
+
+    with pytest.raises(TypeError):
+        _ = STMSamplingConfig._nearest(1, 1)  # type: ignore[arg-type]
 
 
 def test_stm_sampl_config_from_period_nearest():
