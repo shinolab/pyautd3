@@ -31,7 +31,3 @@ class Modulation(
     def with_sampling_config(self: M, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> M:
         self._config = SamplingConfig(config)
         return self
-
-    def with_sampling_config_nearest(self: M, config: Freq[float] | timedelta) -> M:
-        self._config = SamplingConfig._nearest(config)
-        return self

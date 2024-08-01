@@ -29,10 +29,6 @@ class RawPCM(
         self._path = path
         self._config = SamplingConfig(config)
 
-    @staticmethod
-    def nearest(path: Path, config: Freq[float] | timedelta) -> "RawPCM":
-        return RawPCM(path, SamplingConfig._nearest(config))
-
     def _modulation_ptr(self: "RawPCM") -> ModulationPtr:
         return _validate_ptr(
             ModulationAudioFile().modulation_audio_file_raw_pcm(
