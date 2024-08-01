@@ -393,7 +393,14 @@ def util_update_ver(args):
 
     tokens = version.split(".")
     if "-" in tokens[2]:
-        pkg_version = f"{tokens[0]}.{tokens[1]}.{tokens[2].split('-')[0]}{tokens[2].split('-')[1][0]}{tokens[3]}"
+        match tokens[2].split("-")[1]:
+            case "rc":
+                patch_version = tokens[2].split("-")[0] + "rc" + tokens[3]
+            case "alpha":
+                patch_version = tokens[2].split("-")[0] + "a" + tokens[3]
+            case "beta":
+                patch_version = tokens[2].split("-")[0] + "b" + tokens[3]
+        pkg_version = f"{tokens[0]}.{tokens[1]}.{patch_version}"
     else:
         pkg_version = version
 
