@@ -3,7 +3,7 @@ import threading
 import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, DevicePtr, Drive, FociSTMPtr, GPIOIn, GainPtr, GainSTMMode, GainSTMPtr, GeometryPtr, LinkBuilderPtr, LinkPtr, LoopBehavior, ModulationPtr, ResultF32, ResultFociSTM, ResultGainSTM, ResultI32, ResultModulation, ResultSamplingConfig, ResultU64, STMConfigWrap, Segment, SilencerTarget, TransducerPtr, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, DevicePtr, Drive, FociSTMPtr, GPIOIn, GainPtr, GainSTMMode, GainSTMPtr, GeometryPtr, LinkBuilderPtr, LinkPtr, LoopBehavior, ModulationPtr, ResultFociSTM, ResultGainSTM, ResultI32, ResultModulation, ResultSamplingConfig, Segment, SilencerTarget, TransducerPtr, TransitionModeWrap
 
 
 class ControllerBuilderPtr(ctypes.Structure):
@@ -196,11 +196,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault.argtypes = [DatagramPtr]  # type: ignore 
         self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDSTMFoci.argtypes = [STMConfigWrap, ctypes.c_void_p, ctypes.c_uint16, ctypes.c_uint8]  # type: ignore 
+        self.dll.AUTDSTMFoci.argtypes = [SamplingConfig, ctypes.c_void_p, ctypes.c_uint16, ctypes.c_uint8]  # type: ignore 
         self.dll.AUTDSTMFoci.restype = ResultFociSTM
-
-        self.dll.AUTDSTMFociNearest.argtypes = [STMConfigWrap, ctypes.c_void_p, ctypes.c_uint16, ctypes.c_uint8]  # type: ignore 
-        self.dll.AUTDSTMFociNearest.restype = ResultFociSTM
 
         self.dll.AUTDSTMFociWithLoopBehavior.argtypes = [FociSTMPtr, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDSTMFociWithLoopBehavior.restype = FociSTMPtr
@@ -214,11 +211,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMFociIntoDatagram.argtypes = [FociSTMPtr, ctypes.c_uint8]  # type: ignore 
         self.dll.AUTDSTMFociIntoDatagram.restype = DatagramPtr
 
-        self.dll.AUTDSTMGain.argtypes = [STMConfigWrap, ctypes.POINTER(GainPtr), ctypes.c_uint16]  # type: ignore 
+        self.dll.AUTDSTMGain.argtypes = [SamplingConfig, ctypes.POINTER(GainPtr), ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDSTMGain.restype = ResultGainSTM
-
-        self.dll.AUTDSTMGainNearest.argtypes = [STMConfigWrap, ctypes.POINTER(GainPtr), ctypes.c_uint16]  # type: ignore 
-        self.dll.AUTDSTMGainNearest.restype = ResultGainSTM
 
         self.dll.AUTDSTMGainWithMode.argtypes = [GainSTMPtr, GainSTMMode]  # type: ignore 
         self.dll.AUTDSTMGainWithMode.restype = GainSTMPtr
@@ -235,29 +229,23 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMGainIntoDatagram.argtypes = [GainSTMPtr]  # type: ignore 
         self.dll.AUTDSTMGainIntoDatagram.restype = DatagramPtr
 
-        self.dll.AUTDSTMConfigFromFreq.argtypes = [ctypes.c_float] 
-        self.dll.AUTDSTMConfigFromFreq.restype = STMConfigWrap
+        self.dll.AUTDSTMConfigFromFreq.argtypes = [ctypes.c_float, ctypes.c_uint16] 
+        self.dll.AUTDSTMConfigFromFreq.restype = ResultSamplingConfig
 
-        self.dll.AUTDSTMConfigFromPeriod.argtypes = [ctypes.c_uint64] 
-        self.dll.AUTDSTMConfigFromPeriod.restype = STMConfigWrap
+        self.dll.AUTDSTMConfigFromPeriod.argtypes = [ctypes.c_uint64, ctypes.c_uint16] 
+        self.dll.AUTDSTMConfigFromPeriod.restype = ResultSamplingConfig
 
-        self.dll.AUTDSTMConfigFromSamplingConfig.argtypes = [SamplingConfig]  # type: ignore 
-        self.dll.AUTDSTMConfigFromSamplingConfig.restype = STMConfigWrap
+        self.dll.AUTDSTMConfigFromFreqNearest.argtypes = [ctypes.c_float, ctypes.c_uint16] 
+        self.dll.AUTDSTMConfigFromFreqNearest.restype = ResultSamplingConfig
 
-        self.dll.AUTDSTMConfigFromFreqNearest.argtypes = [ctypes.c_float] 
-        self.dll.AUTDSTMConfigFromFreqNearest.restype = STMConfigWrap
+        self.dll.AUTDSTMConfigFromPeriodNearest.argtypes = [ctypes.c_uint64, ctypes.c_uint16] 
+        self.dll.AUTDSTMConfigFromPeriodNearest.restype = ResultSamplingConfig
 
-        self.dll.AUTDSTMConfigFromPeriodNearest.argtypes = [ctypes.c_uint64] 
-        self.dll.AUTDSTMConfigFromPeriodNearest.restype = STMConfigWrap
+        self.dll.AUTDSTMFreq.argtypes = [SamplingConfig, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMFreq.restype = ctypes.c_float
 
-        self.dll.AUTDSTMFreq.argtypes = [STMConfigWrap, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDSTMFreq.restype = ResultF32
-
-        self.dll.AUTDSTMPeriod.argtypes = [STMConfigWrap, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDSTMPeriod.restype = ResultU64
-
-        self.dll.AUTDSTMSamplingSamplingConfig.argtypes = [STMConfigWrap, ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDSTMSamplingSamplingConfig.restype = ResultSamplingConfig
+        self.dll.AUTDSTMPeriod.argtypes = [SamplingConfig, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMPeriod.restype = ctypes.c_uint64
 
         self.dll.AUTDDatagramSynchronize.argtypes = [] 
         self.dll.AUTDDatagramSynchronize.restype = DatagramPtr
@@ -802,11 +790,8 @@ class NativeMethods(metaclass=Singleton):
     def datagram_silencer_fixed_completion_time_is_default(self, silencer: DatagramPtr) -> ctypes.c_bool:
         return self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault(silencer)
 
-    def stm_foci(self, config: STMConfigWrap, points: ctypes.c_void_p | None, size: int, n: int) -> ResultFociSTM:
+    def stm_foci(self, config: SamplingConfig, points: ctypes.c_void_p | None, size: int, n: int) -> ResultFociSTM:
         return self.dll.AUTDSTMFoci(config, points, size, n)
-
-    def stm_foci_nearest(self, config: STMConfigWrap, points: ctypes.c_void_p | None, size: int, n: int) -> ResultFociSTM:
-        return self.dll.AUTDSTMFociNearest(config, points, size, n)
 
     def stm_foci_with_loop_behavior(self, stm: FociSTMPtr, n: int, loop_behavior: LoopBehavior) -> FociSTMPtr:
         return self.dll.AUTDSTMFociWithLoopBehavior(stm, n, loop_behavior)
@@ -820,11 +805,8 @@ class NativeMethods(metaclass=Singleton):
     def stm_foci_into_datagram(self, stm: FociSTMPtr, n: int) -> DatagramPtr:
         return self.dll.AUTDSTMFociIntoDatagram(stm, n)
 
-    def stm_gain(self, config: STMConfigWrap, gains: ctypes.Array | None, size: int) -> ResultGainSTM:
+    def stm_gain(self, config: SamplingConfig, gains: ctypes.Array | None, size: int) -> ResultGainSTM:
         return self.dll.AUTDSTMGain(config, gains, size)
-
-    def stm_gain_nearest(self, config: STMConfigWrap, gains: ctypes.Array | None, size: int) -> ResultGainSTM:
-        return self.dll.AUTDSTMGainNearest(config, gains, size)
 
     def stm_gain_with_mode(self, stm: GainSTMPtr, mode: GainSTMMode) -> GainSTMPtr:
         return self.dll.AUTDSTMGainWithMode(stm, mode)
@@ -841,29 +823,23 @@ class NativeMethods(metaclass=Singleton):
     def stm_gain_into_datagram(self, stm: GainSTMPtr) -> DatagramPtr:
         return self.dll.AUTDSTMGainIntoDatagram(stm)
 
-    def stm_config_from_freq(self, f: float) -> STMConfigWrap:
-        return self.dll.AUTDSTMConfigFromFreq(f)
+    def stm_config_from_freq(self, f: float, n: int) -> ResultSamplingConfig:
+        return self.dll.AUTDSTMConfigFromFreq(f, n)
 
-    def stm_config_from_period(self, p: int) -> STMConfigWrap:
-        return self.dll.AUTDSTMConfigFromPeriod(p)
+    def stm_config_from_period(self, p: int, n: int) -> ResultSamplingConfig:
+        return self.dll.AUTDSTMConfigFromPeriod(p, n)
 
-    def stm_config_from_sampling_config(self, c: SamplingConfig) -> STMConfigWrap:
-        return self.dll.AUTDSTMConfigFromSamplingConfig(c)
+    def stm_config_from_freq_nearest(self, f: float, n: int) -> ResultSamplingConfig:
+        return self.dll.AUTDSTMConfigFromFreqNearest(f, n)
 
-    def stm_config_from_freq_nearest(self, f: float) -> STMConfigWrap:
-        return self.dll.AUTDSTMConfigFromFreqNearest(f)
+    def stm_config_from_period_nearest(self, p: int, n: int) -> ResultSamplingConfig:
+        return self.dll.AUTDSTMConfigFromPeriodNearest(p, n)
 
-    def stm_config_from_period_nearest(self, p: int) -> STMConfigWrap:
-        return self.dll.AUTDSTMConfigFromPeriodNearest(p)
-
-    def stm_freq(self, c: STMConfigWrap, n: int) -> ResultF32:
+    def stm_freq(self, c: SamplingConfig, n: int) -> ctypes.c_float:
         return self.dll.AUTDSTMFreq(c, n)
 
-    def stm_period(self, c: STMConfigWrap, n: int) -> ResultU64:
+    def stm_period(self, c: SamplingConfig, n: int) -> ctypes.c_uint64:
         return self.dll.AUTDSTMPeriod(c, n)
-
-    def stm_sampling_sampling_config(self, c: STMConfigWrap, n: int) -> ResultSamplingConfig:
-        return self.dll.AUTDSTMSamplingSamplingConfig(c, n)
 
     def datagram_synchronize(self) -> DatagramPtr:
         return self.dll.AUTDDatagramSynchronize()

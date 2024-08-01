@@ -245,9 +245,9 @@ def copy_dll(config: Config):
     if config.is_windows():
         match config.arch:
             case "x64":
-                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64-dll.zip"
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-x64-shared.zip"
             case "aarch64":
-                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-arm-dll.zip"
+                url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-win-arm-shared.zip"
             case _:
                 err(f"Unsupported platform: {platform.machine()}")
         urllib.request.urlretrieve(url, "tmp.zip")

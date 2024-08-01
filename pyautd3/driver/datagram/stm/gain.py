@@ -45,9 +45,9 @@ class GainSTM(
     def __private_init__(
         self: "GainSTM",
         sampling_config: STMSamplingConfig,
-        iterable: Iterable[GainBase],
+        gains: list[GainBase],
     ) -> None:
-        self._gains = np.array(list(iterable))
+        self._gains = np.array(gains)
         self._mode = GainSTMMode.PhaseIntensityFull
 
         self._stm_sampling_config = sampling_config
@@ -58,7 +58,8 @@ class GainSTM(
         config: "SamplingConfig | Freq[float] | timedelta",
         iterable: Iterable[GainBase],
     ) -> None:
-        self.__private_init__(STMSamplingConfig(config), iterable)
+        gains = list(iterable)
+        self.__private_init__(STMSamplingConfig(config, len(gains)), gains)
 
     @classmethod
     def nearest(
@@ -67,7 +68,8 @@ class GainSTM(
         iterable: Iterable[GainBase],
     ) -> "GainSTM":
         ins = cls.__new__(cls)
-        ins.__private_init__(STMSamplingConfig._nearest(config), iterable)
+        gains = list(iterable)
+        ins.__private_init__(STMSamplingConfig._nearest(config, len(gains)), gains)
         return ins
 
     def _raw_ptr(self: "GainSTM", geometry: Geometry) -> GainSTMPtr:
@@ -78,13 +80,7 @@ class GainSTM(
 
     def _ptr(self: "GainSTM", gains: np.ndarray) -> GainSTMPtr:
         ptr: GainSTMPtr = _validate_ptr(
-            Base().stm_gain_nearest(
-                self._stm_sampling_config._inner,
-                gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
-                len(gains),
-            )
-            if self._stm_sampling_config._is_nearest
-            else Base().stm_gain(
+            Base().stm_gain(
                 self._stm_sampling_config._inner,
                 gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
                 len(gains),
@@ -115,12 +111,12 @@ class GainSTM(
 
     @property
     def freq(self: "GainSTM") -> Freq[float]:
-        return self._stm_sampling_config.freq(len(self._gains))
+        return self._stm_sampling_config.freq()
 
     @property
     def period(self: "GainSTM") -> timedelta:
-        return self._stm_sampling_config.period(len(self._gains))
+        return self._stm_sampling_config.period()
 
     @property
     def sampling_config(self: "GainSTM") -> SamplingConfig:
-        return self._stm_sampling_config.sampling_config(len(self._gains))
+        return self._stm_sampling_config.sampling_config()

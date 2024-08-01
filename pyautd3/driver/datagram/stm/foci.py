@@ -57,17 +57,16 @@ class FociSTM(
     def __private_init__(
         self: "FociSTM",
         sampling_config: STMSamplingConfig,
-        iterable: Iterable[ArrayLike]
-        | Iterable[ControlPoints1]
-        | Iterable[ControlPoints2]
-        | Iterable[ControlPoints3]
-        | Iterable[ControlPoints4]
-        | Iterable[ControlPoints5]
-        | Iterable[ControlPoints6]
-        | Iterable[ControlPoints7]
-        | Iterable[ControlPoints8],
+        foci: list[ArrayLike]
+        | list[ControlPoints1]
+        | list[ControlPoints2]
+        | list[ControlPoints3]
+        | list[ControlPoints4]
+        | list[ControlPoints5]
+        | list[ControlPoints6]
+        | list[ControlPoints7]
+        | list[ControlPoints8],
     ) -> None:
-        foci = list(iterable)
         match foci[0]:
             case (
                 ControlPoints1()
@@ -100,7 +99,8 @@ class FociSTM(
         | Iterable[ControlPoints7]
         | Iterable[ControlPoints8],
     ) -> None:
-        self.__private_init__(STMSamplingConfig(config), iterable)
+        foci = list(iterable)
+        self.__private_init__(STMSamplingConfig(config, len(foci)), foci)
 
     @classmethod
     def nearest(
@@ -117,7 +117,8 @@ class FociSTM(
         | Iterable[ControlPoints8],
     ) -> "FociSTM":
         ins = cls.__new__(cls)
-        ins.__private_init__(STMSamplingConfig._nearest(config), iterable)
+        foci = list(iterable)
+        ins.__private_init__(STMSamplingConfig._nearest(config, len(foci)), foci)
         return ins
 
     def _raw_ptr(self: "FociSTM", _: Geometry) -> FociSTMPtr:
@@ -127,14 +128,7 @@ class FociSTM(
         n = self._points[0]._value()
         points = np.fromiter((np.void(p) for p in self._points), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
         ptr: FociSTMPtr = _validate_ptr(
-            Base().stm_foci_nearest(
-                self._stm_sampling_config._inner,
-                points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
-                len(self._points),
-                n,
-            )
-            if self._stm_sampling_config._is_nearest
-            else Base().stm_foci(
+            Base().stm_foci(
                 self._stm_sampling_config._inner,
                 points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
                 len(self._points),
@@ -157,12 +151,12 @@ class FociSTM(
 
     @property
     def freq(self: "FociSTM") -> Freq[float]:
-        return self._stm_sampling_config.freq(len(self._points))
+        return self._stm_sampling_config.freq()
 
     @property
     def period(self: "FociSTM") -> timedelta:
-        return self._stm_sampling_config.period(len(self._points))
+        return self._stm_sampling_config.period()
 
     @property
     def sampling_config(self: "FociSTM") -> SamplingConfig:
-        return self._stm_sampling_config.sampling_config(len(self._points))
+        return self._stm_sampling_config.sampling_config()
