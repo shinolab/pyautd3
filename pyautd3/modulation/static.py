@@ -16,10 +16,14 @@ class Static(
     _intensity: int
 
     def __init__(self: "Static", intensity: int | None = None) -> None:
-        if isinstance(intensity, float):
-            raise TypeError
         super().__init__()
-        self._intensity = 0xFF if intensity is None else _validate_u8(intensity)
+        match intensity:
+            case None:
+                self._intensity = 0xFF
+            case int():
+                self._intensity = _validate_u8(intensity)
+            case _:
+                raise TypeError
 
     @staticmethod
     def with_intensity(intensity: int) -> "Static":

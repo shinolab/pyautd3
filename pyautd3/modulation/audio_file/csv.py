@@ -30,10 +30,6 @@ class Csv(
         self._config = SamplingConfig(config)
         self._deliminator = ","
 
-    @staticmethod
-    def nearest(path: Path, config: Freq[float] | timedelta) -> "Csv":
-        return Csv(path, SamplingConfig._nearest(config))
-
     def with_deliminator(self: "Csv", deliminator: str) -> "Csv":
         self._deliminator = deliminator
         return self
