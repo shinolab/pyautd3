@@ -571,6 +571,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.restype = ctypes.c_bool
 
+        self.dll.AUTDLinkAuditFpgaSilencerTarget.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
+        self.dll.AUTDLinkAuditFpgaSilencerTarget.restype = SilencerTarget
+
         self.dll.AUTDLinkAuditFpgaDebugTypes.argtypes = [LinkPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaDebugTypes.restype = None
 
@@ -1164,6 +1167,9 @@ class NativeMethods(metaclass=Singleton):
 
     def link_audit_fpga_silencer_fixed_completion_steps_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
         return self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode(audit, idx)
+
+    def link_audit_fpga_silencer_target(self, audit: LinkPtr, idx: int) -> SilencerTarget:
+        return self.dll.AUTDLinkAuditFpgaSilencerTarget(audit, idx)
 
     def link_audit_fpga_debug_types(self, audit: LinkPtr, idx: int, ty: ctypes.Array[ctypes.c_uint8] | None) -> None:
         return self.dll.AUTDLinkAuditFpgaDebugTypes(audit, idx, ty)

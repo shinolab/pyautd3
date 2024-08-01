@@ -6,7 +6,7 @@ import numpy as np
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, LoopBehavior, Segment
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, LoopBehavior, Segment, SilencerTarget
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -79,6 +79,9 @@ class Audit(Link):
 
     def silencer_fixed_completion_steps_mode(self: "Audit", idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_silencer_fixed_completion_steps_mode(self._ptr, idx))
+
+    def silencer_target(self: "Audit", idx: int) -> SilencerTarget:
+        return LinkAudit().link_audit_fpga_silencer_target(self._ptr, idx)
 
     def debug_types(self: "Audit", idx: int) -> np.ndarray:
         buf = np.zeros([4]).astype(ctypes.c_uint8)

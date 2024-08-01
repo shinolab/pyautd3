@@ -25,6 +25,15 @@ class GainSTMMode(IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class SilencerTarget(IntEnum):
+    Intensity = 0
+    PulseWidth = 1
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class DebugTypeTag(IntEnum):
     None_ = 0
     BaseSignal = 1
@@ -69,15 +78,6 @@ class GPIOOut(IntEnum):
 class Segment(IntEnum):
     S0 = 0
     S1 = 1
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
-class SilencerTarget(IntEnum):
-    Intensity = 0
-    PulseWidth = 1
 
     @classmethod
     def from_param(cls, obj):
