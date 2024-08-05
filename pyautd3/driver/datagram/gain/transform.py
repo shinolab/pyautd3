@@ -33,7 +33,7 @@ class Transform(
         self._g = g
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, tr_idx: int, src, raw) -> None:  # noqa: ANN001
-            dev = Device(dev_idx, Base().device(geometry_ptr, dev_idx))
+            dev = Device(dev_idx, geometry_ptr)
             tr = Transducer(tr_idx, dev._ptr)
             d = Drive(f(dev)(tr, Drive((Phase(src.phase), EmitIntensity(src.intensity)))))
             raw[0] = _Drive(d.phase.value, d.intensity.value)

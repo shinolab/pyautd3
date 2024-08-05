@@ -18,6 +18,7 @@ def test_square():
     autd: Controller[Audit]
     with create_controller() as autd:
         m = Square(200 * Hz).with_low(32).with_high(85).with_duty(0.1)
+        assert m.freq == 200 * Hz
         assert m.low == 32
         assert m.high == 85
         assert m.duty == 0.1
@@ -40,6 +41,7 @@ def test_square_mode():
     autd: Controller[Audit]
     with create_controller() as autd:
         m = Square.nearest(150.0 * Hz)
+        assert m.freq == 150.0 * Hz
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -54,6 +56,7 @@ def test_square_mode():
 
 def test_square_default():
     m = Square(150.0 * Hz)
+    assert m.freq == 150.0 * Hz
     assert Base().modulation_square_is_default(m._modulation_ptr())
 
 

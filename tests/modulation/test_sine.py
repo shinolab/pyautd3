@@ -18,6 +18,7 @@ def test_sine():
     autd: Controller[Audit]
     with create_controller() as autd:
         m = Sine(150 * Hz).with_intensity(0xFF // 2).with_offset(0xFF // 4).with_phase(np.pi / 2 * rad).with_loop_behavior(LoopBehavior.Once)
+        assert m.freq == 150 * Hz
         assert m.intensity == 0xFF // 2
         assert m.offset == 0xFF // 4
         assert m.phase == np.pi / 2 * rad
@@ -123,7 +124,8 @@ def test_sine():
 def test_sine_mode():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Sine.nearest(150 * Hz)
+        m = Sine.nearest(150.0 * Hz)
+        assert m.freq == 150.0 * Hz
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation(dev.idx, Segment.S0)
@@ -138,6 +140,7 @@ def test_sine_mode():
 
 def test_sine_default():
     m = Sine(150.0 * Hz)
+    assert m.freq == 150.0 * Hz
     assert Base().modulation_sine_is_default(m._modulation_ptr())
 
 

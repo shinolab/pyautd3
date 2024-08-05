@@ -19,7 +19,7 @@ class ForceFan(
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> bool:
-            return f(Device(dev_idx, Base().device(geometry_ptr, dev_idx)))
+            return f(Device(dev_idx, geometry_ptr))
 
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
 

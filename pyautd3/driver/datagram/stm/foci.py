@@ -160,3 +160,9 @@ class FociSTM(
     @property
     def sampling_config(self: "FociSTM") -> SamplingConfig:
         return self._stm_sampling_config.sampling_config()
+
+    def _sampling_config_intensity(self: "FociSTM") -> SamplingConfig:
+        return self.sampling_config
+
+    def _sampling_config_phase(self: "FociSTM") -> SamplingConfig:
+        return self.sampling_config

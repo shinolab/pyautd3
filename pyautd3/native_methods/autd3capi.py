@@ -190,8 +190,14 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSilencerFromUpdateRate.argtypes = [ctypes.c_uint8, ctypes.c_uint8, SilencerTarget]  # type: ignore 
         self.dll.AUTDDatagramSilencerFromUpdateRate.restype = DatagramPtr
 
+        self.dll.AUTDDatagramSilencerFixedUpdateRateIsValid.argtypes = [DatagramPtr, SamplingConfig, SamplingConfig]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFixedUpdateRateIsValid.restype = ctypes.c_bool
+
         self.dll.AUTDDatagramSilencerFromCompletionTime.argtypes = [ctypes.c_uint64, ctypes.c_uint64, ctypes.c_bool, SilencerTarget]  # type: ignore 
         self.dll.AUTDDatagramSilencerFromCompletionTime.restype = DatagramPtr
+
+        self.dll.AUTDDatagramSilencerFixedCompletionTimeIsValid.argtypes = [DatagramPtr, SamplingConfig, SamplingConfig]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFixedCompletionTimeIsValid.restype = ctypes.c_bool
 
         self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault.argtypes = [DatagramPtr]  # type: ignore 
         self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault.restype = ctypes.c_bool
@@ -421,25 +427,25 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDeviceGetSoundSpeed.argtypes = [DevicePtr]  # type: ignore 
         self.dll.AUTDDeviceGetSoundSpeed.restype = ctypes.c_float
 
-        self.dll.AUTDDeviceSetSoundSpeed.argtypes = [DevicePtr, ctypes.c_float]  # type: ignore 
+        self.dll.AUTDDeviceSetSoundSpeed.argtypes = [GeometryPtr, ctypes.c_uint16, ctypes.c_float]  # type: ignore 
         self.dll.AUTDDeviceSetSoundSpeed.restype = None
 
-        self.dll.AUTDDeviceSetSoundSpeedFromTemp.argtypes = [DevicePtr, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]  # type: ignore 
+        self.dll.AUTDDeviceSetSoundSpeedFromTemp.argtypes = [GeometryPtr, ctypes.c_uint16, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]  # type: ignore 
         self.dll.AUTDDeviceSetSoundSpeedFromTemp.restype = None
 
         self.dll.AUTDDeviceCenter.argtypes = [DevicePtr]  # type: ignore 
         self.dll.AUTDDeviceCenter.restype = Vector3
 
-        self.dll.AUTDDeviceTranslate.argtypes = [DevicePtr, Vector3]  # type: ignore 
+        self.dll.AUTDDeviceTranslate.argtypes = [GeometryPtr, ctypes.c_uint16, Vector3]  # type: ignore 
         self.dll.AUTDDeviceTranslate.restype = None
 
-        self.dll.AUTDDeviceRotate.argtypes = [DevicePtr, Quaternion]  # type: ignore 
+        self.dll.AUTDDeviceRotate.argtypes = [GeometryPtr, ctypes.c_uint16, Quaternion]  # type: ignore 
         self.dll.AUTDDeviceRotate.restype = None
 
-        self.dll.AUTDDeviceAffine.argtypes = [DevicePtr, Vector3, Quaternion]  # type: ignore 
+        self.dll.AUTDDeviceAffine.argtypes = [GeometryPtr, ctypes.c_uint16, Vector3, Quaternion]  # type: ignore 
         self.dll.AUTDDeviceAffine.restype = None
 
-        self.dll.AUTDDeviceEnableSet.argtypes = [DevicePtr, ctypes.c_bool]  # type: ignore 
+        self.dll.AUTDDeviceEnableSet.argtypes = [GeometryPtr, ctypes.c_uint16, ctypes.c_bool]  # type: ignore 
         self.dll.AUTDDeviceEnableSet.restype = None
 
         self.dll.AUTDDeviceEnableGet.argtypes = [DevicePtr]  # type: ignore 
@@ -673,6 +679,15 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationSineNearest.argtypes = [ctypes.c_float, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationSineNearest.restype = ResultModulation
 
+        self.dll.AUTDModulationSineExactFreq.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSineExactFreq.restype = ctypes.c_uint32
+
+        self.dll.AUTDModulationSineExactFloatFreq.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSineExactFloatFreq.restype = ctypes.c_float
+
+        self.dll.AUTDModulationSineNearestFreq.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSineNearestFreq.restype = ctypes.c_float
+
         self.dll.AUTDModulationSineIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSineIsDefault.restype = ctypes.c_bool
 
@@ -684,6 +699,15 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDModulationSquareNearest.argtypes = [ctypes.c_float, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationSquareNearest.restype = ResultModulation
+
+        self.dll.AUTDModulationSquareExactFreq.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSquareExactFreq.restype = ctypes.c_uint32
+
+        self.dll.AUTDModulationSquareExactFloatFreq.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSquareExactFloatFreq.restype = ctypes.c_float
+
+        self.dll.AUTDModulationSquareNearestFreq.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationSquareNearestFreq.restype = ctypes.c_float
 
         self.dll.AUTDModulationSquareIsDefault.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSquareIsDefault.restype = ctypes.c_bool
@@ -787,8 +811,14 @@ class NativeMethods(metaclass=Singleton):
     def datagram_silencer_from_update_rate(self, value_intensity: int, value_phase: int, target: SilencerTarget) -> DatagramPtr:
         return self.dll.AUTDDatagramSilencerFromUpdateRate(value_intensity, value_phase, target)
 
+    def datagram_silencer_fixed_update_rate_is_valid(self, silencer: DatagramPtr, config_intensity: SamplingConfig, config_phase: SamplingConfig) -> ctypes.c_bool:
+        return self.dll.AUTDDatagramSilencerFixedUpdateRateIsValid(silencer, config_intensity, config_phase)
+
     def datagram_silencer_from_completion_time(self, value_intensity: int, value_phase: int, strict_mode: bool, target: SilencerTarget) -> DatagramPtr:
         return self.dll.AUTDDatagramSilencerFromCompletionTime(value_intensity, value_phase, strict_mode, target)
+
+    def datagram_silencer_fixed_completion_time_is_valid(self, silencer: DatagramPtr, config_intensity: SamplingConfig, config_phase: SamplingConfig) -> ctypes.c_bool:
+        return self.dll.AUTDDatagramSilencerFixedCompletionTimeIsValid(silencer, config_intensity, config_phase)
 
     def datagram_silencer_fixed_completion_time_is_default(self, silencer: DatagramPtr) -> ctypes.c_bool:
         return self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault(silencer)
@@ -1018,26 +1048,26 @@ class NativeMethods(metaclass=Singleton):
     def device_get_sound_speed(self, dev: DevicePtr) -> ctypes.c_float:
         return self.dll.AUTDDeviceGetSoundSpeed(dev)
 
-    def device_set_sound_speed(self, dev: DevicePtr, value: float) -> None:
-        return self.dll.AUTDDeviceSetSoundSpeed(dev, value)
+    def device_set_sound_speed(self, geo: GeometryPtr, dev_idx: int, value: float) -> None:
+        return self.dll.AUTDDeviceSetSoundSpeed(geo, dev_idx, value)
 
-    def device_set_sound_speed_from_temp(self, dev: DevicePtr, temp: float, k: float, r: float, m: float) -> None:
-        return self.dll.AUTDDeviceSetSoundSpeedFromTemp(dev, temp, k, r, m)
+    def device_set_sound_speed_from_temp(self, geo: GeometryPtr, dev_idx: int, temp: float, k: float, r: float, m: float) -> None:
+        return self.dll.AUTDDeviceSetSoundSpeedFromTemp(geo, dev_idx, temp, k, r, m)
 
     def device_center(self, dev: DevicePtr) -> Vector3:
         return self.dll.AUTDDeviceCenter(dev)
 
-    def device_translate(self, dev: DevicePtr, t: Vector3) -> None:
-        return self.dll.AUTDDeviceTranslate(dev, t)
+    def device_translate(self, geo: GeometryPtr, dev_idx: int, t: Vector3) -> None:
+        return self.dll.AUTDDeviceTranslate(geo, dev_idx, t)
 
-    def device_rotate(self, dev: DevicePtr, r: Quaternion) -> None:
-        return self.dll.AUTDDeviceRotate(dev, r)
+    def device_rotate(self, geo: GeometryPtr, dev_idx: int, r: Quaternion) -> None:
+        return self.dll.AUTDDeviceRotate(geo, dev_idx, r)
 
-    def device_affine(self, dev: DevicePtr, t: Vector3, r: Quaternion) -> None:
-        return self.dll.AUTDDeviceAffine(dev, t, r)
+    def device_affine(self, geo: GeometryPtr, dev_idx: int, t: Vector3, r: Quaternion) -> None:
+        return self.dll.AUTDDeviceAffine(geo, dev_idx, t, r)
 
-    def device_enable_set(self, dev: DevicePtr, value: bool) -> None:
-        return self.dll.AUTDDeviceEnableSet(dev, value)
+    def device_enable_set(self, geo: GeometryPtr, dev_idx: int, value: bool) -> None:
+        return self.dll.AUTDDeviceEnableSet(geo, dev_idx, value)
 
     def device_enable_get(self, dev: DevicePtr) -> ctypes.c_bool:
         return self.dll.AUTDDeviceEnableGet(dev)
@@ -1270,6 +1300,15 @@ class NativeMethods(metaclass=Singleton):
     def modulation_sine_nearest(self, freq: float, config: SamplingConfig, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ResultModulation:
         return self.dll.AUTDModulationSineNearest(freq, config, intensity, offset, phase, loop_behavior)
 
+    def modulation_sine_exact_freq(self, sine: ModulationPtr) -> ctypes.c_uint32:
+        return self.dll.AUTDModulationSineExactFreq(sine)
+
+    def modulation_sine_exact_float_freq(self, sine: ModulationPtr) -> ctypes.c_float:
+        return self.dll.AUTDModulationSineExactFloatFreq(sine)
+
+    def modulation_sine_nearest_freq(self, sine: ModulationPtr) -> ctypes.c_float:
+        return self.dll.AUTDModulationSineNearestFreq(sine)
+
     def modulation_sine_is_default(self, sine: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationSineIsDefault(sine)
 
@@ -1281,6 +1320,15 @@ class NativeMethods(metaclass=Singleton):
 
     def modulation_square_nearest(self, freq: float, config: SamplingConfig, low: int, high: int, duty: float, loop_behavior: LoopBehavior) -> ResultModulation:
         return self.dll.AUTDModulationSquareNearest(freq, config, low, high, duty, loop_behavior)
+
+    def modulation_square_exact_freq(self, square: ModulationPtr) -> ctypes.c_uint32:
+        return self.dll.AUTDModulationSquareExactFreq(square)
+
+    def modulation_square_exact_float_freq(self, square: ModulationPtr) -> ctypes.c_float:
+        return self.dll.AUTDModulationSquareExactFloatFreq(square)
+
+    def modulation_square_nearest_freq(self, square: ModulationPtr) -> ctypes.c_float:
+        return self.dll.AUTDModulationSquareNearestFreq(square)
 
     def modulation_square_is_default(self, square: ModulationPtr) -> ctypes.c_bool:
         return self.dll.AUTDModulationSquareIsDefault(square)

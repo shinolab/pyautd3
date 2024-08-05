@@ -54,8 +54,7 @@ class DebugSettings(
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, gpio: GPIOOut, res) -> None:  # noqa: ANN001
-            dev_ptr = Base().device(geometry_ptr, dev_idx)
-            res[0] = f(Device(dev_idx, dev_ptr), gpio)
+            res[0] = f(Device(dev_idx, geometry_ptr), gpio)
 
         self._f_native = ctypes.CFUNCTYPE(
             None,
