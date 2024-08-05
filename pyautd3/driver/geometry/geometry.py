@@ -15,7 +15,7 @@ class Geometry:
 
     def __init__(self: "Geometry", ptr: GeometryPtr) -> None:
         self._ptr = ptr
-        self._devices = [Device(i, Base().device(self._ptr, i)) for i in range(int(Base().geometry_num_devices(self._ptr)))]
+        self._devices = [Device(i, ptr) for i in range(int(Base().geometry_num_devices(self._ptr)))]
 
     @property
     def center(self: "Geometry") -> np.ndarray:

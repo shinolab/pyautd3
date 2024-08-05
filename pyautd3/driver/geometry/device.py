@@ -6,6 +6,7 @@ from numpy.typing import ArrayLike
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
     DevicePtr,
+    GeometryPtr,
 )
 from pyautd3.native_methods.structs import Quaternion, Vector3
 
@@ -14,12 +15,14 @@ from .transducer import Transducer
 
 class Device:
     _idx: int
+    _geo_ptr: GeometryPtr
     _ptr: DevicePtr
     _transducers: list[Transducer]
 
-    def __init__(self: "Device", idx: int, ptr: DevicePtr) -> None:
+    def __init__(self: "Device", idx: int, ptr: GeometryPtr) -> None:
         self._idx = idx
-        self._ptr = ptr
+        self._geo_ptr = ptr
+        self._ptr = Base().device(ptr, idx)
         self._transducers = [Transducer(i, self._ptr) for i in range(int(Base().device_num_transducers(self._ptr)))]
 
     @property
@@ -32,7 +35,7 @@ class Device:
 
     @sound_speed.setter
     def sound_speed(self: "Device", sound_speed: float) -> None:
-        Base().device_set_sound_speed(self._ptr, sound_speed)
+        Base().device_set_sound_speed(self._geo_ptr, self._idx, sound_speed)
 
     def set_sound_speed_from_temp(
         self: "Device",
@@ -41,7 +44,7 @@ class Device:
         r: float = 8.31446261815324,
         m: float = 28.9647e-3,
     ) -> None:
-        Base().device_set_sound_speed_from_temp(self._ptr, temp, k, r, m)
+        Base().device_set_sound_speed_from_temp(self._geo_ptr, self._idx, temp, k, r, m)
 
     @property
     def enable(self: "Device") -> bool:
@@ -49,7 +52,7 @@ class Device:
 
     @enable.setter
     def enable(self: "Device", value: bool) -> None:
-        Base().device_enable_set(self._ptr, value)
+        Base().device_enable_set(self._geo_ptr, self._idx, value)
 
     @property
     def num_transducers(self: "Device") -> int:
@@ -60,13 +63,13 @@ class Device:
         return Base().device_center(self._ptr).ndarray()
 
     def translate(self: "Device", t: ArrayLike) -> None:
-        Base().device_translate(self._ptr, Vector3(np.array(t)))
+        Base().device_translate(self._geo_ptr, self._idx, Vector3(np.array(t)))
 
     def rotate(self: "Device", r: ArrayLike) -> None:
-        Base().device_rotate(self._ptr, Quaternion(np.array(r)))
+        Base().device_rotate(self._geo_ptr, self._idx, Quaternion(np.array(r)))
 
     def affine(self: "Device", t: ArrayLike, r: ArrayLike) -> None:
-        Base().device_affine(self._ptr, Vector3(np.array(t)), Quaternion(np.array(r)))
+        Base().device_affine(self._geo_ptr, self._idx, Vector3(np.array(t)), Quaternion(np.array(r)))
 
     @property
     def wavelength(self: "Device") -> float:

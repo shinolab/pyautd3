@@ -65,7 +65,7 @@ class _GroupGuard(Generic[K]):
 
     def __init__(self: "_GroupGuard", group_map: Callable[[Device], K | None], controller: "Controller") -> None:
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> int:
-            dev = Device(dev_idx, Base().device(geometry_ptr, dev_idx))
+            dev = Device(dev_idx, geometry_ptr)
             key = group_map(dev)
             return self._keymap[key] if key is not None else -1
 
