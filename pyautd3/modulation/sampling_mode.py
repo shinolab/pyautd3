@@ -24,6 +24,10 @@ class ISamplingMode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
+    def sine_freq(self: "ISamplingMode", ptr: ModulationPtr) -> int | float:
+        pass
+
+    @abstractmethod
     def fourier_ptr(self: "ISamplingMode", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         pass
 
@@ -40,6 +44,10 @@ class ISamplingMode(metaclass=ABCMeta):
         duty: float,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
+        pass
+
+    @abstractmethod
+    def square_freq(self: "ISamplingMode", ptr: ModulationPtr) -> int | float:
         pass
 
 
@@ -67,6 +75,9 @@ class SamplingModeExact(ISamplingMode):
                 loop_behavior,
             ),
         )
+
+    def sine_freq(self: "SamplingModeExact", ptr: ModulationPtr) -> int | float:
+        return int(Base().modulation_sine_exact_freq(ptr))
 
     def fourier_ptr(self: "SamplingModeExact", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return _validate_ptr(
@@ -105,6 +116,9 @@ class SamplingModeExact(ISamplingMode):
             ),
         )
 
+    def square_freq(self: "SamplingModeExact", ptr: ModulationPtr) -> int | float:
+        return int(Base().modulation_square_exact_freq(ptr))
+
 
 class SamplingModeExactFloat(ISamplingMode):
     _freq: Freq[float]
@@ -130,6 +144,12 @@ class SamplingModeExactFloat(ISamplingMode):
                 loop_behavior,
             ),
         )
+
+    def sine_freq(
+        self: "SamplingModeExactFloat",
+        ptr: ModulationPtr,
+    ) -> int | float:
+        return float(Base().modulation_sine_exact_float_freq(ptr))
 
     def fourier_ptr(self: "SamplingModeExactFloat", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return _validate_ptr(
@@ -168,6 +188,9 @@ class SamplingModeExactFloat(ISamplingMode):
             ),
         )
 
+    def square_freq(self: "SamplingModeExactFloat", ptr: ModulationPtr) -> int | float:
+        return int(Base().modulation_square_exact_float_freq(ptr))
+
 
 class SamplingModeNearest(ISamplingMode):
     _freq: Freq[float]
@@ -193,6 +216,9 @@ class SamplingModeNearest(ISamplingMode):
                 loop_behavior,
             ),
         )
+
+    def sine_freq(self: "SamplingModeNearest", ptr: ModulationPtr) -> int | float:
+        return float(Base().modulation_sine_nearest_freq(ptr))
 
     def fourier_ptr(self: "SamplingModeNearest", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
         return _validate_ptr(
@@ -230,3 +256,6 @@ class SamplingModeNearest(ISamplingMode):
                 loop_behavior,
             ),
         )
+
+    def square_freq(self: "SamplingModeNearest", ptr: ModulationPtr) -> int | float:
+        return int(Base().modulation_square_nearest_freq(ptr))

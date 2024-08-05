@@ -1,5 +1,8 @@
 from datetime import timedelta
 
+from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.stm.foci import FociSTM
+from pyautd3.driver.datagram.stm.gain import GainSTM
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
@@ -40,6 +43,15 @@ class Silencer(
                 self._target,
             )
 
+        def is_valid(self: "Silencer.FixedUpdateRate", target: ModulationBase | FociSTM | GainSTM) -> bool:
+            return bool(
+                Base().datagram_silencer_fixed_update_rate_is_valid(
+                    self._datagram_ptr(None),  # type: ignore[arg-type]
+                    target._sampling_config_intensity()._inner,
+                    target._sampling_config_phase()._inner,
+                ),
+            )
+
     class FixedCompletionTime(Datagram):
         _value_intensity: timedelta
         _value_phase: timedelta
@@ -67,6 +79,15 @@ class Silencer(
                 int(self._value_phase.total_seconds() * 1000 * 1000 * 1000),
                 self._strict_mode,
                 self._target,
+            )
+
+        def is_valid(self: "Silencer.FixedCompletionTime", target: ModulationBase | FociSTM | GainSTM) -> bool:
+            return bool(
+                Base().datagram_silencer_fixed_completion_time_is_valid(
+                    self._datagram_ptr(None),  # type: ignore[arg-type]
+                    target._sampling_config_intensity()._inner,
+                    target._sampling_config_phase()._inner,
+                ),
             )
 
     @staticmethod

@@ -63,3 +63,9 @@ class ModulationBase(
     @property
     def sampling_config(self: "ModulationBase[M]") -> SamplingConfig:
         return SamplingConfig(Base().modulation_sampling_config(self._modulation_ptr()))
+
+    def _sampling_config_intensity(self: "ModulationBase[M]") -> SamplingConfig:
+        return self.sampling_config
+
+    def _sampling_config_phase(self: "ModulationBase[M]") -> SamplingConfig:
+        return SamplingConfig(0xFFFF)

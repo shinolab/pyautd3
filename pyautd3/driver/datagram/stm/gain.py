@@ -120,3 +120,9 @@ class GainSTM(
     @property
     def sampling_config(self: "GainSTM") -> SamplingConfig:
         return self._stm_sampling_config.sampling_config()
+
+    def _sampling_config_intensity(self: "GainSTM") -> SamplingConfig:
+        return self.sampling_config
+
+    def _sampling_config_phase(self: "GainSTM") -> SamplingConfig:
+        return self.sampling_config

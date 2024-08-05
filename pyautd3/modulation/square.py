@@ -1,7 +1,7 @@
 from typing import TypeVar
 
 from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.defined.freq import Freq, Hz
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.utils import _validate_u8
 from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
@@ -35,6 +35,10 @@ class Square(Modulation["Square"]):
         sine = super().__new__(cls)
         sine.__private__init__(SamplingModeNearest(freq))
         return sine
+
+    @property
+    def freq(self: "Square") -> Freq[int] | Freq[float]:
+        return self._mode.square_freq(self._modulation_ptr()) * Hz
 
     def with_low(self: "Square", low: int) -> "Square":
         self._low = _validate_u8(low)
