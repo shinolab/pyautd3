@@ -14,7 +14,7 @@ class SamplingConfig:
     def __init__(self: "SamplingConfig", value: "_SamplingConfig | SamplingConfig | int | Freq[int] | Freq[float] | timedelta") -> None:
         match value:
             case int():
-                self._inner = Base().sampling_config_from_division(_validate_nonzero_u16(value))
+                self._inner = _validate_sampling_config(Base().sampling_config_from_division(_validate_nonzero_u16(value)))
             case _SamplingConfig():
                 self._inner = value
             case SamplingConfig():
