@@ -247,10 +247,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMConfigFromPeriodNearest.argtypes = [ctypes.c_uint64, ctypes.c_uint16] 
         self.dll.AUTDSTMConfigFromPeriodNearest.restype = ResultSamplingConfig
 
-        self.dll.AUTDSTMFreq.argtypes = [SamplingConfig, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMFreq.argtypes = [SamplingConfig, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDSTMFreq.restype = ctypes.c_float
 
-        self.dll.AUTDSTMPeriod.argtypes = [SamplingConfig, ctypes.c_uint32]  # type: ignore 
+        self.dll.AUTDSTMPeriod.argtypes = [SamplingConfig, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDSTMPeriod.restype = ctypes.c_uint64
 
         self.dll.AUTDDatagramSynchronize.argtypes = [] 

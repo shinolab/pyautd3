@@ -25,11 +25,13 @@ class Group(Gain["Group[K]"], Generic[K]):
         self._f = f
         self._parallel = False
 
-    @staticmethod
-    def with_paralell(f: Callable[[Device], Callable[[Transducer], K | None]]) -> "Group":
-        group = Group(f)
-        group._parallel = True
-        return group
+    def with_parallel(self: "Group", parallel: bool) -> "Group":  # noqa: FBT001
+        self._parallel = parallel
+        return self
+
+    @property
+    def parallel(self: "Group") -> bool:
+        return self._parallel
 
     def set(self: "Group", key: K, gain: GainBase) -> "Group":
         self._map[key] = gain
