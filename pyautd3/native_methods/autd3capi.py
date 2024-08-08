@@ -317,7 +317,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDPhaseToRad.restype = ctypes.c_float
 
         self.dll.AUTDSamplingConfigFromDivision.argtypes = [ctypes.c_uint16] 
-        self.dll.AUTDSamplingConfigFromDivision.restype = SamplingConfig
+        self.dll.AUTDSamplingConfigFromDivision.restype = ResultSamplingConfig
 
         self.dll.AUTDSamplingConfigFromFreq.argtypes = [ctypes.c_uint32] 
         self.dll.AUTDSamplingConfigFromFreq.restype = ResultSamplingConfig
@@ -937,7 +937,7 @@ class NativeMethods(metaclass=Singleton):
     def phase_to_rad(self, value: int) -> ctypes.c_float:
         return self.dll.AUTDPhaseToRad(value)
 
-    def sampling_config_from_division(self, div: int) -> SamplingConfig:
+    def sampling_config_from_division(self, div: int) -> ResultSamplingConfig:
         return self.dll.AUTDSamplingConfigFromDivision(div)
 
     def sampling_config_from_freq(self, f: int) -> ResultSamplingConfig:
