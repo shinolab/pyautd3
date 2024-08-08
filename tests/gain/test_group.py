@@ -20,11 +20,13 @@ def test_group():
     with create_controller() as autd:
         cx = autd.geometry.center[0]
 
-        autd.send(
+        g = (
             Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
             .set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90))))
-            .set("null", Null()),
+            .set("null", Null())
         )
+        assert not g.parallel
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             for tr in dev:
@@ -57,11 +59,14 @@ def test_group_with_parallel():
     with create_controller() as autd:
         cx = autd.geometry.center[0]
 
-        autd.send(
-            Group.with_paralell(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
+        g = (
+            Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
+            .with_parallel(True)  # noqa: FBT003
             .set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90))))
-            .set("null", Null()),
+            .set("null", Null())
         )
+        assert g.parallel
+        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
             for tr in dev:
