@@ -28,7 +28,7 @@ def test_group():
         assert not g.parallel
         autd.send(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             for tr in dev:
                 if tr.position[0] < cx:
                     assert np.all(intensities[tr.idx] == 0x80)
@@ -44,7 +44,7 @@ def test_group():
             ),
         )
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             for tr in dev:
                 if tr.position[0] < cx:
                     assert np.all(intensities[tr.idx] == 0x80)
@@ -68,7 +68,7 @@ def test_group_with_parallel():
         assert g.parallel
         autd.send(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             for tr in dev:
                 if tr.position[0] < cx:
                     assert np.all(intensities[tr.idx] == 0x80)
@@ -87,9 +87,9 @@ def test_group_unknown_key():
 def test_group_check_only_for_enabled():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.geometry[0].enable = False
-
         check = np.zeros(autd.geometry.num_devices, dtype=bool)
+
+        autd.geometry[0].enable = False
 
         def f(dev: Device) -> Callable[[Transducer], int]:
             check[dev.idx] = True
@@ -100,10 +100,10 @@ def test_group_check_only_for_enabled():
         assert not check[0]
         assert check[1]
 
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)

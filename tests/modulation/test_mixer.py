@@ -18,7 +18,7 @@ def test_mixer_exact():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 7,
                 21,
@@ -112,7 +112,7 @@ def test_mixer_exact_float():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 7,
                 21,
@@ -206,7 +206,7 @@ def test_mixer_nearest():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 63,
                 78,

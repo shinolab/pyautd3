@@ -47,6 +47,7 @@ class DebugTypeTag(IntEnum):
     IsStmMode = 9
     PwmOut = 10
     Direct = 11
+    SysTimeEq = 12
 
     @classmethod
     def from_param(cls, obj):
@@ -96,6 +97,15 @@ class TransitionModeTag(IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class DynWindow(IntEnum):
+    Rectangular = 0
+    Blackman = 1
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class ConstPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
@@ -105,6 +115,10 @@ class LinkBuilderPtr(ctypes.Structure):
 
 
 class LinkPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class ControllerPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -132,6 +146,14 @@ class ModulationPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
+class RuntimePtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class HandlePtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
 class FociSTMPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
@@ -141,7 +163,7 @@ class GainSTMPtr(ctypes.Structure):
 
 
 class DebugTypeWrap(ctypes.Structure):
-    _fields_ = [("ty", ctypes.c_uint8), ("value", ctypes.c_uint16)]
+    _fields_ = [("ty", ctypes.c_uint8), ("value", ctypes.c_uint64)]
 
 
     def __eq__(self, other: object) -> bool:
@@ -202,6 +224,14 @@ class ResultGainSTM(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultGainSTM) and self._fields_ == other._fields_ # pragma: no cover
+                    
+
+class DynSincInterpolator(ctypes.Structure):
+    _fields_ = [("window", ctypes.c_int32), ("window_size", ctypes.c_uint32)]
+
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DynSincInterpolator) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 class ResultI32(ctypes.Structure):

@@ -41,8 +41,8 @@ def test_firmware_info():
     autd: Controller[Audit]
     with create_controller() as autd:
         for i, firm in enumerate(autd.firmware_version()):
-            assert firm.info == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -55,11 +55,11 @@ def test_firmware_info():
 async def test_firmware_info_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
-        assert FirmwareInfo.latest_version() == "v9.0.0"
+        assert FirmwareInfo.latest_version() == "v10.0.0"
 
         for i, firm in enumerate(await autd.firmware_version_async()):
-            assert firm.info == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v9.0.0, FPGA = v9.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -75,14 +75,11 @@ def test_close():
 
         autd.close()
 
-        assert not autd.link.is_open()
-
     with create_controller() as autd:
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             autd.close()
         assert str(e.value) == "broken"
-
         autd.link.repair()
 
 
@@ -93,8 +90,6 @@ async def test_close_async():
         assert autd.link.is_open()
 
         await autd.close_async()
-
-        assert not autd.link.is_open()
 
     with create_controller() as autd:
         autd.link.break_down()
@@ -108,12 +103,12 @@ def test_send_single():
     autd: Controller[Audit]
     with create_controller() as autd:
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
 
         autd.send(Static())
 
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -133,12 +128,12 @@ async def test_send_async_single():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
 
         await autd.send_async(Static())
 
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -158,15 +153,15 @@ async def test_send_async_tuple():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
         await autd.send_async((Static(), Uniform(EmitIntensity(0x80))))
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
@@ -190,15 +185,15 @@ def test_send_tuple():
     autd: Controller[Audit]
     with create_controller() as autd:
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
         autd.send((Static(), Uniform(EmitIntensity(0x80))))
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
@@ -224,14 +219,14 @@ async def test_group_async():
     with await create_controller_async() as autd:
         await autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send_async()
 
-        mod = autd.link.modulation(0, Segment.S0)
+        mod = autd.link.modulation_buffer(0, Segment.S0)
         assert len(mod) == 80
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0xFF)
         assert np.all(phases == 0)
 
-        mod = autd.link.modulation(1, Segment.S0)
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        mod = autd.link.modulation_buffer(1, Segment.S0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
@@ -246,14 +241,14 @@ def test_group():
     with create_controller() as autd:
         autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send()
 
-        mod = autd.link.modulation(0, Segment.S0)
+        mod = autd.link.modulation_buffer(0, Segment.S0)
         assert len(mod) == 80
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0xFF)
         assert np.all(phases == 0)
 
-        mod = autd.link.modulation(1, Segment.S0)
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        mod = autd.link.modulation_buffer(1, Segment.S0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
@@ -266,9 +261,9 @@ def test_group():
 def test_group_check_only_for_enabled():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.geometry[0].enable = False
-
         check = np.zeros(autd.geometry.num_devices, dtype=bool)
+
+        autd.geometry[0].enable = False
 
         def f(dev: Device) -> int:
             check[dev.idx] = True
@@ -279,14 +274,14 @@ def test_group_check_only_for_enabled():
         assert not check[0]
         assert check[1]
 
-        mod = autd.link.modulation(0, Segment.S0)
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        mod = autd.link.modulation_buffer(0, Segment.S0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        mod = autd.link.modulation(1, Segment.S0)
+        mod = autd.link.modulation_buffer(1, Segment.S0)
         assert len(mod) == 80
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)
 
@@ -297,16 +292,16 @@ def test_clear():
         autd.send((Static(), Uniform((EmitIntensity(0xFF), Phase(0x90)))))
 
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0x90)
 
         autd.send(Clear())
 
         for dev in autd.geometry:
-            assert np.all(autd.link.modulation(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 

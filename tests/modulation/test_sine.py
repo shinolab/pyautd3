@@ -28,7 +28,7 @@ def test_sine():
 
         for dev in autd.geometry:
             assert autd.link.modulation_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 127,
                 125,
@@ -128,7 +128,7 @@ def test_sine_mode():
         assert m.freq == 150.0 * Hz
         autd.send(m)
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [127, 156, 184, 209, 229, 244, 253, 254, 249, 237, 220, 197, 171, 142, 112, 83, 57, 34, 17, 5, 0, 1, 10, 25, 45, 70, 98]
             assert np.array_equal(mod, mod_expect)
 

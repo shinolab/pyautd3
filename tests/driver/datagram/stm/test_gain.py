@@ -64,10 +64,10 @@ def test_gain_stm():
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 1
         for dev in autd.geometry:
             assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
@@ -76,10 +76,10 @@ def test_gain_stm():
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
@@ -88,10 +88,10 @@ def test_gain_stm():
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 1)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
@@ -111,9 +111,9 @@ def test_gain_stm_segment():
         assert autd.link.stm_cycle(0, Segment.S0) == 2
         assert autd.link.stm_freqency_division(0, Segment.S0) == 0x1234
         for dev in autd.geometry:
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 0)[0] == 0x01)
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 1)[0] == 0x02)
-            assert np.all(autd.link.drives(dev.idx, Segment.S1, 0)[0] == 0x00)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 0)[0] == 0x01)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 1)[0] == 0x02)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S1, 0)[0] == 0x00)
 
         autd.send(
             GainSTM(
@@ -125,10 +125,10 @@ def test_gain_stm_segment():
         assert autd.link.stm_cycle(0, Segment.S1) == 2
         assert autd.link.stm_freqency_division(0, Segment.S1) == 0x9ABC
         for dev in autd.geometry:
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 0)[0] == 0x01)
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 1)[0] == 0x02)
-            assert np.all(autd.link.drives(dev.idx, Segment.S1, 0)[0] == 0x03)
-            assert np.all(autd.link.drives(dev.idx, Segment.S1, 1)[0] == 0x04)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 0)[0] == 0x01)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 1)[0] == 0x02)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S1, 0)[0] == 0x03)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S1, 1)[0] == 0x04)
 
         autd.send(
             GainSTM(
@@ -140,11 +140,11 @@ def test_gain_stm_segment():
         assert autd.link.stm_cycle(0, Segment.S0) == 3
         assert autd.link.stm_freqency_division(0, Segment.S0) == 0x4321
         for dev in autd.geometry:
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 0)[0] == 0x05)
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 1)[0] == 0x06)
-            assert np.all(autd.link.drives(dev.idx, Segment.S0, 2)[0] == 0x07)
-            assert np.all(autd.link.drives(dev.idx, Segment.S1, 0)[0] == 0x03)
-            assert np.all(autd.link.drives(dev.idx, Segment.S1, 1)[0] == 0x04)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 0)[0] == 0x05)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 1)[0] == 0x06)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S0, 2)[0] == 0x07)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S1, 0)[0] == 0x03)
+            assert np.all(autd.link.drives_at(dev.idx, Segment.S1, 1)[0] == 0x04)
 
         autd.send(SwapSegment.GainSTM(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S0

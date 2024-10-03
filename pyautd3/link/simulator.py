@@ -1,9 +1,9 @@
 from datetime import timedelta
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import LinkPtr
+from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_simulator import (
     LinkBuilderPtr,
     LinkSimulatorBuilderPtr,
@@ -28,11 +28,11 @@ class Simulator(Link):
         def _link_builder_ptr(self: "Simulator._Builder") -> LinkBuilderPtr:
             return LinkSimulator().link_simulator_into_builder(self._builder)  # pragma: no cover
 
-        def _resolve_link(self: "Simulator._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "Simulator":
-            return Simulator(runtime, Base().link_get(ptr))  # pragma: no cover
+        def _resolve_link(self: "Simulator._Builder", handle: HandlePtr, ptr: ControllerPtr) -> "Simulator":
+            return Simulator(handle, Base().link_get(ptr))  # pragma: no cover
 
-    def __init__(self: "Simulator", runtime: RuntimePtr, ptr: LinkPtr) -> None:
-        super().__init__(runtime, ptr)  # pragma: no cover
+    def __init__(self: "Simulator", handle: HandlePtr, ptr: LinkPtr) -> None:
+        super().__init__(handle, ptr)  # pragma: no cover
 
     @staticmethod
     def builder(addr: str) -> _Builder:

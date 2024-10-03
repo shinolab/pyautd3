@@ -29,7 +29,7 @@ def test_modulation():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             assert len(mod) == 10
             assert mod[0] == 0xFF
             assert np.all(mod[1:] == 0)

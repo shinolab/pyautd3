@@ -4,9 +4,10 @@ from datetime import timedelta
 import numpy as np
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr, RuntimePtr
+from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr, LoopBehavior, Segment, SilencerTarget
+from pyautd3.native_methods.autd3capi_driver import Drive as Drive_
+from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr, LoopBehavior, Segment, SilencerTarget
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -27,11 +28,11 @@ class Audit(Link):
         def _link_builder_ptr(self: "Audit._Builder") -> LinkBuilderPtr:
             return LinkAudit().link_audit_into_builder(self._builder)
 
-        def _resolve_link(self: "Audit._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "Audit":
-            return Audit(runtime, LinkAudit().link_get(ptr))
+        def _resolve_link(self: "Audit._Builder", handle: HandlePtr, ptr: ControllerPtr) -> "Audit":
+            return Audit(handle, LinkAudit().link_get(ptr))
 
-    def __init__(self: "Audit", runtime: RuntimePtr, ptr: LinkPtr) -> None:
-        super().__init__(runtime, ptr)
+    def __init__(self: "Audit", handle: HandlePtr, ptr: LinkPtr) -> None:
+        super().__init__(handle, ptr)
 
     @staticmethod
     def builder() -> _Builder:
@@ -62,6 +63,9 @@ class Audit(Link):
         us = int(LinkAudit().link_audit_last_timeout_ns(self._ptr)) / 1000
         return None if us < 0 else timedelta(microseconds=us)
 
+    def last_parallel_threshold(self: "Audit") -> int:
+        return int(LinkAudit().link_audit_last_parallel_threshold(self._ptr))
+
     def silencer_strict_mode(self: "Audit", idx: int) -> bool:
         return bool(LinkAudit().link_audit_cpu_silencer_strict_mode(self._ptr, idx))
 
@@ -89,7 +93,7 @@ class Audit(Link):
         return buf
 
     def debug_values(self: "Audit", idx: int) -> np.ndarray:
-        buf = np.zeros([4]).astype(ctypes.c_uint16)
+        buf = np.zeros([4]).astype(ctypes.c_uint64)
         LinkAudit().link_audit_fpga_debug_values(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
         return buf
 
@@ -99,14 +103,14 @@ class Audit(Link):
     def deassert_thermal_sensor(self: "Audit", idx: int) -> None:
         LinkAudit().link_audit_fpga_deassert_thermal_sensor(self._ptr, idx)
 
-    def modulation(
+    def modulation_buffer(
         self: "Audit",
         idx: int,
         segment: Segment,
     ) -> np.ndarray:
         n = int(LinkAudit().link_audit_fpga_modulation_cycle(self._ptr, segment, idx))
         buf = np.zeros([n]).astype(ctypes.c_uint8)
-        LinkAudit().link_audit_fpga_modulation(self._ptr, segment, idx, np.ctypeslib.as_ctypes(buf))
+        LinkAudit().link_audit_fpga_modulation_buffer(self._ptr, segment, idx, np.ctypeslib.as_ctypes(buf), n)
         return buf
 
     def modulation_frequency_division(self: "Audit", idx: int, segment: Segment) -> int:
@@ -115,19 +119,17 @@ class Audit(Link):
     def modulation_loop_behavior(self: "Audit", idx: int, segment: Segment) -> LoopBehavior:
         return LinkAudit().link_audit_fpga_modulation_loop_behavior(self._ptr, segment, idx)
 
-    def drives(self: "Audit", idx: int, segment: Segment, stm_idx: int) -> tuple[np.ndarray, np.ndarray]:
+    def drives_at(self: "Audit", idx: int, segment: Segment, stm_idx: int) -> tuple[np.ndarray, np.ndarray]:
         n = int(LinkAudit().link_audit_cpu_num_transducers(self._ptr, idx))
-        intensities = np.zeros([n]).astype(ctypes.c_uint8)
-        phases = np.zeros([n]).astype(ctypes.c_uint8)
-        LinkAudit().link_audit_fpga_drives(
+        drive = np.zeros(n, dtype=Drive_)
+        LinkAudit().link_audit_fpga_drives_at(
             self._ptr,
             segment,
             idx,
             stm_idx,
-            np.ctypeslib.as_ctypes(intensities),
-            np.ctypeslib.as_ctypes(phases),
+            drive.ctypes.data_as(ctypes.POINTER(Drive_)),  # type: ignore[arg-type]
         )
-        return (intensities, phases)
+        return np.array([int(d[1]) for d in drive]), np.array([int(d[0]) for d in drive])
 
     def sound_speed(self: "Audit", idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_sound_speed(self._ptr, segment, idx))

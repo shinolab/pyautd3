@@ -16,7 +16,7 @@ def test_bessel():
     with create_controller() as autd:
         autd.send(Bessel(autd.geometry.center, [0, 0, 1], np.pi / 4 * rad))
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
@@ -25,7 +25,7 @@ def test_bessel():
         assert g.intensity == EmitIntensity(0x80)
         assert g.phase_offset == Phase(0x90)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 

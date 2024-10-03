@@ -20,7 +20,7 @@ def test_static():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [0x80] * 2
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 0xFFFF

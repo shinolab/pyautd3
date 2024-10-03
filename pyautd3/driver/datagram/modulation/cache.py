@@ -42,7 +42,7 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
     def _modulation_ptr(self: "Cache[M]") -> ModulationPtr:
         data = np.fromiter((m for m in self.calc()), dtype=c_uint8)
         size = len(data)
-        return Base().modulation_raw(
+        return Base().modulation_custom(
             self._sampling_config,  # type: ignore[arg-type]
             self._loop_behavior,
             data.ctypes.data_as(POINTER(c_uint8)),  # type: ignore[arg-type]
