@@ -83,7 +83,6 @@ def test_close():
         with pytest.raises(AUTDError) as e:
             autd.close()
         assert str(e.value) == "broken"
-        autd.link.repair()
 
 
 @pytest.mark.asyncio
@@ -100,7 +99,6 @@ async def test_close_async():
         with pytest.raises(AUTDError) as e:
             await autd.close_async()
         assert str(e.value) == "broken"
-        autd.link.repair()
 
 
 def test_send_single():
