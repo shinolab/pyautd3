@@ -17,7 +17,7 @@ def test_cache():
         autd.send(Uniform((EmitIntensity(0x80), Phase(0x90))).with_cache())
 
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0x90)
 
@@ -62,11 +62,11 @@ def test_cache_check_only_for_enabled():
         assert 0 not in g_cached.drives
         assert 1 in g_cached.drives
 
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)
 
@@ -82,11 +82,11 @@ def test_transform():
 
         autd.send(Uniform((EmitIntensity(0x80), Phase(128))).with_transform(transform))
 
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 128 + 32)
 
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 128 - 32)
 
@@ -107,11 +107,11 @@ def test_transform_check_only_for_enabled():
         assert not check[0]
         assert check[1]
 
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)
 
@@ -126,33 +126,33 @@ def test_gain_segment():
         assert autd.link.stm_cycle(0, Segment.S0) == 1
         assert autd.link.stm_freqency_division(0, Segment.S0) == 0xFFFF
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x01)
             assert np.all(phases == 0x02)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S1, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S1, 0)
             assert np.all(intensities == 0x00)
             assert np.all(phases == 0x00)
 
         autd.send(Uniform((EmitIntensity(0x03), Phase(0x04))).with_segment(Segment.S1, transition=True))
         assert autd.link.current_stm_segment(0) == Segment.S1
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x01)
             assert np.all(phases == 0x02)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S1, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S1, 0)
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
         autd.send(Uniform((EmitIntensity(0x05), Phase(0x06))).with_segment(Segment.S0, transition=False))
         assert autd.link.current_stm_segment(0) == Segment.S1
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x05)
             assert np.all(phases == 0x06)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S1, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S1, 0)
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 

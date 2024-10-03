@@ -1,9 +1,9 @@
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import (
     NativeMethods as LinkNop,
 )
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr
 
 
 class Nop(Link):
@@ -14,11 +14,11 @@ class Nop(Link):
         def _link_builder_ptr(self: "Nop._Builder") -> LinkBuilderPtr:
             return LinkNop().link_nop()
 
-        def _resolve_link(self: "Nop._Builder", runtime: RuntimePtr, ptr: ControllerPtr) -> "Nop":
-            return Nop(runtime, LinkNop().link_get(ptr))
+        def _resolve_link(self: "Nop._Builder", handle: HandlePtr, ptr: ControllerPtr) -> "Nop":
+            return Nop(handle, LinkNop().link_get(ptr))
 
-    def __init__(self: "Nop", runtime: RuntimePtr, ptr: LinkPtr) -> None:
-        super().__init__(runtime, ptr)
+    def __init__(self: "Nop", handle: HandlePtr, ptr: LinkPtr) -> None:
+        super().__init__(handle, ptr)
 
     @staticmethod
     def builder() -> _Builder:

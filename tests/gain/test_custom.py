@@ -26,13 +26,13 @@ def test_custom():
 
         autd.send(Custom(f))
 
-        intensities, phases = autd.link.drives(0, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
         assert intensities[0] == 0x80
         assert phases[0] == 0x90
         assert np.all(intensities[1:-1] == 0)
         assert np.all(phases[1:-1] == 0)
 
-        intensities, phases = autd.link.drives(1, Segment.S0, 0)
+        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
         assert intensities[-1] == 0x81
         assert phases[-1] == 0x91
         assert np.all(intensities[:-1] == 0)

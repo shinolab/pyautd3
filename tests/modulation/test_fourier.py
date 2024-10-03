@@ -18,7 +18,7 @@ def test_fourier_exact():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 127,
                 156,
@@ -112,7 +112,7 @@ def test_fourier_exact_float():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 127,
                 156,
@@ -206,7 +206,7 @@ def test_fourier_nearest():
         autd.send(m)
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 127,
                 142,

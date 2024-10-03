@@ -27,7 +27,7 @@ class Geometry:
 
     @property
     def num_devices(self: "Geometry") -> int:
-        return len(self._devices)
+        return sum(1 for _ in self.devices)
 
     @property
     def num_transducers(self: "Geometry") -> int:

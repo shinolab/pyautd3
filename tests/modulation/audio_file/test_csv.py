@@ -18,7 +18,7 @@ def test_csv():
         autd.send(Csv(Path(__file__).parent / "sin150.csv", 4000 * Hz).with_deliminator(","))
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 157,
                 185,

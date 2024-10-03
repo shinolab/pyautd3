@@ -21,7 +21,6 @@ class Status(IntEnum):
 class TimerStrategy(IntEnum):
     Sleep = 0
     BusyWait = 1
-    NativeTimer = 2
 
     @classmethod
     def from_param(cls, obj):

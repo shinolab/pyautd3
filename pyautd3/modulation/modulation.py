@@ -25,7 +25,7 @@ class Modulation(_Modulation[M], Generic[M], metaclass=ABCMeta):
     def _modulation_ptr(self: "Modulation") -> ModulationPtr:
         data = self.calc()
         size = len(data)
-        return Base().modulation_raw(
+        return Base().modulation_custom(
             self._config._inner,
             self._loop_behavior,
             data.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]

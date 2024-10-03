@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from pyautd3 import AUTD3, Controller, Segment
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
@@ -16,7 +15,7 @@ def test_naive():
         g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
         autd.send(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -25,32 +24,7 @@ def test_naive():
         )
         autd.send(g)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
-            assert np.all(intensities == 0x80)
-            assert not np.all(phases == 0)
-
-
-@pytest.mark.cuda()
-def test_naive_cuda():
-    from pyautd3.gain.holo.backend_cuda import CUDABackend
-
-    autd: Controller[Audit]
-    with Controller[Audit].builder([AUTD3([0.0, 0.0, 0.0])]).open(Audit.builder()) as autd:
-        backend = CUDABackend()
-
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
-        autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
-            assert not np.all(intensities == 0)
-            assert not np.all(phases == 0)
-
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
-            EmissionConstraint.Uniform(EmitIntensity(0x80)),
-        )
-        autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 

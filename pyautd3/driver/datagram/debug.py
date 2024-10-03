@@ -4,6 +4,7 @@ from collections.abc import Callable
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Device, Geometry, Transducer
+from pyautd3.ethercat.dc_sys_time import DcSysTime
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, GeometryPtr, GPIOOut
 from pyautd3.native_methods.utils import ConstantADT
@@ -43,6 +44,10 @@ class DebugType(metaclass=ConstantADT):
     @staticmethod
     def Direct(value: bool) -> DebugTypeWrap:  # noqa: N802, FBT001
         return Base().debug_type_direct(value)
+
+    @staticmethod
+    def SysTimeEq(value: DcSysTime) -> DebugTypeWrap:  # noqa: N802
+        return Base().debug_type_sys_time_eq(value.sys_time)
 
 
 class DebugSettings(

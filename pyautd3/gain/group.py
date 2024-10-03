@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from ctypes import POINTER, c_int32, c_uint32
+from ctypes import POINTER, c_int32, c_uint16
 from typing import Generic, TypeVar
 
 import numpy as np
@@ -40,9 +40,9 @@ class Group(Gain["Group[K]"], Generic[K]):
     def _gain_ptr(self: "Group", geometry: Geometry) -> GainPtr:
         keymap: dict[K, int] = {}
 
-        device_indices = np.array([dev.idx for dev in geometry.devices])
+        device_indices = np.array([dev.idx for dev in geometry])
 
-        gain_group_map = Base().gain_group_create_map(np.ctypeslib.as_ctypes(device_indices.astype(c_uint32)), len(device_indices))
+        gain_group_map = Base().gain_group_create_map(np.ctypeslib.as_ctypes(device_indices.astype(c_uint16)), len(device_indices))
         k: int = 0
         for dev in geometry.devices:
             f = self._f(dev)

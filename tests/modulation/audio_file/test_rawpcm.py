@@ -18,7 +18,7 @@ def test_rawpcm():
         autd.send(RawPCM(Path(__file__).parent / "sin150.dat", 4000 * Hz))
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 157,
                 185,

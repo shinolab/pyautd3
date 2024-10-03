@@ -9,8 +9,7 @@ from .autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFil
 from .autd3capi_link_simulator import NativeMethods as LinkSimulator
 from .autd3capi_link_twincat import NativeMethods as LinkTwincAT
 from .autd3capi_link_soem import NativeMethods as LinkSOEM
-from .autd3capi_link_visualizer import NativeMethods as LinkVisualizer
-from .autd3capi_backend_cuda import NativeMethods as BackendCUDA
+from .autd3capi_emulator import NativeMethods as Emulator
 
 _PLATFORM = platform.system()
 _PREFIX = ""
@@ -33,16 +32,10 @@ GainHolo().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 ModulationAudioFile().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 LinkSimulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 LinkSOEM().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
-LinkVisualizer().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 if sys.platform == "win32":
     try:
         os.add_dll_directory("C:\\TwinCAT\\Common64")
     except FileNotFoundError:
         pass
 LinkTwincAT().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
-if sys.platform == "win32":
-    try:
-        os.add_dll_directory(os.path.join(os.environ["CUDA_PATH"], "bin"))
-    except KeyError:
-        pass
-BackendCUDA().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
+Emulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)

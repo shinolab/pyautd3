@@ -16,7 +16,7 @@ from pyautd3.driver.geometry import Device, Geometry
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr, ResultI32
 from pyautd3.native_methods.structs import FfiFuture, Quaternion, Vector3
 from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
@@ -120,7 +120,7 @@ class _GroupGuard(Generic[K]):
         )
         loop.call_soon(
             lambda *_: future.set_result(
-                Base().wait_local_result_i_32(self._controller._runtime, ffi_future),
+                Base().wait_local_result_i_32(self._controller._handle, ffi_future),
             ),
         )
         _validate_int(await future)
@@ -132,7 +132,7 @@ class _GroupGuard(Generic[K]):
             datagrams[i]["_0"] = d._0
         _validate_int(
             Base().wait_local_result_i_32(
-                self._controller._runtime,
+                self._controller._handle,
                 Base().controller_group(
                     self._controller._ptr,
                     self._f_native,  # type: ignore[arg-type]
@@ -149,12 +149,14 @@ class _GroupGuard(Generic[K]):
 class Controller(Generic[L]):
     _geometry: Geometry
     _runtime: RuntimePtr
+    _handle: HandlePtr
     _ptr: ControllerPtr
     link: L
 
-    def __init__(self: "Controller", geometry: Geometry, runtime: RuntimePtr, ptr: ControllerPtr, link: L) -> None:
+    def __init__(self: "Controller", geometry: Geometry, runtime: RuntimePtr, handle: HandlePtr, ptr: ControllerPtr, link: L) -> None:
         self._geometry = geometry
         self._runtime = runtime
+        self._handle = handle
         self._ptr = ptr
         self.link = link
 
@@ -166,14 +168,7 @@ class Controller(Generic[L]):
         self._dispose()
 
     def _dispose(self: "Controller") -> None:
-        if self._ptr._0 is not None and self._runtime._0 is not None:
-            self.close()
-        if self._ptr._0 is not None:
-            Base().controller_delete(self._ptr)
-            self._ptr._0 = None
-        if self._runtime._0 is not None:
-            Base().delete_runtime(self._runtime)
-            self._runtime._0 = None
+        self.close()
 
     def __enter__(self: "Controller") -> "Controller":
         return self
@@ -197,17 +192,18 @@ class Controller(Generic[L]):
         timeout: timedelta | None = None,
     ) -> "Controller[L]":
         runtime = Base().create_runtime()
+        handle = Base().get_runtime_handle(runtime)
         timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         ffi_future = Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns)
         loop.call_soon(
-            lambda *_: future.set_result(Base().wait_result_controller(runtime, ffi_future)),
+            lambda *_: future.set_result(Base().wait_result_controller(handle, ffi_future)),
         )
         ptr = _validate_ptr(await future)
         geometry = Geometry(Base().geometry(ptr))
-        link = link_builder._resolve_link(runtime, ptr)
-        return Controller(geometry, runtime, ptr, link)
+        link = link_builder._resolve_link(handle, ptr)
+        return Controller(geometry, runtime, handle, ptr, link)
 
     @staticmethod
     def _open_impl(
@@ -216,16 +212,17 @@ class Controller(Generic[L]):
         timeout: timedelta | None = None,
     ) -> "Controller[L]":
         runtime = Base().create_runtime()
+        handle = Base().get_runtime_handle(runtime)
         timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         ptr = _validate_ptr(
             Base().wait_result_controller(
-                runtime,
+                handle,
                 Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns),
             ),
         )
         geometry = Geometry(Base().geometry(ptr))
-        link = link_builder._resolve_link(runtime, ptr)
-        return Controller(geometry, runtime, ptr, link)
+        link = link_builder._resolve_link(handle, ptr)
+        return Controller(geometry, runtime, handle, ptr, link)
 
     async def firmware_version_async(self: "Controller") -> list[FirmwareInfo]:
         future: asyncio.Future = asyncio.Future()
@@ -233,7 +230,7 @@ class Controller(Generic[L]):
         ffi_future = Base().controller_firmware_version_list_pointer(self._ptr)
         loop.call_soon(
             lambda *_: future.set_result(
-                Base().wait_result_firmware_version_list(self._runtime, ffi_future),
+                Base().wait_result_firmware_version_list(self._handle, ffi_future),
             ),
         )
         handle = _validate_ptr(await future)
@@ -251,7 +248,7 @@ class Controller(Generic[L]):
     def firmware_version(self: "Controller") -> list[FirmwareInfo]:
         handle = _validate_ptr(
             Base().wait_result_firmware_version_list(
-                self._runtime,
+                self._handle,
                 Base().controller_firmware_version_list_pointer(self._ptr),
             ),
         )
@@ -267,25 +264,43 @@ class Controller(Generic[L]):
         return res
 
     async def close_async(self: "Controller") -> None:
-        future: asyncio.Future = asyncio.Future()
-        loop = asyncio.get_event_loop()
-        ffi_future = Base().controller_close(self._ptr)
-        loop.call_soon(
-            lambda *_: future.set_result(
-                Base().wait_result_i_32(self._runtime, ffi_future),
-            ),
-        )
-        _validate_int(await future)
+        r: ResultI32 | None = None
+        if self._handle._0 is not None and self._ptr._0 is not None:
+            future: asyncio.Future = asyncio.Future()
+            loop = asyncio.get_event_loop()
+            ffi_future = Base().controller_close(self._ptr)
+            loop.call_soon(
+                lambda *_: future.set_result(
+                    Base().wait_result_i_32(self._handle, ffi_future),
+                ),
+            )
+            r = await future
+            self._ptr._0 = None
+        if self._handle._0 is not None:
+            Base().delete_runtime(self._runtime)
+            self._runtime._0 = None
+            self._handle._0 = None
+        if r is not None:
+            _validate_int(r)
 
     def close(self: "Controller") -> None:
-        _validate_int(Base().wait_result_i_32(self._runtime, Base().controller_close(self._ptr)))
+        r: ResultI32 | None = None
+        if self._handle._0 is not None and self._ptr._0 is not None:
+            r = Base().wait_result_i_32(self._handle, Base().controller_close(self._ptr))
+            self._ptr._0 = None
+        if self._handle._0 is not None:
+            Base().delete_runtime(self._runtime)
+            self._runtime._0 = None
+            self._handle._0 = None
+        if r is not None:
+            _validate_int(r)
 
     async def fpga_state_async(self: "Controller") -> list[FPGAState | None]:
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         ffi_future = Base().controller_fpga_state(self._ptr)
         loop.call_soon(
-            lambda *_: future.set_result(Base().wait_result_fpga_state_list(self._runtime, ffi_future)),
+            lambda *_: future.set_result(Base().wait_result_fpga_state_list(self._handle, ffi_future)),
         )
         handle = _validate_ptr(await future)
 
@@ -300,7 +315,7 @@ class Controller(Generic[L]):
     def fpga_state(self: "Controller") -> list[FPGAState | None]:
         handle = _validate_ptr(
             Base().wait_result_fpga_state_list(
-                self._runtime,
+                self._handle,
                 Base().controller_fpga_state(self._ptr),
             ),
         )
@@ -330,7 +345,7 @@ class Controller(Generic[L]):
             case _:
                 raise InvalidDatagramTypeError
         loop.call_soon(
-            lambda *_: future.set_result(Base().wait_result_i_32(self._runtime, ffi_future)),
+            lambda *_: future.set_result(Base().wait_result_i_32(self._handle, ffi_future)),
         )
         _validate_int(await future)
 
@@ -348,7 +363,7 @@ class Controller(Generic[L]):
                 ffi_future = Base().controller_send(self._ptr, d_tuple)
             case _:
                 raise InvalidDatagramTypeError
-        _validate_int(Base().wait_result_i_32(self._runtime, ffi_future))
+        _validate_int(Base().wait_result_i_32(self._handle, ffi_future))
 
     def group(self: "Controller", group_map: Callable[[Device], K | None]) -> _GroupGuard:
         return _GroupGuard(group_map, self)

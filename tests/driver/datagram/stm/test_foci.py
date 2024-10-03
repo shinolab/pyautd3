@@ -78,10 +78,10 @@ def test_foci_stm():
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 1
         for dev in autd.geometry:
             assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 1)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 1)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -138,14 +138,14 @@ def foci_stm_n(control_points):  # noqa: ANN001
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):
-                intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM.nearest(1.0 * Hz, control_points)
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):
-                intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM(
@@ -155,7 +155,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):
-                intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM.nearest(
@@ -165,14 +165,14 @@ def foci_stm_n(control_points):  # noqa: ANN001
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):
-                intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM(SamplingConfig(10), control_points)
         autd.send(stm)
         for dev in autd.geometry:
             for i in range(size):
-                intensities, _ = autd.link.drives(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
                 assert np.all(intensities == i)
 
 

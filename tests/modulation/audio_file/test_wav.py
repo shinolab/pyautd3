@@ -17,7 +17,7 @@ def test_wav():
         autd.send(Wav(Path(__file__).parent / "sin150.wav"))
 
         for dev in autd.geometry:
-            mod = autd.link.modulation(dev.idx, Segment.S0)
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
                 128,
                 157,

@@ -4,7 +4,6 @@ from pathlib import Path
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
-from pyautd3.driver.datagram.modulation.transform import IntoModulationTransform
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -16,7 +15,6 @@ from pyautd3.native_methods.utils import _validate_ptr
 
 class RawPCM(
     IntoModulationCache["RawPCM"],
-    IntoModulationTransform["RawPCM"],
     IntoModulationRadiationPressure["RawPCM"],
     ModulationBase["RawPCM"],
 ):

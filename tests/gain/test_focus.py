@@ -16,7 +16,7 @@ def test_focus():
     with create_controller() as autd:
         autd.send(Focus(autd.geometry.center))
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
@@ -26,7 +26,7 @@ def test_focus():
         assert g.intensity == EmitIntensity(0x80)
         assert g.phase_offset == Phase(0x90)
         for dev in autd.geometry:
-            intensities, phases = autd.link.drives(dev.idx, Segment.S0, 0)
+            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 
