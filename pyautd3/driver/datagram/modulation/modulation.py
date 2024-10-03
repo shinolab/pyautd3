@@ -4,6 +4,7 @@ from typing import Generic, TypeVar
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
+from pyautd3.driver.datagram.modulation.fir import IntoModulationFir
 from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -16,6 +17,7 @@ M = TypeVar("M", bound="Modulation")
 class Modulation(
     IntoModulationCache[M],
     IntoModulationRadiationPressure[M],
+    IntoModulationFir[M],
     ModulationBase[M],
     Generic[M],
     metaclass=ABCMeta,

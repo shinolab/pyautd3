@@ -8,8 +8,6 @@ exclude_lines =
 
     pragma: no cover
 
-    def update_geometry
-    async def update_geometry_async
 
 [run]
 omit =

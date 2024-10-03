@@ -19,6 +19,7 @@ async def create_controller_async() -> Controller[Audit]:
     return (
         await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
+        .with_receive_interval(timedelta(milliseconds=1))
         .with_timer_resolution(1)
         .open_async(
             Audit.builder(),
@@ -30,6 +31,7 @@ def create_controller() -> Controller[Audit]:
     return (
         Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
+        .with_receive_interval(timedelta(milliseconds=1))
         .with_timer_resolution(1)
         .open(
             Audit.builder(),
@@ -51,7 +53,7 @@ def test_firmware_info():
         autd.link.up()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_firmware_info_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
@@ -74,6 +76,7 @@ def test_close():
         assert autd.link.is_open()
 
         autd.close()
+        autd.close()
 
     with create_controller() as autd:
         autd.link.break_down()
@@ -83,12 +86,13 @@ def test_close():
         autd.link.repair()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_close_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
         assert autd.link.is_open()
 
+        await autd.close_async()
         await autd.close_async()
 
     with create_controller() as autd:
@@ -123,7 +127,7 @@ def test_send_single():
         autd.link.repair()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_send_async_single():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
@@ -148,7 +152,7 @@ async def test_send_async_single():
         autd.link.repair()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_send_async_tuple():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
@@ -213,7 +217,7 @@ def test_send_tuple():
         autd.link.repair()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_group_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:

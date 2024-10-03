@@ -14,6 +14,7 @@ from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.driver.geometry import Device, Geometry
 from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.driver.utils import _validate_nonzero_u32
 from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr, ResultI32
@@ -45,7 +46,12 @@ class _Builder:
         self._ptr = Base().controller_builder_with_send_interval(self._ptr, int(interval.total_seconds() * 1000 * 1000 * 1000))
         return self
 
-    def with_timer_resolution(self: "_Builder", resolution: int) -> "_Builder":
+    def with_receive_interval(self: "_Builder", interval: timedelta) -> "_Builder":
+        self._ptr = Base().controller_builder_with_receive_interval(self._ptr, int(interval.total_seconds() * 1000 * 1000 * 1000))
+        return self
+
+    def with_timer_resolution(self: "_Builder", resolution: int | None) -> "_Builder":
+        resolution = 0 if resolution is None else _validate_nonzero_u32(resolution)
         self._ptr = Base().controller_builder_with_timer_resolution(self._ptr, resolution)
         return self
 
@@ -265,7 +271,7 @@ class Controller(Generic[L]):
 
     async def close_async(self: "Controller") -> None:
         r: ResultI32 | None = None
-        if self._handle._0 is not None and self._ptr._0 is not None:
+        if self._handle._0:
             future: asyncio.Future = asyncio.Future()
             loop = asyncio.get_event_loop()
             ffi_future = Base().controller_close(self._ptr)
@@ -275,9 +281,8 @@ class Controller(Generic[L]):
                 ),
             )
             r = await future
-            self._ptr._0 = None
-        if self._handle._0 is not None:
             Base().delete_runtime(self._runtime)
+            self._ptr._0 = None
             self._runtime._0 = None
             self._handle._0 = None
         if r is not None:
@@ -285,11 +290,10 @@ class Controller(Generic[L]):
 
     def close(self: "Controller") -> None:
         r: ResultI32 | None = None
-        if self._handle._0 is not None and self._ptr._0 is not None:
-            r = Base().wait_result_i_32(self._handle, Base().controller_close(self._ptr))
-            self._ptr._0 = None
         if self._handle._0 is not None:
+            r = Base().wait_result_i_32(self._handle, Base().controller_close(self._ptr))
             Base().delete_runtime(self._runtime)
+            self._ptr._0 = None
             self._runtime._0 = None
             self._handle._0 = None
         if r is not None:

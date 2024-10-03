@@ -227,7 +227,7 @@ class ResultGainSTM(ctypes.Structure):
                     
 
 class DynSincInterpolator(ctypes.Structure):
-    _fields_ = [("window", ctypes.c_int32), ("window_size", ctypes.c_uint32)]
+    _fields_ = [("window", ctypes.c_uint32), ("window_size", ctypes.c_uint32)]
 
 
     def __eq__(self, other: object) -> bool:
