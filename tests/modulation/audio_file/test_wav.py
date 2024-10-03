@@ -1,10 +1,12 @@
+import wave
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, Segment
+from pyautd3 import Controller, Segment, kHz
 from pyautd3.modulation.audio_file import Wav
+from pyautd3.modulation.resample import SincInterpolation
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -101,4 +103,25 @@ def test_wav():
                 99,
             ]
             assert np.array_equal(mod, mod_expect)
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+
+
+def test_wav_with_resample():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        expect = [127, 217, 255, 217, 127, 37, 0, 37]
+        buf = [127, 255, 127, 0]
+
+        with wave.open(str(Path(__file__).parent / "custom.wav"), "wb") as f:
+            f.setnchannels(1)
+            f.setsampwidth(1)
+            f.setframerate(2000)
+            f.setnframes(len(buf))
+            f.writeframes(np.array(buf, dtype=np.uint8).tobytes())
+
+        autd.send(Wav.new_with_resampler(Path(__file__).parent / "custom.wav", 4 * kHz, SincInterpolation()))
+
+        for dev in autd.geometry:
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+            assert np.array_equal(expect, mod)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10

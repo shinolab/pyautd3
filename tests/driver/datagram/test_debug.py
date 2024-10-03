@@ -4,6 +4,7 @@ import numpy as np
 
 from pyautd3 import (
     Controller,
+    DcSysTime,
     DebugSettings,
     DebugType,
 )
@@ -69,3 +70,21 @@ def test_debug_output_idx():
         for dev in autd.geometry:
             assert np.array_equal([0x51, 0x52, 0xE0, 0xF0], autd.link.debug_types(dev.idx))
             assert np.array_equal([0x0002, 0x0000, 0x0003, 0x0001], autd.link.debug_values(dev.idx))
+
+        sys_time = DcSysTime.now()
+
+        def f3(_dev: Device, gpio: GPIOOut) -> DebugTypeWrap:
+            match gpio:
+                case GPIOOut.O0:
+                    return DebugType.SysTimeEq(sys_time)
+                case GPIOOut.O1:
+                    return DebugType.NONE
+                case GPIOOut.O2:
+                    return DebugType.NONE
+                case GPIOOut.O3:
+                    return DebugType.NONE
+
+        autd.send(DebugSettings(f3))
+        for dev in autd.geometry:
+            assert np.array_equal([0x60, 0x00, 0x00, 0x00], autd.link.debug_types(dev.idx))
+            assert np.array_equal([(sys_time.sys_time // 50000) << 9, 0x00, 0x00, 0x00], autd.link.debug_values(dev.idx))

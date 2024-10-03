@@ -81,7 +81,7 @@ def test_fpga_state():
         autd.link.repair()
 
 
-@pytest.mark.asyncio()
+@pytest.mark.asyncio
 async def test_fpga_state_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:

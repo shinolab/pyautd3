@@ -3,9 +3,10 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, Segment
+from pyautd3 import Controller, Segment, kHz
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation.audio_file import RawPCM
+from pyautd3.modulation.resample import SincInterpolation
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -107,3 +108,21 @@ def test_rawpcm():
         autd.send(RawPCM(Path(__file__).parent / "sin150.dat", 2000 * Hz))
         for dev in autd.geometry:
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 20
+
+
+def test_rawpcm_with_resample():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        expect = [127, 217, 255, 217, 127, 37, 0, 37]
+        buf = [127, 255, 127, 0]
+
+        with Path.open(Path(__file__).parent / "custom.dat", "wb") as f:
+            for b in buf:
+                f.write(b.to_bytes(1, byteorder="little"))
+
+        autd.send(RawPCM.new_with_resampler(Path(__file__).parent / "custom.dat", 2.0 * kHz, 4 * kHz, SincInterpolation()))
+
+        for dev in autd.geometry:
+            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+            assert np.array_equal(expect, mod)
+            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10

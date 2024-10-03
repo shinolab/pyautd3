@@ -57,7 +57,7 @@ impl PythonGenerator {
             Type::Custom(ref s) => match s.as_str() {
                 "* mut c_char" => "ctypes.c_char_p".to_string(),
                 "[u8 ; 2]" => "ctypes.c_uint8 * 2".to_string(),
-                "DynWindow" => "ctypes.c_int32".to_string(),
+                "DynWindow" => "ctypes.c_uint32".to_string(),
                 s if s.ends_with("Tag") => "ctypes.c_uint8".to_string(),
                 s => s.to_owned(),
             },

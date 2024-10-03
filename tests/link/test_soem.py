@@ -7,7 +7,7 @@ from pyautd3.autd_error import AUTDError
 from pyautd3.link.soem import SOEM, RemoteSOEM, Status, SyncMode, TimerStrategy
 
 
-@pytest.mark.soem()
+@pytest.mark.soem
 def test_soem_adapers():
     adapters = SOEM.enumerate_adapters()
     for adapter in adapters:
@@ -18,7 +18,7 @@ def err_handler(slave: int, status: Status, msg: str) -> None:
     print(f"slave: {slave}, status: {status}, msg: {msg}")
 
 
-@pytest.mark.soem()
+@pytest.mark.soem
 def test_soem():
     with (
         pytest.raises(AUTDError) as _,
@@ -42,6 +42,6 @@ def test_soem():
         pass
 
 
-@pytest.mark.soem()
+@pytest.mark.soem
 def test_remote_soem():
     _ = RemoteSOEM.builder("127.0.0.1:8080").with_timeout(timedelta(milliseconds=200))
