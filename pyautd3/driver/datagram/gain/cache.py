@@ -35,7 +35,8 @@ class Cache(
         device_indices = [dev.idx for dev in geometry.devices]
 
         if len(self._cache) != len(device_indices) or any(idx not in self._cache for idx in device_indices):
-            res = _validate_ptr(Base().gain_calc(self._g._gain_ptr(geometry), geometry._geometry_ptr()))
+            gain_ptr = self._g._gain_ptr(geometry)
+            res = _validate_ptr(Base().gain_calc(gain_ptr, geometry._geometry_ptr()))
             for dev in geometry.devices:
                 drives = np.zeros(dev.num_transducers, dtype=Drive)
                 Base().gain_calc_get_result(
@@ -45,6 +46,7 @@ class Cache(
                 )
                 self._cache[dev.idx] = drives
             Base().gain_calc_free_result(res)
+            Base().gain_free(gain_ptr)
 
     def _gain_ptr(self: "Cache[G]", geometry: Geometry) -> GainPtr:
         self.init(geometry)

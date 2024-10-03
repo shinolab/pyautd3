@@ -386,6 +386,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainCalc.argtypes = [GainPtr, GeometryPtr]  # type: ignore 
         self.dll.AUTDGainCalc.restype = ResultGainCalcDrivesMap
 
+        self.dll.AUTDGainFree.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainFree.restype = None
+
         self.dll.AUTDGainCalcGetResult.argtypes = [GainCalcPtr, ctypes.POINTER(Drive), DevicePtr]  # type: ignore 
         self.dll.AUTDGainCalcGetResult.restype = None
 
@@ -1018,6 +1021,9 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_calc(self, gain: GainPtr, geometry: GeometryPtr) -> ResultGainCalcDrivesMap:
         return self.dll.AUTDGainCalc(gain, geometry)
+
+    def gain_free(self, gain: GainPtr) -> None:
+        return self.dll.AUTDGainFree(gain)
 
     def gain_calc_get_result(self, src: GainCalcPtr, dst: ctypes.Array | None, device: DevicePtr) -> None:
         return self.dll.AUTDGainCalcGetResult(src, dst, device)
