@@ -17,3 +17,6 @@ fixable = ["ALL"]
 "conftest.py" = ["ARG001", "ANN001"]
 "example/*.py" = ["T201", "PLR2004"]
 "x.py" = ["PTH", "ANN", "SIM", "T", "PLR", "UP", "PLW", "S", "ARG"]
+
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = 'session'
