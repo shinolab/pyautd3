@@ -36,7 +36,7 @@ class Burst(Modulation["Burst"]):
 
 
 def user_defined(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     f = Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))

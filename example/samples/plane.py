@@ -4,7 +4,7 @@ from pyautd3 import Controller, Hz, Plane, Silencer, Sine
 
 
 def plane(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     f = Plane(np.array([0.0, 0.0, 1.0]))

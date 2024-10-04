@@ -42,6 +42,6 @@ def run(autd: Controller) -> None:
         _ = input()
 
         print("finish.")
-        autd.send((Null(), Silencer.default()))
+        autd.send((Null(), Silencer()))
 
     autd.close()
