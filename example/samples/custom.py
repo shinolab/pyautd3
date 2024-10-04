@@ -5,7 +5,7 @@ from pyautd3.gain import Custom
 
 
 def transtest(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     def f(dev: Device) -> Callable[[Transducer], Drive]:

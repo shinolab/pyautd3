@@ -83,9 +83,16 @@ class Silencer(
     _strict_mode: bool
     _target: SilencerTarget
 
-    def __init__(self: "Silencer[T]", config: T) -> None:
+    def __init__(self: "Silencer[T]", config: T | None = None) -> None:
         super().__init__()
-        self._inner = config
+        self._inner = (
+            config
+            if config is not None
+            else FixedCompletionTime(
+                intensity=timedelta(microseconds=250),
+                phase=timedelta(microseconds=1000),
+            )  # type: ignore[assignment]
+        )
         self._strict_mode = True
         self._target = SilencerTarget.Intensity
 
@@ -109,7 +116,3 @@ class Silencer(
     @staticmethod
     def disable() -> "Silencer[FixedCompletionTime]":
         return Silencer(FixedCompletionTime(intensity=timedelta(microseconds=25), phase=timedelta(microseconds=25)))
-
-    @staticmethod
-    def default() -> "Silencer[FixedCompletionTime]":
-        return Silencer(FixedCompletionTime(intensity=timedelta(microseconds=250), phase=timedelta(microseconds=1000)))

@@ -4,7 +4,7 @@ from pyautd3 import Controller, Device, Focus, Group, Hz, Null, Silencer, Sine, 
 
 
 def group_by_device(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     def grouping(dev: Device) -> str | None:
@@ -23,7 +23,7 @@ def group_by_device(autd: Controller) -> None:
 
 
 def group_by_transducer(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     cx = autd.geometry.center[0]

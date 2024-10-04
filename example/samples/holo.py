@@ -5,7 +5,7 @@ from pyautd3.gain.holo import GSPAT, NalgebraBackend, Pa
 
 
 def holo(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     center = autd.geometry.center + np.array([0.0, 0.0, 150.0])

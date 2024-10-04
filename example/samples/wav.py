@@ -7,7 +7,7 @@ from pyautd3.modulation.audio_file import Wav
 
 
 def wav(autd: Controller) -> None:
-    config = Silencer.default()
+    config = Silencer()
     autd.send(config)
 
     f = Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))
