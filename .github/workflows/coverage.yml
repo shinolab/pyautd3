@@ -18,6 +18,7 @@ jobs:
       - run: |
           python3 -m pip install -U pytest pytest-asyncio pytest-cov pytest-xdist
           python3 -m pip install -U numpy polars forbiddenfruit
+          python3 -m pip install -U matplotlib scipy
           python3 x.py cov --cov_report=xml
       - uses: codecov/codecov-action@v4
         with:
