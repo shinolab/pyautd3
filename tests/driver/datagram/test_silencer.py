@@ -49,7 +49,7 @@ def test_silencer_from_completion_time():
             assert not autd.link.silencer_strict_mode(dev.idx)
             assert autd.link.silencer_target(dev.idx) == SilencerTarget.PulseWidth
 
-        autd.send(Silencer.default())
+        autd.send(Silencer())
 
         for dev in autd.geometry:
             assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
@@ -57,7 +57,7 @@ def test_silencer_from_completion_time():
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
             assert autd.link.silencer_strict_mode(dev.idx)
             assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
-            assert bool(Base().datagram_silencer_fixed_completion_time_is_default(Silencer.default()._datagram_ptr(None)))  # type: ignore[arg-type]
+            assert bool(Base().datagram_silencer_fixed_completion_time_is_default(Silencer()._datagram_ptr(None)))  # type: ignore[arg-type]
 
 
 def test_silencer_from_update_rate():
@@ -109,7 +109,7 @@ def test_silencer_small_freq_div_mod():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        assert not Silencer.default().is_valid(Sine(150 * Hz).with_sampling_config(SamplingConfig(1)))
+        assert not Silencer().is_valid(Sine(150 * Hz).with_sampling_config(SamplingConfig(1)))
         with pytest.raises(AUTDError) as e:
             autd.send(Sine(150 * Hz).with_sampling_config(SamplingConfig(1)))
         assert (
@@ -142,7 +142,7 @@ def test_silencer_small_freq_div_gain_stm():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        assert not Silencer.default().is_valid(GainSTM(SamplingConfig(1), [Null(), Null()]))
+        assert not Silencer().is_valid(GainSTM(SamplingConfig(1), [Null(), Null()]))
         with pytest.raises(AUTDError) as e:
             autd.send(GainSTM(SamplingConfig(1), [Null(), Null()]))
         assert (
@@ -175,7 +175,7 @@ def test_silencer_small_freq_div_foci_stm():
             assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
 
-        assert not Silencer.default().is_valid(FociSTM(SamplingConfig(1), [np.zeros(3), np.zeros(3)]))
+        assert not Silencer().is_valid(FociSTM(SamplingConfig(1), [np.zeros(3), np.zeros(3)]))
         with pytest.raises(AUTDError) as e:
             autd.send(FociSTM(SamplingConfig(1), [np.zeros(3), np.zeros(3)]))
         assert (

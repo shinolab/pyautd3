@@ -26,12 +26,12 @@ def test_cache():
         autd2.send(m2)
 
         for dev in autd1.geometry:
-            mod_expect = autd1.link.modulation_buffer(dev.idx, Segment.S0)
-            mod = autd2.link.modulation_buffer(dev.idx, Segment.S0)
+            mod_expect = autd1._link.modulation_buffer(dev.idx, Segment.S0)
+            mod = autd2._link.modulation_buffer(dev.idx, Segment.S0)
             assert np.array_equal(mod, mod_expect)
-            assert autd2.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd2._link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
-        mod_expect = autd1.link.modulation_buffer(0, Segment.S0)
+        mod_expect = autd1._link.modulation_buffer(0, Segment.S0)
         assert m2.buffer is not None
         buf = np.fromiter((m for m in m2.buffer), dtype=np.uint8)
         assert np.array_equal(buf, mod_expect)
