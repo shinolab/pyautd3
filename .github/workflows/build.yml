@@ -34,6 +34,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - run: |
-          python3 -m pip install -U mypy polars numpy forbiddenfruit build wheel pytest pytest-asyncio pytest-xdist ruff
+          python3 -m pip install -U mypy polars numpy forbiddenfruit build wheel pytest pytest-asyncio pytest-xdist ruff matplotlib scipy
           python3 x.py build --no-install
           python3 x.py test
