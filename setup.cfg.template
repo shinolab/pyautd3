@@ -1,6 +1,6 @@
 [metadata]
 name = pyautd3
-version = 28.0.0a7
+version = 28.0.0a8
 description = AUTD3 library wrapper for python
 long_description = file: README.md
 long_description_content_type = text/markdown
@@ -40,6 +40,7 @@ python_requires = >=3.10
 include_package_data = True
 install_requires =
     numpy >=2
+    polars >=1.1
     forbiddenfruit
 
 [options.package_data]

@@ -17,7 +17,7 @@ from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.driver.utils import _validate_nonzero_u32
 from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr, ResultI32
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr
 from pyautd3.native_methods.structs import FfiFuture, Quaternion, Vector3
 from pyautd3.native_methods.utils import _validate_int, _validate_ptr
 
@@ -158,6 +158,7 @@ class Controller(Generic[L]):
     _handle: HandlePtr
     _ptr: ControllerPtr
     _link: L
+    _disposed: bool
 
     def __init__(self: "Controller", geometry: Geometry, runtime: RuntimePtr, handle: HandlePtr, ptr: ControllerPtr, link: L) -> None:
         self._geometry = geometry
@@ -173,8 +174,8 @@ class Controller(Generic[L]):
         except AttributeError as initial:
             try:
                 return object.__getattribute__(self._link, attr)
-            except AttributeError:
-                raise initial from None
+            except AttributeError:  # pragma: no cover
+                raise initial from None  # pragma: no cover
 
     @property
     def link(self: "Controller") -> L:
@@ -284,34 +285,34 @@ class Controller(Generic[L]):
         return res
 
     async def close_async(self: "Controller") -> None:
-        r: ResultI32 | None = None
-        if self._handle._0:
-            future: asyncio.Future = asyncio.Future()
-            loop = asyncio.get_event_loop()
-            ffi_future = Base().controller_close(self._ptr)
-            loop.call_soon(
-                lambda *_: future.set_result(
-                    Base().wait_result_i_32(self._handle, ffi_future),
-                ),
-            )
-            r = await future
-            Base().delete_runtime(self._runtime)
-            self._ptr._0 = None
-            self._runtime._0 = None
-            self._handle._0 = None
-        if r is not None:
-            _validate_int(r)
+        if self._disposed:
+            return
+        self._disposed = True
+        future: asyncio.Future = asyncio.Future()
+        loop = asyncio.get_event_loop()
+        ffi_future = Base().controller_close(self._ptr)
+        loop.call_soon(
+            lambda *_: future.set_result(
+                Base().wait_result_i_32(self._handle, ffi_future),
+            ),
+        )
+        r = await future
+        Base().delete_runtime(self._runtime)
+        self._ptr._0 = None
+        self._runtime._0 = None
+        self._handle._0 = None
+        _validate_int(r)
 
     def close(self: "Controller") -> None:
-        r: ResultI32 | None = None
-        if self._handle._0 is not None:
-            r = Base().wait_result_i_32(self._handle, Base().controller_close(self._ptr))
-            Base().delete_runtime(self._runtime)
-            self._ptr._0 = None
-            self._runtime._0 = None
-            self._handle._0 = None
-        if r is not None:
-            _validate_int(r)
+        if self._disposed:
+            return
+        self._disposed = True
+        r = Base().wait_result_i_32(self._handle, Base().controller_close(self._ptr))
+        Base().delete_runtime(self._runtime)
+        self._ptr._0 = None
+        self._runtime._0 = None
+        self._handle._0 = None
+        _validate_int(r)
 
     async def fpga_state_async(self: "Controller") -> list[FPGAState | None]:
         future: asyncio.Future = asyncio.Future()
