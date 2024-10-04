@@ -71,7 +71,7 @@ if __name__ == "__main__":
                 resolution=1.0,
             ),
             RecordOption(
-                time_step=timedelta(microseconds=1),
+                time_step_ns=1000,
                 print_progress=True,
             ),
         )
