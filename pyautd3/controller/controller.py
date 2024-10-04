@@ -157,14 +157,28 @@ class Controller(Generic[L]):
     _runtime: RuntimePtr
     _handle: HandlePtr
     _ptr: ControllerPtr
-    link: L
+    _link: L
 
     def __init__(self: "Controller", geometry: Geometry, runtime: RuntimePtr, handle: HandlePtr, ptr: ControllerPtr, link: L) -> None:
         self._geometry = geometry
         self._runtime = runtime
         self._handle = handle
         self._ptr = ptr
-        self.link = link
+        self._link = link
+        self._disposed = False
+
+    def __getattribute__(self: "Controller[L]", attr):  # noqa: ANN001, ANN204
+        try:
+            return object.__getattribute__(self, attr)
+        except AttributeError as initial:
+            try:
+                return object.__getattribute__(self._link, attr)
+            except AttributeError:
+                raise initial from None
+
+    @property
+    def link(self: "Controller") -> L:
+        return self._link
 
     @staticmethod
     def builder(iterable: Iterable[AUTD3]) -> "_Builder":
