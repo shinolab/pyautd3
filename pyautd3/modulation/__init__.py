@@ -1,6 +1,5 @@
 from .custom import Custom
 from .fourier import Fourier
-from .mixer import Mixer
 from .modulation import Modulation
 from .resample import BlackMan, Rectangular, Resampler, SincInterpolation
 from .sine import Sine
@@ -12,7 +11,6 @@ __all__ = [
     "Modulation",
     "Sine",
     "Fourier",
-    "Mixer",
     "Square",
     "Custom",
     "Resampler",

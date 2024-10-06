@@ -16,13 +16,15 @@ class Sine(Modulation["Sine"]):
     _intensity: int
     _offset: int
     _phase: Angle
+    _clamp: bool
 
     def __private__init__(self: "Sine", mode: ISamplingMode) -> None:
         super().__init__(SamplingConfig(10))
         self._mode = mode
         self._intensity = 0xFF
-        self._offset = 0xFF // 2
+        self._offset = 0xFF
         self._phase = 0 * rad
+        self._clamp = False
 
     def __init__(self: "Sine", freq: Freq[T]) -> None:
         match freq.hz:
@@ -65,11 +67,20 @@ class Sine(Modulation["Sine"]):
     def phase(self: "Sine") -> Angle:
         return self._phase
 
+    def with_clamp(self: "Sine", clamp: bool) -> "Sine":  # noqa: FBT001
+        self._clamp = clamp
+        return self
+
+    @property
+    def clamp(self: "Sine") -> bool:
+        return self._clamp
+
     def _modulation_ptr(self: "Sine") -> ModulationPtr:
         return self._mode.sine_ptr(
             self._config._inner,
             self._intensity,
             self._offset,
             self._phase,
+            self._clamp,
             self._loop_behavior,
         )

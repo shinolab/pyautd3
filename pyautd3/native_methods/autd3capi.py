@@ -635,23 +635,14 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationWithFir.argtypes = [ModulationPtr, LoopBehavior, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDModulationWithFir.restype = ModulationPtr
 
-        self.dll.AUTDModulationFourierExact.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierExact.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourierExact.restype = ResultModulation
 
-        self.dll.AUTDModulationFourierExactFloat.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierExactFloat.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourierExactFloat.restype = ResultModulation
 
-        self.dll.AUTDModulationFourierNearest.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierNearest.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourierNearest.restype = ResultModulation
-
-        self.dll.AUTDModulationMixerExact.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationMixerExact.restype = ResultModulation
-
-        self.dll.AUTDModulationMixerExactFloat.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationMixerExactFloat.restype = ResultModulation
-
-        self.dll.AUTDModulationMixerNearest.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, LoopBehavior]  # type: ignore 
-        self.dll.AUTDModulationMixerNearest.restype = ResultModulation
 
         self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationSamplingConfig.restype = SamplingConfig
@@ -680,13 +671,13 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationWithRadiationPressure.argtypes = [ModulationPtr, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWithRadiationPressure.restype = ModulationPtr
 
-        self.dll.AUTDModulationSineExact.argtypes = [ctypes.c_uint32, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSineExact.argtypes = [ctypes.c_uint32, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, ctypes.c_bool, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationSineExact.restype = ResultModulation
 
-        self.dll.AUTDModulationSineExactFloat.argtypes = [ctypes.c_float, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSineExactFloat.argtypes = [ctypes.c_float, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, ctypes.c_bool, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationSineExactFloat.restype = ResultModulation
 
-        self.dll.AUTDModulationSineNearest.argtypes = [ctypes.c_float, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationSineNearest.argtypes = [ctypes.c_float, SamplingConfig, ctypes.c_uint8, ctypes.c_uint8, ctypes.c_float, ctypes.c_bool, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationSineNearest.restype = ResultModulation
 
         self.dll.AUTDModulationSineExactFreq.argtypes = [ModulationPtr]  # type: ignore 
@@ -1271,23 +1262,14 @@ class NativeMethods(metaclass=Singleton):
     def modulation_with_fir(self, m: ModulationPtr, loop_behavior: LoopBehavior, coef: ctypes.Array[ctypes.c_float] | None, n_tap: int) -> ModulationPtr:
         return self.dll.AUTDModulationWithFir(m, loop_behavior, coef, n_tap)
 
-    def modulation_fourier_exact(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationFourierExact(components, size, loop_behavior)
+    def modulation_fourier_exact(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationFourierExact(components, size, clamp, scale_factor, loop_behavior)
 
-    def modulation_fourier_exact_float(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationFourierExactFloat(components, size, loop_behavior)
+    def modulation_fourier_exact_float(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationFourierExactFloat(components, size, clamp, scale_factor, loop_behavior)
 
-    def modulation_fourier_nearest(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationFourierNearest(components, size, loop_behavior)
-
-    def modulation_mixer_exact(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationMixerExact(components, size, loop_behavior)
-
-    def modulation_mixer_exact_float(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationMixerExactFloat(components, size, loop_behavior)
-
-    def modulation_mixer_nearest(self, components: ctypes.Array | None, size: int, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationMixerNearest(components, size, loop_behavior)
+    def modulation_fourier_nearest(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationFourierNearest(components, size, clamp, scale_factor, loop_behavior)
 
     def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfig:
         return self.dll.AUTDModulationSamplingConfig(m)
@@ -1316,14 +1298,14 @@ class NativeMethods(metaclass=Singleton):
     def modulation_with_radiation_pressure(self, m: ModulationPtr, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationWithRadiationPressure(m, loop_behavior)
 
-    def modulation_sine_exact(self, freq: int, config: SamplingConfig, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationSineExact(freq, config, intensity, offset, phase, loop_behavior)
+    def modulation_sine_exact(self, freq: int, config: SamplingConfig, intensity: int, offset: int, phase: float, clamp: bool, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationSineExact(freq, config, intensity, offset, phase, clamp, loop_behavior)
 
-    def modulation_sine_exact_float(self, freq: float, config: SamplingConfig, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationSineExactFloat(freq, config, intensity, offset, phase, loop_behavior)
+    def modulation_sine_exact_float(self, freq: float, config: SamplingConfig, intensity: int, offset: int, phase: float, clamp: bool, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationSineExactFloat(freq, config, intensity, offset, phase, clamp, loop_behavior)
 
-    def modulation_sine_nearest(self, freq: float, config: SamplingConfig, intensity: int, offset: int, phase: float, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationSineNearest(freq, config, intensity, offset, phase, loop_behavior)
+    def modulation_sine_nearest(self, freq: float, config: SamplingConfig, intensity: int, offset: int, phase: float, clamp: bool, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationSineNearest(freq, config, intensity, offset, phase, clamp, loop_behavior)
 
     def modulation_sine_exact_freq(self, sine: ModulationPtr) -> ctypes.c_uint32:
         return self.dll.AUTDModulationSineExactFreq(sine)
