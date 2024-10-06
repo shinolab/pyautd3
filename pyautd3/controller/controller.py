@@ -168,14 +168,8 @@ class Controller(Generic[L]):
         self._link = link
         self._disposed = False
 
-    def __getattribute__(self: "Controller[L]", attr):  # noqa: ANN001, ANN204
-        try:
-            return object.__getattribute__(self, attr)
-        except AttributeError as initial:
-            try:
-                return object.__getattribute__(self._link, attr)
-            except AttributeError:  # pragma: no cover
-                raise initial from None  # pragma: no cover
+    def __getattr__(self: "Controller[L]", attr):  # noqa: ANN001, ANN204
+        return object.__getattribute__(self._link, attr)
 
     @property
     def link(self: "Controller") -> L:

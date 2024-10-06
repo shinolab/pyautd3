@@ -19,6 +19,7 @@ class ISamplingMode(metaclass=ABCMeta):
         intensity: int,
         offset: int,
         phase: Angle,
+        clamp: bool,  # noqa: FBT001
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         pass
@@ -28,11 +29,14 @@ class ISamplingMode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def fourier_ptr(self: "ISamplingMode", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
-        pass
-
-    @abstractmethod
-    def mixer_ptr(self: "ISamplingMode", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+    def fourier_ptr(
+        self: "ISamplingMode",
+        components: np.ndarray,
+        size: int,
+        clamp: bool,  # noqa: FBT001
+        scale_factor: float,
+        loop_behavior: LoopBehavior,
+    ) -> ModulationPtr:
         pass
 
     @abstractmethod
@@ -63,6 +67,7 @@ class SamplingModeExact(ISamplingMode):
         intensity: int,
         offset: int,
         phase: Angle,
+        clamp: bool,  # noqa: FBT001
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         return _validate_ptr(
@@ -72,6 +77,7 @@ class SamplingModeExact(ISamplingMode):
                 intensity,
                 offset,
                 phase.radian,
+                clamp,
                 loop_behavior,
             ),
         )
@@ -79,20 +85,20 @@ class SamplingModeExact(ISamplingMode):
     def sine_freq(self: "SamplingModeExact", ptr: ModulationPtr) -> int | float:
         return int(Base().modulation_sine_exact_freq(ptr))
 
-    def fourier_ptr(self: "SamplingModeExact", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+    def fourier_ptr(
+        self: "SamplingModeExact",
+        components: np.ndarray,
+        size: int,
+        clamp: bool,  # noqa: FBT001
+        scale_factor: float,
+        loop_behavior: LoopBehavior,
+    ) -> ModulationPtr:
         return _validate_ptr(
             Base().modulation_fourier_exact(
                 components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
                 size,
-                loop_behavior,
-            ),
-        )
-
-    def mixer_ptr(self: "SamplingModeExact", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return _validate_ptr(
-            Base().modulation_mixer_exact(
-                components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
-                size,
+                clamp,
+                scale_factor,
                 loop_behavior,
             ),
         )
@@ -132,6 +138,7 @@ class SamplingModeExactFloat(ISamplingMode):
         intensity: int,
         offset: int,
         phase: Angle,
+        clamp: bool,  # noqa: FBT001
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         return _validate_ptr(
@@ -141,6 +148,7 @@ class SamplingModeExactFloat(ISamplingMode):
                 intensity,
                 offset,
                 phase.radian,
+                clamp,
                 loop_behavior,
             ),
         )
@@ -151,20 +159,20 @@ class SamplingModeExactFloat(ISamplingMode):
     ) -> int | float:
         return float(Base().modulation_sine_exact_float_freq(ptr))
 
-    def fourier_ptr(self: "SamplingModeExactFloat", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+    def fourier_ptr(
+        self: "SamplingModeExactFloat",
+        components: np.ndarray,
+        size: int,
+        clamp: bool,  # noqa: FBT001
+        scale_factor: float,
+        loop_behavior: LoopBehavior,
+    ) -> ModulationPtr:
         return _validate_ptr(
             Base().modulation_fourier_exact_float(
                 components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
                 size,
-                loop_behavior,
-            ),
-        )
-
-    def mixer_ptr(self: "SamplingModeExactFloat", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return _validate_ptr(
-            Base().modulation_mixer_exact_float(
-                components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
-                size,
+                clamp,
+                scale_factor,
                 loop_behavior,
             ),
         )
@@ -204,6 +212,7 @@ class SamplingModeNearest(ISamplingMode):
         intensity: int,
         offset: int,
         phase: Angle,
+        clamp: bool,  # noqa: FBT001
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         return _validate_ptr(
@@ -213,6 +222,7 @@ class SamplingModeNearest(ISamplingMode):
                 intensity,
                 offset,
                 phase.radian,
+                clamp,
                 loop_behavior,
             ),
         )
@@ -220,20 +230,20 @@ class SamplingModeNearest(ISamplingMode):
     def sine_freq(self: "SamplingModeNearest", ptr: ModulationPtr) -> int | float:
         return float(Base().modulation_sine_nearest_freq(ptr))
 
-    def fourier_ptr(self: "SamplingModeNearest", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
+    def fourier_ptr(
+        self: "SamplingModeNearest",
+        components: np.ndarray,
+        size: int,
+        clamp: bool,  # noqa: FBT001
+        scale_factor: float,
+        loop_behavior: LoopBehavior,
+    ) -> ModulationPtr:
         return _validate_ptr(
             Base().modulation_fourier_nearest(
                 components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
                 size,
-                loop_behavior,
-            ),
-        )
-
-    def mixer_ptr(self: "SamplingModeNearest", components: np.ndarray, size: int, loop_behavior: LoopBehavior) -> ModulationPtr:
-        return _validate_ptr(
-            Base().modulation_mixer_nearest(
-                components.ctypes.data_as(ctypes.POINTER(ModulationPtr)),  # type: ignore[arg-type]
-                size,
+                clamp,
+                scale_factor,
                 loop_behavior,
             ),
         )
