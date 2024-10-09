@@ -55,7 +55,12 @@ class _Builder:
         self._ptr = Base().controller_builder_with_timer_resolution(self._ptr, resolution)
         return self
 
-    async def open_async(self: "_Builder", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
+    async def open_async(
+        self: "_Builder",
+        link: LinkBuilder[L],
+        *,
+        timeout: timedelta | None = None,  # noqa: ASYNC109
+    ) -> "Controller[L]":
         return await Controller._open_impl_async(self._ptr, link, timeout)
 
     def open(self: "_Builder", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
@@ -204,7 +209,7 @@ class Controller(Generic[L]):
     async def _open_impl_async(
         builder: ControllerBuilderPtr,
         link_builder: LinkBuilder[L],
-        timeout: timedelta | None = None,
+        timeout: timedelta | None = None,  # noqa: ASYNC109
     ) -> "Controller[L]":
         runtime = Base().create_runtime()
         handle = Base().get_runtime_handle(runtime)
