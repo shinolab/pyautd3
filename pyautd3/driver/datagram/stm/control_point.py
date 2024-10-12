@@ -31,7 +31,7 @@ class ControlPoint(ctypes.Structure):
     def offset(self: "ControlPoint") -> Phase:
         return Phase(self._offset)
 
-    def with_offset(self: "ControlPoint", phase: int | Phase) -> "ControlPoint":
+    def with_phase_offset(self: "ControlPoint", phase: int | Phase) -> "ControlPoint":
         self._offset = Phase(phase).value
         return self
 
