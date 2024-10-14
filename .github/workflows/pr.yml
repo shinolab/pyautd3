@@ -37,8 +37,10 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
       - uses: astral-sh/setup-uv@v3
-      - run: uv python install ${{ matrix.python-version }}
       - run: |
           uv sync --all-extras --dev
           python3 x.py build
