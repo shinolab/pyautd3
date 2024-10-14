@@ -21,6 +21,8 @@ def test_cache():
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0x90)
 
+    _ = Uniform((EmitIntensity(0x80), Phase(0x90))).with_cache()
+
 
 class CacheTest(Gain["CacheTest"]):
     calc_cnt: int

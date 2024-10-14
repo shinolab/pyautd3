@@ -63,6 +63,3 @@ class Geometry:
     ) -> None:
         for d in self.devices:
             d.sound_speed = c
-
-    def _geometry_ptr(self: "Geometry") -> GeometryPtr:
-        return self._ptr

@@ -34,6 +34,8 @@ def test_cache():
         mod2 = autd2._link.modulation_buffer(0, Segment.S0)
         assert np.array_equal(mod1, mod2)
 
+    _ = Sine(150 * Hz).with_cache()
+
 
 class CacheTest(Modulation["CacheTest"]):
     calc_cnt: int
