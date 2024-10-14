@@ -41,7 +41,7 @@ jobs:
       - run: uv python install ${{ matrix.python-version }}
       - run: |
           uv sync --all-extras --dev
-          python3 x.py build --no-install
+          python3 x.py build
           python3 x.py test
 
   all-tests-passed:

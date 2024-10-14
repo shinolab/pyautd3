@@ -34,6 +34,7 @@ jobs:
       - run: uv python install ${{ env.PYTHON_VERSION }}
       - run: |
           uv sync --all-extras --dev
-          python3 x.py build --no-install --arch ${{ matrix.arch }}
+          python3 x.py build --arch ${{ matrix.arch }}
+          uv tool install twine
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
