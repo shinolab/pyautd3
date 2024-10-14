@@ -244,6 +244,7 @@ impl PythonGenerator {
                     | "DynamicOperationGenerator"
                     | "DynamicOperationGeneratorPack"
                     | "ControllerWrap"
+                    | "BoxedCache"
             )
         }));
         self

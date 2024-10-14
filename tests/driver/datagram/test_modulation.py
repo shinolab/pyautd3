@@ -20,7 +20,6 @@ def test_cache():
     with create_controller() as autd1, create_controller() as autd2:
         m1 = Sine(150 * Hz)
         m2 = Sine(150 * Hz).with_cache()
-        assert m2.buffer is None
 
         autd1.send(m1)
         autd2.send(m2)
@@ -31,10 +30,9 @@ def test_cache():
             assert np.array_equal(mod, mod_expect)
             assert autd2._link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
-        mod_expect = autd1._link.modulation_buffer(0, Segment.S0)
-        assert m2.buffer is not None
-        buf = np.fromiter((m for m in m2.buffer), dtype=np.uint8)
-        assert np.array_equal(buf, mod_expect)
+        mod1 = autd1._link.modulation_buffer(0, Segment.S0)
+        mod2 = autd2._link.modulation_buffer(0, Segment.S0)
+        assert np.array_equal(mod1, mod2)
 
 
 class CacheTest(Modulation["CacheTest"]):

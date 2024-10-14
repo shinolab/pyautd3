@@ -1,3 +1,15 @@
+[project]
+name = "pyautd3"
+version = "28.0.1"
+description = "AUTD3 library wrapper for python"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=2",
+    "polars>=1.1",
+    "forbiddenfruit"
+]
+
 [build-system]
 requires = ["wheel", "setuptools"]
 build-backend = "setuptools.build_meta"
@@ -20,3 +32,18 @@ fixable = ["ALL"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = 'session'
+
+[tool.uv]
+dev-dependencies = [
+    "matplotlib>=3.9.2",
+    "mypy>=1.11.2",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-xdist>=3.6.1",
+    "ruff>=0.6.9",
+    "scipy>=1.14.1",
+    "build>=1.2.2.post1",
+    "wheel>=0.44.0",
+    "pytest-cov>=5.0.0",
+    "twine>=5.1.1",
+]
