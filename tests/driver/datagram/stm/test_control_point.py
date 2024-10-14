@@ -16,7 +16,7 @@ from pyautd3.driver.firmware.fpga.phase import Phase
 
 
 def test_control_point():
-    c = ControlPoint([1.0, 2.0, 3.0]).with_offset(0x80)
+    c = ControlPoint([1.0, 2.0, 3.0]).with_phase_offset(0x80)
     assert np.array_equal(c.point, [1.0, 2.0, 3.0])
     assert c.offset == Phase(0x80)
 

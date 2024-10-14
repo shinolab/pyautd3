@@ -22,15 +22,7 @@ class GroupGainMapPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class GainCalcPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
 class LinkAuditBuilderPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class ModulationCalcPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -56,22 +48,6 @@ class ResultFirmwareVersionList(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
-class ResultGainCalcDrivesMap(ctypes.Structure):
-    _fields_ = [("result", GainCalcPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultGainCalcDrivesMap) and self._fields_ == other._fields_ # pragma: no cover
-                    
-
-class ResultModulationCalc(ctypes.Structure):
-    _fields_ = [("result", ModulationCalcPtr), ("config", SamplingConfig), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultModulationCalc) and self._fields_ == other._fields_ # pragma: no cover
                     
 
 
@@ -359,6 +335,15 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainBesselIsDefault.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainBesselIsDefault.restype = ctypes.c_bool
 
+        self.dll.AUTDGainCache.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainCache.restype = GainPtr
+
+        self.dll.AUTDGainCacheClone.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainCacheClone.restype = GainPtr
+
+        self.dll.AUTDGainCacheFree.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainCacheFree.restype = None
+
         self.dll.AUTDGainCustom.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDGainCustom.restype = GainPtr
 
@@ -382,18 +367,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDGainIntoDatagram.argtypes = [GainPtr]  # type: ignore 
         self.dll.AUTDGainIntoDatagram.restype = DatagramPtr
-
-        self.dll.AUTDGainCalc.argtypes = [GainPtr, GeometryPtr]  # type: ignore 
-        self.dll.AUTDGainCalc.restype = ResultGainCalcDrivesMap
-
-        self.dll.AUTDGainFree.argtypes = [GainPtr]  # type: ignore 
-        self.dll.AUTDGainFree.restype = None
-
-        self.dll.AUTDGainCalcGetResult.argtypes = [GainCalcPtr, ctypes.POINTER(Drive), DevicePtr]  # type: ignore 
-        self.dll.AUTDGainCalcGetResult.restype = None
-
-        self.dll.AUTDGainCalcFreeResult.argtypes = [GainCalcPtr]  # type: ignore 
-        self.dll.AUTDGainCalcFreeResult.restype = None
 
         self.dll.AUTDGainNull.argtypes = [] 
         self.dll.AUTDGainNull.restype = GainPtr
@@ -626,6 +599,15 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkNop.argtypes = [] 
         self.dll.AUTDLinkNop.restype = LinkBuilderPtr
 
+        self.dll.AUTDModulationCache.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationCache.restype = ModulationPtr
+
+        self.dll.AUTDModulationCacheClone.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationCacheClone.restype = ModulationPtr
+
+        self.dll.AUTDModulationCacheFree.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationCacheFree.restype = None
+
         self.dll.AUTDModulationCustom.argtypes = [SamplingConfig, LoopBehavior, ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDModulationCustom.restype = ModulationPtr
 
@@ -655,18 +637,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDModulationIntoDatagram.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationIntoDatagram.restype = DatagramPtr
-
-        self.dll.AUTDModulationCalc.argtypes = [ModulationPtr]  # type: ignore 
-        self.dll.AUTDModulationCalc.restype = ResultModulationCalc
-
-        self.dll.AUTDModulationCalcGetResult.argtypes = [ModulationCalcPtr, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
-        self.dll.AUTDModulationCalcGetResult.restype = None
-
-        self.dll.AUTDModulationCalcGetSize.argtypes = [ModulationCalcPtr]  # type: ignore 
-        self.dll.AUTDModulationCalcGetSize.restype = ctypes.c_uint16
-
-        self.dll.AUTDModulationCalcFreeResult.argtypes = [ModulationCalcPtr]  # type: ignore 
-        self.dll.AUTDModulationCalcFreeResult.restype = None
 
         self.dll.AUTDModulationWithRadiationPressure.argtypes = [ModulationPtr, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationWithRadiationPressure.restype = ModulationPtr
@@ -986,6 +956,15 @@ class NativeMethods(metaclass=Singleton):
     def gain_bessel_is_default(self, bessel: GainPtr) -> ctypes.c_bool:
         return self.dll.AUTDGainBesselIsDefault(bessel)
 
+    def gain_cache(self, g: GainPtr) -> GainPtr:
+        return self.dll.AUTDGainCache(g)
+
+    def gain_cache_clone(self, g: GainPtr) -> GainPtr:
+        return self.dll.AUTDGainCacheClone(g)
+
+    def gain_cache_free(self, g: GainPtr) -> None:
+        return self.dll.AUTDGainCacheFree(g)
+
     def gain_custom(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> GainPtr:
         return self.dll.AUTDGainCustom(f, context, geometry)
 
@@ -1009,18 +988,6 @@ class NativeMethods(metaclass=Singleton):
 
     def gain_into_datagram(self, gain: GainPtr) -> DatagramPtr:
         return self.dll.AUTDGainIntoDatagram(gain)
-
-    def gain_calc(self, gain: GainPtr, geometry: GeometryPtr) -> ResultGainCalcDrivesMap:
-        return self.dll.AUTDGainCalc(gain, geometry)
-
-    def gain_free(self, gain: GainPtr) -> None:
-        return self.dll.AUTDGainFree(gain)
-
-    def gain_calc_get_result(self, src: GainCalcPtr, dst: ctypes.Array | None, device: DevicePtr) -> None:
-        return self.dll.AUTDGainCalcGetResult(src, dst, device)
-
-    def gain_calc_free_result(self, src: GainCalcPtr) -> None:
-        return self.dll.AUTDGainCalcFreeResult(src)
 
     def gain_null(self) -> GainPtr:
         return self.dll.AUTDGainNull()
@@ -1253,6 +1220,15 @@ class NativeMethods(metaclass=Singleton):
     def link_nop(self) -> LinkBuilderPtr:
         return self.dll.AUTDLinkNop()
 
+    def modulation_cache(self, m: ModulationPtr) -> ModulationPtr:
+        return self.dll.AUTDModulationCache(m)
+
+    def modulation_cache_clone(self, m: ModulationPtr) -> ModulationPtr:
+        return self.dll.AUTDModulationCacheClone(m)
+
+    def modulation_cache_free(self, m: ModulationPtr) -> None:
+        return self.dll.AUTDModulationCacheFree(m)
+
     def modulation_custom(self, config: SamplingConfig, loop_behavior: LoopBehavior, ptr: ctypes.Array[ctypes.c_uint8] | None, len: int) -> ModulationPtr:
         return self.dll.AUTDModulationCustom(config, loop_behavior, ptr, len)
 
@@ -1282,18 +1258,6 @@ class NativeMethods(metaclass=Singleton):
 
     def modulation_into_datagram(self, m: ModulationPtr) -> DatagramPtr:
         return self.dll.AUTDModulationIntoDatagram(m)
-
-    def modulation_calc(self, m: ModulationPtr) -> ResultModulationCalc:
-        return self.dll.AUTDModulationCalc(m)
-
-    def modulation_calc_get_result(self, src: ModulationCalcPtr, dst: ctypes.Array[ctypes.c_uint8] | None) -> None:
-        return self.dll.AUTDModulationCalcGetResult(src, dst)
-
-    def modulation_calc_get_size(self, src: ModulationCalcPtr) -> ctypes.c_uint16:
-        return self.dll.AUTDModulationCalcGetSize(src)
-
-    def modulation_calc_free_result(self, src: ModulationCalcPtr) -> None:
-        return self.dll.AUTDModulationCalcFreeResult(src)
 
     def modulation_with_radiation_pressure(self, m: ModulationPtr, loop_behavior: LoopBehavior) -> ModulationPtr:
         return self.dll.AUTDModulationWithRadiationPressure(m, loop_behavior)

@@ -30,12 +30,10 @@ jobs:
             arch: aarch64
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
+      - uses: astral-sh/setup-uv@v3
+      - run: uv python install ${{ env.PYTHON_VERSION }}
       - run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install -U twine wheel build
+          uv sync --all-extras --dev
           python3 x.py build --no-install --arch ${{ matrix.arch }}
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   
