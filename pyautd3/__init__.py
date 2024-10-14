@@ -113,4 +113,4 @@ __all__ = [
     "SilencerTarget",
 ]
 
-__version__ = "28.0.1"
+__version__ = "28.0.1.1"

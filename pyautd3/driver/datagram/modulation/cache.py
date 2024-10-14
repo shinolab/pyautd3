@@ -15,11 +15,12 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
         super().__init__()
         self._m = m
         self._ptr = None
+        self._loop_behavior = m.loop_behavior
 
     def _modulation_ptr(self: "Cache[M]") -> ModulationPtr:
         if self._ptr is None:
             self._ptr = Base().modulation_cache(self._m._modulation_ptr())
-        return Base().modulation_cache_clone(self._ptr)
+        return Base().modulation_cache_clone(self._ptr, self._loop_behavior)
 
     def __del__(self: "Cache[M]") -> None:
         if self._ptr is not None:
