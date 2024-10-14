@@ -31,7 +31,7 @@ class PhaseCorrection(
             if dev_idx not in self._cache:
                 with self._lock:
                     self._cache[dev_idx] = f(Device(dev_idx, geometry_ptr))
-            return self._cache[dev_idx](Transducer(tr_idx, Base().device(geometry_ptr, dev_idx))).value
+            return self._cache[dev_idx](Transducer(tr_idx, dev_idx, Base().device(geometry_ptr, dev_idx))).value
 
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8)(f_native)
 

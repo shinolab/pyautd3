@@ -23,7 +23,7 @@ class Device:
         self._idx = idx
         self._geo_ptr = ptr
         self._ptr = Base().device(ptr, idx)
-        self._transducers = [Transducer(i, self._ptr) for i in range(int(Base().device_num_transducers(self._ptr)))]
+        self._transducers = [Transducer(i, idx, self._ptr) for i in range(int(Base().device_num_transducers(self._ptr)))]
 
     @property
     def idx(self: "Device") -> int:

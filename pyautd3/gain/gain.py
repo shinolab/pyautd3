@@ -25,7 +25,7 @@ class Gain(_Gain[G], Generic[G], metaclass=ABCMeta):
 
         def f_native(_context: ConstPtr, geometry_ptr: GeometryPtr, dev_idx: int, tr_idx: int, raw) -> None:  # noqa: ANN001
             dev = Device(dev_idx, geometry_ptr)
-            tr = Transducer(tr_idx, dev._ptr)
+            tr = Transducer(tr_idx, dev_idx, dev._ptr)
             d = Drive(f(dev)(tr))
             raw[0] = _Drive(d.phase.value, d.intensity.value)
 
