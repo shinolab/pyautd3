@@ -105,17 +105,6 @@ def working_dir(path):
         os.chdir(cwd)
 
 
-@contextlib.contextmanager
-def set_env(key, value):
-    env = os.environ.copy()
-    os.environ[key] = value
-    try:
-        yield
-    finally:
-        os.environ.clear()
-        os.environ.update(env)
-
-
 class Config:
     _platform: str
     release: bool
@@ -159,11 +148,6 @@ class Config:
 
         return wpcap_exists and packet_exists
 
-    def python_module(self, cmd):
-        r = ["python" if self.is_windows() else "python3", "-m"]
-        r.extend(cmd)
-        return r
-
 
 def build_wheel(config: Config):
     with working_dir("."):
@@ -181,7 +165,7 @@ def build_wheel(config: Config):
                 content = content.replace(r"${plat_name}", plat_name)
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
+            subprocess.run(["uv", "build"]).check_returncode()
         elif config.is_macos():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
@@ -189,7 +173,7 @@ def build_wheel(config: Config):
                 content = content.replace(r"${plat_name}", "macosx-11-0-arm64")
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
+            subprocess.run(["uv", "build"]).check_returncode()
         elif config.is_linux():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
@@ -204,7 +188,7 @@ def build_wheel(config: Config):
                 content = content.replace(r"${plat_name}", plat_name)
                 with open("setup.cfg", "w") as f:
                     f.write(content)
-            subprocess.run(config.python_module(["build", "-w"])).check_returncode()
+            subprocess.run(["uv", "build"]).check_returncode()
 
 
 def should_update_dll(config: Config, version: str) -> bool:
@@ -291,42 +275,6 @@ def py_build(args):
 
     build_wheel(config)
 
-    if not args.no_install:
-        with working_dir("."):
-            version = ""
-            with open("setup.cfg.template", "r") as setup:
-                content = setup.read()
-                m = re.search("version = (.*)", content)
-                version = m.group(1)
-            command = config.python_module(["pip", "install"])
-            if config.is_windows():
-                match config.arch:
-                    case "x64":
-                        plat_name = "win_amd64"
-                    case "aarch64":
-                        plat_name = "win_arm64"
-                    case _:
-                        err(f"Unsupported architecture: {config.arch}")
-            elif config.is_macos():
-                if platform.machine() in ["ADM64", "x86_64"]:
-                    err(f'platform "{platform.system()}/{platform.machine()}" is not supported.')
-                else:
-                    plat_name = "macosx_11_0_arm64"
-            elif config.is_linux():
-                match config.arch:
-                    case "x64":
-                        plat_name = "manylinux1_x86_64"
-                    case "aarch64":
-                        plat_name = "manylinux2014_aarch64"
-                    case "armv7l":
-                        plat_name = "linux_armv7l"
-            else:
-                err(f'platform "{platform.system()}/{platform.machine()}" is not supported.')
-                sys.exit(-1)
-            command.append(f"dist/pyautd3-{version}-py3-none-{plat_name}.whl")
-            command.append("--force")
-            subprocess.run(command).check_returncode()
-
 
 def py_test(args):
     config = Config(args)
@@ -334,14 +282,14 @@ def py_test(args):
     copy_dll(config)
 
     with working_dir("."):
-        subprocess.run(config.python_module(["mypy", "pyautd3", "--check-untyped-defs"])).check_returncode()
-        subprocess.run(config.python_module(["ruff", "check", "pyautd3"])).check_returncode()
-        subprocess.run(config.python_module(["mypy", "example", "--check-untyped-defs"])).check_returncode()
-        subprocess.run(config.python_module(["ruff", "check", "example"])).check_returncode()
-        subprocess.run(config.python_module(["mypy", "tests", "--check-untyped-defs"])).check_returncode()
-        subprocess.run(config.python_module(["ruff", "check", "tests"])).check_returncode()
+        subprocess.run(["uv", "run", "mypy", "pyautd3", "--check-untyped-defs"]).check_returncode()
+        subprocess.run(["uv", "run", "ruff", "check", "pyautd3"]).check_returncode()
+        subprocess.run(["uv", "run", "mypy", "example", "--check-untyped-defs"]).check_returncode()
+        subprocess.run(["uv", "run", "ruff", "check", "example"]).check_returncode()
+        subprocess.run(["uv", "run", "mypy", "tests", "--check-untyped-defs"]).check_returncode()
+        subprocess.run(["uv", "run", "ruff", "check", "tests"]).check_returncode()
 
-        command = config.python_module(["pytest", "-n", "auto"])
+        command = ["uv", "run", "pytest", "-n", "auto"]
         if config.is_pcap_available():
             command.append("--soem")
         subprocess.run(command).check_returncode()
@@ -353,7 +301,7 @@ def py_cov(args):
     copy_dll(config)
 
     with working_dir("."):
-        command = config.python_module(["pytest", "-n", "auto"])
+        command = ["uv", "run", "pytest", "-n", "auto"]
         if config.is_pcap_available():
             command.append("--soem")
         command.append("--cov-config=.coveragerc")
@@ -433,7 +381,6 @@ if __name__ == "__main__":
         # build
         parser_py_build = subparsers.add_parser("build", help="see `build -h`")
         parser_py_build.add_argument("--arch", help="cross-compile for specific architecture (for Linux)")
-        parser_py_build.add_argument("--no-install", action="store_true", help="skip install python package")
         parser_py_build.set_defaults(handler=py_build)
 
         # test
