@@ -363,6 +363,12 @@ def util_update_ver(args):
         with open("setup.cfg.template", "w") as f:
             f.write(content)
 
+        with open("pyproject.toml", "r") as f:
+            content = f.read()
+            content = re.sub(r"^version = (.*)", f'version = "{pkg_version}"', content, flags=re.MULTILINE)
+        with open("pyproject.toml", "w") as f:
+            f.write(content)
+
 
 def util_generate_wrapper(_):
     fetch_submodule()

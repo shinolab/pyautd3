@@ -596,7 +596,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationCache.argtypes = [ModulationPtr]  # type: ignore 
         self.dll.AUTDModulationCache.restype = ModulationPtr
 
-        self.dll.AUTDModulationCacheClone.argtypes = [ModulationPtr]  # type: ignore 
+        self.dll.AUTDModulationCacheClone.argtypes = [ModulationPtr, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationCacheClone.restype = ModulationPtr
 
         self.dll.AUTDModulationCacheFree.argtypes = [ModulationPtr]  # type: ignore 
@@ -1211,8 +1211,8 @@ class NativeMethods(metaclass=Singleton):
     def modulation_cache(self, m: ModulationPtr) -> ModulationPtr:
         return self.dll.AUTDModulationCache(m)
 
-    def modulation_cache_clone(self, m: ModulationPtr) -> ModulationPtr:
-        return self.dll.AUTDModulationCacheClone(m)
+    def modulation_cache_clone(self, m: ModulationPtr, loop_behavior: LoopBehavior) -> ModulationPtr:
+        return self.dll.AUTDModulationCacheClone(m, loop_behavior)
 
     def modulation_cache_free(self, m: ModulationPtr) -> None:
         return self.dll.AUTDModulationCacheFree(m)
