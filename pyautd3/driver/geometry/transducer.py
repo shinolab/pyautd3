@@ -9,15 +9,21 @@ from pyautd3.native_methods.autd3capi_driver import (
 
 class Transducer:
     _idx: int
+    _dev_idx: int
     _ptr: TransducerPtr
 
-    def __init__(self: "Transducer", idx: int, ptr: DevicePtr) -> None:
+    def __init__(self: "Transducer", idx: int, dev_idx: int, ptr: DevicePtr) -> None:
         self._idx = idx
+        self._dev_idx = dev_idx
         self._ptr = Base().transducer(ptr, idx)
 
     @property
     def idx(self: "Transducer") -> int:
         return self._idx
+
+    @property
+    def dev_idx(self: "Transducer") -> int:
+        return self._dev_idx
 
     @property
     def position(self: "Transducer") -> np.ndarray:

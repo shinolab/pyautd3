@@ -177,6 +177,13 @@ def test_transducer_idx():
                 assert tr.idx == i
 
 
+def test_transducer_dev_idx():
+    with create_controller() as autd:
+        for dev in autd.geometry:
+            for tr in dev:
+                assert tr.dev_idx == dev.idx
+
+
 def test_transducer_position():
     with create_controller() as autd:
         assert np.allclose(autd.geometry[0][0].position, [0.0, 0.0, 0.0])
