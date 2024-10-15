@@ -59,10 +59,7 @@ class Singleton(type):
 class NativeMethods(metaclass=Singleton):
 
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
-        try:
-            self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_gain_holo{bin_ext}'))
-        except Exception:   # pragma: no cover
-            return          # pragma: no cover
+        self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_gain_holo{bin_ext}'))
 
         self.dll.AUTDGainHoloConstraintNormalize.argtypes = [] 
         self.dll.AUTDGainHoloConstraintNormalize.restype = EmissionConstraintWrap
