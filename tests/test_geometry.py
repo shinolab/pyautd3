@@ -28,7 +28,37 @@ def test_angle_ctr():
         _ = EulerAngles()
 
 
-def test_with_rotation():
+def test_with_rotation_xyz():
+    def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
+        return Controller.builder([AUTD3([0.0, 0.0, 0.0]).with_rotation(q)]).open(Audit.builder())
+
+    with open_with_rotation(EulerAngles.XYZ(90 * deg, 0 * deg, 0 * deg)) as autd:
+        assert np.allclose(autd.geometry[0].x_direction, [1.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry[0].y_direction, [0.0, 0.0, 1.0])
+        assert np.allclose(autd.geometry[0].axial_direction, [0.0, -1.0, 0.0])
+
+    with open_with_rotation(EulerAngles.XYZ(0 * deg, 90 * deg, 0 * deg)) as autd:
+        assert np.allclose(autd.geometry[0].x_direction, [0.0, 0.0, -1.0])
+        assert np.allclose(autd.geometry[0].y_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0].axial_direction, [1.0, 0.0, 0.0])
+
+    with open_with_rotation(EulerAngles.XYZ(0 * deg, 0 * deg, 90 * deg)) as autd:
+        assert np.allclose(autd.geometry[0].x_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0].y_direction, [-1.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry[0].axial_direction, [0.0, 0.0, 1.0])
+
+    with open_with_rotation(EulerAngles.XYZ(0 * deg, 90 * deg, 90 * deg)) as autd:
+        assert np.allclose(autd.geometry[0].x_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0].y_direction, [0.0, 0.0, 1.0])
+        assert np.allclose(autd.geometry[0].axial_direction, [1.0, 0.0, 0.0])
+
+    with open_with_rotation(EulerAngles.XYZ(90 * deg, 90 * deg, 0 * deg)) as autd:
+        assert np.allclose(autd.geometry[0].x_direction, [0.0, 1.0, 0.0])
+        assert np.allclose(autd.geometry[0].y_direction, [0.0, 0.0, 1.0])
+        assert np.allclose(autd.geometry[0].axial_direction, [1.0, 0.0, 0.0])
+
+
+def test_with_rotation_zyz():
     def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
         return Controller.builder([AUTD3([0.0, 0.0, 0.0]).with_rotation(q)]).open(Audit.builder())
 

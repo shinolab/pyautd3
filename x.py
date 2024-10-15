@@ -279,8 +279,6 @@ def py_build(args):
 def py_test(args):
     config = Config(args)
 
-    copy_dll(config)
-
     with working_dir("."):
         subprocess.run(["uv", "run", "mypy", "pyautd3", "--check-untyped-defs"]).check_returncode()
         subprocess.run(["uv", "run", "ruff", "check", "pyautd3"]).check_returncode()
@@ -288,6 +286,8 @@ def py_test(args):
         subprocess.run(["uv", "run", "ruff", "check", "example"]).check_returncode()
         subprocess.run(["uv", "run", "mypy", "tests", "--check-untyped-defs"]).check_returncode()
         subprocess.run(["uv", "run", "ruff", "check", "tests"]).check_returncode()
+
+        copy_dll(config)
 
         command = ["uv", "run", "pytest", "-n", "auto"]
         if config.is_pcap_available():

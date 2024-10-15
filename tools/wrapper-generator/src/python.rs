@@ -386,7 +386,8 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
             )?;
         }
 
-        self.enums
+        () = self
+            .enums
             .iter()
             .map(|e| {
                 writeln!(
@@ -396,7 +397,8 @@ class {}(IntEnum):",
                     e.name
                 )?;
 
-                e.values
+                () = e
+                    .values
                     .iter()
                     .map(|(i, v)| writeln!(w, r"    {} = {}", Self::sub_reserve(i), v))
                     .try_collect()?;
@@ -412,7 +414,8 @@ class {}(IntEnum):",
             })
             .try_collect()?;
 
-        self.structs
+        () = self
+            .structs
             .iter()
             .filter(|e| e.name.ends_with("Ptr"))
             .map(|p| {
@@ -432,7 +435,8 @@ class {}(ctypes.Structure):",
             .try_collect()?;
 
         // TODO: Resolve dependencies and define unions and structs in the correct order
-        self.unions
+        () = self
+            .unions
             .iter()
             .filter(|u| u.name != "STMConfigValue")
             .map(|u| {
@@ -454,7 +458,8 @@ class {}(ctypes.Union):",
             })
             .try_collect()?;
 
-        self.structs
+        () = self
+            .structs
             .iter()
             .filter(|u| u.name != "STMConfigWrap")
             .filter(|e| !e.name.ends_with("Ptr"))
@@ -486,7 +491,8 @@ class {}(ctypes.Structure):",
             })
             .try_collect()?;
 
-        self.unions
+        () = self
+            .unions
             .iter()
             .filter(|u| u.name == "STMConfigValue")
             .map(|u| {
@@ -508,7 +514,8 @@ class {}(ctypes.Union):",
             })
             .try_collect()?;
 
-        self.structs
+        () = self
+            .structs
             .iter()
             .filter(|u| u.name == "STMConfigWrap")
             .map(|p| {
@@ -539,7 +546,8 @@ class {}(ctypes.Structure):",
             })
             .try_collect()?;
 
-        self.constants
+        () = self
+            .constants
             .iter()
             .map(|constant| {
                 write!(
@@ -590,7 +598,8 @@ class NativeMethods(metaclass=Singleton):",
             crate_name.replace('-', "_")
         )?;
 
-        self.functions
+        () = self
+            .functions
             .iter()
             .map(|function| {
                 writeln!(w)?;
@@ -621,7 +630,8 @@ class NativeMethods(metaclass=Singleton):",
             })
             .try_collect()?;
 
-        self.functions
+        () = self
+            .functions
             .iter()
             .map(|function| {
                 writeln!(w)?;

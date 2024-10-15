@@ -35,6 +35,7 @@ class ISamplingMode(metaclass=ABCMeta):
         size: int,
         clamp: bool,  # noqa: FBT001
         scale_factor: float,
+        offset: int,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         pass
@@ -91,6 +92,7 @@ class SamplingModeExact(ISamplingMode):
         size: int,
         clamp: bool,  # noqa: FBT001
         scale_factor: float,
+        offset: int,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         return _validate_ptr(
@@ -99,6 +101,7 @@ class SamplingModeExact(ISamplingMode):
                 size,
                 clamp,
                 scale_factor,
+                offset,
                 loop_behavior,
             ),
         )
@@ -165,6 +168,7 @@ class SamplingModeExactFloat(ISamplingMode):
         size: int,
         clamp: bool,  # noqa: FBT001
         scale_factor: float,
+        offset: int,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         return _validate_ptr(
@@ -173,6 +177,7 @@ class SamplingModeExactFloat(ISamplingMode):
                 size,
                 clamp,
                 scale_factor,
+                offset,
                 loop_behavior,
             ),
         )
@@ -236,6 +241,7 @@ class SamplingModeNearest(ISamplingMode):
         size: int,
         clamp: bool,  # noqa: FBT001
         scale_factor: float,
+        offset: int,
         loop_behavior: LoopBehavior,
     ) -> ModulationPtr:
         return _validate_ptr(
@@ -244,6 +250,7 @@ class SamplingModeNearest(ISamplingMode):
                 size,
                 clamp,
                 scale_factor,
+                offset,
                 loop_behavior,
             ),
         )

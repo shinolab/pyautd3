@@ -298,14 +298,16 @@ def test_fourier_nearest():
 def test_fourier_clamp():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(False).with_scale_factor(None)  # noqa: FBT003
+        m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(False).with_scale_factor(None).with_offset(0)  # noqa: FBT003
         assert not m.clamp
+        assert m.scale_factor is None
+        assert m.offset == 0
         with pytest.raises(AUTDError) as e:
             autd.send(m)
         assert str(e.value) == "Fourier modulation value (-39) is out of range [0, 255]"
 
     with create_controller() as autd:
-        m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(True).with_scale_factor(None)  # noqa: FBT003
+        m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(True).with_scale_factor(None).with_offset(0)  # noqa: FBT003
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
@@ -313,7 +315,7 @@ def test_fourier_clamp():
             assert np.array_equal(mod, mod_expect)
 
     with create_controller() as autd:
-        m = Fourier([Sine(200 * Hz).with_offset(0xFF)]).with_clamp(False).with_scale_factor(2.0)  # noqa: FBT003
+        m = Fourier([Sine(200 * Hz).with_offset(0xFF)]).with_clamp(False).with_scale_factor(2.0).with_offset(0)  # noqa: FBT003
         assert not m.clamp
         with pytest.raises(AUTDError) as e:
             autd.send(m)

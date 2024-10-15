@@ -8,9 +8,16 @@ from pyautd3.native_methods.autd3capi import (
     NativeMethods as Base,
 )
 from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr, SyncMode
-from pyautd3.native_methods.autd3capi_link_soem import LinkRemoteSOEMBuilderPtr, LinkSOEMBuilderPtr, Status, TimerStrategy
+from pyautd3.native_methods.autd3capi_link_soem import (
+    LinkRemoteSOEMBuilderPtr,
+    LinkSOEMBuilderPtr,
+    ProcessPriority,
+    Status,
+    ThreadPriorityPtr,
+    TimerStrategy,
+)
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.utils import ConstantADT, _validate_ptr
 
 ErrHandlerFunc = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint8)  # type: ignore[arg-type]
 
@@ -25,6 +32,18 @@ class EtherCATAdapter:
 
     def __repr__(self: "EtherCATAdapter") -> str:
         return f"{self.desc}, {self.name}"
+
+
+class ThreadPriority(metaclass=ConstantADT):
+    Min: ThreadPriorityPtr = LinkSOEM().link_soem_thread_priority_min()
+    Max: ThreadPriorityPtr = LinkSOEM().link_soem_thread_priority_max()
+
+    @staticmethod
+    def Crossplatform(value: int) -> ThreadPriorityPtr:  # noqa: N802
+        if not (0 <= value <= 99):  # noqa: PLR2004
+            msg = "value must be between 0 and 99"
+            raise ValueError(msg)
+        return LinkSOEM().link_soem_thread_priority_crossplatform(value)
 
 
 class SOEM(Link):
@@ -83,6 +102,14 @@ class SOEM(Link):
 
         def with_timeout(self: "SOEM._Builder", timeout: timedelta) -> "SOEM._Builder":
             self._builder = LinkSOEM().link_soem_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
+            return self
+
+        def with_process_priority(self: "SOEM._Builder", priority: ProcessPriority) -> "SOEM._Builder":
+            self._builder = LinkSOEM().link_soem_with_process_priority(self._builder, priority)
+            return self
+
+        def with_thread_priority(self: "SOEM._Builder", priority: ThreadPriorityPtr) -> "SOEM._Builder":
+            self._builder = LinkSOEM().link_soem_with_thread_priority(self._builder, priority)
             return self
 
         def _link_builder_ptr(self: "SOEM._Builder") -> LinkBuilderPtr:
