@@ -30,7 +30,7 @@ class Wav(
         self._resampler = None
 
     @staticmethod
-    def new_with_resampler(
+    def new_with_resample(
         path: Path,
         target: SamplingConfig | Freq[int] | Freq[float] | timedelta,
         resampler: Resampler,

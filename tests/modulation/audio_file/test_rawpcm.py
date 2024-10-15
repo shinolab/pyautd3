@@ -120,7 +120,7 @@ def test_rawpcm_with_resample():
             for b in buf:
                 f.write(b.to_bytes(1, byteorder="little"))
 
-        autd.send(RawPCM.new_with_resampler(Path(__file__).parent / "custom.dat", 2.0 * kHz, 4 * kHz, SincInterpolation()))
+        autd.send(RawPCM.new_with_resample(Path(__file__).parent / "custom.dat", 2.0 * kHz, 4 * kHz, SincInterpolation()))
 
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)

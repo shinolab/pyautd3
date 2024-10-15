@@ -121,7 +121,7 @@ def test_csv_with_resample():
             writer = csv.writer(f)
             writer.writerow(buf)
 
-        autd.send(Csv.new_with_resampler(Path(__file__).parent / "custom.csv", 2.0 * kHz, 4 * kHz, SincInterpolation()))
+        autd.send(Csv.new_with_resample(Path(__file__).parent / "custom.csv", 2.0 * kHz, 4 * kHz, SincInterpolation()))
 
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)

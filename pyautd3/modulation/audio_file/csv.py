@@ -35,7 +35,7 @@ class Csv(
         self.__private_init__(path, SamplingConfig(config))
 
     @staticmethod
-    def new_with_resampler(
+    def new_with_resample(
         path: Path,
         source: Freq[float],
         target: SamplingConfig | Freq[int] | Freq[float] | timedelta,

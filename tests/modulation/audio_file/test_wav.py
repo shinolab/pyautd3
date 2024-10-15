@@ -119,7 +119,7 @@ def test_wav_with_resample():
             f.setnframes(len(buf))
             f.writeframes(np.array(buf, dtype=np.uint8).tobytes())
 
-        autd.send(Wav.new_with_resampler(Path(__file__).parent / "custom.wav", 4 * kHz, SincInterpolation()))
+        autd.send(Wav.new_with_resample(Path(__file__).parent / "custom.wav", 4 * kHz, SincInterpolation()))
 
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
