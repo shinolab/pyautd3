@@ -43,13 +43,22 @@ from .native_methods.autd3capi_driver import (
     Segment,
     SilencerTarget,
 )
+from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_soem import NativeMethods as Soem
+from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
+from .native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 
 
 def tracing_init() -> None:
     Base().tracing_init()
     with contextlib.suppress(BaseException):
         Soem().autd_link_soem_tracing_init()
+    with contextlib.suppress(BaseException):
+        Simulator().link_simulator_tracing_init()
+    with contextlib.suppress(BaseException):
+        TwinCAT().autd_link_twin_cat_tracing_init()
+    with contextlib.suppress(BaseException):
+        AudioFile().modulation_audio_file_tracing_init()
 
 
 __all__ = [
@@ -113,4 +122,4 @@ __all__ = [
     "SilencerTarget",
 ]
 
-__version__ = "28.0.1.1"
+__version__ = "28.1.0"

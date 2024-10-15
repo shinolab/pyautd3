@@ -4,7 +4,7 @@ import pytest
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
-from pyautd3.link.soem import SOEM, RemoteSOEM, Status, SyncMode, TimerStrategy
+from pyautd3.link.soem import SOEM, ProcessPriority, RemoteSOEM, Status, SyncMode, ThreadPriority, TimerStrategy
 
 
 @pytest.mark.soem
@@ -12,6 +12,18 @@ def test_soem_adapers():
     adapters = SOEM.enumerate_adapters()
     for adapter in adapters:
         print(adapter)
+
+
+@pytest.mark.soem
+def test_soem_thread_priority():
+    _ = ThreadPriority.Max
+    _ = ThreadPriority.Min
+    _ = ThreadPriority.Crossplatform(0)
+    _ = ThreadPriority.Crossplatform(99)
+    with pytest.raises(ValueError):  # noqa: PT011
+        _ = ThreadPriority.Crossplatform(-1)
+    with pytest.raises(ValueError):  # noqa: PT011
+        _ = ThreadPriority.Crossplatform(100)
 
 
 def err_handler(slave: int, status: Status, msg: str) -> None:
@@ -35,6 +47,8 @@ def test_soem():
                 .with_sync_tolerance(timedelta(microseconds=1))
                 .with_sync_timeout(timedelta(seconds=10))
                 .with_state_check_interval(timedelta(milliseconds=100))
+                .with_process_priority(ProcessPriority.High)
+                .with_thread_priority(ThreadPriority.Max)
                 .with_timeout(timedelta(milliseconds=200)),
             )
         ) as _,

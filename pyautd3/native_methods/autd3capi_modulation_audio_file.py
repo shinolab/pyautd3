@@ -27,6 +27,9 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
+        self.dll.AUTDModulationAudioFileTracingInit.argtypes = [] 
+        self.dll.AUTDModulationAudioFileTracingInit.restype = None
+
         self.dll.AUTDModulationAudioFileWav.argtypes = [ctypes.c_char_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileWav.restype = ResultModulation
 
@@ -44,6 +47,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDModulationAudioFileCsvWithResample.argtypes = [ctypes.c_char_p, ctypes.c_uint8, LoopBehavior, ctypes.c_float, SamplingConfig, DynSincInterpolator]  # type: ignore 
         self.dll.AUTDModulationAudioFileCsvWithResample.restype = ResultModulation
+
+    def modulation_audio_file_tracing_init(self) -> None:
+        return self.dll.AUTDModulationAudioFileTracingInit()
 
     def modulation_audio_file_wav(self, path: bytes, loop_behavior: LoopBehavior) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path, loop_behavior)

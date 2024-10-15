@@ -20,12 +20,14 @@ class Fourier(
     _components: list[Sine]
     _clamp: bool
     _scale_factor: float | None
+    _offset: int
 
     def __init__(self: "Fourier", iterable: Iterable[Sine]) -> None:
         super().__init__()
         self._components = list(iterable)
         self._clamp = False
         self._scale_factor = float("nan")
+        self._offset = 0
 
     def with_clamp(self: "Fourier", clamp: bool) -> "Fourier":  # noqa: FBT001
         self._clamp = clamp
@@ -43,6 +45,14 @@ class Fourier(
     def scale_factor(self: "Fourier") -> float | None:
         return self._scale_factor
 
+    def with_offset(self: "Fourier", offset: int) -> "Fourier":
+        self._offset = offset
+        return self
+
+    @property
+    def offset(self: "Fourier") -> int:
+        return self._offset
+
     def _modulation_ptr(self: "Fourier") -> ModulationPtr:
         components: np.ndarray = np.ndarray(len(self._components), dtype=ModulationPtr)
         for i, m in enumerate(self._components):
@@ -51,6 +61,7 @@ class Fourier(
             components,
             len(self._components),
             self._clamp,
-            self._scale_factor if self.scale_factor is not None else float("nan"),  # type: ignore[arg-type]
+            self._scale_factor if self._scale_factor is not None else float("nan"),  # type: ignore[arg-type]
+            self._offset,
             self._loop_behavior,
         )

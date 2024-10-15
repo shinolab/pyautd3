@@ -39,6 +39,9 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
+        self.dll.AUTDLinkSimulatorTracingInit.argtypes = [] 
+        self.dll.AUTDLinkSimulatorTracingInit.restype = None
+
         self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_char_p] 
         self.dll.AUTDLinkSimulator.restype = ResultLinkSimulatorBuilder
 
@@ -47,6 +50,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkSimulatorIntoBuilder.argtypes = [LinkSimulatorBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkSimulatorIntoBuilder.restype = LinkBuilderPtr
+
+    def link_simulator_tracing_init(self) -> None:
+        return self.dll.AUTDLinkSimulatorTracingInit()
 
     def link_simulator(self, addr: bytes) -> ResultLinkSimulatorBuilder:
         return self.dll.AUTDLinkSimulator(addr)

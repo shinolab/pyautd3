@@ -440,6 +440,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGeometryNumDevices.argtypes = [GeometryPtr]  # type: ignore 
         self.dll.AUTDGeometryNumDevices.restype = ctypes.c_uint32
 
+        self.dll.AUTDRotationFromEulerXYZ.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float] 
+        self.dll.AUTDRotationFromEulerXYZ.restype = Quaternion
+
         self.dll.AUTDRotationFromEulerZYZ.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float] 
         self.dll.AUTDRotationFromEulerZYZ.restype = Quaternion
 
@@ -611,13 +614,13 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationWithFir.argtypes = [ModulationPtr, LoopBehavior, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDModulationWithFir.restype = ModulationPtr
 
-        self.dll.AUTDModulationFourierExact.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierExact.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourierExact.restype = ResultModulation
 
-        self.dll.AUTDModulationFourierExactFloat.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierExactFloat.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourierExactFloat.restype = ResultModulation
 
-        self.dll.AUTDModulationFourierNearest.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, LoopBehavior]  # type: ignore 
+        self.dll.AUTDModulationFourierNearest.argtypes = [ctypes.POINTER(ModulationPtr), ctypes.c_uint32, ctypes.c_bool, ctypes.c_float, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationFourierNearest.restype = ResultModulation
 
         self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]  # type: ignore 
@@ -1055,8 +1058,11 @@ class NativeMethods(metaclass=Singleton):
     def geometry_num_devices(self, geo: GeometryPtr) -> ctypes.c_uint32:
         return self.dll.AUTDGeometryNumDevices(geo)
 
-    def rotation_from_euler_zyz(self, x: float, y: float, z: float) -> Quaternion:
-        return self.dll.AUTDRotationFromEulerZYZ(x, y, z)
+    def rotation_from_euler_xyz(self, x: float, y: float, z: float) -> Quaternion:
+        return self.dll.AUTDRotationFromEulerXYZ(x, y, z)
+
+    def rotation_from_euler_zyz(self, z1: float, y: float, z2: float) -> Quaternion:
+        return self.dll.AUTDRotationFromEulerZYZ(z1, y, z2)
 
     def transducer(self, dev: DevicePtr, idx: int) -> TransducerPtr:
         return self.dll.AUTDTransducer(dev, idx)
@@ -1226,14 +1232,14 @@ class NativeMethods(metaclass=Singleton):
     def modulation_with_fir(self, m: ModulationPtr, loop_behavior: LoopBehavior, coef: ctypes.Array[ctypes.c_float] | None, n_tap: int) -> ModulationPtr:
         return self.dll.AUTDModulationWithFir(m, loop_behavior, coef, n_tap)
 
-    def modulation_fourier_exact(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationFourierExact(components, size, clamp, scale_factor, loop_behavior)
+    def modulation_fourier_exact(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, offset: int, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationFourierExact(components, size, clamp, scale_factor, offset, loop_behavior)
 
-    def modulation_fourier_exact_float(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationFourierExactFloat(components, size, clamp, scale_factor, loop_behavior)
+    def modulation_fourier_exact_float(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, offset: int, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationFourierExactFloat(components, size, clamp, scale_factor, offset, loop_behavior)
 
-    def modulation_fourier_nearest(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, loop_behavior: LoopBehavior) -> ResultModulation:
-        return self.dll.AUTDModulationFourierNearest(components, size, clamp, scale_factor, loop_behavior)
+    def modulation_fourier_nearest(self, components: ctypes.Array | None, size: int, clamp: bool, scale_factor: float, offset: int, loop_behavior: LoopBehavior) -> ResultModulation:
+        return self.dll.AUTDModulationFourierNearest(components, size, clamp, scale_factor, offset, loop_behavior)
 
     def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfig:
         return self.dll.AUTDModulationSamplingConfig(m)

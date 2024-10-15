@@ -8,6 +8,19 @@ from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, SyncMode
 from enum import IntEnum
 
 
+class ProcessPriority(IntEnum):
+    Idle = 0
+    BelowNormal = 1
+    Normal = 2
+    AboveNormal = 3
+    High = 4
+    Realtime = 5
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class Status(IntEnum):
     Error = 0
     StateChanged = 1
@@ -36,6 +49,10 @@ class LinkSOEMBuilderPtr(ctypes.Structure):
 
 
 class LinkRemoteSOEMBuilderPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class ThreadPriorityPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -68,9 +85,6 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
-        self.dll.AUTDAUTDLinkSOEMTracingInit.argtypes = [] 
-        self.dll.AUTDAUTDLinkSOEMTracingInit.restype = None
-
         self.dll.AUTDAdapterPointer.argtypes = [] 
         self.dll.AUTDAdapterPointer.restype = EthernetAdaptersPtr
 
@@ -82,6 +96,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDAdapterPointerDelete.argtypes = [EthernetAdaptersPtr]  # type: ignore 
         self.dll.AUTDAdapterPointerDelete.restype = None
+
+        self.dll.AUTDAUTDLinkSOEMTracingInit.argtypes = [] 
+        self.dll.AUTDAUTDLinkSOEMTracingInit.restype = None
 
         self.dll.AUTDLinkSOEM.argtypes = [] 
         self.dll.AUTDLinkSOEM.restype = LinkSOEMBuilderPtr
@@ -122,6 +139,12 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSOEMWithTimeout.argtypes = [LinkSOEMBuilderPtr, ctypes.c_uint64]  # type: ignore 
         self.dll.AUTDLinkSOEMWithTimeout.restype = LinkSOEMBuilderPtr
 
+        self.dll.AUTDLinkSOEMWithProcessPriority.argtypes = [LinkSOEMBuilderPtr, ProcessPriority]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithProcessPriority.restype = LinkSOEMBuilderPtr
+
+        self.dll.AUTDLinkSOEMWithThreadPriority.argtypes = [LinkSOEMBuilderPtr, ThreadPriorityPtr]  # type: ignore 
+        self.dll.AUTDLinkSOEMWithThreadPriority.restype = LinkSOEMBuilderPtr
+
         self.dll.AUTDLinkSOEMIntoBuilder.argtypes = [LinkSOEMBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkSOEMIntoBuilder.restype = LinkBuilderPtr
 
@@ -134,8 +157,14 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.argtypes = [LinkRemoteSOEMBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteSOEMIntoBuilder.restype = LinkBuilderPtr
 
-    def autd_link_soem_tracing_init(self) -> None:
-        return self.dll.AUTDAUTDLinkSOEMTracingInit()
+        self.dll.AUTDLinkSOEMThreadPriorityMin.argtypes = [] 
+        self.dll.AUTDLinkSOEMThreadPriorityMin.restype = ThreadPriorityPtr
+
+        self.dll.AUTDLinkSOEMThreadPriorityCrossplatform.argtypes = [ctypes.c_uint8] 
+        self.dll.AUTDLinkSOEMThreadPriorityCrossplatform.restype = ThreadPriorityPtr
+
+        self.dll.AUTDLinkSOEMThreadPriorityMax.argtypes = [] 
+        self.dll.AUTDLinkSOEMThreadPriorityMax.restype = ThreadPriorityPtr
 
     def adapter_pointer(self) -> EthernetAdaptersPtr:
         return self.dll.AUTDAdapterPointer()
@@ -148,6 +177,9 @@ class NativeMethods(metaclass=Singleton):
 
     def adapter_pointer_delete(self, adapters: EthernetAdaptersPtr) -> None:
         return self.dll.AUTDAdapterPointerDelete(adapters)
+
+    def autd_link_soem_tracing_init(self) -> None:
+        return self.dll.AUTDAUTDLinkSOEMTracingInit()
 
     def link_soem(self) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEM()
@@ -188,6 +220,12 @@ class NativeMethods(metaclass=Singleton):
     def link_soem_with_timeout(self, soem: LinkSOEMBuilderPtr, timeout_ns: int) -> LinkSOEMBuilderPtr:
         return self.dll.AUTDLinkSOEMWithTimeout(soem, timeout_ns)
 
+    def link_soem_with_process_priority(self, soem: LinkSOEMBuilderPtr, priority: ProcessPriority) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithProcessPriority(soem, priority)
+
+    def link_soem_with_thread_priority(self, soem: LinkSOEMBuilderPtr, priority: ThreadPriorityPtr) -> LinkSOEMBuilderPtr:
+        return self.dll.AUTDLinkSOEMWithThreadPriority(soem, priority)
+
     def link_soem_into_builder(self, soem: LinkSOEMBuilderPtr) -> LinkBuilderPtr:
         return self.dll.AUTDLinkSOEMIntoBuilder(soem)
 
@@ -199,3 +237,12 @@ class NativeMethods(metaclass=Singleton):
 
     def link_remote_soem_into_builder(self, soem: LinkRemoteSOEMBuilderPtr) -> LinkBuilderPtr:
         return self.dll.AUTDLinkRemoteSOEMIntoBuilder(soem)
+
+    def link_soem_thread_priority_min(self) -> ThreadPriorityPtr:
+        return self.dll.AUTDLinkSOEMThreadPriorityMin()
+
+    def link_soem_thread_priority_crossplatform(self, value: int) -> ThreadPriorityPtr:
+        return self.dll.AUTDLinkSOEMThreadPriorityCrossplatform(value)
+
+    def link_soem_thread_priority_max(self) -> ThreadPriorityPtr:
+        return self.dll.AUTDLinkSOEMThreadPriorityMax()

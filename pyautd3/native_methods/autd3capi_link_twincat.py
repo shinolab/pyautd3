@@ -43,6 +43,9 @@ class NativeMethods(metaclass=Singleton):
         except Exception:   # pragma: no cover
             return          # pragma: no cover
 
+        self.dll.AUTDAUTDLinkTwinCATTracingInit.argtypes = [] 
+        self.dll.AUTDAUTDLinkTwinCATTracingInit.restype = None
+
         self.dll.AUTDLinkTwinCAT.argtypes = [] 
         self.dll.AUTDLinkTwinCAT.restype = LinkTwinCATBuilderPtr
 
@@ -66,6 +69,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkRemoteTwinCATIntoBuilder.argtypes = [LinkRemoteTwinCATBuilderPtr]  # type: ignore 
         self.dll.AUTDLinkRemoteTwinCATIntoBuilder.restype = LinkBuilderPtr
+
+    def autd_link_twin_cat_tracing_init(self) -> None:
+        return self.dll.AUTDAUTDLinkTwinCATTracingInit()
 
     def link_twin_cat(self) -> LinkTwinCATBuilderPtr:
         return self.dll.AUTDLinkTwinCAT()
