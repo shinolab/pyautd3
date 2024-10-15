@@ -78,10 +78,7 @@ class Singleton(type):
 class NativeMethods(metaclass=Singleton):
 
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
-        try:
-            self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_emulator{bin_ext}'))
-        except Exception:   # pragma: no cover
-            return          # pragma: no cover
+        self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_emulator{bin_ext}'))
 
         self.dll.AUTDEmulator.argtypes = [ctypes.POINTER(Vector3), ctypes.POINTER(Quaternion), ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDEmulator.restype = EmulatorPtr
