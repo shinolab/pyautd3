@@ -1,3 +1,5 @@
+from typing import Self
+
 import numpy as np
 
 
@@ -14,10 +16,10 @@ class Angle:
         return ins
 
     @property
-    def radian(self: "Angle") -> float:
+    def radian(self: Self) -> float:
         return self._value
 
-    def __eq__(self: "Angle", other: object) -> bool:
+    def __eq__(self: Self, other: object) -> bool:
         return isinstance(other, Angle) and self._value == other._value
 
     class _UnitRad:
@@ -28,7 +30,7 @@ class Angle:
         def __private_new__(cls: type["Angle._UnitRad"]) -> "Angle._UnitRad":
             return super().__new__(cls)
 
-        def __rmul__(self: "Angle._UnitRad", other: float) -> "Angle":
+        def __rmul__(self: Self, other: float) -> "Angle":
             return Angle.__private_new__(other)
 
     class _UnitDegree:
@@ -39,7 +41,7 @@ class Angle:
         def __private_new__(cls: type["Angle._UnitDegree"]) -> "Angle._UnitDegree":
             return super().__new__(cls)
 
-        def __rmul__(self: "Angle._UnitDegree", other: float) -> "Angle":
+        def __rmul__(self: Self, other: float) -> "Angle":
             return Angle.__private_new__(np.deg2rad(other))
 
 

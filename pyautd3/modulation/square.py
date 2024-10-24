@@ -1,4 +1,4 @@
-from typing import TypeVar
+from typing import Self, TypeVar
 
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq, Hz
@@ -16,14 +16,14 @@ class Square(Modulation["Square"]):
     _high: int
     _duty: float
 
-    def __private__init__(self: "Square", mode: ISamplingMode) -> None:
+    def __private__init__(self: Self, mode: ISamplingMode) -> None:
         super().__init__(SamplingConfig(10))
         self._mode = mode
         self._low = 0x00
         self._high = 0xFF
         self._duty = 0.5
 
-    def __init__(self: "Square", freq: Freq[T]) -> None:
+    def __init__(self: Self, freq: Freq[T]) -> None:
         match freq.hz:
             case int():
                 self.__private__init__(SamplingModeExact(freq))  # type: ignore[arg-type]
@@ -37,34 +37,34 @@ class Square(Modulation["Square"]):
         return sine
 
     @property
-    def freq(self: "Square") -> Freq[int] | Freq[float]:
+    def freq(self: Self) -> Freq[int] | Freq[float]:
         return self._mode.square_freq() * Hz
 
-    def with_low(self: "Square", low: int) -> "Square":
+    def with_low(self: Self, low: int) -> Self:
         self._low = _validate_u8(low)
         return self
 
     @property
-    def low(self: "Square") -> int:
+    def low(self: Self) -> int:
         return self._low
 
-    def with_high(self: "Square", high: int) -> "Square":
+    def with_high(self: Self, high: int) -> Self:
         self._high = _validate_u8(high)
         return self
 
     @property
-    def high(self: "Square") -> int:
+    def high(self: Self) -> int:
         return self._high
 
-    def with_duty(self: "Square", duty: float) -> "Square":
+    def with_duty(self: Self, duty: float) -> Self:
         self._duty = duty
         return self
 
     @property
-    def duty(self: "Square") -> float:
+    def duty(self: Self) -> float:
         return self._duty
 
-    def _modulation_ptr(self: "Square") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         return self._mode.square_ptr(
             self._config._inner,
             self._low,

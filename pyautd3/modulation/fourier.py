@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from typing import Self
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
@@ -20,38 +21,38 @@ class Fourier(
     _scale_factor: float | None
     _offset: int
 
-    def __init__(self: "Fourier", iterable: Iterable[Sine]) -> None:
+    def __init__(self: Self, iterable: Iterable[Sine]) -> None:
         super().__init__()
         self._components = list(iterable)
         self._clamp = False
         self._scale_factor = float("nan")
         self._offset = 0
 
-    def with_clamp(self: "Fourier", clamp: bool) -> "Fourier":  # noqa: FBT001
+    def with_clamp(self: Self, clamp: bool) -> Self:  # noqa: FBT001
         self._clamp = clamp
         return self
 
     @property
-    def clamp(self: "Fourier") -> bool:
+    def clamp(self: Self) -> bool:
         return self._clamp
 
-    def with_scale_factor(self: "Fourier", scale_factor: float | None) -> "Fourier":
+    def with_scale_factor(self: Self, scale_factor: float | None) -> Self:
         self._scale_factor = scale_factor
         return self
 
     @property
-    def scale_factor(self: "Fourier") -> float | None:
+    def scale_factor(self: Self) -> float | None:
         return self._scale_factor
 
-    def with_offset(self: "Fourier", offset: int) -> "Fourier":
+    def with_offset(self: Self, offset: int) -> Self:
         self._offset = offset
         return self
 
     @property
-    def offset(self: "Fourier") -> int:
+    def offset(self: Self) -> int:
         return self._offset
 
-    def _modulation_ptr(self: "Fourier") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         return self._components[0]._mode.fourier_ptr(
             self._components,
             len(self._components),

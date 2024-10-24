@@ -5,11 +5,13 @@ import pytest
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
+from pyautd3.controller.timer_strategy import SpinSleeper, TimerStrategy
 from pyautd3.driver.datagram.silencer import FixedCompletionTime, Silencer
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.emulator import Emulator, Range, Recorder, RecordOption
 from pyautd3.gain import Uniform
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 
 def create_emulator() -> Emulator:
@@ -18,6 +20,19 @@ def create_emulator() -> Emulator:
         .with_send_interval(timedelta(milliseconds=1))
         .with_receive_interval(timedelta(milliseconds=1))
         .with_fallback_parallel_threshold(4)
+        .with_fallback_timeout(timedelta(milliseconds=20))
+        .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
+    )
+
+
+def test_emulator_is_default():
+    default = Emulator([])
+    Base().controller_builder_is_default(
+        default.fallback_parallel_threshold,
+        int(default.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
+        int(default.send_interval.total_seconds() * 1000 * 1000 * 1000),
+        int(default.receive_interval.total_seconds() * 1000 * 1000 * 1000),
+        default.timer_strategy,
     )
 
 
@@ -38,6 +53,8 @@ def test_record_drive():
         for dev in emulator.geometry:
             for tr in dev:
                 assert np.array_equal(np.array([42, 128], np.uint8), drive[f"pulsewidth_{dev.idx}_{tr.idx}"])
+        for dev in emulator.geometry:
+            for tr in dev:
                 assert np.array_equal(np.array([32, 64], np.uint8), drive[f"phase_{dev.idx}_{tr.idx}"])
 
 

@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Iterable
+from typing import Self
 
 import numpy as np
 
@@ -16,19 +17,19 @@ from .holo import HoloWithBackend
 class GSPAT(HoloWithBackend["GSPAT"]):
     _repeat: int
 
-    def __init__(self: "GSPAT", backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
+    def __init__(self: Self, backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
         super().__init__(EmissionConstraint.Clamp(0x00, 0xFF), backend, iterable)
         self._repeat = 100
 
-    def with_repeat(self: "GSPAT", value: int) -> "GSPAT":
+    def with_repeat(self: Self, value: int) -> Self:
         self._repeat = value
         return self
 
     @property
-    def repeat(self: "GSPAT") -> int:
+    def repeat(self: Self) -> int:
         return self._repeat
 
-    def _gain_ptr(self: "GSPAT", _: Geometry) -> GainPtr:
+    def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         size = len(self._amps)
         foci = np.fromiter((np.void(Vector3(d)) for d in self._foci), dtype=Vector3)  # type: ignore[type-var,call-overload]
         amps = np.fromiter((d.pascal for d in self._amps), dtype=ctypes.c_float)  # type: ignore[type-var,call-overload]

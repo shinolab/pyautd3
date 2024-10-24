@@ -19,10 +19,10 @@ def test_custom():
 
         def f(dev: Device) -> Callable[[Transducer], Drive]:
             if dev.idx == 0:
-                return lambda tr: Drive((Phase(0x90), EmitIntensity(0x80))) if tr.idx == 0 else Drive.null()
+                return lambda tr: Drive((Phase(0x90), EmitIntensity(0x80))) if tr.idx == 0 else Drive.NULL()
             if dev.idx == 1:
-                return lambda tr: Drive((Phase(0x91), EmitIntensity(0x81))) if tr.idx == 248 else Drive.null()
-            return lambda _: Drive.null()
+                return lambda tr: Drive((Phase(0x91), EmitIntensity(0x81))) if tr.idx == 248 else Drive.NULL()
+            return lambda _: Drive.NULL()
 
         autd.send(Custom(f))
 

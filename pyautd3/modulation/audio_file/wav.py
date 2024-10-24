@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from typing import Self
 
 from pyautd3 import SamplingConfig
 from pyautd3.driver.datagram.modulation.base import ModulationBase
@@ -24,7 +25,7 @@ class Wav(
     _path: Path
     _resampler: tuple[SamplingConfig, Resampler] | None
 
-    def __init__(self: "Wav", path: Path) -> None:
+    def __init__(self: Self, path: Path) -> None:
         super().__init__()
         self._path = path
         self._resampler = None
@@ -39,7 +40,7 @@ class Wav(
         instance._resampler = (SamplingConfig(target), resampler)
         return instance
 
-    def _modulation_ptr(self: "Wav") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         path = str(self._path).encode("utf-8")
         match self._resampler:
             case (SamplingConfig(), Resampler()):

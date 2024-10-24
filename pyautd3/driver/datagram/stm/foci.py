@@ -1,7 +1,7 @@
 import ctypes
 from collections.abc import Iterable
 from datetime import timedelta
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -88,7 +88,7 @@ class FociSTM(
         self._loop_behavior = LoopBehavior.Infinite
 
     def __init__(
-        self: "FociSTM",
+        self: Self,
         config: "SamplingConfig | Freq[float] | timedelta",
         iterable: Iterable[ArrayLike]
         | Iterable[ControlPoints1]
@@ -122,10 +122,10 @@ class FociSTM(
         ins.__private_init__(STMSamplingConfig._nearest(config, len(foci)), foci)
         return ins
 
-    def _raw_ptr(self: "FociSTM", _: Geometry) -> FociSTMPtr:
+    def _raw_ptr(self: Self, _: Geometry) -> FociSTMPtr:
         return self._ptr()
 
-    def _ptr(self: "FociSTM") -> FociSTMPtr:
+    def _ptr(self: Self) -> FociSTMPtr:
         n = self._points[0]._value()
         points = np.fromiter((np.void(p) for p in self._points), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
         return _validate_ptr(
@@ -138,10 +138,10 @@ class FociSTM(
             ),
         )
 
-    def _datagram_ptr(self: "FociSTM", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().stm_foci_into_datagram(self._raw_ptr(geometry), self._points[0]._value())
 
-    def _into_segment(self: "FociSTM", ptr: FociSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+    def _into_segment(self: Self, ptr: FociSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
         return Base().stm_foci_into_datagram_with_segment(
             ptr,
             self._points[0]._value(),
@@ -149,24 +149,24 @@ class FociSTM(
             transition_mode if transition_mode is not None else TransitionMode.NONE,
         )
 
-    def with_loop_behavior(self: "FociSTM", value: _LoopBehavior) -> "FociSTM":
+    def with_loop_behavior(self: Self, value: _LoopBehavior) -> Self:
         self._loop_behavior = value
         return self
 
     @property
-    def freq(self: "FociSTM") -> Freq[float]:
+    def freq(self: Self) -> Freq[float]:
         return self._stm_sampling_config.freq()
 
     @property
-    def period(self: "FociSTM") -> timedelta:
+    def period(self: Self) -> timedelta:
         return self._stm_sampling_config.period()
 
     @property
-    def sampling_config(self: "FociSTM") -> SamplingConfig:
+    def sampling_config(self: Self) -> SamplingConfig:
         return self._stm_sampling_config.sampling_config()
 
-    def _sampling_config_intensity(self: "FociSTM") -> SamplingConfig:
+    def _sampling_config_intensity(self: Self) -> SamplingConfig:
         return self.sampling_config
 
-    def _sampling_config_phase(self: "FociSTM") -> SamplingConfig:
+    def _sampling_config_phase(self: Self) -> SamplingConfig:
         return self.sampling_config

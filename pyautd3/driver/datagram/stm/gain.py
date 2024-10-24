@@ -1,6 +1,7 @@
 import ctypes
 from collections.abc import Iterable
 from datetime import timedelta
+from typing import Self
 
 import numpy as np
 
@@ -44,7 +45,7 @@ class GainSTM(
     _loop_behavior: _LoopBehavior
 
     def __private_init__(
-        self: "GainSTM",
+        self: Self,
         sampling_config: STMSamplingConfig,
         gains: list[GainBase],
     ) -> None:
@@ -55,7 +56,7 @@ class GainSTM(
         self._loop_behavior = LoopBehavior.Infinite
 
     def __init__(
-        self: "GainSTM",
+        self: Self,
         config: "SamplingConfig | Freq[float] | timedelta",
         iterable: Iterable[GainBase],
     ) -> None:
@@ -73,13 +74,13 @@ class GainSTM(
         ins.__private_init__(STMSamplingConfig._nearest(config, len(gains)), gains)
         return ins
 
-    def _raw_ptr(self: "GainSTM", geometry: Geometry) -> GainSTMPtr:
+    def _raw_ptr(self: Self, geometry: Geometry) -> GainSTMPtr:
         gains: np.ndarray = np.ndarray(len(self._gains), dtype=GainPtr)
         for i, g in enumerate(self._gains):
             gains[i]["_0"] = g._gain_ptr(geometry)._0
         return self._ptr(gains)
 
-    def _ptr(self: "GainSTM", gains: np.ndarray) -> GainSTMPtr:
+    def _ptr(self: Self, gains: np.ndarray) -> GainSTMPtr:
         return _validate_ptr(
             Base().stm_gain(
                 self._stm_sampling_config._inner,
@@ -90,42 +91,42 @@ class GainSTM(
             ),
         )
 
-    def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
 
-    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+    def _into_segment(self: Self, ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
         return Base().stm_gain_into_datagram_with_segment(
             ptr,
             segment,
             transition_mode if transition_mode is not None else TransitionMode.NONE,
         )
 
-    def with_mode(self: "GainSTM", mode: GainSTMMode) -> "GainSTM":
+    def with_mode(self: Self, mode: GainSTMMode) -> Self:
         self._mode = mode
         return self
 
     @property
-    def mode(self: "GainSTM") -> GainSTMMode:
+    def mode(self: Self) -> GainSTMMode:
         return self._mode
 
-    def with_loop_behavior(self: "GainSTM", value: _LoopBehavior) -> "GainSTM":
+    def with_loop_behavior(self: Self, value: _LoopBehavior) -> Self:
         self._loop_behavior = value
         return self
 
     @property
-    def freq(self: "GainSTM") -> Freq[float]:
+    def freq(self: Self) -> Freq[float]:
         return self._stm_sampling_config.freq()
 
     @property
-    def period(self: "GainSTM") -> timedelta:
+    def period(self: Self) -> timedelta:
         return self._stm_sampling_config.period()
 
     @property
-    def sampling_config(self: "GainSTM") -> SamplingConfig:
+    def sampling_config(self: Self) -> SamplingConfig:
         return self._stm_sampling_config.sampling_config()
 
-    def _sampling_config_intensity(self: "GainSTM") -> SamplingConfig:
+    def _sampling_config_intensity(self: Self) -> SamplingConfig:
         return self.sampling_config
 
-    def _sampling_config_phase(self: "GainSTM") -> SamplingConfig:
+    def _sampling_config_phase(self: Self) -> SamplingConfig:
         return self.sampling_config

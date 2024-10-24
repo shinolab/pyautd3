@@ -1,6 +1,7 @@
 import ctypes
 import threading
 from collections.abc import Callable
+from typing import Self
 
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
@@ -22,7 +23,7 @@ class PhaseCorrection(
     _cache: dict[int, Callable[[Transducer], Phase]]
     _lock: threading.Lock
 
-    def __init__(self: "PhaseCorrection", f: Callable[[Device], Callable[[Transducer], Phase]]) -> None:
+    def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], Phase]]) -> None:
         super().__init__()
         self._cache = {}
         self._lock = threading.Lock()
@@ -35,5 +36,5 @@ class PhaseCorrection(
 
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8)(f_native)
 
-    def _datagram_ptr(self: "PhaseCorrection", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().datagram_phase_corr(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]

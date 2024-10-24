@@ -1,5 +1,6 @@
 import ctypes
 from abc import abstractmethod
+from typing import Self
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -18,20 +19,20 @@ class ControlPoint(ctypes.Structure):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: "ControlPoint", point: ArrayLike) -> None:
+    def __init__(self: Self, point: ArrayLike) -> None:
         super().__init__()
         self._point = Vector3(np.array(point))
         self._offset = 0
 
     @property
-    def point(self: "ControlPoint") -> np.ndarray:
+    def point(self: Self) -> np.ndarray:
         return self._point.ndarray()
 
     @property
-    def offset(self: "ControlPoint") -> Phase:
+    def offset(self: Self) -> Phase:
         return Phase(self._offset)
 
-    def with_phase_offset(self: "ControlPoint", phase: int | Phase) -> "ControlPoint":
+    def with_phase_offset(self: Self, phase: int | Phase) -> Self:
         self._offset = Phase(phase).value
         return self
 
@@ -50,7 +51,7 @@ class ControlPoints1(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: "ControlPoints1", point: ArrayLike | ControlPoint) -> None:
+    def __init__(self: Self, point: ArrayLike | ControlPoint) -> None:
         super().__init__()
         match point:
             case ControlPoint():
@@ -60,10 +61,10 @@ class ControlPoints1(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints1") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints1", intensity: int | EmitIntensity) -> "ControlPoints1":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -80,7 +81,7 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: "ControlPoints2", points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint]) -> None:
+    def __init__(self: Self, points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint]) -> None:
         super().__init__()
         match points:
             case (ControlPoint(), ControlPoint()):
@@ -90,10 +91,10 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints2") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints2", intensity: int | EmitIntensity) -> "ControlPoints2":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -111,7 +112,7 @@ class ControlPoints3(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: "ControlPoints3", points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint]) -> None:
+    def __init__(self: Self, points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint]) -> None:
         super().__init__()
         match points:
             case (ControlPoint(), ControlPoint(), ControlPoint()):
@@ -121,10 +122,10 @@ class ControlPoints3(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints3") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints3", intensity: int | EmitIntensity) -> "ControlPoints3":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -144,7 +145,7 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
     ]
 
     def __init__(
-        self: "ControlPoints4",
+        self: Self,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint],
     ) -> None:
         super().__init__()
@@ -161,10 +162,10 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints4") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints4", intensity: int | EmitIntensity) -> "ControlPoints4":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -185,7 +186,7 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
     ]
 
     def __init__(
-        self: "ControlPoints5",
+        self: Self,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
     ) -> None:
@@ -204,10 +205,10 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints5") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints5", intensity: int | EmitIntensity) -> "ControlPoints5":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -229,7 +230,7 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
     ]
 
     def __init__(
-        self: "ControlPoints6",
+        self: Self,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
     ) -> None:
@@ -249,10 +250,10 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints6") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints6", intensity: int | EmitIntensity) -> "ControlPoints6":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -275,7 +276,7 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
     ]
 
     def __init__(
-        self: "ControlPoints7",
+        self: Self,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
     ) -> None:
@@ -304,10 +305,10 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints7") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints7", intensity: int | EmitIntensity) -> "ControlPoints7":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 
@@ -331,7 +332,7 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
     ]
 
     def __init__(
-        self: "ControlPoints8",
+        self: Self,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
     ) -> None:
@@ -362,10 +363,10 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
         self._intensity = 0xFF
 
     @property
-    def intensity(self: "ControlPoints8") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
 
-    def with_intensity(self: "ControlPoints8", intensity: int | EmitIntensity) -> "ControlPoints8":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity).value
         return self
 

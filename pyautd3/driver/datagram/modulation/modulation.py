@@ -1,6 +1,6 @@
 from abc import ABCMeta
 from datetime import timedelta
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
@@ -24,7 +24,7 @@ class Modulation(
 ):
     _config: SamplingConfig
 
-    def __init__(self: "Modulation[M]", config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         super().__init__()
         self._config = SamplingConfig(config)
 

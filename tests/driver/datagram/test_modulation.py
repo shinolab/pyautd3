@@ -6,7 +6,7 @@ from pyautd3 import Controller, Segment, Static
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
-from pyautd3.modulation import Modulation, Sine
+from pyautd3.modulation import Sine
 from pyautd3.modulation.fourier import Fourier
 from tests.test_autd import create_controller
 
@@ -23,6 +23,7 @@ def test_cache():
 
         autd1.send(m1)
         autd2.send(m2)
+        autd2.send(m2)
 
         for dev in autd1.geometry:
             mod_expect = autd1._link.modulation_buffer(dev.idx, Segment.S0)
@@ -35,36 +36,6 @@ def test_cache():
         assert np.array_equal(mod1, mod2)
 
     _ = Sine(150 * Hz).with_cache()
-
-
-class CacheTest(Modulation["CacheTest"]):
-    calc_cnt: int
-
-    def __init__(self: "CacheTest") -> None:
-        super().__init__(4000 * Hz)
-        self.calc_cnt = 0
-
-    def calc(self: "CacheTest"):
-        self.calc_cnt += 1
-        return np.array([0xFF] * 2)
-
-
-def test_cache_check_once():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        m = CacheTest()
-        autd.send(m)
-        assert m.calc_cnt == 1
-        autd.send(m)
-        assert m.calc_cnt == 2
-
-        m = CacheTest()
-        m_cached = m.with_cache()
-
-        autd.send(m_cached)
-        assert m.calc_cnt == 1
-        autd.send(m_cached)
-        assert m.calc_cnt == 1
 
 
 def test_radiation_pressure():

@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Callable
+from typing import Self
 
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
@@ -15,7 +16,7 @@ class ReadsFPGAState(
     IntoDatagramWithParallelThreshold["ReadsFPGAState"],
     Datagram,
 ):
-    def __init__(self: "ReadsFPGAState", f: Callable[[Device], bool]) -> None:
+    def __init__(self: Self, f: Callable[[Device], bool]) -> None:
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> bool:
@@ -23,5 +24,5 @@ class ReadsFPGAState(
 
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
 
-    def _datagram_ptr(self: "ReadsFPGAState", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().datagram_reads_fpga_state(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]

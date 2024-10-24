@@ -1,4 +1,5 @@
 import ctypes
+from typing import Self
 
 import numpy as np
 
@@ -14,76 +15,76 @@ class Audit(Link):
     _ptr: LinkPtr
 
     class _Builder(LinkBuilder["Audit"]):
-        def _link_builder_ptr(self: "Audit._Builder") -> LinkBuilderPtr:
+        def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
             return LinkAudit().link_audit()
 
-        def _resolve_link(self: "Audit._Builder", handle: HandlePtr, ptr: ControllerPtr) -> "Audit":
+        def _resolve_link(self: Self, handle: HandlePtr, ptr: ControllerPtr) -> "Audit":
             return Audit(handle, LinkAudit().link_get(ptr))
 
-    def __init__(self: "Audit", handle: HandlePtr, ptr: LinkPtr) -> None:
+    def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
         super().__init__(handle, ptr)
 
     @staticmethod
     def builder() -> _Builder:
         return Audit._Builder()
 
-    def down(self: "Audit") -> None:
+    def down(self: Self) -> None:
         LinkAudit().link_audit_down(self._ptr)
 
-    def up(self: "Audit") -> None:
+    def up(self: Self) -> None:
         LinkAudit().link_audit_up(self._ptr)
 
-    def is_open(self: "Audit") -> bool:
+    def is_open(self: Self) -> bool:
         return bool(LinkAudit().link_audit_is_open(self._ptr))
 
-    def is_force_fan(self: "Audit", idx: int) -> bool:
+    def is_force_fan(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_is_force_fan(self._ptr, idx))
 
-    def break_down(self: "Audit") -> None:
+    def break_down(self: Self) -> None:
         LinkAudit().link_audit_break_down(self._ptr)
 
-    def repair(self: "Audit") -> None:
+    def repair(self: Self) -> None:
         LinkAudit().link_audit_repair(self._ptr)
 
-    def silencer_strict_mode(self: "Audit", idx: int) -> bool:
+    def silencer_strict_mode(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_cpu_silencer_strict_mode(self._ptr, idx))
 
-    def silencer_update_rate_intensity(self: "Audit", idx: int) -> int:
+    def silencer_update_rate_intensity(self: Self, idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_update_rate_intensity(self._ptr, idx))
 
-    def silencer_update_rate_phase(self: "Audit", idx: int) -> int:
+    def silencer_update_rate_phase(self: Self, idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_update_rate_phase(self._ptr, idx))
 
-    def silencer_completion_steps_intensity(self: "Audit", idx: int) -> int:
+    def silencer_completion_steps_intensity(self: Self, idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_completion_steps_intensity(self._ptr, idx))
 
-    def silencer_completion_steps_phase(self: "Audit", idx: int) -> int:
+    def silencer_completion_steps_phase(self: Self, idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_completion_steps_phase(self._ptr, idx))
 
-    def silencer_fixed_completion_steps_mode(self: "Audit", idx: int) -> bool:
+    def silencer_fixed_completion_steps_mode(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_silencer_fixed_completion_steps_mode(self._ptr, idx))
 
-    def silencer_target(self: "Audit", idx: int) -> SilencerTarget:
+    def silencer_target(self: Self, idx: int) -> SilencerTarget:
         return LinkAudit().link_audit_fpga_silencer_target(self._ptr, idx)
 
-    def debug_types(self: "Audit", idx: int) -> np.ndarray:
+    def debug_types(self: Self, idx: int) -> np.ndarray:
         buf = np.zeros([4]).astype(ctypes.c_uint8)
         LinkAudit().link_audit_fpga_debug_types(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
         return buf
 
-    def debug_values(self: "Audit", idx: int) -> np.ndarray:
+    def debug_values(self: Self, idx: int) -> np.ndarray:
         buf = np.zeros([4]).astype(ctypes.c_uint64)
         LinkAudit().link_audit_fpga_debug_values(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
         return buf
 
-    def assert_thermal_sensor(self: "Audit", idx: int) -> None:
+    def assert_thermal_sensor(self: Self, idx: int) -> None:
         LinkAudit().link_audit_fpga_assert_thermal_sensor(self._ptr, idx)
 
-    def deassert_thermal_sensor(self: "Audit", idx: int) -> None:
+    def deassert_thermal_sensor(self: Self, idx: int) -> None:
         LinkAudit().link_audit_fpga_deassert_thermal_sensor(self._ptr, idx)
 
     def modulation_buffer(
-        self: "Audit",
+        self: Self,
         idx: int,
         segment: Segment,
     ) -> np.ndarray:
@@ -92,13 +93,13 @@ class Audit(Link):
         LinkAudit().link_audit_fpga_modulation_buffer(self._ptr, segment, idx, np.ctypeslib.as_ctypes(buf), n)
         return buf
 
-    def modulation_frequency_division(self: "Audit", idx: int, segment: Segment) -> int:
+    def modulation_frequency_division(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_modulation_freq_division(self._ptr, segment, idx))
 
-    def modulation_loop_behavior(self: "Audit", idx: int, segment: Segment) -> LoopBehavior:
+    def modulation_loop_behavior(self: Self, idx: int, segment: Segment) -> LoopBehavior:
         return LinkAudit().link_audit_fpga_modulation_loop_behavior(self._ptr, segment, idx)
 
-    def drives_at(self: "Audit", idx: int, segment: Segment, stm_idx: int) -> tuple[np.ndarray, np.ndarray]:
+    def drives_at(self: Self, idx: int, segment: Segment, stm_idx: int) -> tuple[np.ndarray, np.ndarray]:
         n = int(LinkAudit().link_audit_cpu_num_transducers(self._ptr, idx))
         drive = np.zeros(n, dtype=Drive_)
         LinkAudit().link_audit_fpga_drives_at(
@@ -110,28 +111,28 @@ class Audit(Link):
         )
         return np.array([int(d[1]) for d in drive]), np.array([int(d[0]) for d in drive])
 
-    def sound_speed(self: "Audit", idx: int, segment: Segment) -> int:
+    def sound_speed(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_sound_speed(self._ptr, segment, idx))
 
-    def stm_cycle(self: "Audit", idx: int, segment: Segment) -> int:
+    def stm_cycle(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_stm_cycle(self._ptr, segment, idx))
 
-    def is_stm_gain_mode(self: "Audit", idx: int, segment: Segment) -> int:
+    def is_stm_gain_mode(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_is_stm_gain_mode(self._ptr, segment, idx))
 
-    def stm_freqency_division(self: "Audit", idx: int, segment: Segment) -> int:
+    def stm_freqency_division(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_stm_freq_division(self._ptr, segment, idx))
 
-    def stm_loop_behavior(self: "Audit", idx: int, segment: Segment) -> LoopBehavior:
+    def stm_loop_behavior(self: Self, idx: int, segment: Segment) -> LoopBehavior:
         return LinkAudit().link_audit_fpga_stm_loop_behavior(self._ptr, segment, idx)
 
-    def current_stm_segment(self: "Audit", idx: int) -> Segment:
+    def current_stm_segment(self: Self, idx: int) -> Segment:
         return LinkAudit().link_audit_fpga_current_stm_segment(self._ptr, idx)
 
-    def current_mod_segment(self: "Audit", idx: int) -> Segment:
+    def current_mod_segment(self: Self, idx: int) -> Segment:
         return LinkAudit().link_audit_fpga_current_mod_segment(self._ptr, idx)
 
-    def pulse_width_encoder_table(self: "Audit", idx: int) -> np.ndarray:
+    def pulse_width_encoder_table(self: Self, idx: int) -> np.ndarray:
         p = np.zeros([256]).astype(ctypes.c_uint8)
         LinkAudit().link_audit_fpga_pulse_width_encoder_table(
             self._ptr,

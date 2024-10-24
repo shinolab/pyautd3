@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
@@ -29,18 +29,18 @@ class ModulationBase(
 ):
     _loop_behavior: _LoopBehavior
 
-    def __init__(self: "ModulationBase[M]") -> None:
+    def __init__(self: Self) -> None:
         super().__init__()
         self._loop_behavior = LoopBehavior.Infinite
 
-    def _raw_ptr(self: "ModulationBase[M]", _: Geometry) -> ModulationPtr:
+    def _raw_ptr(self: Self, _: Geometry) -> ModulationPtr:
         return self._modulation_ptr()
 
-    def _datagram_ptr(self: "ModulationBase[M]", _: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
         return Base().modulation_into_datagram(self._modulation_ptr())
 
     def _into_segment(
-        self: "ModulationBase[M]",
+        self: Self,
         ptr: ModulationPtr,
         segment: Segment,
         transition_mode: TransitionModeWrap | None,
@@ -52,7 +52,7 @@ class ModulationBase(
         )
 
     @abstractmethod
-    def _modulation_ptr(self: "ModulationBase[M]") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         pass
 
     def with_loop_behavior(self: M, loop_behavior: _LoopBehavior) -> M:
@@ -60,15 +60,15 @@ class ModulationBase(
         return self
 
     @property
-    def loop_behavior(self: "ModulationBase[M]") -> _LoopBehavior:
+    def loop_behavior(self: Self) -> _LoopBehavior:
         return self._loop_behavior
 
     @property
-    def sampling_config(self: "ModulationBase[M]") -> SamplingConfig:
+    def sampling_config(self: Self) -> SamplingConfig:
         return SamplingConfig(Base().modulation_sampling_config(self._modulation_ptr()))
 
-    def _sampling_config_intensity(self: "ModulationBase[M]") -> SamplingConfig:
+    def _sampling_config_intensity(self: Self) -> SamplingConfig:
         return self.sampling_config
 
-    def _sampling_config_phase(self: "ModulationBase[M]") -> SamplingConfig:
+    def _sampling_config_phase(self: Self) -> SamplingConfig:
         return SamplingConfig(0xFFFF)

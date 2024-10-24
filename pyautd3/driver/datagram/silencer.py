@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.stm.foci import FociSTM
@@ -18,12 +18,12 @@ class FixedCompletionTime:
     intensity: timedelta
     phase: timedelta
 
-    def __init__(self: "FixedCompletionTime", *, intensity: timedelta, phase: timedelta) -> None:
+    def __init__(self: Self, *, intensity: timedelta, phase: timedelta) -> None:
         self.intensity = intensity
         self.phase = phase
 
     def _is_valid(
-        self: "FixedCompletionTime",
+        self: Self,
         v: ModulationBase | FociSTM | GainSTM,
         strict_mode: bool,  # noqa: FBT001
     ) -> bool:
@@ -37,7 +37,7 @@ class FixedCompletionTime:
             ),
         )
 
-    def _datagram_ptr(self: "FixedCompletionTime", strict_mode: bool, target: SilencerTarget) -> DatagramPtr:  # noqa: FBT001
+    def _datagram_ptr(self: Self, strict_mode: bool, target: SilencerTarget) -> DatagramPtr:  # noqa: FBT001
         return Base().datagram_silencer_from_completion_time(
             int(self.intensity.total_seconds() * 1000 * 1000 * 1000),
             int(self.phase.total_seconds() * 1000 * 1000 * 1000),
@@ -50,11 +50,11 @@ class FixedUpdateRate:
     intensity: int
     phase: int
 
-    def __init__(self: "FixedUpdateRate", *, intensity: int, phase: int) -> None:
+    def __init__(self: Self, *, intensity: int, phase: int) -> None:
         self.intensity = _validate_nonzero_u16(intensity)
         self.phase = _validate_nonzero_u16(phase)
 
-    def _is_valid(self: "FixedUpdateRate", v: ModulationBase | FociSTM | GainSTM, _strict_mode: bool) -> bool:  # noqa: FBT001
+    def _is_valid(self: Self, v: ModulationBase | FociSTM | GainSTM, _strict_mode: bool) -> bool:  # noqa: FBT001
         return bool(
             Base().datagram_silencer_fixed_update_rate_is_valid(
                 self.intensity,
@@ -64,7 +64,7 @@ class FixedUpdateRate:
             ),
         )
 
-    def _datagram_ptr(self: "FixedUpdateRate", _strict_mode: bool, target: SilencerTarget) -> DatagramPtr:  # noqa: FBT001
+    def _datagram_ptr(self: Self, _strict_mode: bool, target: SilencerTarget) -> DatagramPtr:  # noqa: FBT001
         return Base().datagram_silencer_from_update_rate(
             self.intensity,
             self.phase,
@@ -85,7 +85,7 @@ class Silencer(
     _strict_mode: bool
     _target: SilencerTarget
 
-    def __init__(self: "Silencer[T]", config: T | None = None) -> None:
+    def __init__(self: Self, config: T | None = None) -> None:
         super().__init__()
         self._inner = (
             config
@@ -98,21 +98,21 @@ class Silencer(
         self._strict_mode = True
         self._target = SilencerTarget.Intensity
 
-    def with_target(self: "Silencer[T]", target: SilencerTarget) -> "Silencer[T]":
+    def with_target(self: Self, target: SilencerTarget) -> Self:
         self._target = target
         return self
 
-    def with_strict_mode(self: "Silencer[FixedCompletionTime]", mode: bool) -> "Silencer[FixedCompletionTime]":  # noqa: FBT001
+    def with_strict_mode(self: Self, mode: bool) -> Self:  # noqa: FBT001
         if not isinstance(self._inner, FixedCompletionTime):  # pragma: no cover
             msg = "Strict mode is only available for Silencer[FixedCompletionTime]"  # pragma: no cover
             raise TypeError(msg)  # pragma: no cover
         self._strict_mode = mode
         return self
 
-    def is_valid(self: "Silencer[T]", target: ModulationBase | FociSTM | GainSTM) -> bool:
+    def is_valid(self: Self, target: ModulationBase | FociSTM | GainSTM) -> bool:
         return self._inner._is_valid(target, self._strict_mode)
 
-    def _datagram_ptr(self: "Silencer[T]", _: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
         return self._inner._datagram_ptr(self._strict_mode, self._target)
 
     @staticmethod

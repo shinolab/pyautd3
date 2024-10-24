@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
@@ -22,21 +22,21 @@ class Cache(
     _g: G
     _ptr: GainCachePtr | None
 
-    def __init__(self: "Cache[G]", g: G) -> None:
+    def __init__(self: Self, g: G) -> None:
         super().__init__()
         self._g = g
         self._ptr = None
 
-    def _gain_ptr(self: "Cache[G]", geometry: Geometry) -> GainPtr:
+    def _gain_ptr(self: Self, geometry: Geometry) -> GainPtr:
         if self._ptr is None:
             self._ptr = Base().gain_cache(self._g._gain_ptr(geometry))
         return Base().gain_cache_clone(self._ptr)
 
-    def __del__(self: "Cache[G]") -> None:
+    def __del__(self: Self) -> None:
         if self._ptr is not None:
             Base().gain_cache_free(self._ptr)
 
 
 class IntoGainCache(GainBase, Generic[G]):
-    def with_cache(self: G) -> "Cache[G]":
+    def with_cache(self: G) -> Cache[G]:
         return Cache(self)

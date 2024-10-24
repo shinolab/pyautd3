@@ -110,11 +110,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr]  # type: ignore 
         self.dll.AUTDControllerSend.restype = FfiFuture
 
-        self.dll.AUTDTimerStrategyStd.argtypes = [] 
+        self.dll.AUTDTimerStrategyStd.argtypes = [ctypes.c_uint32] 
         self.dll.AUTDTimerStrategyStd.restype = TimerStrategyWrap
 
-        self.dll.AUTDTimerStrategySpinDefault.argtypes = [] 
-        self.dll.AUTDTimerStrategySpinDefault.restype = TimerStrategyWrap
+        self.dll.AUTDTimerStrategySpinDefaultAccuracy.argtypes = [] 
+        self.dll.AUTDTimerStrategySpinDefaultAccuracy.restype = ctypes.c_uint32
 
         self.dll.AUTDTimerStrategySpin.argtypes = [ctypes.c_uint32, SpinStrategyTag]  # type: ignore 
         self.dll.AUTDTimerStrategySpin.restype = TimerStrategyWrap
@@ -704,11 +704,11 @@ class NativeMethods(metaclass=Singleton):
     def controller_send(self, cnt: ControllerPtr, d: DatagramPtr) -> FfiFuture:
         return self.dll.AUTDControllerSend(cnt, d)
 
-    def timer_strategy_std(self) -> TimerStrategyWrap:
-        return self.dll.AUTDTimerStrategyStd()
+    def timer_strategy_std(self, timer_resolution: int) -> TimerStrategyWrap:
+        return self.dll.AUTDTimerStrategyStd(timer_resolution)
 
-    def timer_strategy_spin_default(self) -> TimerStrategyWrap:
-        return self.dll.AUTDTimerStrategySpinDefault()
+    def timer_strategy_spin_default_accuracy(self) -> ctypes.c_uint32:
+        return self.dll.AUTDTimerStrategySpinDefaultAccuracy()
 
     def timer_strategy_spin(self, native_accuracy_ns: int, spin_strategy: SpinStrategyTag) -> TimerStrategyWrap:
         return self.dll.AUTDTimerStrategySpin(native_accuracy_ns, spin_strategy)

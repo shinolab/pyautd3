@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from ctypes import POINTER, c_int32, c_uint16
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 import numpy as np
 
@@ -19,25 +19,25 @@ class Group(Gain["Group[K]"], Generic[K]):
     _f: Callable[[Device], Callable[[Transducer], K | None]]
     _parallel: bool
 
-    def __init__(self: "Group", f: Callable[[Device], Callable[[Transducer], K | None]]) -> None:
+    def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], K | None]]) -> None:
         super().__init__()
         self._map = {}
         self._f = f
         self._parallel = False
 
-    def with_parallel(self: "Group", parallel: bool) -> "Group":  # noqa: FBT001
+    def with_parallel(self: Self, parallel: bool) -> Self:  # noqa: FBT001
         self._parallel = parallel
         return self
 
     @property
-    def parallel(self: "Group") -> bool:
+    def parallel(self: Self) -> bool:
         return self._parallel
 
-    def set(self: "Group", key: K, gain: GainBase) -> "Group":
+    def set(self: Self, key: K, gain: GainBase) -> Self:
         self._map[key] = gain
         return self
 
-    def _gain_ptr(self: "Group", geometry: Geometry) -> GainPtr:
+    def _gain_ptr(self: Self, geometry: Geometry) -> GainPtr:
         keymap: dict[K, int] = {}
 
         device_indices = np.array([dev.idx for dev in geometry])
