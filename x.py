@@ -215,9 +215,14 @@ def copy_dll(config: Config):
     with open("pyautd3/__init__.py", "r") as f:
         content = f.read()
         version = re.search(r'__version__ = "(.*)"', content).group(1).split(".")
-        version = (
-            ".".join(version) if version[2].endswith("rc") or version[2].endswith("alpha") or version[2].endswith("beta") else ".".join(version[:3])
-        )
+        if "rc" in version[2] or "alpha" in version[2] or "beta" in version[2]:
+            match = re.search(r"(\d+)(rc|alpha|beta)(\d+)", version[2])
+            patch_version = match.group(1)
+            pre = match.group(2)
+            pre_version = match.group(3)
+            version = f"{version[0]}.{version[1]}.{patch_version}-{pre}.{pre_version}"
+        else:
+            version = ".".join(version[:3])
 
     if not should_update_dll(config, version):
         return

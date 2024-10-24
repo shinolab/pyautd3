@@ -9,7 +9,7 @@ import numpy as np
 import polars as pl
 
 from pyautd3.controller.controller import Controller
-from pyautd3.controller.timer_strategy import SpinSleeper, TimerStrategy
+from pyautd3.controller.timer import SpinSleeper, TimerStrategy
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.link import Link
