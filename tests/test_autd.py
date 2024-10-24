@@ -5,7 +5,7 @@ import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
-from pyautd3.controller.timer_strategy import AsyncSleeper, SpinSleeper, StdSleeper, TimerStrategy, WaitableSleeper
+from pyautd3.controller.timer import AsyncSleeper, SpinSleeper, StdSleeper, TimerStrategy, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity

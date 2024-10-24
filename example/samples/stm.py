@@ -12,7 +12,7 @@ def stm_focus(autd: Controller) -> None:
     radius = 30.0
     size = 200
     center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
-    stm: FociSTM = FociSTM(
+    stm = FociSTM(
         1.0 * Hz,
         (center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
     )

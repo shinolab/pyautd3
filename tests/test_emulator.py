@@ -5,7 +5,7 @@ import pytest
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
-from pyautd3.controller.timer_strategy import SpinSleeper, TimerStrategy
+from pyautd3.controller.timer import SpinSleeper, TimerStrategy
 from pyautd3.driver.datagram.silencer import FixedCompletionTime, Silencer
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase

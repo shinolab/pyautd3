@@ -88,7 +88,7 @@ class FociSTM(
         self._loop_behavior = LoopBehavior.Infinite
 
     def __init__(
-        self: Self,
+        self: "FociSTM",
         config: "SamplingConfig | Freq[float] | timedelta",
         iterable: Iterable[ArrayLike]
         | Iterable[ControlPoints1]
