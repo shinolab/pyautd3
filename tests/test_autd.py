@@ -20,7 +20,6 @@ async def create_controller_async() -> Controller[Audit]:
         await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
         .with_receive_interval(timedelta(milliseconds=1))
-        .with_timer_resolution(1)
         .open_async(
             Audit.builder(),
         )
@@ -32,7 +31,6 @@ def create_controller() -> Controller[Audit]:
         Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
         .with_receive_interval(timedelta(milliseconds=1))
-        .with_timer_resolution(1)
         .open(
             Audit.builder(),
         )
@@ -43,8 +41,8 @@ def test_firmware_info():
     autd: Controller[Audit]
     with create_controller() as autd:
         for i, firm in enumerate(autd.firmware_version()):
-            assert firm.info == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
@@ -57,11 +55,11 @@ def test_firmware_info():
 async def test_firmware_info_async():
     autd: Controller[Audit]
     with await create_controller_async() as autd:
-        assert FirmwareInfo.latest_version() == "v10.0.0"
+        assert FirmwareInfo.latest_version() == "v10.0.1"
 
         for i, firm in enumerate(await autd.firmware_version_async()):
-            assert firm.info == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v10.0.0, FPGA = v10.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:

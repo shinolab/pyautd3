@@ -1,13 +1,11 @@
 import ctypes
-from datetime import timedelta
 
 import numpy as np
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3capi import ControllerPtr, LinkAuditBuilderPtr
+from pyautd3.native_methods.autd3_driver import Drive as Drive_
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import Drive as Drive_
-from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr, LoopBehavior, Segment, SilencerTarget
+from pyautd3.native_methods.autd3capi_driver import ControllerPtr, HandlePtr, LinkBuilderPtr, LinkPtr, LoopBehavior, Segment, SilencerTarget
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -16,17 +14,8 @@ class Audit(Link):
     _ptr: LinkPtr
 
     class _Builder(LinkBuilder["Audit"]):
-        _builder: LinkAuditBuilderPtr
-
-        def __init__(self: "Audit._Builder") -> None:
-            self._builder = LinkAudit().link_audit()
-
-        def with_timeout(self: "Audit._Builder", timeout: timedelta) -> "Audit._Builder":
-            self._builder = LinkAudit().link_audit_with_timeout(self._builder, int(timeout.total_seconds() * 1000 * 1000 * 1000))
-            return self
-
         def _link_builder_ptr(self: "Audit._Builder") -> LinkBuilderPtr:
-            return LinkAudit().link_audit_into_builder(self._builder)
+            return LinkAudit().link_audit()
 
         def _resolve_link(self: "Audit._Builder", handle: HandlePtr, ptr: ControllerPtr) -> "Audit":
             return Audit(handle, LinkAudit().link_get(ptr))
@@ -55,16 +44,6 @@ class Audit(Link):
 
     def repair(self: "Audit") -> None:
         LinkAudit().link_audit_repair(self._ptr)
-
-    def timeout(self: "Audit") -> timedelta:
-        return timedelta(microseconds=int(LinkAudit().link_audit_timeout_ns(self._ptr)) / 1000)
-
-    def last_timeout(self: "Audit") -> timedelta | None:
-        us = int(LinkAudit().link_audit_last_timeout_ns(self._ptr)) / 1000
-        return None if us < 0 else timedelta(microseconds=us)
-
-    def last_parallel_threshold(self: "Audit") -> int:
-        return int(LinkAudit().link_audit_last_parallel_threshold(self._ptr))
 
     def silencer_strict_mode(self: "Audit", idx: int) -> bool:
         return bool(LinkAudit().link_audit_cpu_silencer_strict_mode(self._ptr, idx))

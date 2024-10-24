@@ -42,7 +42,7 @@ def plot_focus() -> None:
         print("Calculating sound field around focus...")
         df = sound_field.next(timedelta(milliseconds=1))
 
-        times = [float(c.replace("p[Pa]@", "")) * 1000 for c in df.columns[3:]]
+        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
         p = df.get_columns()[3:]
         times = times[440:]
         p = p[440:]
@@ -123,7 +123,7 @@ def plot_stm() -> None:
         print("Calculating sound field around focus...")
         df = sound_field.next(timedelta(milliseconds=5))
 
-        times = [float(c.replace("p[Pa]@", "")) * 1000 for c in df.columns[3:]]
+        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
         p = df.get_columns()[3:]
 
         times = times[700:]

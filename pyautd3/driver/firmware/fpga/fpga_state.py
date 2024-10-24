@@ -1,4 +1,4 @@
-from pyautd3.native_methods.autd3capi_driver import Segment
+from pyautd3.native_methods.autd3_driver import Segment
 
 
 class FPGAState:

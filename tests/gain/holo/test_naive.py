@@ -31,4 +31,4 @@ def test_naive():
 
 def test_naive_default():
     g = Naive(NalgebraBackend(), ((np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
-    assert Holo().gain_naive_is_default(g._gain_ptr(0))  # type: ignore [arg-type]
+    assert Holo().gain_naive_is_default(g._constraint)

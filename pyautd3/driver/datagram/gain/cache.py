@@ -5,6 +5,7 @@ from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithPara
 from pyautd3.driver.datagram.with_segment import IntoDatagramWithSegment
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
+from pyautd3.native_methods.autd3capi import GainCachePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 
@@ -19,7 +20,7 @@ class Cache(
     Generic[G],
 ):
     _g: G
-    _ptr: GainPtr | None
+    _ptr: GainCachePtr | None
 
     def __init__(self: "Cache[G]", g: G) -> None:
         super().__init__()

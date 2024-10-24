@@ -38,7 +38,7 @@ class Square(Modulation["Square"]):
 
     @property
     def freq(self: "Square") -> Freq[int] | Freq[float]:
-        return self._mode.square_freq(self._modulation_ptr()) * Hz
+        return self._mode.square_freq() * Hz
 
     def with_low(self: "Square", low: int) -> "Square":
         self._low = _validate_u8(low)

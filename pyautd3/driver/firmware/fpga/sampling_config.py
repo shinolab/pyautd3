@@ -3,8 +3,8 @@ from datetime import timedelta
 from pyautd3.driver.defined import Freq
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.utils import _validate_nonzero_u16
+from pyautd3.native_methods.autd3_driver import SamplingConfig as _SamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.structs import SamplingConfig as _SamplingConfig
 from pyautd3.native_methods.utils import _validate_sampling_config
 
 
@@ -59,4 +59,4 @@ class SamplingConfig:
         return timedelta(microseconds=int(Base().sampling_config_period(self._inner)) / 1000)
 
     def __eq__(self: "SamplingConfig", value: object) -> bool:
-        return isinstance(value, SamplingConfig) and self._inner.div == self._inner.div
+        return isinstance(value, SamplingConfig) and self._inner.division == self._inner.division

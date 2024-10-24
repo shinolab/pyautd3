@@ -17,9 +17,9 @@ if __name__ == "__main__":
         record = emulator.record(f)
 
         df = record.output_voltage()
-        t = df["time[s]"]
+        t = df["time[25us/256]"]
         pulse_width = df["voltage_0_0[V]"]
-        plt.plot(1000 * t, pulse_width)
+        plt.plot(t * 25 / 256 / 1000, pulse_width)
         plt.xlim(0, 1)
         plt.ylim(-15, 15)
         plt.xlabel("time [ms]")
@@ -28,9 +28,9 @@ if __name__ == "__main__":
         plt.show()
 
         df = record.output_ultrasound()
-        t = df["time[s]"]
+        t = df["time[25us/256]"]
         pulse_width = df["p_0_0[a.u.]"]
-        plt.plot(1000 * t, pulse_width)
+        plt.plot(t * 25 / 256 / 1000, pulse_width)
         plt.xlim(0, 1)
         plt.ylim(-1.1, 1.1)
         plt.xlabel("time [ms]")

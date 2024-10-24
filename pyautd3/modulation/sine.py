@@ -22,7 +22,7 @@ class Sine(Modulation["Sine"]):
         super().__init__(SamplingConfig(10))
         self._mode = mode
         self._intensity = 0xFF
-        self._offset = 0xFF
+        self._offset = 0x80
         self._phase = 0 * rad
         self._clamp = False
 
@@ -41,7 +41,7 @@ class Sine(Modulation["Sine"]):
 
     @property
     def freq(self: "Sine") -> Freq[int] | Freq[float]:
-        return self._mode.sine_freq(self._modulation_ptr()) * Hz
+        return self._mode.sine_freq() * Hz
 
     def with_intensity(self: "Sine", intensity: int) -> "Sine":
         self._intensity = _validate_u8(intensity)

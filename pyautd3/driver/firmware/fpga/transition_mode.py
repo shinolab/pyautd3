@@ -20,3 +20,5 @@ class TransitionMode(metaclass=ConstantADT):
 
     def __new__(cls: type["TransitionMode"]) -> "TransitionMode":
         raise NotImplementedError
+
+    NONE: TransitionModeWrap = Base().transition_mode_none()

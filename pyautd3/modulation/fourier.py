@@ -1,7 +1,5 @@
 from collections.abc import Iterable
 
-import numpy as np
-
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.fir import IntoModulationFir
@@ -54,11 +52,8 @@ class Fourier(
         return self._offset
 
     def _modulation_ptr(self: "Fourier") -> ModulationPtr:
-        components: np.ndarray = np.ndarray(len(self._components), dtype=ModulationPtr)
-        for i, m in enumerate(self._components):
-            components[i]["_0"] = m._modulation_ptr()._0
         return self._components[0]._mode.fourier_ptr(
-            components,
+            self._components,
             len(self._components),
             self._clamp,
             self._scale_factor if self._scale_factor is not None else float("nan"),  # type: ignore[arg-type]

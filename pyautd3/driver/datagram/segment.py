@@ -17,13 +17,15 @@ class SwapSegment:
         Datagram,
     ):
         _segment: Segment
+        _transition_mode: TransitionModeWrap
 
-        def __init__(self: "SwapSegment.Gain", segment: Segment) -> None:
+        def __init__(self: "SwapSegment.Gain", segment: Segment, transition_mode: TransitionModeWrap) -> None:
             super().__init__()
             self._segment = segment
+            self._transition_mode = transition_mode
 
         def _datagram_ptr(self: "SwapSegment.Gain", _: Geometry) -> DatagramPtr:
-            return Base().datagram_swap_segment_gain(self._segment)
+            return Base().datagram_swap_segment_gain(self._segment, self._transition_mode)
 
     class Modulation(
         IntoDatagramWithTimeout["SwapSegment.Modulation"],

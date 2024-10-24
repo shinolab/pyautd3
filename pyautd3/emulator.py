@@ -7,28 +7,19 @@ from types import TracebackType
 import numpy as np
 import polars as pl
 
-from pyautd3.autd_error import AUTDError
 from pyautd3.controller.controller import Controller
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.link import Link
-from pyautd3.driver.utils import _validate_nonzero_u32
 from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import AUTD3_ERR, HandlePtr, LinkPtr
-from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, RecordPtr, ResultEmualtorErr, SoundFieldPtr
+from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkPtr
+from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, RecordPtr, SoundFieldPtr
 from pyautd3.native_methods.autd3capi_emulator import NativeMethods as Emu
 from pyautd3.native_methods.autd3capi_emulator import Range as Range_
 from pyautd3.native_methods.autd3capi_emulator import RecordOption as RecordOption_
 from pyautd3.native_methods.structs import Quaternion, Vector3
-from pyautd3.native_methods.utils import _validate_ptr
-
-
-def _validate_emu_result(res: ResultEmualtorErr) -> None:
-    if int(res.result) == AUTD3_ERR:
-        err = ctypes.create_string_buffer(int(res.err_len))
-        Base().get_err(res.err, err)
-        raise AUTDError(err)
+from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 
 
 class Range:
@@ -94,8 +85,8 @@ class SoundField:
             self._ptr._0 = None
 
     def skip(self: "SoundField", duration: timedelta) -> "SoundField":
-        _validate_emu_result(
-            Emu().emulator_wait_result_emualtor_err(
+        _validate_status(
+            Base().wait_local_result_status(
                 self._handle,
                 Emu().emulator_sound_field_skip(self._ptr, int(duration.total_seconds() * 1000 * 1000 * 1000)),
             ),
@@ -105,7 +96,7 @@ class SoundField:
     def next(self: "SoundField", duration: timedelta) -> pl.DataFrame:
         n = int(Emu().emulator_sound_field_time_len(self._ptr, int(duration.total_seconds() * 1000 * 1000 * 1000)))
         points_len = int(Emu().emulator_sound_field_points_len(self._ptr))
-        time = np.zeros(n, dtype=np.float32)
+        time = np.zeros(n, dtype=np.uint64)
 
         x = np.zeros(points_len, dtype=np.float32)
         y = np.zeros(points_len, dtype=np.float32)
@@ -115,13 +106,13 @@ class SoundField:
         Emu().emulator_sound_field_get_z(self._ptr, z.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
 
         v = np.zeros([n, points_len], dtype=np.float32)
-        _validate_emu_result(
-            Emu().emulator_wait_result_emualtor_err(
+        _validate_status(
+            Base().wait_local_result_status(
                 self._handle,
                 Emu().emulator_sound_field_next(
                     self._ptr,
                     int(duration.total_seconds() * 1000 * 1000 * 1000),
-                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
                     ctypes.cast(
                         (ctypes.POINTER(ctypes.c_float) * n)(
                             *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
@@ -136,7 +127,7 @@ class SoundField:
                 "x[mm]": x,
                 "y[mm]": y,
                 "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]:.11f}", values=v[i]) for i in range(n))},
+                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
             },
         )
 
@@ -146,7 +137,7 @@ class SoundField:
 
         n = int(Emu().emulator_sound_field_time_len(self._ptr, int(duration.total_seconds() * 1000 * 1000 * 1000)))
         points_len = int(Emu().emulator_sound_field_points_len(self._ptr))
-        time = np.zeros(n, dtype=np.float32)
+        time = np.zeros(n, dtype=np.uint64)
 
         x = np.zeros(points_len, dtype=np.float32)
         y = np.zeros(points_len, dtype=np.float32)
@@ -159,7 +150,7 @@ class SoundField:
         ffi_future = Emu().emulator_sound_field_next(
             self._ptr,
             int(duration.total_seconds() * 1000 * 1000 * 1000),
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
             ctypes.cast(
                 (ctypes.POINTER(ctypes.c_float) * n)(
                     *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
@@ -169,19 +160,19 @@ class SoundField:
         )
         loop.call_soon(
             lambda *_: future.set_result(
-                Emu().emulator_wait_result_emualtor_err(
+                Base().wait_local_result_status(
                     self._handle,
                     ffi_future,
                 ),
             ),
         )
-        _validate_emu_result(await future)
+        _validate_status(await future)
         return pl.DataFrame(
             {
                 "x[mm]": x,
                 "y[mm]": y,
                 "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]:.11f}", values=v[i]) for i in range(n))},
+                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
             },
         )
 
@@ -191,7 +182,7 @@ class Recorder(Link):
         super().__init__(handle, ptr)
 
     def tick(self: "Recorder", tick: timedelta) -> None:
-        _validate_emu_result(
+        _validate_status(
             Emu().emulator_tick_ns(self._ptr, int(tick.total_seconds() * 1000 * 1000 * 1000)),
         )
 
@@ -214,10 +205,10 @@ class Record:
 
     def drive(self: "Record") -> pl.DataFrame:
         n = int(Emu().emulator_record_drive_len(self._ptr))
-        time = np.zeros(n, dtype=np.float32)
+        time = np.zeros(n, dtype=np.uint64)
         Emu().emulator_record_drive_time(
             self._ptr,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
         )
         dev_num = int(Emu().emulator_record_num_devices(self._ptr))
         pulsewidth = np.zeros(n, dtype=np.uint8)
@@ -246,17 +237,17 @@ class Record:
 
         return pl.DataFrame(
             {
-                "time[s]": time,
+                "time[ns]": time,
                 **{s.name: s for s in series},
             },
         )
 
     def output_voltage(self: "Record") -> pl.DataFrame:
         n = int(Emu().emulator_record_output_len(self._ptr))
-        time = np.zeros(n, dtype=np.float32)
+        time = np.zeros(n, dtype=np.uint64)
         Emu().emulator_record_output_time(
             self._ptr,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
         )
         dev_num = int(Emu().emulator_record_num_devices(self._ptr))
         v = np.zeros(n, dtype=np.float32)
@@ -277,17 +268,17 @@ class Record:
 
         return pl.DataFrame(
             {
-                "time[s]": time,
+                "time[25us/256]": time,
                 **{s.name: s for s in series},
             },
         )
 
     def output_ultrasound(self: "Record") -> pl.DataFrame:
         n = int(Emu().emulator_record_output_len(self._ptr))
-        time = np.zeros(n, dtype=np.float32)
+        time = np.zeros(n, dtype=np.uint64)
         Emu().emulator_record_output_time(
             self._ptr,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
         )
         dev_num = int(Emu().emulator_record_num_devices(self._ptr))
         v = np.zeros(n, dtype=np.float32)
@@ -308,7 +299,7 @@ class Record:
 
         return pl.DataFrame(
             {
-                "time[s]": time,
+                "time[25us/256]": time,
                 **{s.name: s for s in series},
             },
         )
@@ -338,43 +329,63 @@ class Record:
 
 
 class Emulator:
-    _geometry: Geometry
-    _ptr: EmulatorPtr
+    devices: list[AUTD3]
+    fallback_parallel_threshold: int
+    fallback_timeout: timedelta
+    send_interval: timedelta
+    receive_interval: timedelta
+    _geometry: Geometry | None
+    _ptr: EmulatorPtr | None
     _runtime: RuntimePtr
     _handle: HandlePtr
 
     def __init__(self: "Emulator", iterable: Iterable[AUTD3]) -> None:
-        devices = list(iterable)
-        pos = np.fromiter((np.void(Vector3(d._pos)) for d in devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
-        rot = np.fromiter((np.void(Quaternion(d._rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
-        self._ptr = Emu().emulator(
-            pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
-            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
-            len(pos),
-        )
-        self._geometry = Geometry(Emu().emulator_geometry(self._ptr))
+        self.devices = list(iterable)
+        self.fallback_parallel_threshold = 4
+        self.fallback_timeout = timedelta(milliseconds=20)
+        self.send_interval = timedelta(milliseconds=1)
+        self.receive_interval = timedelta(milliseconds=1)
+        self._ptr = None
+        self._geometry = None
         self._runtime = Base().create_runtime()
         self._handle = Base().get_runtime_handle(self._runtime)
 
-    def with_parallel_threshold(self: "Emulator", threshold: int) -> "Emulator":
-        self._ptr = Emu().emulator_with_parallel_threshold(self._ptr, threshold)
+    def with_fallback_parallel_threshold(self: "Emulator", threshold: int) -> "Emulator":
+        self.fallback_parallel_threshold = threshold
+        return self
+
+    def with_fallback_timeout(self: "Emulator", timeout: timedelta) -> "Emulator":
+        self.fallback_timeout = timeout
         return self
 
     def with_send_interval(self: "Emulator", interval: timedelta) -> "Emulator":
-        self._ptr = Emu().emulator_with_send_interval(self._ptr, int(interval.total_seconds() * 1000 * 1000 * 1000))
+        self.send_interval = interval
         return self
 
     def with_receive_interval(self: "Emulator", interval: timedelta) -> "Emulator":
-        self._ptr = Emu().emulator_with_receive_interval(self._ptr, int(interval.total_seconds() * 1000 * 1000 * 1000))
+        self.receive_interval = interval
         return self
 
-    def with_timer_resolution(self: "Emulator", resolution: int | None) -> "Emulator":
-        resolution = 0 if resolution is None else _validate_nonzero_u32(resolution)
-        self._ptr = Emu().emulator_with_timer_resolution(self._ptr, resolution)
-        return self
+    def __ptr(self: "Emulator") -> EmulatorPtr:
+        if self._ptr is None:
+            pos = np.fromiter((np.void(Vector3(d._pos)) for d in self.devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
+            rot = np.fromiter((np.void(Quaternion(d._rot)) for d in self.devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+            self._ptr = Emu().emulator(
+                pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
+                rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
+                len(pos),
+                self.fallback_parallel_threshold,
+                int(self.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
+                int(self.send_interval.total_seconds() * 1000 * 1000 * 1000),
+                int(self.receive_interval.total_seconds() * 1000 * 1000 * 1000),
+                Base().timer_strategy_spin_default(),
+            )
+        return self._ptr
 
     @property
     def geometry(self: "Emulator") -> Geometry:
+        if self._geometry is None:
+            self._geometry = Geometry(Emu().emulator_geometry(self.__ptr()))
         return self._geometry
 
     def record(self: "Emulator", f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
@@ -398,7 +409,7 @@ class Emulator:
                 Emu().emulator_wait_result_record(
                     self._handle,
                     Emu().emulator_record_from(
-                        self._ptr,
+                        self.__ptr(),
                         int(t.total_seconds() * 1000 * 1000 * 1000),
                         f_native_,  # type: ignore[arg-type]
                     ),
@@ -418,7 +429,7 @@ class Emulator:
         f_native_ = ctypes.CFUNCTYPE(None, ControllerPtr)(f_native)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
-        ffi_future = Emu().emulator_record_from(self._ptr, int(t.total_seconds() * 1000 * 1000 * 1000), f_native_)  # type: ignore[arg-type]
+        ffi_future = Emu().emulator_record_from(self.__ptr(), int(t.total_seconds() * 1000 * 1000 * 1000), f_native_)  # type: ignore[arg-type]
         loop.call_soon(
             lambda *_: future.set_result(Emu().emulator_wait_result_record(self._handle, ffi_future)),
         )
@@ -431,9 +442,9 @@ class Emulator:
         self._dispose()
 
     def _dispose(self: "Emulator") -> None:
-        if self._ptr._0 is not None:
+        if self._ptr is not None:
             Emu().emulator_free(self._ptr)
-            self._ptr._0 = None
+            self._ptr = None
 
     def __enter__(self: "Emulator") -> "Emulator":
         return self

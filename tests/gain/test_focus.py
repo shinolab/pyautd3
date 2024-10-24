@@ -34,4 +34,4 @@ def test_focus():
 def test_focus_default():
     g = Focus([0, 0, 0])
     assert np.array_equal(g.pos, [0, 0, 0])
-    assert Base().gain_focus_is_default(g._gain_ptr(0))  # type: ignore [arg-type]
+    assert Base().gain_focus_is_default(g.intensity.value, g.phase_offset.value)

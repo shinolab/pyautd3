@@ -3,10 +3,11 @@ from typing import Generic, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, ModulationPtr, Segment, TransitionModeWrap
@@ -18,8 +19,8 @@ M = TypeVar("M", bound="ModulationBase")
 
 
 class ModulationBase(
-    IntoDatagramWithSegmentTransition[M],
-    DatagramST[ModulationPtr],
+    IntoDatagramWithSegment[M],
+    DatagramS[ModulationPtr],
     Generic[M],
     IntoDatagramWithTimeout[M],
     IntoDatagramWithParallelThreshold[M],
@@ -38,15 +39,17 @@ class ModulationBase(
     def _datagram_ptr(self: "ModulationBase[M]", _: Geometry) -> DatagramPtr:
         return Base().modulation_into_datagram(self._modulation_ptr())
 
-    def _into_segment_transition(
+    def _into_segment(
         self: "ModulationBase[M]",
         ptr: ModulationPtr,
         segment: Segment,
         transition_mode: TransitionModeWrap | None,
     ) -> DatagramPtr:
-        if transition_mode is None:
-            return Base().modulation_into_datagram_with_segment(ptr, segment)
-        return Base().modulation_into_datagram_with_segment_transition(ptr, segment, transition_mode)
+        return Base().modulation_into_datagram_with_segment(
+            ptr,
+            segment,
+            transition_mode if transition_mode is not None else TransitionMode.NONE,
+        )
 
     @abstractmethod
     def _modulation_ptr(self: "ModulationBase[M]") -> ModulationPtr:

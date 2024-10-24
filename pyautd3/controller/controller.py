@@ -14,46 +14,59 @@ from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.driver.geometry import Device, Geometry
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.driver.utils import _validate_nonzero_u32
 from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr
 from pyautd3.native_methods.structs import FfiFuture, Quaternion, Vector3
-from pyautd3.native_methods.utils import _validate_int, _validate_ptr
+from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 
 K = TypeVar("K")
 L = TypeVar("L", bound=Link)
 
 
 class _Builder:
-    _ptr: ControllerBuilderPtr
+    devices: list[AUTD3]
+    fallback_parallel_threshold: int
+    fallback_timeout: timedelta
+    send_interval: timedelta
+    receive_interval: timedelta
 
     def __init__(self: "_Builder", iterable: Iterable[AUTD3]) -> None:
-        devices = list(iterable)
-        pos = np.fromiter((np.void(Vector3(d._pos)) for d in devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
-        rot = np.fromiter((np.void(Quaternion(d._rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
-        self._ptr = Base().controller_builder(
-            pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
-            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
-            len(pos),
-        )
+        self.devices = list(iterable)
+        self.fallback_parallel_threshold = 4
+        self.fallback_timeout = timedelta(milliseconds=20)
+        self.send_interval = timedelta(milliseconds=1)
+        self.receive_interval = timedelta(milliseconds=1)
 
-    def with_parallel_threshold(self: "_Builder", threshold: int) -> "_Builder":
-        self._ptr = Base().controller_builder_with_parallel_threshold(self._ptr, threshold)
+    def with_fallback_parallel_threshold(self: "_Builder", threshold: int) -> "_Builder":
+        self.fallback_parallel_threshold = threshold
+        return self
+
+    def with_fallback_timeout(self: "_Builder", timeout: timedelta) -> "_Builder":
+        self.fallback_timeout = timeout
         return self
 
     def with_send_interval(self: "_Builder", interval: timedelta) -> "_Builder":
-        self._ptr = Base().controller_builder_with_send_interval(self._ptr, int(interval.total_seconds() * 1000 * 1000 * 1000))
+        self.send_interval = interval
         return self
 
     def with_receive_interval(self: "_Builder", interval: timedelta) -> "_Builder":
-        self._ptr = Base().controller_builder_with_receive_interval(self._ptr, int(interval.total_seconds() * 1000 * 1000 * 1000))
+        self.receive_interval = interval
         return self
 
-    def with_timer_resolution(self: "_Builder", resolution: int | None) -> "_Builder":
-        resolution = 0 if resolution is None else _validate_nonzero_u32(resolution)
-        self._ptr = Base().controller_builder_with_timer_resolution(self._ptr, resolution)
-        return self
+    def _ptr(self: "_Builder") -> ControllerBuilderPtr:
+        pos = np.fromiter((np.void(Vector3(d._pos)) for d in self.devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
+        rot = np.fromiter((np.void(Quaternion(d._rot)) for d in self.devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+        return Base().controller_builder(
+            pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
+            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
+            len(pos),
+            self.fallback_parallel_threshold,
+            int(self.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
+            int(self.send_interval.total_seconds() * 1000 * 1000 * 1000),
+            int(self.receive_interval.total_seconds() * 1000 * 1000 * 1000),
+            Base().timer_strategy_spin_default(),  # TODO
+        )
 
     async def open_async(
         self: "_Builder",
@@ -61,10 +74,10 @@ class _Builder:
         *,
         timeout: timedelta | None = None,  # noqa: ASYNC109
     ) -> "Controller[L]":
-        return await Controller._open_impl_async(self._ptr, link, timeout)
+        return await Controller._open_impl_async(self._ptr(), link, timeout)
 
     def open(self: "_Builder", link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
-        return Controller._open_impl(self._ptr, link, timeout)
+        return Controller._open_impl(self._ptr(), link, timeout)
 
 
 class _GroupGuard(Generic[K]):
@@ -131,18 +144,18 @@ class _GroupGuard(Generic[K]):
         )
         loop.call_soon(
             lambda *_: future.set_result(
-                Base().wait_local_result_i_32(self._controller._handle, ffi_future),
+                Base().wait_local_result_status(self._controller._handle, ffi_future),
             ),
         )
-        _validate_int(await future)
+        _validate_status(await future)
 
     def send(self: "_GroupGuard") -> None:
         keys = np.array(self._keys, dtype=np.int32)
         datagrams: np.ndarray = np.ndarray(len(self._datagrams), dtype=DatagramPtr)
         for i, d in enumerate(self._datagrams):
             datagrams[i]["_0"] = d._0
-        _validate_int(
-            Base().wait_local_result_i_32(
+        _validate_status(
+            Base().wait_local_result_status(
                 self._controller._handle,
                 Base().controller_group(
                     self._controller._ptr,
@@ -292,7 +305,7 @@ class Controller(Generic[L]):
         ffi_future = Base().controller_close(self._ptr)
         loop.call_soon(
             lambda *_: future.set_result(
-                Base().wait_result_i_32(self._handle, ffi_future),
+                Base().wait_result_status(self._handle, ffi_future),
             ),
         )
         r = await future
@@ -300,18 +313,18 @@ class Controller(Generic[L]):
         self._ptr._0 = None
         self._runtime._0 = None
         self._handle._0 = None
-        _validate_int(r)
+        _validate_status(r)
 
     def close(self: "Controller") -> None:
         if self._disposed:
             return
         self._disposed = True
-        r = Base().wait_result_i_32(self._handle, Base().controller_close(self._ptr))
+        r = Base().wait_result_status(self._handle, Base().controller_close(self._ptr))
         Base().delete_runtime(self._runtime)
         self._ptr._0 = None
         self._runtime._0 = None
         self._handle._0 = None
-        _validate_int(r)
+        _validate_status(r)
 
     async def fpga_state_async(self: "Controller") -> list[FPGAState | None]:
         future: asyncio.Future = asyncio.Future()
@@ -363,9 +376,9 @@ class Controller(Generic[L]):
             case _:
                 raise InvalidDatagramTypeError
         loop.call_soon(
-            lambda *_: future.set_result(Base().wait_result_i_32(self._handle, ffi_future)),
+            lambda *_: future.set_result(Base().wait_result_status(self._handle, ffi_future)),
         )
-        _validate_int(await future)
+        _validate_status(await future)
 
     def send(
         self: "Controller",
@@ -381,7 +394,7 @@ class Controller(Generic[L]):
                 ffi_future = Base().controller_send(self._ptr, d_tuple)
             case _:
                 raise InvalidDatagramTypeError
-        _validate_int(Base().wait_result_i_32(self._handle, ffi_future))
+        _validate_status(Base().wait_result_status(self._handle, ffi_future))
 
     def group(self: "Controller", group_map: Callable[[Device], K | None]) -> _GroupGuard:
         return _GroupGuard(group_map, self)

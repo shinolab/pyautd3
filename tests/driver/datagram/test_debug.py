@@ -87,4 +87,4 @@ def test_debug_output_idx():
         autd.send(DebugSettings(f3))
         for dev in autd.geometry:
             assert np.array_equal([0x60, 0x00, 0x00, 0x00], autd.link.debug_types(dev.idx))
-            assert np.array_equal([(sys_time.sys_time // 25000) << 8, 0x00, 0x00, 0x00], autd.link.debug_values(dev.idx))
+            assert np.array_equal([(sys_time.sys_time // 3125) << 5, 0x00, 0x00, 0x00], autd.link.debug_values(dev.idx))

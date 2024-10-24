@@ -39,17 +39,16 @@ def test_soem():
                 SOEM.builder()
                 .with_ifname("")
                 .with_buf_size(32)
-                .with_send_cycle(2)
-                .with_sync0_cycle(2)
+                .with_send_cycle(timedelta(milliseconds=1))
+                .with_sync0_cycle(timedelta(milliseconds=1))
                 .with_err_handler(err_handler)
-                .with_timer_strategy(TimerStrategy.Sleep)
+                .with_timer_strategy(TimerStrategy.SpinSleep)
                 .with_sync_mode(SyncMode.DC)
                 .with_sync_tolerance(timedelta(microseconds=1))
                 .with_sync_timeout(timedelta(seconds=10))
                 .with_state_check_interval(timedelta(milliseconds=100))
                 .with_process_priority(ProcessPriority.High)
-                .with_thread_priority(ThreadPriority.Max)
-                .with_timeout(timedelta(milliseconds=200)),
+                .with_thread_priority(ThreadPriority.Max),
             )
         ) as _,
     ):
@@ -58,4 +57,4 @@ def test_soem():
 
 @pytest.mark.soem
 def test_remote_soem():
-    _ = RemoteSOEM.builder("127.0.0.1:8080").with_timeout(timedelta(milliseconds=200))
+    _ = RemoteSOEM.builder("127.0.0.1:8080")

@@ -17,10 +17,10 @@ if TYPE_CHECKING:
 def test_sine():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Sine(150 * Hz).with_intensity(0xFF // 2).with_offset(0xFF // 2).with_phase(np.pi / 2 * rad).with_loop_behavior(LoopBehavior.Once)
+        m = Sine(150 * Hz).with_intensity(0x80).with_offset(0x40).with_phase(np.pi / 2 * rad).with_loop_behavior(LoopBehavior.Once)
         assert m.freq == 150 * Hz
-        assert m.intensity == 0xFF // 2
-        assert m.offset == 0xFF // 2
+        assert m.intensity == 0x80
+        assert m.offset == 0x40
         assert m.phase == np.pi / 2 * rad
         assert m.loop_behavior == LoopBehavior.Once
         assert m.sampling_config == SamplingConfig(10)
@@ -30,86 +30,86 @@ def test_sine():
             assert autd.link.modulation_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Once
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
             mod_expect = [
-                127,
-                125,
-                120,
+                128,
+                126,
+                121,
                 112,
                 101,
                 88,
-                73,
-                59,
+                74,
+                58,
                 44,
                 30,
-                19,
+                18,
                 9,
                 3,
                 0,
-                1,
-                5,
-                12,
-                22,
-                35,
-                49,
-                64,
-                78,
-                92,
-                105,
-                115,
-                122,
-                126,
-                127,
-                124,
-                118,
-                108,
-                97,
-                83,
-                68,
-                54,
-                39,
-                26,
-                15,
-                7,
-                2,
                 0,
-                2,
-                7,
+                4,
+                12,
+                22,
+                34,
+                49,
+                64,
+                78,
+                93,
+                105,
+                115,
+                123,
+                127,
+                127,
+                124,
+                118,
+                109,
+                97,
+                83,
+                69,
+                53,
+                39,
+                26,
+                15,
+                6,
+                1,
+                0,
+                1,
+                6,
                 15,
                 26,
                 39,
-                54,
-                68,
+                53,
+                69,
                 83,
                 97,
-                108,
+                109,
                 118,
                 124,
                 127,
-                126,
-                122,
+                127,
+                123,
                 115,
                 105,
-                92,
+                93,
                 78,
                 64,
                 49,
-                35,
+                34,
                 22,
                 12,
-                5,
-                1,
+                4,
+                0,
                 0,
                 3,
                 9,
-                19,
+                18,
                 30,
                 44,
-                59,
-                73,
+                58,
+                74,
                 88,
                 101,
                 112,
-                120,
-                125,
+                121,
+                126,
             ]
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
@@ -128,7 +128,7 @@ def test_sine_clamp():
         assert not m.clamp
         with pytest.raises(AUTDError) as e:
             autd.send(m)
-        assert str(e.value) == "Sine modulation value (-39) is out of range [0, 255]"
+        assert str(e.value) == "Sine modulation value (-1) is out of range [0, 255]"
 
     with create_controller() as autd:
         m = Sine(200 * Hz).with_offset(0).with_clamp(True)  # noqa: FBT003
@@ -140,7 +140,7 @@ def test_sine_clamp():
 
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
-            mod_expect = [0, 39, 75, 103, 121, 128, 121, 103, 75, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            mod_expect = [0, 39, 74, 103, 121, 127, 121, 103, 74, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             assert np.array_equal(mod, mod_expect)
 
 
@@ -164,7 +164,7 @@ def test_sine_mode():
 def test_sine_default():
     m = Sine(150.0 * Hz)
     assert m.freq == 150.0 * Hz
-    assert Base().modulation_sine_is_default(m._modulation_ptr())
+    assert Base().modulation_sine_is_default(m.sampling_config._inner, m.intensity, m.offset, m.phase.radian, m.clamp, m.loop_behavior)
 
 
 def test_sine_error():

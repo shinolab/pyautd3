@@ -52,7 +52,7 @@ from .native_methods.autd3capi_modulation_audio_file import NativeMethods as Aud
 def tracing_init() -> None:
     Base().tracing_init()
     with contextlib.suppress(BaseException):
-        Soem().autd_link_soem_tracing_init()
+        Soem().link_soem_tracing_init()
     with contextlib.suppress(BaseException):
         Simulator().link_simulator_tracing_init()
     with contextlib.suppress(BaseException):
@@ -122,4 +122,4 @@ __all__ = [
     "SilencerTarget",
 ]
 
-__version__ = "28.1.0"
+__version__ = "29.0.0-alpha.4"

@@ -2,21 +2,11 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
+from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
+from pyautd3.native_methods.autd3capi_driver import ResultStatus, ResultSyncLinkBuilder
 
-
-class LinkSimulatorBuilderPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class ResultLinkSimulatorBuilder(ctypes.Structure):
-    _fields_ = [("result", LinkSimulatorBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultLinkSimulatorBuilder) and self._fields_ == other._fields_ # pragma: no cover
-                    
 
 
 class Singleton(type):
@@ -39,23 +29,17 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSimulatorTracingInit.argtypes = [] 
         self.dll.AUTDLinkSimulatorTracingInit.restype = None
 
+        self.dll.AUTDLinkSimulatorTracingInitWithFile.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDLinkSimulatorTracingInitWithFile.restype = ResultStatus
+
         self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkSimulator.restype = ResultLinkSimulatorBuilder
-
-        self.dll.AUTDLinkSimulatorWithTimeout.argtypes = [LinkSimulatorBuilderPtr, ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDLinkSimulatorWithTimeout.restype = LinkSimulatorBuilderPtr
-
-        self.dll.AUTDLinkSimulatorIntoBuilder.argtypes = [LinkSimulatorBuilderPtr]  # type: ignore 
-        self.dll.AUTDLinkSimulatorIntoBuilder.restype = LinkBuilderPtr
+        self.dll.AUTDLinkSimulator.restype = ResultSyncLinkBuilder
 
     def link_simulator_tracing_init(self) -> None:
         return self.dll.AUTDLinkSimulatorTracingInit()
 
-    def link_simulator(self, addr: bytes) -> ResultLinkSimulatorBuilder:
+    def link_simulator_tracing_init_with_file(self, path: bytes) -> ResultStatus:
+        return self.dll.AUTDLinkSimulatorTracingInitWithFile(path)
+
+    def link_simulator(self, addr: bytes) -> ResultSyncLinkBuilder:
         return self.dll.AUTDLinkSimulator(addr)
-
-    def link_simulator_with_timeout(self, simulator: LinkSimulatorBuilderPtr, timeout_ns: int) -> LinkSimulatorBuilderPtr:
-        return self.dll.AUTDLinkSimulatorWithTimeout(simulator, timeout_ns)
-
-    def link_simulator_into_builder(self, simulator: LinkSimulatorBuilderPtr) -> LinkBuilderPtr:
-        return self.dll.AUTDLinkSimulatorIntoBuilder(simulator)

@@ -1,14 +1,10 @@
 [project]
 name = "pyautd3"
-version = "28.1.0"
+version = "29.0.0a4"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "numpy>=2",
-    "polars>=1.1",
-    "forbiddenfruit"
-]
+dependencies = ["numpy>=2", "polars>=1.1", "forbiddenfruit"]
 
 [build-system]
 requires = ["wheel", "setuptools"]
@@ -25,6 +21,7 @@ select = ["ALL"]
 fixable = ["ALL"]
 
 [tool.ruff.lint.extend-per-file-ignores]
+"pyautd3/*.py" = ["TD", "FIX002"]
 "tests/*.py" = ["S101", "T201", "ANN201", "PLR0915", "PLR2004"]
 "conftest.py" = ["ARG001", "ANN001"]
 "example/*.py" = ["T201", "PLR2004", "PD901"]
