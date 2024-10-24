@@ -1,6 +1,7 @@
 import ctypes
 from collections.abc import Iterable
 from datetime import timedelta
+from typing import Self
 
 import numpy as np
 
@@ -16,7 +17,7 @@ class Custom(Modulation["Custom"]):
     _buf: np.ndarray
     _resampler: tuple[Freq[float], SamplingConfig, Resampler] | None
 
-    def __init__(self: "Custom", buf: Iterable[int], config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, buf: Iterable[int], config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         super().__init__(config)
         self._buf = np.fromiter(buf, dtype=np.uint8)
         self._resampler = None
@@ -32,7 +33,7 @@ class Custom(Modulation["Custom"]):
         instance._resampler = (source, SamplingConfig(target), resampler)
         return instance
 
-    def _modulation_ptr(self: "Custom") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         match self._resampler:
             case (Freq(), SamplingConfig(), Resampler()):
                 (source, target, resampler) = self._resampler  # type: ignore[misc]

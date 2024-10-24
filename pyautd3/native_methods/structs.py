@@ -1,4 +1,5 @@
 import ctypes
+from typing import Self
 import numpy as np
 
 
@@ -13,7 +14,7 @@ class LocalFfiFuture(ctypes.Structure):
 class Vector3(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float)]
 
-    def __init__(self: "Vector3", v: np.ndarray) -> None:
+    def __init__(self: Self, v: np.ndarray) -> None:
         self.x = v[0]
         self.y = v[1]
         self.z = v[2]
@@ -25,7 +26,7 @@ class Vector3(ctypes.Structure):
 class Quaternion(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float), ("w", ctypes.c_float)]
 
-    def __init__(self: "Quaternion", v: np.ndarray) -> None:
+    def __init__(self: Self, v: np.ndarray) -> None:
         self.w = v[0]
         self.x = v[1]
         self.y = v[2]

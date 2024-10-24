@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Self
 
 from pyautd3.driver.defined import Freq
 from pyautd3.driver.defined.freq import Hz
@@ -11,7 +12,7 @@ from pyautd3.native_methods.utils import _validate_sampling_config
 class SamplingConfig:
     _inner: _SamplingConfig
 
-    def __init__(self: "SamplingConfig", value: "_SamplingConfig | SamplingConfig | int | Freq[int] | Freq[float] | timedelta") -> None:
+    def __init__(self: Self, value: "_SamplingConfig | SamplingConfig | int | Freq[int] | Freq[float] | timedelta") -> None:
         match value:
             case int():
                 self._inner = _validate_sampling_config(Base().sampling_config_from_division(_validate_nonzero_u16(value)))
@@ -47,16 +48,16 @@ class SamplingConfig:
                 raise TypeError
 
     @property
-    def division(self: "SamplingConfig") -> int:
+    def division(self: Self) -> int:
         return int(Base().sampling_config_division(self._inner))
 
     @property
-    def freq(self: "SamplingConfig") -> Freq[float]:
+    def freq(self: Self) -> Freq[float]:
         return float(Base().sampling_config_freq(self._inner)) * Hz
 
     @property
-    def period(self: "SamplingConfig") -> timedelta:
+    def period(self: Self) -> timedelta:
         return timedelta(microseconds=int(Base().sampling_config_period(self._inner)) / 1000)
 
-    def __eq__(self: "SamplingConfig", value: object) -> bool:
+    def __eq__(self: Self, value: object) -> bool:
         return isinstance(value, SamplingConfig) and self._inner.division == self._inner.division

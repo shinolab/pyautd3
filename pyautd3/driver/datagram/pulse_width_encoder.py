@@ -1,6 +1,7 @@
 import ctypes
 import threading
 from collections.abc import Callable
+from typing import Self
 
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
@@ -20,7 +21,7 @@ class PulseWidthEncoder(
     _cache: dict[int, Callable[[int], int]]
     _lock: threading.Lock
 
-    def __init__(self: "PulseWidthEncoder", f: Callable[[Device], Callable[[int], int]] | None = None) -> None:
+    def __init__(self: Self, f: Callable[[Device], Callable[[int], int]] | None = None) -> None:
         super().__init__()
         self._cache = {}
         self._lock = threading.Lock()
@@ -37,7 +38,7 @@ class PulseWidthEncoder(
 
             self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8)(f_native)
 
-    def _datagram_ptr(self: "PulseWidthEncoder", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return (
             Base().datagram_pulse_width_encoder_default()
             if self._f_native is None

@@ -1,5 +1,5 @@
 from abc import ABCMeta
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.datagram.gain.cache import IntoGainCache
@@ -21,5 +21,5 @@ class Gain(
     Generic[G],
     metaclass=ABCMeta,
 ):
-    def __init__(self: "Gain[G]") -> None:
+    def __init__(self: Self) -> None:
         super().__init__()

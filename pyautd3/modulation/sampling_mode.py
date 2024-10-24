@@ -1,5 +1,6 @@
 import ctypes
 from abc import ABCMeta, abstractmethod
+from typing import Self
 
 import numpy as np
 
@@ -14,7 +15,7 @@ from pyautd3.native_methods.utils import _validate_ptr
 class ISamplingMode(metaclass=ABCMeta):
     @abstractmethod
     def sine_ptr(
-        self: "ISamplingMode",
+        self: Self,
         config: SamplingConfig,
         intensity: int,
         offset: int,
@@ -25,12 +26,12 @@ class ISamplingMode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def sine_freq(self: "ISamplingMode") -> int | float:
+    def sine_freq(self: Self) -> int | float:
         pass
 
     @abstractmethod
     def fourier_ptr(
-        self: "ISamplingMode",
+        self: Self,
         components: list,
         size: int,
         clamp: bool,  # noqa: FBT001
@@ -42,7 +43,7 @@ class ISamplingMode(metaclass=ABCMeta):
 
     @abstractmethod
     def square_ptr(
-        self: "ISamplingMode",
+        self: Self,
         config: SamplingConfig,
         low: int,
         high: int,
@@ -52,18 +53,18 @@ class ISamplingMode(metaclass=ABCMeta):
         pass
 
     @abstractmethod
-    def square_freq(self: "ISamplingMode") -> int | float:
+    def square_freq(self: Self) -> int | float:
         pass
 
 
 class SamplingModeExact(ISamplingMode):
     _freq: Freq[int]
 
-    def __init__(self: "SamplingModeExact", freq: Freq[int]) -> None:
+    def __init__(self: Self, freq: Freq[int]) -> None:
         self._freq = freq
 
     def sine_ptr(
-        self: "SamplingModeExact",
+        self: Self,
         config: SamplingConfig,
         intensity: int,
         offset: int,
@@ -83,11 +84,11 @@ class SamplingModeExact(ISamplingMode):
             ),
         )
 
-    def sine_freq(self: "SamplingModeExact") -> int | float:
+    def sine_freq(self: Self) -> int | float:
         return int(Base().modulation_sine_exact_freq(self._freq.hz))
 
     def fourier_ptr(
-        self: "SamplingModeExact",
+        self: Self,
         components: list,
         size: int,
         clamp: bool,  # noqa: FBT001
@@ -118,7 +119,7 @@ class SamplingModeExact(ISamplingMode):
         )
 
     def square_ptr(
-        self: "SamplingModeExact",
+        self: Self,
         config: SamplingConfig,
         low: int,
         high: int,
@@ -136,18 +137,18 @@ class SamplingModeExact(ISamplingMode):
             ),
         )
 
-    def square_freq(self: "SamplingModeExact") -> int | float:
+    def square_freq(self: Self) -> int | float:
         return int(Base().modulation_square_exact_freq(self._freq.hz))
 
 
 class SamplingModeExactFloat(ISamplingMode):
     _freq: Freq[float]
 
-    def __init__(self: "SamplingModeExactFloat", freq: Freq[float]) -> None:
+    def __init__(self: Self, freq: Freq[float]) -> None:
         self._freq = freq
 
     def sine_ptr(
-        self: "SamplingModeExactFloat",
+        self: Self,
         config: SamplingConfig,
         intensity: int,
         offset: int,
@@ -167,11 +168,11 @@ class SamplingModeExactFloat(ISamplingMode):
             ),
         )
 
-    def sine_freq(self: "SamplingModeExactFloat") -> float:
+    def sine_freq(self: Self) -> float:
         return float(Base().modulation_sine_exact_float_freq(self._freq.hz))
 
     def fourier_ptr(
-        self: "SamplingModeExactFloat",
+        self: Self,
         components: list,
         size: int,
         clamp: bool,  # noqa: FBT001
@@ -202,7 +203,7 @@ class SamplingModeExactFloat(ISamplingMode):
         )
 
     def square_ptr(
-        self: "SamplingModeExactFloat",
+        self: Self,
         config: SamplingConfig,
         low: int,
         high: int,
@@ -220,18 +221,18 @@ class SamplingModeExactFloat(ISamplingMode):
             ),
         )
 
-    def square_freq(self: "SamplingModeExactFloat") -> float:
+    def square_freq(self: Self) -> float:
         return int(Base().modulation_square_exact_float_freq(self._freq.hz))
 
 
 class SamplingModeNearest(ISamplingMode):
     _freq: Freq[float]
 
-    def __init__(self: "SamplingModeNearest", freq: Freq[float]) -> None:
+    def __init__(self: Self, freq: Freq[float]) -> None:
         self._freq = freq
 
     def sine_ptr(
-        self: "SamplingModeNearest",
+        self: Self,
         config: SamplingConfig,
         intensity: int,
         offset: int,
@@ -251,11 +252,11 @@ class SamplingModeNearest(ISamplingMode):
             ),
         )
 
-    def sine_freq(self: "SamplingModeNearest") -> int | float:
+    def sine_freq(self: Self) -> int | float:
         return float(Base().modulation_sine_nearest_freq(self._freq.hz))
 
     def fourier_ptr(
-        self: "SamplingModeNearest",
+        self: Self,
         components: list,
         size: int,
         clamp: bool,  # noqa: FBT001
@@ -286,7 +287,7 @@ class SamplingModeNearest(ISamplingMode):
         )
 
     def square_ptr(
-        self: "SamplingModeNearest",
+        self: Self,
         config: SamplingConfig,
         low: int,
         high: int,
@@ -304,5 +305,5 @@ class SamplingModeNearest(ISamplingMode):
             ),
         )
 
-    def square_freq(self: "SamplingModeNearest") -> int | float:
+    def square_freq(self: Self) -> int | float:
         return int(Base().modulation_square_nearest_freq(self._freq.hz))

@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Iterable
+from typing import Self
 
 import numpy as np
 
@@ -17,19 +18,19 @@ from .holo import Holo
 class Greedy(Holo["Greedy"]):
     _div: int
 
-    def __init__(self: "Greedy", iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
+    def __init__(self: Self, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
         super().__init__(EmissionConstraint.Uniform(EmitIntensity.maximum()), iterable)
         self._div = 16
 
-    def with_phase_div(self: "Greedy", div: int) -> "Greedy":
+    def with_phase_div(self: Self, div: int) -> Self:
         self._div = div
         return self
 
     @property
-    def phase_div(self: "Greedy") -> int:
+    def phase_div(self: Self) -> int:
         return self._div
 
-    def _gain_ptr(self: "Greedy", _: Geometry) -> GainPtr:
+    def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         size = len(self._amps)
         foci = np.fromiter((np.void(Vector3(d)) for d in self._foci), dtype=Vector3)  # type: ignore[type-var,call-overload]
         amps = np.fromiter((d.pascal for d in self._amps), dtype=ctypes.c_float)  # type: ignore[type-var,call-overload]

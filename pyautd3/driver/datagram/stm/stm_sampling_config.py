@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Self
 
 from pyautd3.driver.defined import Freq
 from pyautd3.driver.defined.freq import Hz
@@ -12,7 +13,7 @@ class STMSamplingConfig:
     _inner: _SamplingConfig
     _n: int
 
-    def __init__(self: "STMSamplingConfig", value: "_SamplingConfig | SamplingConfig | Freq[float] | timedelta", n: int) -> None:
+    def __init__(self: Self, value: "_SamplingConfig | SamplingConfig | Freq[float] | timedelta", n: int) -> None:
         match value:
             case _SamplingConfig():
                 self._inner = value
@@ -51,11 +52,11 @@ class STMSamplingConfig:
             case _:
                 raise TypeError
 
-    def freq(self: "STMSamplingConfig") -> Freq[float]:
+    def freq(self: Self) -> Freq[float]:
         return float(Base().stm_freq(self._inner, self._n)) * Hz
 
-    def period(self: "STMSamplingConfig") -> timedelta:
+    def period(self: Self) -> timedelta:
         return timedelta(microseconds=int(Base().stm_period(self._inner, self._n)) / 1000)
 
-    def sampling_config(self: "STMSamplingConfig") -> SamplingConfig:
+    def sampling_config(self: Self) -> SamplingConfig:
         return SamplingConfig(self._inner)

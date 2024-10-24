@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Callable
+from typing import Self
 
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
@@ -55,7 +56,7 @@ class DebugSettings(
     IntoDatagramWithParallelThreshold["DebugSettings"],
     Datagram,
 ):
-    def __init__(self: "DebugSettings", f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
+    def __init__(self: Self, f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, gpio: GPIOOut, res) -> None:  # noqa: ANN001
@@ -70,5 +71,5 @@ class DebugSettings(
             ctypes.POINTER(DebugTypeWrap),
         )(f_native)
 
-    def _datagram_ptr(self: "DebugSettings", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().datagram_debug_settings(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]

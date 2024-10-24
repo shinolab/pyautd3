@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Iterable
+from typing import Self
 
 import numpy as np
 
@@ -14,10 +15,10 @@ from .holo import HoloWithBackend
 
 
 class Naive(HoloWithBackend["Naive"]):
-    def __init__(self: "Naive", backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
+    def __init__(self: Self, backend: Backend, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
         super().__init__(EmissionConstraint.Clamp(0x00, 0xFF), backend, iterable)
 
-    def _gain_ptr(self: "Naive", _: Geometry) -> GainPtr:
+    def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         size = len(self._amps)
         foci = np.fromiter((np.void(Vector3(d)) for d in self._foci), dtype=Vector3)  # type: ignore[type-var,call-overload]
         amps = np.fromiter((d.pascal for d in self._amps), dtype=ctypes.c_float)  # type: ignore[type-var,call-overload]

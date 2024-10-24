@@ -1,6 +1,6 @@
 from pyautd3 import Controller, Null, Silencer
 
-from . import bessel, custom, flag, focus, group, holo, plane, stm, user_defined, wav
+from . import bessel, custom, flag, focus, group, holo, plane, stm, wav
 
 
 def run(autd: Controller) -> None:
@@ -12,7 +12,6 @@ def run(autd: Controller) -> None:
         (stm.stm_focus, "FociSTM test"),
         (stm.stm_gain, "GainSTM test"),
         (holo.holo, "Multiple foci test"),
-        (user_defined.user_defined, "User-defined Gain & Modulation test"),
         (flag.flag, "Flag test"),
         (custom.transtest, "Custom gain test"),
         (group.group_by_transducer, "Group (by Transducer) test"),

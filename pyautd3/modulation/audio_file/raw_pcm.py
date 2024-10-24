@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from typing import Self
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
@@ -25,12 +26,12 @@ class RawPCM(
     _config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]
     _sample_rate: Freq[int]
 
-    def __private_init__(self: "RawPCM", path: Path, config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]) -> None:
+    def __private_init__(self: Self, path: Path, config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]) -> None:
         super().__init__()
         self._path = path
         self._config = config
 
-    def __init__(self: "RawPCM", path: Path, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, path: Path, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         self.__private_init__(path, SamplingConfig(config))
 
     @staticmethod
@@ -44,7 +45,7 @@ class RawPCM(
         instance.__private_init__(path, (source, SamplingConfig(target), resampler))
         return instance
 
-    def _modulation_ptr(self: "RawPCM") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         path = str(self._path).encode("utf-8")
         match self._config:
             case (Freq(), SamplingConfig(), Resampler()):

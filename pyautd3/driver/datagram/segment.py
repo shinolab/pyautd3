@@ -1,3 +1,5 @@
+from typing import Self
+
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
@@ -19,12 +21,12 @@ class SwapSegment:
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
-        def __init__(self: "SwapSegment.Gain", segment: Segment, transition_mode: TransitionModeWrap) -> None:
+        def __init__(self: Self, segment: Segment, transition_mode: TransitionModeWrap) -> None:
             super().__init__()
             self._segment = segment
             self._transition_mode = transition_mode
 
-        def _datagram_ptr(self: "SwapSegment.Gain", _: Geometry) -> DatagramPtr:
+        def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_gain(self._segment, self._transition_mode)
 
     class Modulation(
@@ -35,12 +37,12 @@ class SwapSegment:
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
-        def __init__(self: "SwapSegment.Modulation", segment: Segment, transition_mode: TransitionModeWrap) -> None:
+        def __init__(self: Self, segment: Segment, transition_mode: TransitionModeWrap) -> None:
             super().__init__()
             self._segment = segment
             self._transition_mode = transition_mode
 
-        def _datagram_ptr(self: "SwapSegment.Modulation", _: Geometry) -> DatagramPtr:
+        def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_modulation(self._segment, self._transition_mode)
 
     class FociSTM(
@@ -51,12 +53,12 @@ class SwapSegment:
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
-        def __init__(self: "SwapSegment.FociSTM", segment: Segment, transition_mode: TransitionModeWrap) -> None:
+        def __init__(self: Self, segment: Segment, transition_mode: TransitionModeWrap) -> None:
             super().__init__()
             self._segment = segment
             self._transition_mode = transition_mode
 
-        def _datagram_ptr(self: "SwapSegment.FociSTM", _: Geometry) -> DatagramPtr:
+        def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_foci_stm(self._segment, self._transition_mode)
 
     class GainSTM(
@@ -67,10 +69,10 @@ class SwapSegment:
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
-        def __init__(self: "SwapSegment.GainSTM", segment: Segment, transition_mode: TransitionModeWrap) -> None:
+        def __init__(self: Self, segment: Segment, transition_mode: TransitionModeWrap) -> None:
             super().__init__()
             self._segment = segment
             self._transition_mode = transition_mode
 
-        def _datagram_ptr(self: "SwapSegment.GainSTM", _: Geometry) -> DatagramPtr:
+        def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_gain_stm(self._segment, self._transition_mode)

@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 T = TypeVar("T", int, float)
 
@@ -16,10 +16,10 @@ class Freq(Generic[T]):
         return ins
 
     @property
-    def hz(self: "Freq[T]") -> T:
+    def hz(self: Self) -> T:
         return self._freq
 
-    def __eq__(self: "Freq[T]", value: object) -> bool:
+    def __eq__(self: Self, value: object) -> bool:
         return isinstance(value, Freq) and self._freq == value._freq
 
 
@@ -31,7 +31,7 @@ class _UnitHz:
     def __private_new__(cls: type["_UnitHz"]) -> "_UnitHz":
         return super().__new__(cls)
 
-    def __rmul__(self: "_UnitHz", other: T) -> "Freq[T]":
+    def __rmul__(self: Self, other: T) -> "Freq[T]":
         return Freq.__private_new__(other)
 
 
@@ -43,7 +43,7 @@ class _UnitkHz:
     def __private_new__(cls: type["_UnitkHz"]) -> "_UnitkHz":
         return super().__new__(cls)
 
-    def __rmul__(self: "_UnitkHz", other: T) -> "Freq[T]":
+    def __rmul__(self: Self, other: T) -> "Freq[T]":
         return Freq.__private_new__(other * 1000)
 
 

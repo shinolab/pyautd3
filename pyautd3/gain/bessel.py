@@ -1,3 +1,5 @@
+from typing import Self
+
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -18,7 +20,7 @@ class Bessel(Gain["Bessel"]):
     _intensity: EmitIntensity
     _phase_offset: Phase
 
-    def __init__(self: "Bessel", pos: ArrayLike, direction: ArrayLike, theta: Angle) -> None:
+    def __init__(self: Self, pos: ArrayLike, direction: ArrayLike, theta: Angle) -> None:
         super().__init__()
         self._p = np.array(pos)
         self._d = np.array(direction)
@@ -27,34 +29,34 @@ class Bessel(Gain["Bessel"]):
         self._phase_offset = Phase(0)
 
     @property
-    def pos(self: "Bessel") -> np.ndarray:
+    def pos(self: Self) -> np.ndarray:
         return self._p
 
     @property
-    def dir(self: "Bessel") -> np.ndarray:
+    def dir(self: Self) -> np.ndarray:
         return self._d
 
     @property
-    def theta(self: "Bessel") -> Angle:
+    def theta(self: Self) -> Angle:
         return self._theta
 
-    def with_intensity(self: "Bessel", intensity: int | EmitIntensity) -> "Bessel":
+    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
         self._intensity = EmitIntensity(intensity)
         return self
 
     @property
-    def intensity(self: "Bessel") -> EmitIntensity:
+    def intensity(self: Self) -> EmitIntensity:
         return self._intensity
 
-    def with_phase_offset(self: "Bessel", phase: int | Phase) -> "Bessel":
+    def with_phase_offset(self: Self, phase: int | Phase) -> Self:
         self._phase_offset = Phase(phase)
         return self
 
     @property
-    def phase_offset(self: "Bessel") -> Phase:
+    def phase_offset(self: Self) -> Phase:
         return self._phase_offset
 
-    def _gain_ptr(self: "Bessel", _: Geometry) -> GainPtr:
+    def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         return Base().gain_bessel(
             Vector3(self._p),
             Vector3(self._d),

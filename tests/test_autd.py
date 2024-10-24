@@ -5,6 +5,7 @@ import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
+from pyautd3.controller.timer_strategy import AsyncSleeper, SpinSleeper, StdSleeper, TimerStrategy, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
@@ -13,6 +14,8 @@ from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.gain import Null, Uniform
 from pyautd3.link.audit import Audit
 from pyautd3.modulation import Sine, Static
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi_driver import SpinStrategyTag
 
 
 async def create_controller_async() -> Controller[Audit]:
@@ -20,6 +23,9 @@ async def create_controller_async() -> Controller[Audit]:
         await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
         .with_receive_interval(timedelta(milliseconds=1))
+        .with_fallback_parallel_threshold(4)
+        .with_fallback_timeout(timedelta(milliseconds=20))
+        .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
         .open_async(
             Audit.builder(),
         )
@@ -31,10 +37,43 @@ def create_controller() -> Controller[Audit]:
         Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
         .with_receive_interval(timedelta(milliseconds=1))
-        .open(
-            Audit.builder(),
-        )
+        .with_fallback_parallel_threshold(4)
+        .with_fallback_timeout(timedelta(milliseconds=20))
+        .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
+        .open(Audit.builder())
     )
+
+
+def test_controller_is_default():
+    default = Controller.builder([])
+    Base().controller_builder_is_default(
+        default.fallback_parallel_threshold,
+        int(default.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
+        int(default.send_interval.total_seconds() * 1000 * 1000 * 1000),
+        int(default.receive_interval.total_seconds() * 1000 * 1000 * 1000),
+        default.timer_strategy,
+    )
+
+
+def test_with_timer():
+    autd: Controller[Audit]
+    with Controller.builder([]).with_timer_strategy(TimerStrategy.Std(StdSleeper(1))).open(Audit.builder()) as autd:
+        autd.send(Static())
+    with (
+        Controller.builder([])
+        .with_timer_strategy(
+            TimerStrategy.Spin(SpinSleeper(700_000).with_spin_strategy(SpinStrategyTag.SpinLoopHint)),
+        )
+        .open(Audit.builder()) as autd
+    ):
+        autd.send(Static())
+    with Controller.builder([]).with_timer_strategy(TimerStrategy.Async(AsyncSleeper(1))).open(Audit.builder()) as autd:
+        autd.send(Static())
+
+    _ = TimerStrategy.Waitable(WaitableSleeper())
+
+    with pytest.raises(NotImplementedError):
+        _ = TimerStrategy()
 
 
 def test_firmware_info():
@@ -325,6 +364,13 @@ def test_force_fan():
         autd.send(ForceFan(lambda dev: dev.idx == 1))
         assert not autd.link.is_force_fan(0)
         assert autd.link.is_force_fan(1)
+
+
+def test_geometry():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        assert autd.num_transducers == 249 * 2
+        assert autd[0].num_transducers == 249
 
 
 def test_tracing():

@@ -1,5 +1,6 @@
 from datetime import timedelta
 from pathlib import Path
+from typing import Self
 
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
@@ -25,13 +26,13 @@ class Csv(
     _config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]
     _deliminator: str
 
-    def __private_init__(self: "Csv", path: Path, config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]) -> None:
+    def __private_init__(self: Self, path: Path, config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]) -> None:
         super().__init__()
         self._path = path
         self._config = config
         self._deliminator = ","
 
-    def __init__(self: "Csv", path: Path, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, path: Path, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         self.__private_init__(path, SamplingConfig(config))
 
     @staticmethod
@@ -45,11 +46,11 @@ class Csv(
         instance.__private_init__(path, (source, SamplingConfig(target), resampler))
         return instance
 
-    def with_deliminator(self: "Csv", deliminator: str) -> "Csv":
+    def with_deliminator(self: Self, deliminator: str) -> Self:
         self._deliminator = deliminator
         return self
 
-    def _modulation_ptr(self: "Csv") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         delim = self._deliminator.encode("utf-8")
         path = str(self._path).encode("utf-8")
         match self._config:

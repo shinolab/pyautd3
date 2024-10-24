@@ -1,5 +1,6 @@
 import ctypes
 from collections.abc import Callable
+from typing import Self
 
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
@@ -15,7 +16,7 @@ class ForceFan(
     IntoDatagramWithParallelThreshold["ForceFan"],
     Datagram,
 ):
-    def __init__(self: "ForceFan", f: Callable[[Device], bool]) -> None:
+    def __init__(self: Self, f: Callable[[Device], bool]) -> None:
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> bool:
@@ -23,5 +24,5 @@ class ForceFan(
 
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_bool, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
 
-    def _datagram_ptr(self: "ForceFan", geometry: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().datagram_force_fan(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]

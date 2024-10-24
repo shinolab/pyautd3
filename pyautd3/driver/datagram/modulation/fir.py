@@ -1,6 +1,6 @@
 import ctypes
 from collections.abc import Iterable
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 import numpy as np
 
@@ -23,12 +23,12 @@ class Fir(
     _m: M
     _coef: np.ndarray
 
-    def __init__(self: "Fir[M]", m: M, iterable: Iterable[float]) -> None:
+    def __init__(self: Self, m: M, iterable: Iterable[float]) -> None:
         self._m = m
         self._loop_behavior = m._loop_behavior
         self._coef = np.fromiter(iterable, dtype=ctypes.c_float)
 
-    def _modulation_ptr(self: "Fir[M]") -> ModulationPtr:
+    def _modulation_ptr(self: Self) -> ModulationPtr:
         return Base().modulation_with_fir(
             self._m._modulation_ptr(),
             self._loop_behavior,
@@ -38,5 +38,5 @@ class Fir(
 
 
 class IntoModulationFir(ModulationBase[M], Generic[M]):
-    def with_fir(self: M, iterable: Iterable[float]) -> "Fir[M]":
+    def with_fir(self: M, iterable: Iterable[float]) -> Fir[M]:
         return Fir(self, iterable)

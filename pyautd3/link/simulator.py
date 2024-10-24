@@ -1,3 +1,5 @@
+from typing import Self
+
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -12,16 +14,16 @@ class Simulator(Link):
     class _Builder(LinkBuilder["Simulator"]):
         addr: str
 
-        def __init__(self: "Simulator._Builder", addr: str) -> None:
+        def __init__(self: Self, addr: str) -> None:
             self.addr = addr
 
-        def _link_builder_ptr(self: "Simulator._Builder") -> LinkBuilderPtr:
+        def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
             return _validate_ptr(LinkSimulator().link_simulator(self.addr.encode("utf-8")))  # pragma: no cover
 
-        def _resolve_link(self: "Simulator._Builder", handle: HandlePtr, ptr: ControllerPtr) -> "Simulator":
+        def _resolve_link(self: Self, handle: HandlePtr, ptr: ControllerPtr) -> "Simulator":
             return Simulator(handle, Base().link_get(ptr))  # pragma: no cover
 
-    def __init__(self: "Simulator", handle: HandlePtr, ptr: LinkPtr) -> None:
+    def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
         super().__init__(handle, ptr)  # pragma: no cover
 
     @staticmethod

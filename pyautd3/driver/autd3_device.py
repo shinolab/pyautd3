@@ -1,3 +1,5 @@
+from typing import Self
+
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -16,11 +18,11 @@ class AUTD3(metaclass=ConstantADT):
     _pos: np.ndarray
     _rot: np.ndarray
 
-    def __init__(self: "AUTD3", pos: ArrayLike) -> None:
+    def __init__(self: Self, pos: ArrayLike) -> None:
         self._pos = np.array(pos)
         self._rot = np.array([1, 0, 0, 0])
 
-    def with_rotation(self: "AUTD3", rot: ArrayLike) -> "AUTD3":
+    def with_rotation(self: Self, rot: ArrayLike) -> Self:
         self._rot = np.array(rot)
         return self
 

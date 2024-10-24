@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import Generic, TypeVar
+from typing import Generic, Self, TypeVar
 
 import numpy as np
 
@@ -17,7 +17,7 @@ class Holo(Gain[H], Generic[H]):
     _amps: list[Amplitude]
     _constraint: EmissionConstraintWrap
 
-    def __init__(self: "Holo", constraint: EmissionConstraintWrap, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
+    def __init__(self: Self, constraint: EmissionConstraintWrap, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
         foci = list(iterable)
         self._foci = [np.array(focus) for focus, _ in foci]
         self._amps = [amp for _, amp in foci]
@@ -32,7 +32,7 @@ class HoloWithBackend(Holo[H], Generic[H]):
     _backend: Backend
 
     def __init__(
-        self: "HoloWithBackend",
+        self: Self,
         constraint: EmissionConstraintWrap,
         backend: Backend,
         iterable: Iterable[tuple[np.ndarray, Amplitude]],

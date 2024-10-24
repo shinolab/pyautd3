@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Self
 
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
@@ -16,15 +17,15 @@ class DcSysTime:
         return ins
 
     @property
-    def sys_time(self: "DcSysTime") -> int:
+    def sys_time(self: Self) -> int:
         return self._dc_sys_time
 
     @staticmethod
     def now() -> "DcSysTime":
         return DcSysTime.__private_new__(int(Base().dc_sys_time_now()))
 
-    def __add__(self: "DcSysTime", other: timedelta) -> "DcSysTime":
+    def __add__(self: Self, other: timedelta) -> "DcSysTime":
         return DcSysTime.__private_new__(self._dc_sys_time + int(other.total_seconds() * 1000 * 1000 * 1000))
 
-    def __sub__(self: "DcSysTime", other: "timedelta") -> "DcSysTime":
+    def __sub__(self: Self, other: "timedelta") -> "DcSysTime":
         return DcSysTime.__private_new__(self._dc_sys_time - int(other.total_seconds() * 1000 * 1000 * 1000))

@@ -1,3 +1,5 @@
+from typing import Self
+
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 
 
@@ -22,11 +24,11 @@ class Amplitude:
         return Amplitude.__private_new__(float(GainHolo().gain_holo_spl_to_pascal(value)))
 
     @property
-    def pascal(self: "Amplitude") -> float:
+    def pascal(self: Self) -> float:
         return self._value
 
     @property
-    def spl(self: "Amplitude") -> float:
+    def spl(self: Self) -> float:
         return float(GainHolo().gain_holo_pascal_to_spl(self._value))
 
     class _UnitPascal:
@@ -37,7 +39,7 @@ class Amplitude:
         def __private_new__(cls: type["Amplitude._UnitPascal"]) -> "Amplitude._UnitPascal":
             return super().__new__(cls)
 
-        def __rmul__(self: "Amplitude._UnitPascal", other: float) -> "Amplitude":
+        def __rmul__(self: Self, other: float) -> "Amplitude":
             return Amplitude.new_pascal(other)
 
     class _UnitSPL:
@@ -48,7 +50,7 @@ class Amplitude:
         def __private_new__(cls: type["Amplitude._UnitSPL"]) -> "Amplitude._UnitSPL":
             return super().__new__(cls)
 
-        def __rmul__(self: "Amplitude._UnitSPL", other: float) -> "Amplitude":
+        def __rmul__(self: Self, other: float) -> "Amplitude":
             return Amplitude.new_spl(other)
 
 

@@ -5,6 +5,7 @@ import pytest
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
 from pyautd3.link.soem import SOEM, ProcessPriority, RemoteSOEM, Status, SyncMode, ThreadPriority, TimerStrategy
+from pyautd3.native_methods.autd3capi_link_soem import Status as _Status
 
 
 @pytest.mark.soem
@@ -26,8 +27,35 @@ def test_soem_thread_priority():
         _ = ThreadPriority.Crossplatform(100)
 
 
-def err_handler(slave: int, status: Status, msg: str) -> None:
-    print(f"slave: {slave}, status: {status}, msg: {msg}")
+def err_handler(slave: int, status: Status) -> None:
+    print(f"slave: {slave}, status: {status}")
+
+
+@pytest.mark.soem
+def test_status():
+    lost = Status.Lost()
+    state_change = Status.StateChanged()
+    err = Status.Error()
+
+    assert lost == Status.Lost()
+    assert state_change == Status.StateChanged()
+    assert err == Status.Error()
+    assert lost != state_change
+    assert lost != err
+    assert lost != _Status.Lost
+    assert state_change != err
+    assert state_change != lost
+    assert state_change != _Status.StateChanged
+    assert err != lost
+    assert err != state_change
+    assert err != _Status.Error
+
+    status = Status.__private_new__(_Status.Lost, "lost")
+    assert status == Status.Lost()
+    assert str(status) == "lost"
+
+    with pytest.raises(NotImplementedError):
+        _ = Status()
 
 
 @pytest.mark.soem

@@ -1,3 +1,5 @@
+from typing import Self
+
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
@@ -12,8 +14,8 @@ class Synchronize(
     IntoDatagramWithParallelThreshold["Synchronize"],
     Datagram,
 ):
-    def __init__(self: "Synchronize") -> None:
+    def __init__(self: Self) -> None:
         super().__init__()
 
-    def _datagram_ptr(self: "Synchronize", _: Geometry) -> DatagramPtr:
+    def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
         return Base().datagram_synchronize()
