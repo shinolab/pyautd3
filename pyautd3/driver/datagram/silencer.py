@@ -26,11 +26,12 @@ class FixedCompletionTime:
         self: "FixedCompletionTime",
         v: ModulationBase | FociSTM | GainSTM,
         strict_mode: bool,  # noqa: FBT001
-        target: SilencerTarget,
     ) -> bool:
         return bool(
             Base().datagram_silencer_fixed_completion_time_is_valid(
-                self._datagram_ptr(strict_mode, target),
+                int(self.intensity.total_seconds() * 1000 * 1000 * 1000),
+                int(self.phase.total_seconds() * 1000 * 1000 * 1000),
+                strict_mode,
                 v._sampling_config_intensity()._inner,
                 v._sampling_config_phase()._inner,
             ),
@@ -53,10 +54,11 @@ class FixedUpdateRate:
         self.intensity = _validate_nonzero_u16(intensity)
         self.phase = _validate_nonzero_u16(phase)
 
-    def _is_valid(self: "FixedUpdateRate", v: ModulationBase | FociSTM | GainSTM, strict_mode: bool, target: SilencerTarget) -> bool:  # noqa: FBT001
+    def _is_valid(self: "FixedUpdateRate", v: ModulationBase | FociSTM | GainSTM, _strict_mode: bool) -> bool:  # noqa: FBT001
         return bool(
             Base().datagram_silencer_fixed_update_rate_is_valid(
-                self._datagram_ptr(strict_mode, target),
+                self.intensity,
+                self.phase,
                 v._sampling_config_intensity()._inner,
                 v._sampling_config_phase()._inner,
             ),
@@ -108,7 +110,7 @@ class Silencer(
         return self
 
     def is_valid(self: "Silencer[T]", target: ModulationBase | FociSTM | GainSTM) -> bool:
-        return self._inner._is_valid(target, self._strict_mode, self._target)
+        return self._inner._is_valid(target, self._strict_mode)
 
     def _datagram_ptr(self: "Silencer[T]", _: Geometry) -> DatagramPtr:
         return self._inner._datagram_ptr(self._strict_mode, self._target)

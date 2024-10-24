@@ -1,13 +1,13 @@
 import ctypes
 
 from pyautd3.autd_error import AUTDError
-from .autd3capi_driver import AUTD3_ERR, ResultSamplingConfig, ResultI32
-from .structs import SamplingConfig
+from pyautd3.native_methods.autd3_driver import SamplingConfig
+from .autd3capi_driver import AUTDStatus, ResultSamplingConfig, ResultStatus
 from .autd3capi import NativeMethods as Base
 
 
-def _validate_int(res: ResultI32) -> int:
-    if int(res.result) == AUTD3_ERR:
+def _validate_status(res: ResultStatus) -> int:
+    if int(res.result) == AUTDStatus.ERR:
         err = ctypes.create_string_buffer(int(res.err_len))
         Base().get_err(res.err, err)
         raise AUTDError(err)

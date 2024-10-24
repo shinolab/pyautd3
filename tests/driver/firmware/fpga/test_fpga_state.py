@@ -43,7 +43,7 @@ def test_fpga_state():
         autd.link.deassert_thermal_sensor(0)
         autd.link.assert_thermal_sensor(1)
         autd.send(SwapSegment.Modulation(Segment.S1, TransitionMode.Immediate))
-        autd.send(SwapSegment.Gain(Segment.S1))
+        autd.send(SwapSegment.Gain(Segment.S1, TransitionMode.Immediate))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert not infos[0].is_thermal_assert

@@ -57,7 +57,15 @@ def test_silencer_from_completion_time():
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
             assert autd.link.silencer_strict_mode(dev.idx)
             assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
-            assert bool(Base().datagram_silencer_fixed_completion_time_is_default(Silencer()._datagram_ptr(None)))  # type: ignore[arg-type]
+            silencer = Silencer()
+            assert bool(
+                Base().datagram_silencer_fixed_completion_time_is_default(
+                    int(silencer._inner.intensity.total_seconds() * 1000 * 1000 * 1000),
+                    int(silencer._inner.phase.total_seconds() * 1000 * 1000 * 1000),
+                    silencer._strict_mode,
+                    SilencerTarget.Intensity,
+                ),
+            )
 
 
 def test_silencer_from_update_rate():

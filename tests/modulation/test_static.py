@@ -28,7 +28,7 @@ def test_static():
 
 def test_static_default():
     m = Static()
-    assert Base().modulation_static_is_default(m._modulation_ptr())
+    assert Base().modulation_static_is_default(m.intensity)
 
 
 def test_static_error():

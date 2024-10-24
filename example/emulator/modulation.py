@@ -18,9 +18,9 @@ if __name__ == "__main__":
         record = emulator.record(f)
 
         df = record.drive()
-        t = df["time[s]"]
+        t = df["time[ns]"]
         pulse_width = df["pulsewidth_0_0"]
-        plt.plot(1000 * t, pulse_width)
+        plt.plot(t / 1000_000, pulse_width)
         plt.xlim(5, 10)
         plt.ylim(0, 128)
         plt.xlabel("time [ms]")
@@ -38,9 +38,9 @@ if __name__ == "__main__":
         record = emulator.record(f)
 
         df = record.drive()
-        t = df["time[s]"]
+        t = df["time[ns]"]
         pulse_width = df["pulsewidth_0_0"]
-        plt.plot(1000 * t, pulse_width)
+        plt.plot(t / 1000_000, pulse_width)
         plt.xlim(5, 10)
         plt.ylim(0, 128)
         plt.xlabel("time [ms]")
@@ -77,9 +77,9 @@ if __name__ == "__main__":
         )
 
         df = sound_field.next(timedelta(milliseconds=20))
-        time = np.array([float(t.replace("p[Pa]@", "")) for t in df.columns[3:]])
+        time = np.array([float(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in df.columns[3:]])
         p = df.row(0)[3:]
-        plt.plot(1000 * time, p)
+        plt.plot(time / 1000_000, p)
         plt.xlim(0, 20)
         plt.xlabel("time [ms]")
         plt.ylabel("p[Pa]")

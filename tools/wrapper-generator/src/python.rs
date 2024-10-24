@@ -58,6 +58,9 @@ impl PythonGenerator {
                 "* mut c_char" => "ctypes.c_char_p".to_string(),
                 "[u8 ; 2]" => "ctypes.c_uint8 * 2".to_string(),
                 "DynWindow" => "ctypes.c_uint32".to_string(),
+                "Phase" => "ctypes.c_uint8".to_string(),
+                "EmitIntensity" => "ctypes.c_uint8".to_string(),
+                "AUTDStatus" => "ctypes.c_uint8".to_string(),
                 s if s.ends_with("Tag") => "ctypes.c_uint8".to_string(),
                 s => s.to_owned(),
             },
@@ -196,7 +199,19 @@ impl PythonGenerator {
     }
 
     pub fn register_enum(mut self, enums: Vec<Enum>) -> Self {
-        self.enums.extend(enums);
+        self.enums.extend(enums.into_iter().filter(|s| {
+            !matches!(
+                s.name.as_str(),
+                "SwapSegment"
+                    | "STMConfig"
+                    | "STMConfigNearest"
+                    | "Angle"
+                    | "AUTDInternalError"
+                    | "FirmwareVersionType"
+                    | "TypeTag"
+                    | "SOEMError"
+            )
+        }));
         self
     }
 
@@ -210,43 +225,25 @@ impl PythonGenerator {
         self
     }
 
-    pub fn register_struct(mut self, e: Vec<crate::parse::Struct>) -> Self {
-        self.structs.extend(e.into_iter().filter(|s| {
-            !matches!(
-                s.name.as_str(),
-                "CustomGain"
-                    | "CustomModulation"
-                    | "DynamicDatagramPack"
-                    | "DynamicDatagramPack2"
-                    | "DynamicLinkBuilder"
-                    | "DynamicForceFan"
-                    | "DynamicForceFanOp"
-                    | "DynamicReadsFPGAState"
-                    | "DynamicReadsFPGAStateOp"
-                    | "SyncGroupGuard"
-                    | "SyncController"
-                    | "SyncControllerBuilder"
-                    | "SyncLink"
-                    | "SyncLinkBuilder"
-                    | "DynamicDatagramWithSegment"
-                    | "DynamicDatagramWithSegmentTransition"
-                    | "DynamicPhaseFilter"
-                    | "DynamicPhaseFilterOp"
-                    | "DynamicDebugSettings"
-                    | "DynamicDebugSettingOp"
-                    | "DebugSettings"
-                    | "RawGain"
-                    | "RawModulation"
-                    | "DynamicDatagramTuple"
-                    | "DynamicOperationGeneratorTuple"
-                    | "DynamicDatagramWithParallelThreshold"
-                    | "DynamicDatagramWithTimeout"
-                    | "DynamicOperationGenerator"
-                    | "DynamicOperationGeneratorPack"
-                    | "ControllerWrap"
-                    | "BoxedCache"
-            )
-        }));
+    pub fn register_struct(mut self, e: Vec<crate::parse::Struct>, capi: bool) -> Self {
+        if capi {
+            self.structs.extend(e.into_iter().filter(|s| {
+                !matches!(
+                    s.name.as_str(),
+                    "DynamicDatagram"
+                        | "DynamicOperationGenerator"
+                        | "DynamicDatagramTuple"
+                        | "DynamicOperationGeneratorTuple"
+                        | "DynamicLinkBuilder"
+                        | "SyncLink"
+                        | "SyncLinkBuilder"
+                )
+            }));
+        } else {
+            self.structs.extend(e.into_iter().filter(|s| {
+                matches!(s.name.as_str(), "Drive" | "SamplingConfig" | "LoopBehavior")
+            }));
+        }
         self
     }
 
@@ -260,7 +257,7 @@ impl PythonGenerator {
         }
     }
 
-    pub fn write<P: AsRef<Path>>(self, path: P, crate_name: &str) -> Result<()> {
+    pub fn write<P: AsRef<Path>>(self, path: P, crate_name: &str, capi: bool) -> Result<()> {
         let mut w = BufWriter::new(File::create(
             path.as_ref().join(Self::get_filename(crate_name)),
         )?);
@@ -271,8 +268,16 @@ impl PythonGenerator {
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig"
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture"
         )?;
+
+        if capi {
+            writeln!(
+                w,
+                r"from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
+from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority"
+            )?;
+        }
 
         let owns = |ty: &Type| {
             if let Type::Custom(ref s) = ty {
@@ -299,54 +304,38 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
             .collect();
 
         let def_ty = vec![
-            "SyncMode",
-            "GPIOIn",
-            "RuntimePtr",
-            "HandlePtr",
-            "GainPtr",
-            "ModulationPtr",
-            "LinkPtr",
-            "ControllerPtr",
-            "LinkBuilderPtr",
-            "CachePtr",
-            "ResultI32",
-            "ResultU64",
-            "GroupKVMapPtr",
-            "ResultDatagram",
-            "ResultModulationCalc",
-            "ModulationCalcPtr",
-            "TransducerPtr",
+            "TimerStrategyWrap",
             "GeometryPtr",
-            "DatagramSpecialPtr",
-            "DatagramPtr",
+            "HandlePtr",
+            "LinkPtr",
+            "ResultStatus",
+            "ResultSyncLinkBuilder",
+            "GainPtr",
+            "ResultLinkBuilder",
+            "LinkBuilderPtr",
             "ResultModulation",
-            "FirmwareInfoListPtr",
-            "ResultController",
-            "DevicePtr",
-            "GainCalcDrivesMapPtr",
-            "ResultGainCalcDrivesMap",
-            "ResultSamplingConfig",
-            "GroupGainMapPtr",
-            "GainSTMMode",
-            "Drive",
-            "LoopBehavior",
-            "Segment",
-            "ResultFociSTM",
-            "FociSTMPtr",
-            "ResultGainSTM",
-            "GainSTMPtr",
-            "DebugTypeWrap",
-            "TransitionModeWrap",
-            "SilencerTarget",
             "DynSincInterpolator",
+            "DatagramPtr",
+            "ControllerPtr",
+            "ResultFociSTM",
+            "ResultGainSTM",
+            "ResultSamplingConfig",
+            "DebugTypeWrap",
+            "DevicePtr",
+            "ModulationPtr",
+            "RuntimePtr",
+            "SpinStrategyTag",
+            "TransitionModeWrap",
+            "TransducerPtr",
+            "FociSTMPtr",
+            "GainSTMPtr",
         ];
         let holo_ty = vec!["ResultBackend", "BackendPtr", "EmissionConstraintWrap"];
-        if crate_name != "autd3capi-def"
-            && used_ty
-                .iter()
-                .filter(|ty| def_ty.contains(&ty.as_str()))
-                .next()
-                .is_some()
+        if used_ty
+            .iter()
+            .filter(|ty| def_ty.contains(&ty.as_str()))
+            .next()
+            .is_some()
         {
             writeln!(
                 w,
@@ -434,11 +423,9 @@ class {}(ctypes.Structure):",
             })
             .try_collect()?;
 
-        // TODO: Resolve dependencies and define unions and structs in the correct order
         () = self
             .unions
             .iter()
-            .filter(|u| u.name != "STMConfigValue")
             .map(|u| {
                 writeln!(
                     w,
@@ -461,7 +448,6 @@ class {}(ctypes.Union):",
         () = self
             .structs
             .iter()
-            .filter(|u| u.name != "STMConfigWrap")
             .filter(|e| !e.name.ends_with("Ptr"))
             .map(|p| {
                 writeln!(
@@ -482,65 +468,9 @@ class {}(ctypes.Structure):",
                 )?;
                 writeln!(
                     w,
-                    "
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, {}) and self._fields_ == other._fields_ # pragma: no cover
-                    ",
-                    p.name
-                )
-            })
-            .try_collect()?;
-
-        () = self
-            .unions
-            .iter()
-            .filter(|u| u.name == "STMConfigValue")
-            .map(|u| {
-                writeln!(
-                    w,
-                    r"
-class {}(ctypes.Union):",
-                    u.name
-                )?;
-                writeln!(
-                    w,
-                    "    _fields_ = [{}]
+                    "    def __eq__(self, other: object) -> bool:
+        return isinstance(other, {}) and self._fields_ == other._fields_  # pragma: no cover
 ",
-                    u.values
-                        .iter()
-                        .map(|(name, ty)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
-                        .join(", ")
-                )
-            })
-            .try_collect()?;
-
-        () = self
-            .structs
-            .iter()
-            .filter(|u| u.name == "STMConfigWrap")
-            .map(|p| {
-                writeln!(
-                    w,
-                    r"
-class {}(ctypes.Structure):",
-                    p.name
-                )?;
-
-                writeln!(
-                    w,
-                    "    _fields_ = [{}]
-",
-                    p.fields
-                        .iter()
-                        .map(|(ty, name)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
-                        .join(", ")
-                )?;
-                writeln!(
-                    w,
-                    "
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, {}) and self._fields_ == other._fields_ # pragma: no cover
-                    ",
                     p.name
                 )
             })
@@ -562,7 +492,7 @@ class {}(ctypes.Structure):",
             })
             .try_collect()?;
 
-        if crate_name == "autd3capi-driver" {
+        if crate_name == "autd3capi-driver" || !capi {
             writeln!(w)?;
             return Ok(());
         }

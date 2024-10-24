@@ -2,8 +2,10 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
-from pyautd3.native_methods.autd3capi_driver import DynSincInterpolator, LoopBehavior, ResultModulation
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
+from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
+from pyautd3.native_methods.autd3capi_driver import DynSincInterpolator, ResultModulation, ResultStatus
 
 
 
@@ -27,6 +29,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationAudioFileTracingInit.argtypes = [] 
         self.dll.AUTDModulationAudioFileTracingInit.restype = None
 
+        self.dll.AUTDModulationAudioFileTracingInitWithFile.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDModulationAudioFileTracingInitWithFile.restype = ResultStatus
+
         self.dll.AUTDModulationAudioFileWav.argtypes = [ctypes.c_char_p, LoopBehavior]  # type: ignore 
         self.dll.AUTDModulationAudioFileWav.restype = ResultModulation
 
@@ -47,6 +52,9 @@ class NativeMethods(metaclass=Singleton):
 
     def modulation_audio_file_tracing_init(self) -> None:
         return self.dll.AUTDModulationAudioFileTracingInit()
+
+    def modulation_audio_file_tracing_init_with_file(self, path: bytes) -> ResultStatus:
+        return self.dll.AUTDModulationAudioFileTracingInitWithFile(path)
 
     def modulation_audio_file_wav(self, path: bytes, loop_behavior: LoopBehavior) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path, loop_behavior)

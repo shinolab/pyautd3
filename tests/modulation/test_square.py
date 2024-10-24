@@ -57,7 +57,7 @@ def test_square_mode():
 def test_square_default():
     m = Square(150.0 * Hz)
     assert m.freq == 150.0 * Hz
-    assert Base().modulation_square_is_default(m._modulation_ptr())
+    assert Base().modulation_square_is_default(m.sampling_config._inner, m.low, m.high, m.duty, m.loop_behavior)
 
 
 def test_square_error():

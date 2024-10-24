@@ -304,14 +304,14 @@ def test_fourier_clamp():
         assert m.offset == 0
         with pytest.raises(AUTDError) as e:
             autd.send(m)
-        assert str(e.value) == "Fourier modulation value (-39) is out of range [0, 255]"
+        assert str(e.value) == "Fourier modulation value (-1) is out of range [0, 255]"
 
     with create_controller() as autd:
         m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(True).with_scale_factor(None).with_offset(0)  # noqa: FBT003
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
-            mod_expect = [0, 39, 75, 103, 121, 128, 121, 103, 75, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            mod_expect = [0, 39, 74, 103, 121, 127, 121, 103, 74, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             assert np.array_equal(mod, mod_expect)
 
     with create_controller() as autd:
@@ -319,4 +319,4 @@ def test_fourier_clamp():
         assert not m.clamp
         with pytest.raises(AUTDError) as e:
             autd.send(m)
-        assert str(e.value) == "Fourier modulation value (334) is out of range [0, 255]"
+        assert str(e.value) == "Fourier modulation value (510) is out of range [0, 255]"

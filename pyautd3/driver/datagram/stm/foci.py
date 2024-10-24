@@ -20,11 +20,12 @@ from pyautd3.driver.datagram.stm.control_point import (
 )
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
@@ -44,8 +45,8 @@ C = TypeVar("C", bound=IControlPoints)
 class FociSTM(
     IntoDatagramWithTimeout["FociSTM[C]"],
     IntoDatagramWithParallelThreshold["FociSTM[C]"],
-    IntoDatagramWithSegmentTransition,
-    DatagramST[FociSTMPtr],
+    IntoDatagramWithSegment,
+    DatagramS[FociSTMPtr],
     Datagram,
     Generic[C],
 ):
@@ -127,23 +128,26 @@ class FociSTM(
     def _ptr(self: "FociSTM") -> FociSTMPtr:
         n = self._points[0]._value()
         points = np.fromiter((np.void(p) for p in self._points), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
-        ptr: FociSTMPtr = _validate_ptr(
+        return _validate_ptr(
             Base().stm_foci(
                 self._stm_sampling_config._inner,
                 points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
                 len(self._points),
                 n,
+                self._loop_behavior,
             ),
         )
-        return Base().stm_foci_with_loop_behavior(ptr, n, self._loop_behavior)
 
     def _datagram_ptr(self: "FociSTM", geometry: Geometry) -> DatagramPtr:
         return Base().stm_foci_into_datagram(self._raw_ptr(geometry), self._points[0]._value())
 
-    def _into_segment_transition(self: "FociSTM", ptr: FociSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
-        if transition_mode is None:
-            return Base().stm_foci_into_datagram_with_segment(ptr, self._points[0]._value(), segment)
-        return Base().stm_foci_into_datagram_with_segment_transition(ptr, self._points[0]._value(), segment, transition_mode)
+    def _into_segment(self: "FociSTM", ptr: FociSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+        return Base().stm_foci_into_datagram_with_segment(
+            ptr,
+            self._points[0]._value(),
+            segment,
+            transition_mode if transition_mode is not None else TransitionMode.NONE,
+        )
 
     def with_loop_behavior(self: "FociSTM", value: _LoopBehavior) -> "FociSTM":
         self._loop_behavior = value

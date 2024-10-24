@@ -18,7 +18,7 @@ from typing import Optional
 def fetch_submodule():
     if shutil.which("git") is not None:
         with working_dir(os.path.dirname(os.path.abspath(__file__))):
-            subprocess.run(["git", "submodule", "update", "--init", "--recursive"]).check_returncode()
+            subprocess.run(["git", "submodule", "update", "--init"]).check_returncode()
     else:
         err("git is not installed. Skip fetching submodules.")
 

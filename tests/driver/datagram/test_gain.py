@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyautd3 import Controller, Device, Drive, EmitIntensity, Geometry, Phase, Segment, SwapSegment, Transducer
+from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.gain import Gain, Uniform
 from tests.test_autd import create_controller
 
@@ -70,51 +71,6 @@ def test_cache_check_only_for_enabled():
         assert np.all(phases == 0x90)
 
 
-def test_transform():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-
-        def transform(dev: Device) -> Callable[[Transducer, Drive], Drive]:
-            if dev.idx == 0:
-                return lambda _, d: Drive((Phase(d.phase.value + 32), d.intensity))
-            return lambda _, d: Drive((Phase(d.phase.value - 32), d.intensity))
-
-        autd.send(Uniform((EmitIntensity(0x80), Phase(128))).with_transform(transform))
-
-        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
-        assert np.all(intensities == 0x80)
-        assert np.all(phases == 128 + 32)
-
-        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
-        assert np.all(intensities == 0x80)
-        assert np.all(phases == 128 - 32)
-
-
-def test_transform_check_only_for_enabled():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.geometry[0].enable = False
-
-        check = np.zeros(2, dtype=bool)
-
-        def transform(dev: Device) -> Callable[[Transducer, Drive], Drive]:
-            check[dev.idx] = True
-            return lambda _, d: d
-
-        autd.send(Uniform((EmitIntensity(0x80), Phase(0x90))).with_transform(transform))
-
-        assert not check[0]
-        assert check[1]
-
-        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
-        assert np.all(intensities == 0)
-        assert np.all(phases == 0)
-
-        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
-        assert np.all(intensities == 0x80)
-        assert np.all(phases == 0x90)
-
-
 def test_gain_segment():
     autd: Controller[Audit]
     with create_controller() as autd:
@@ -133,7 +89,7 @@ def test_gain_segment():
             assert np.all(intensities == 0x00)
             assert np.all(phases == 0x00)
 
-        autd.send(Uniform((EmitIntensity(0x03), Phase(0x04))).with_segment(Segment.S1, transition=True))
+        autd.send(Uniform((EmitIntensity(0x03), Phase(0x04))).with_segment(Segment.S1, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S1
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
@@ -144,7 +100,7 @@ def test_gain_segment():
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
-        autd.send(Uniform((EmitIntensity(0x05), Phase(0x06))).with_segment(Segment.S0, transition=False))
+        autd.send(Uniform((EmitIntensity(0x05), Phase(0x06))).with_segment(Segment.S0, None))
         assert autd.link.current_stm_segment(0) == Segment.S1
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
@@ -155,5 +111,5 @@ def test_gain_segment():
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
-        autd.send(SwapSegment.Gain(Segment.S0))
+        autd.send(SwapSegment.Gain(Segment.S0, TransitionMode.Immediate))
         assert autd.link.current_stm_segment(0) == Segment.S0

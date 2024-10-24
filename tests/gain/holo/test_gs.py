@@ -33,4 +33,4 @@ def test_gs():
 
 def test_gs_default():
     g = GS(NalgebraBackend(), ((np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
-    assert Holo().gain_gs_is_default(g._gain_ptr(0))  # type: ignore [arg-type]
+    assert Holo().gain_gs_is_default(g._constraint, g._repeat)

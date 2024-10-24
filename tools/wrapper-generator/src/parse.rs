@@ -164,6 +164,9 @@ where
         .filter_map(|item| match item {
             syn::Item::Enum(item_enum) => {
                 let name = item_enum.ident.to_string();
+                if item_enum.attrs.is_empty() || item_enum.attrs[0].meta.require_list().is_err() {
+                    return None;
+                }
                 let ty = Type::parse_str(
                     item_enum.attrs[0]
                         .meta
@@ -176,10 +179,14 @@ where
                 let values = item_enum
                     .variants
                     .into_iter()
-                    .map(|v| {
+                    .filter_map(|v| {
                         let name = v.ident.to_string();
-                        let value = v.discriminant.unwrap().1.into_token_stream().to_string();
-                        (name, value)
+                        if let Some(value) = v.discriminant {
+                            let value = value.1.into_token_stream().to_string();
+                            Some((name, value))
+                        } else {
+                            None
+                        }
                     })
                     .collect();
                 Some(Enum { name, ty, values })

@@ -2,25 +2,11 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
+from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, ResultLinkBuilder, ResultStatus
 
-
-class LinkTwinCATBuilderPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class LinkRemoteTwinCATBuilderPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class ResultLinkRemoteTwinCATBuilder(ctypes.Structure):
-    _fields_ = [("result", LinkRemoteTwinCATBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultLinkRemoteTwinCATBuilder) and self._fields_ == other._fields_ # pragma: no cover
-                    
 
 
 class Singleton(type):
@@ -43,53 +29,23 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDAUTDLinkTwinCATTracingInit.argtypes = [] 
         self.dll.AUTDAUTDLinkTwinCATTracingInit.restype = None
 
+        self.dll.AUTDAUTDLinkTwinCATTracingInitWithFile.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDAUTDLinkTwinCATTracingInitWithFile.restype = ResultStatus
+
         self.dll.AUTDLinkTwinCAT.argtypes = [] 
-        self.dll.AUTDLinkTwinCAT.restype = LinkTwinCATBuilderPtr
+        self.dll.AUTDLinkTwinCAT.restype = LinkBuilderPtr
 
-        self.dll.AUTDLinkTwinCATWithTimeout.argtypes = [LinkTwinCATBuilderPtr, ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDLinkTwinCATWithTimeout.restype = LinkTwinCATBuilderPtr
-
-        self.dll.AUTDLinkTwinCATIntoBuilder.argtypes = [LinkTwinCATBuilderPtr]  # type: ignore 
-        self.dll.AUTDLinkTwinCATIntoBuilder.restype = LinkBuilderPtr
-
-        self.dll.AUTDLinkRemoteTwinCAT.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkRemoteTwinCAT.restype = ResultLinkRemoteTwinCATBuilder
-
-        self.dll.AUTDLinkRemoteTwinCATWithServerIP.argtypes = [LinkRemoteTwinCATBuilderPtr, ctypes.c_char_p]  # type: ignore 
-        self.dll.AUTDLinkRemoteTwinCATWithServerIP.restype = LinkRemoteTwinCATBuilderPtr
-
-        self.dll.AUTDLinkRemoteTwinCATWithClientAmsNetId.argtypes = [LinkRemoteTwinCATBuilderPtr, ctypes.c_char_p]  # type: ignore 
-        self.dll.AUTDLinkRemoteTwinCATWithClientAmsNetId.restype = LinkRemoteTwinCATBuilderPtr
-
-        self.dll.AUTDLinkRemoteTwinCATWithTimeout.argtypes = [LinkRemoteTwinCATBuilderPtr, ctypes.c_uint64]  # type: ignore 
-        self.dll.AUTDLinkRemoteTwinCATWithTimeout.restype = LinkRemoteTwinCATBuilderPtr
-
-        self.dll.AUTDLinkRemoteTwinCATIntoBuilder.argtypes = [LinkRemoteTwinCATBuilderPtr]  # type: ignore 
-        self.dll.AUTDLinkRemoteTwinCATIntoBuilder.restype = LinkBuilderPtr
+        self.dll.AUTDLinkRemoteTwinCAT.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p] 
+        self.dll.AUTDLinkRemoteTwinCAT.restype = ResultLinkBuilder
 
     def autd_link_twin_cat_tracing_init(self) -> None:
         return self.dll.AUTDAUTDLinkTwinCATTracingInit()
 
-    def link_twin_cat(self) -> LinkTwinCATBuilderPtr:
+    def autd_link_twin_cat_tracing_init_with_file(self, path: bytes) -> ResultStatus:
+        return self.dll.AUTDAUTDLinkTwinCATTracingInitWithFile(path)
+
+    def link_twin_cat(self) -> LinkBuilderPtr:
         return self.dll.AUTDLinkTwinCAT()
 
-    def link_twin_cat_with_timeout(self, twincat: LinkTwinCATBuilderPtr, timeout_ns: int) -> LinkTwinCATBuilderPtr:
-        return self.dll.AUTDLinkTwinCATWithTimeout(twincat, timeout_ns)
-
-    def link_twin_cat_into_builder(self, twincat: LinkTwinCATBuilderPtr) -> LinkBuilderPtr:
-        return self.dll.AUTDLinkTwinCATIntoBuilder(twincat)
-
-    def link_remote_twin_cat(self, server_ams_net_id: bytes) -> ResultLinkRemoteTwinCATBuilder:
-        return self.dll.AUTDLinkRemoteTwinCAT(server_ams_net_id)
-
-    def link_remote_twin_cat_with_server_ip(self, twincat: LinkRemoteTwinCATBuilderPtr, addr: bytes) -> LinkRemoteTwinCATBuilderPtr:
-        return self.dll.AUTDLinkRemoteTwinCATWithServerIP(twincat, addr)
-
-    def link_remote_twin_cat_with_client_ams_net_id(self, twincat: LinkRemoteTwinCATBuilderPtr, id: bytes) -> LinkRemoteTwinCATBuilderPtr:
-        return self.dll.AUTDLinkRemoteTwinCATWithClientAmsNetId(twincat, id)
-
-    def link_remote_twin_cat_with_timeout(self, twincat: LinkRemoteTwinCATBuilderPtr, timeout_ns: int) -> LinkRemoteTwinCATBuilderPtr:
-        return self.dll.AUTDLinkRemoteTwinCATWithTimeout(twincat, timeout_ns)
-
-    def link_remote_twin_cat_into_builder(self, twincat: LinkRemoteTwinCATBuilderPtr) -> LinkBuilderPtr:
-        return self.dll.AUTDLinkRemoteTwinCATIntoBuilder(twincat)
+    def link_remote_twin_cat(self, server_ams_net_id: bytes, server_ip: bytes, client_ams_net_id: bytes) -> ResultLinkBuilder:
+        return self.dll.AUTDLinkRemoteTwinCAT(server_ams_net_id, server_ip, client_ams_net_id)

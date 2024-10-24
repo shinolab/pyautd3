@@ -2,7 +2,9 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture, SamplingConfig
+from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
+from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from enum import IntEnum
@@ -30,18 +32,16 @@ class EmissionConstraintValue(ctypes.Union):
 class EmissionConstraintWrap(ctypes.Structure):
     _fields_ = [("tag", ctypes.c_uint8), ("value", EmissionConstraintValue)]
 
-
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, EmissionConstraintWrap) and self._fields_ == other._fields_ # pragma: no cover
-                    
+        return isinstance(other, EmissionConstraintWrap) and self._fields_ == other._fields_  # pragma: no cover
+
 
 class ResultBackend(ctypes.Structure):
     _fields_ = [("result", BackendPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
-
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultBackend) and self._fields_ == other._fields_ # pragma: no cover
-                    
+        return isinstance(other, ResultBackend) and self._fields_ == other._fields_  # pragma: no cover
+
 
 
 class Singleton(type):
@@ -79,7 +79,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloGreedyT4010A1.argtypes = [ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint8, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGreedyT4010A1.restype = GainPtr
 
-        self.dll.AUTDGainGreedyIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainGreedyIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_uint8]  # type: ignore 
         self.dll.AUTDGainGreedyIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainHoloGSSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
@@ -88,7 +88,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloGST4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGST4010A1.restype = GainPtr
 
-        self.dll.AUTDGainGSIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainGSIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainGSIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainHoloGSPATSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
@@ -97,7 +97,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloGSPATT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGSPATT4010A1.restype = GainPtr
 
-        self.dll.AUTDGainGSPATIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainGSPATIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainGSPATIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainHoloSPLToPascal.argtypes = [ctypes.c_float] 
@@ -112,7 +112,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloLMT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloLMT4010A1.restype = GainPtr
 
-        self.dll.AUTDGainLMIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainLMIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainLMIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDGainHoloNaiveSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
@@ -121,7 +121,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloNaiveT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloNaiveT4010A1.restype = GainPtr
 
-        self.dll.AUTDGainNaiveIsDefault.argtypes = [GainPtr]  # type: ignore 
+        self.dll.AUTDGainNaiveIsDefault.argtypes = [EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainNaiveIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDNalgebraBackendSphere.argtypes = [] 
@@ -154,8 +154,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_greedy_t_4010_a_1(self, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, div: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloGreedyT4010A1(points, amps, size, div, constraint)  # pragma: no cover
 
-    def gain_greedy_is_default(self, greedy: GainPtr) -> ctypes.c_bool:
-        return self.dll.AUTDGainGreedyIsDefault(greedy)
+    def gain_greedy_is_default(self, constraint: EmissionConstraintWrap, phase_div: int) -> ctypes.c_bool:
+        return self.dll.AUTDGainGreedyIsDefault(constraint, phase_div)
 
     def gain_holo_gs_sphere(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, repeat_nonzero: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloGSSphere(backend, points, amps, size, repeat_nonzero, constraint)
@@ -163,8 +163,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_gst_4010_a_1(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, repeat_nonzero: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloGST4010A1(backend, points, amps, size, repeat_nonzero, constraint)  # pragma: no cover
 
-    def gain_gs_is_default(self, gs: GainPtr) -> ctypes.c_bool:
-        return self.dll.AUTDGainGSIsDefault(gs)
+    def gain_gs_is_default(self, constraint: EmissionConstraintWrap, repeat: int) -> ctypes.c_bool:
+        return self.dll.AUTDGainGSIsDefault(constraint, repeat)
 
     def gain_holo_gspat_sphere(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, repeat_nonzero: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloGSPATSphere(backend, points, amps, size, repeat_nonzero, constraint)
@@ -172,8 +172,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_gspatt_4010_a_1(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, repeat_nonzero: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloGSPATT4010A1(backend, points, amps, size, repeat_nonzero, constraint)  # pragma: no cover
 
-    def gain_gspat_is_default(self, gs: GainPtr) -> ctypes.c_bool:
-        return self.dll.AUTDGainGSPATIsDefault(gs)
+    def gain_gspat_is_default(self, constraint: EmissionConstraintWrap, repeat: int) -> ctypes.c_bool:
+        return self.dll.AUTDGainGSPATIsDefault(constraint, repeat)
 
     def gain_holo_spl_to_pascal(self, value: float) -> ctypes.c_float:
         return self.dll.AUTDGainHoloSPLToPascal(value)
@@ -187,8 +187,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_lmt_4010_a_1(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, eps_1: float, eps_2: float, tau: float, k_max_nonzero: int, initial_ptr: ctypes.Array[ctypes.c_float] | None, initial_len: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloLMT4010A1(backend, points, amps, size, eps_1, eps_2, tau, k_max_nonzero, initial_ptr, initial_len, constraint)  # pragma: no cover
 
-    def gain_lm_is_default(self, gs: GainPtr) -> ctypes.c_bool:
-        return self.dll.AUTDGainLMIsDefault(gs)
+    def gain_lm_is_default(self, constraint: EmissionConstraintWrap, eps_1: float, eps_2: float, tau: float, k_max: int, initial_ptr: ctypes.Array[ctypes.c_float] | None, initial_len: int) -> ctypes.c_bool:
+        return self.dll.AUTDGainLMIsDefault(constraint, eps_1, eps_2, tau, k_max, initial_ptr, initial_len)
 
     def gain_holo_naive_sphere(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloNaiveSphere(backend, points, amps, size, constraint)
@@ -196,8 +196,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_naive_t_4010_a_1(self, backend: BackendPtr, points: ctypes.Array | None, amps: ctypes.Array[ctypes.c_float] | None, size: int, constraint: EmissionConstraintWrap) -> GainPtr:
         return self.dll.AUTDGainHoloNaiveT4010A1(backend, points, amps, size, constraint)  # pragma: no cover
 
-    def gain_naive_is_default(self, gs: GainPtr) -> ctypes.c_bool:
-        return self.dll.AUTDGainNaiveIsDefault(gs)
+    def gain_naive_is_default(self, constraint: EmissionConstraintWrap) -> ctypes.c_bool:
+        return self.dll.AUTDGainNaiveIsDefault(constraint)
 
     def nalgebra_backend_sphere(self) -> BackendPtr:
         return self.dll.AUTDNalgebraBackendSphere()

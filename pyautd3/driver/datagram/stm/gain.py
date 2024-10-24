@@ -8,11 +8,12 @@ from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain.base import GainBase
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_segment_transition import DatagramST, IntoDatagramWithSegmentTransition
+from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
 from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
@@ -30,10 +31,10 @@ __all__ = []  # type: ignore[var-annotated]
 
 
 class GainSTM(
-    IntoDatagramWithSegmentTransition,
+    IntoDatagramWithSegment,
     IntoDatagramWithTimeout["GainSTM"],
     IntoDatagramWithParallelThreshold["GainSTM"],
-    DatagramST[GainSTMPtr],
+    DatagramS[GainSTMPtr],
     Datagram,
 ):
     _gains: np.ndarray
@@ -79,23 +80,25 @@ class GainSTM(
         return self._ptr(gains)
 
     def _ptr(self: "GainSTM", gains: np.ndarray) -> GainSTMPtr:
-        ptr: GainSTMPtr = _validate_ptr(
+        return _validate_ptr(
             Base().stm_gain(
                 self._stm_sampling_config._inner,
                 gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
                 len(gains),
+                self._mode,
+                self._loop_behavior,
             ),
         )
-        ptr = Base().stm_gain_with_mode(ptr, self._mode)
-        return Base().stm_gain_with_loop_behavior(ptr, self._loop_behavior)
 
     def _datagram_ptr(self: "GainSTM", geometry: Geometry) -> DatagramPtr:
         return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
 
-    def _into_segment_transition(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
-        if transition_mode is None:
-            return Base().stm_gain_into_datagram_with_segment(ptr, segment)
-        return Base().stm_gain_into_datagram_with_segment_transition(ptr, segment, transition_mode)
+    def _into_segment(self: "GainSTM", ptr: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+        return Base().stm_gain_into_datagram_with_segment(
+            ptr,
+            segment,
+            transition_mode if transition_mode is not None else TransitionMode.NONE,
+        )
 
     def with_mode(self: "GainSTM", mode: GainSTMMode) -> "GainSTM":
         self._mode = mode

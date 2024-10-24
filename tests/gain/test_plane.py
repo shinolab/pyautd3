@@ -34,4 +34,4 @@ def test_plane():
 def test_plane_default():
     g = Plane([0, 0, 1])
     assert np.array_equal(g.dir, [0, 0, 1])
-    assert Base().gain_planel_is_default(g._gain_ptr(0))  # type: ignore [arg-type]
+    assert Base().gain_planel_is_default(g.intensity.value, g.phase_offset.value)
