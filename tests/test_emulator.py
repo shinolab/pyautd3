@@ -27,7 +27,7 @@ def create_emulator() -> Emulator:
 
 def test_emulator_is_default():
     default = Emulator([])
-    Base().controller_builder_is_default(
+    assert Base().controller_builder_is_default(
         default.fallback_parallel_threshold,
         int(default.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
         int(default.send_interval.total_seconds() * 1000 * 1000 * 1000),

@@ -1,3 +1,4 @@
+import platform
 from typing import Self
 
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -22,7 +23,7 @@ class SpinSleeper:
         native_accuracy_ns: int | None = None,
     ) -> None:
         self.native_accuracy_ns = native_accuracy_ns if native_accuracy_ns is not None else int(Base().timer_strategy_spin_default_accuracy())
-        self.spin_strategy = SpinStrategy.SpinLoopHint
+        self.spin_strategy = SpinStrategy.SpinLoopHint if platform.system() == "Windows" else SpinStrategy.YieldThread
 
     def with_spin_strategy(self: Self, spin_strategy: SpinStrategy) -> Self:
         self.spin_strategy = spin_strategy
