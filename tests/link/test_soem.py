@@ -2,8 +2,6 @@ from datetime import timedelta
 
 import pytest
 
-from pyautd3 import AUTD3, Controller
-from pyautd3.autd_error import AUTDError
 from pyautd3.link.soem import SOEM, ProcessPriority, RemoteSOEM, Status, SyncMode, ThreadPriority, TimerStrategy
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as NativeSOEM
 from pyautd3.native_methods.autd3capi_link_soem import Status as _Status
@@ -26,10 +24,6 @@ def test_soem_thread_priority():
         _ = ThreadPriority.Crossplatform(-1)
     with pytest.raises(ValueError):  # noqa: PT011
         _ = ThreadPriority.Crossplatform(100)
-
-
-def err_handler(slave: int, status: Status) -> None:
-    print(f"slave: {slave}, status: {status}")
 
 
 @pytest.mark.soem
@@ -78,27 +72,36 @@ def test_soem_is_default():
 
 @pytest.mark.soem
 def test_soem():
-    with (
-        pytest.raises(AUTDError) as _,
-        (
-            Controller.builder([AUTD3([0.0, 0.0, 0.0])]).open(
-                SOEM.builder()
-                .with_ifname("")
-                .with_buf_size(32)
-                .with_send_cycle(timedelta(milliseconds=1))
-                .with_sync0_cycle(timedelta(milliseconds=1))
-                .with_err_handler(err_handler)
-                .with_timer_strategy(TimerStrategy.SpinSleep)
-                .with_sync_mode(SyncMode.DC)
-                .with_sync_tolerance(timedelta(microseconds=1))
-                .with_sync_timeout(timedelta(seconds=10))
-                .with_state_check_interval(timedelta(milliseconds=100))
-                .with_process_priority(ProcessPriority.High)
-                .with_thread_priority(ThreadPriority.Max),
-            )
-        ) as _,
-    ):
-        pass
+    def err_handler(slave: int, status: Status) -> None:
+        print(f"slave: {slave}, status: {status}")
+
+    builder = (
+        SOEM.builder()
+        .with_ifname("ifname")
+        .with_buf_size(10)
+        .with_send_cycle(timedelta(milliseconds=10))
+        .with_sync0_cycle(timedelta(milliseconds=20))
+        .with_err_handler(err_handler)
+        .with_timer_strategy(TimerStrategy.StdSleep)
+        .with_sync_mode(SyncMode.FreeRun)
+        .with_sync_tolerance(timedelta(microseconds=10))
+        .with_sync_timeout(timedelta(seconds=20))
+        .with_state_check_interval(timedelta(milliseconds=200))
+        .with_process_priority(ProcessPriority.Idle)
+        .with_thread_priority(ThreadPriority.Min)
+    )
+    assert builder.ifname == "ifname"
+    assert builder.buf_size == 10
+    assert builder.send_cycle == timedelta(milliseconds=10)
+    assert builder.sync0_cycle == timedelta(milliseconds=20)
+    assert builder.err_handler == err_handler
+    assert builder.timer_strategy == TimerStrategy.StdSleep
+    assert builder.sync_mode == SyncMode.FreeRun
+    assert builder.sync_tolerance == timedelta(microseconds=10)
+    assert builder.sync_timeout == timedelta(seconds=20)
+    assert builder.state_check_interval == timedelta(milliseconds=200)
+    assert builder.process_priority == ProcessPriority.Idle
+    assert builder.thread_priority == ThreadPriority.Min
 
 
 @pytest.mark.soem
