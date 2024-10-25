@@ -103,7 +103,7 @@ class SOEM(Link):
             self.err_handler = None
             self.timer_strategy = TimerStrategy.SpinSleep
             self.sync_mode = SyncMode.DC
-            self.sync_tolerance = timedelta(microseconds=100)
+            self.sync_tolerance = timedelta(microseconds=1)
             self.sync_timeout = timedelta(seconds=10)
             self.state_check_interval = timedelta(milliseconds=100)
             self.process_priority = ProcessPriority.High

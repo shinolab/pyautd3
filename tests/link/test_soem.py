@@ -5,6 +5,7 @@ import pytest
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
 from pyautd3.link.soem import SOEM, ProcessPriority, RemoteSOEM, Status, SyncMode, ThreadPriority, TimerStrategy
+from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as NativeSOEM
 from pyautd3.native_methods.autd3capi_link_soem import Status as _Status
 
 
@@ -56,6 +57,23 @@ def test_status():
 
     with pytest.raises(NotImplementedError):
         _ = Status()
+
+
+@pytest.mark.soem
+def test_soem_is_default():
+    builder = SOEM.builder()
+    assert NativeSOEM().link_soem_is_default(
+        builder.buf_size,
+        int(builder.send_cycle.total_seconds() * 1000 * 1000 * 1000),
+        int(builder.sync0_cycle.total_seconds() * 1000 * 1000 * 1000),
+        builder.sync_mode,
+        builder.process_priority,
+        builder.thread_priority,
+        int(builder.state_check_interval.total_seconds() * 1000 * 1000 * 1000),
+        builder.timer_strategy,
+        int(builder.sync_tolerance.total_seconds() * 1000 * 1000 * 1000),
+        int(builder.sync_timeout.total_seconds() * 1000 * 1000 * 1000),
+    )
 
 
 @pytest.mark.soem
