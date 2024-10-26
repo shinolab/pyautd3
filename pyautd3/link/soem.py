@@ -158,15 +158,15 @@ class SOEM(Link):
             return self
 
         def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
-            def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8) -> None:
+            def callback_native(_context: ctypes.c_void_p, slave: ctypes.c_uint32, status: ctypes.c_uint8) -> None:  # pragma: no cover
                 err = ctypes.create_string_buffer(128)  # pragma: no cover
                 status_ = _Status(int(status))  # pragma: no cover
                 LinkSOEM().link_soem_status_get_msg(status_, err)  # pragma: no cover
                 self.err_handler(int(slave), Status.__private_new__(status_, err.value.decode("utf-8")))  # type: ignore[misc]  # pragma: no cover
 
-            self._err_handler = ErrHandlerFunc(callback_native)
+            self._err_handler = ErrHandlerFunc(callback_native)  # pragma: no cover
 
-            return _validate_ptr(
+            return _validate_ptr(  # pragma: no cover
                 LinkSOEM().link_soem(
                     self.ifname.encode("utf-8"),
                     self.buf_size,
