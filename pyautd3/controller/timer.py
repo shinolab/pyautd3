@@ -10,7 +10,7 @@ from pyautd3.native_methods.utils import ConstantADT
 class StdSleeper:
     _timer_resolution: int | None
 
-    def __init__(self: Self, timer_resolution: int | None) -> None:
+    def __init__(self: Self, *, timer_resolution: int | None = 1) -> None:
         self._timer_resolution = timer_resolution
 
 
@@ -33,7 +33,7 @@ class SpinSleeper:
 class AsyncSleeper:
     timer_resolution: int | None
 
-    def __init__(self: Self, timer_resolution: int | None) -> None:
+    def __init__(self: Self, *, timer_resolution: int | None = 1) -> None:
         self.timer_resolution = timer_resolution
 
 

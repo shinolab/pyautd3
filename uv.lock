@@ -461,7 +461,7 @@ dependencies = [
     { name = "polars" },
 ]
 
-[package.dependency-groups]
+[package.dev-dependencies]
 dev = [
     { name = "build" },
     { name = "matplotlib" },
@@ -482,7 +482,7 @@ requires-dist = [
     { name = "polars", specifier = ">=1.1" },
 ]
 
-[package.metadata.dependency-groups]
+[package.metadata.requires-dev]
 dev = [
     { name = "build", specifier = ">=1.2.2.post1" },
     { name = "matplotlib", specifier = ">=3.9.2" },
