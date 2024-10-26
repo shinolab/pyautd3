@@ -57,7 +57,7 @@ def test_controller_is_default():
 
 def test_with_timer():
     autd: Controller[Audit]
-    with Controller.builder([]).with_timer_strategy(TimerStrategy.Std(StdSleeper(1))).open(Audit.builder()) as autd:
+    with Controller.builder([]).with_timer_strategy(TimerStrategy.Std(StdSleeper())).open(Audit.builder()) as autd:
         autd.send(Static())
     with (
         Controller.builder([])
@@ -67,7 +67,7 @@ def test_with_timer():
         .open(Audit.builder()) as autd
     ):
         autd.send(Static())
-    with Controller.builder([]).with_timer_strategy(TimerStrategy.Async(AsyncSleeper(1))).open(Audit.builder()) as autd:
+    with Controller.builder([]).with_timer_strategy(TimerStrategy.Async(AsyncSleeper())).open(Audit.builder()) as autd:
         autd.send(Static())
 
     _ = TimerStrategy.Waitable(WaitableSleeper())

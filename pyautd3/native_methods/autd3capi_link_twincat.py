@@ -26,11 +26,11 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_link_twincat{bin_ext}'))
 
-        self.dll.AUTDAUTDLinkTwinCATTracingInit.argtypes = [] 
-        self.dll.AUTDAUTDLinkTwinCATTracingInit.restype = None
+        self.dll.AUTDLinkTwinCATTracingInit.argtypes = [] 
+        self.dll.AUTDLinkTwinCATTracingInit.restype = None
 
-        self.dll.AUTDAUTDLinkTwinCATTracingInitWithFile.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDAUTDLinkTwinCATTracingInitWithFile.restype = ResultStatus
+        self.dll.AUTDLinkTwinCATTracingInitWithFile.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDLinkTwinCATTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDLinkTwinCAT.argtypes = [] 
         self.dll.AUTDLinkTwinCAT.restype = LinkBuilderPtr
@@ -38,11 +38,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkRemoteTwinCAT.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p] 
         self.dll.AUTDLinkRemoteTwinCAT.restype = ResultLinkBuilder
 
-    def autd_link_twin_cat_tracing_init(self) -> None:
-        return self.dll.AUTDAUTDLinkTwinCATTracingInit()
+    def link_twin_cat_tracing_init(self) -> None:
+        return self.dll.AUTDLinkTwinCATTracingInit()
 
-    def autd_link_twin_cat_tracing_init_with_file(self, path: bytes) -> ResultStatus:
-        return self.dll.AUTDAUTDLinkTwinCATTracingInitWithFile(path)
+    def link_twin_cat_tracing_init_with_file(self, path: bytes) -> ResultStatus:
+        return self.dll.AUTDLinkTwinCATTracingInitWithFile(path)
 
     def link_twin_cat(self) -> LinkBuilderPtr:
         return self.dll.AUTDLinkTwinCAT()
