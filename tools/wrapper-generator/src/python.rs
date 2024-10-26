@@ -61,6 +61,7 @@ impl PythonGenerator {
                 "Phase" => "ctypes.c_uint8".to_string(),
                 "EmitIntensity" => "ctypes.c_uint8".to_string(),
                 "AUTDStatus" => "ctypes.c_uint8".to_string(),
+                "SyncLinkBuilderPtr" => "LinkBuilderPtr".to_string(),
                 s if s.ends_with("Tag") => "ctypes.c_uint8".to_string(),
                 s => s.to_owned(),
             },
