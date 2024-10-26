@@ -56,7 +56,7 @@ def tracing_init() -> None:
     with contextlib.suppress(BaseException):
         Simulator().link_simulator_tracing_init()
     with contextlib.suppress(BaseException):
-        TwinCAT().autd_link_twin_cat_tracing_init()
+        TwinCAT().link_twin_cat_tracing_init()
     with contextlib.suppress(BaseException):
         AudioFile().modulation_audio_file_tracing_init()
 
