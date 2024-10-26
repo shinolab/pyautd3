@@ -169,7 +169,7 @@ class ResultLinkBuilder(ctypes.Structure):
 
 
 class ResultSyncLinkBuilder(ctypes.Structure):
-    _fields_ = [("result", SyncLinkBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+    _fields_ = [("result", LinkBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultSyncLinkBuilder) and self._fields_ == other._fields_  # pragma: no cover
