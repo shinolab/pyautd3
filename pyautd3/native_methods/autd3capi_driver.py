@@ -51,9 +51,9 @@ class DynWindow(IntEnum):
 
 
 class AUTDStatus(IntEnum):
-    TRUE = 0
-    FALSE = 1
-    ERR = 2
+    AUTDTrue = 0
+    AUTDFalse = 1
+    AUTDErr = 2
 
     @classmethod
     def from_param(cls, obj):
@@ -85,6 +85,10 @@ class ConstPtr(ctypes.Structure):
 
 
 class ControllerPtr(ctypes.Structure):
+    _fields_ = [("_0", ctypes.c_void_p)]
+
+
+class ControllerBuilderPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 

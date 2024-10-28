@@ -5,7 +5,7 @@ import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
 from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, HandlePtr, LinkPtr, ResultStatus, TimerStrategyWrap
+from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, GeometryPtr, HandlePtr, LinkPtr, ResultStatus
 
 
 class EmulatorControllerPtr(ctypes.Structure):
@@ -70,7 +70,7 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_emulator{bin_ext}'))
 
-        self.dll.AUTDEmulator.argtypes = [ctypes.POINTER(Vector3), ctypes.POINTER(Quaternion), ctypes.c_uint16, ctypes.c_uint16, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint64, TimerStrategyWrap]  # type: ignore 
+        self.dll.AUTDEmulator.argtypes = [ControllerBuilderPtr]  # type: ignore 
         self.dll.AUTDEmulator.restype = EmulatorPtr
 
         self.dll.AUTDEmulatorFree.argtypes = [EmulatorPtr]  # type: ignore 
@@ -151,8 +151,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorSoundFieldFree.argtypes = [SoundFieldPtr]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldFree.restype = None
 
-    def emulator(self, pos: ctypes.Array | None, rot: ctypes.Array | None, len: int, fallback_parallel_threshold: int, fallback_timeout: int, send_interval_ns: int, receive_interval_ns: int, timer_strategy: TimerStrategyWrap) -> EmulatorPtr:
-        return self.dll.AUTDEmulator(pos, rot, len, fallback_parallel_threshold, fallback_timeout, send_interval_ns, receive_interval_ns, timer_strategy)
+    def emulator(self, builder: ControllerBuilderPtr) -> EmulatorPtr:
+        return self.dll.AUTDEmulator(builder)
 
     def emulator_free(self, emulator: EmulatorPtr) -> None:
         return self.dll.AUTDEmulatorFree(emulator)

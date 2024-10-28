@@ -11,28 +11,17 @@ from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.emulator import Emulator, Range, Recorder, RecordOption
 from pyautd3.gain import Uniform
-from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 
 def create_emulator() -> Emulator:
     return (
-        Emulator([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
+        Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(timedelta(milliseconds=1))
         .with_receive_interval(timedelta(milliseconds=1))
         .with_fallback_parallel_threshold(4)
         .with_fallback_timeout(timedelta(milliseconds=20))
         .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
-    )
-
-
-def test_emulator_is_default():
-    default = Emulator([])
-    assert Base().controller_builder_is_default(
-        default.fallback_parallel_threshold,
-        int(default.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
-        int(default.send_interval.total_seconds() * 1000 * 1000 * 1000),
-        int(default.receive_interval.total_seconds() * 1000 * 1000 * 1000),
-        default.timer_strategy,
+        .into_emulator()
     )
 
 
@@ -642,7 +631,7 @@ def test_record_output_ultrasound():
 
 
 def test_sound_field():
-    with Emulator([AUTD3([0.0, 0.0, 0.0])]) as emulator:
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
@@ -808,7 +797,7 @@ def test_sound_field():
 
 @pytest.mark.asyncio
 async def test_sound_field_async():
-    with Emulator([AUTD3([0.0, 0.0, 0.0])]) as emulator:
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))

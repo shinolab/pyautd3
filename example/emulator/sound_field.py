@@ -8,12 +8,12 @@ from matplotlib.colors import Normalize
 from scipy.interpolate import griddata  # type: ignore[import-untyped]
 
 from pyautd3 import AUTD3, Controller, FociSTM, Focus, SamplingConfig, Silencer, Static, kHz
-from pyautd3.emulator import Emulator, Range, Recorder, RecordOption
+from pyautd3.emulator import Range, Recorder, RecordOption
 
 
 def plot_focus() -> None:
-    with Emulator([AUTD3([0.0, 0.0, 0.0])]) as emulator:
-        focus = emulator.geometry.center + np.array([0.0, 0.0, 150.0])
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+        focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer.disable())
@@ -85,8 +85,8 @@ def plot_focus() -> None:
 
 
 def plot_stm() -> None:
-    with Emulator([AUTD3([0.0, 0.0, 0.0])]) as emulator:
-        focus = emulator.geometry.center + np.array([0.0, 0.0, 150.0])
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+        focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer())

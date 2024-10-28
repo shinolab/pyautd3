@@ -3,7 +3,7 @@ import ctypes
 from collections.abc import Callable, Iterable
 from datetime import timedelta
 from types import TracebackType
-from typing import Generic, Self, TypeVar
+from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
 import numpy as np
 
@@ -20,6 +20,9 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr, TimerStrategyWrap
 from pyautd3.native_methods.structs import FfiFuture, Quaternion, Vector3
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
+
+if TYPE_CHECKING:
+    from pyautd3.emulator import Emulator, Recorder
 
 K = TypeVar("K")
 L = TypeVar("L", bound=Link)
@@ -86,6 +89,9 @@ class _Builder:
     def open(self: Self, link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
         return Controller._open_impl(self._ptr(), link, timeout)
 
+    def into_emulator(self: Self) -> "Emulator":  # type: ignore[empty-body]
+        pass  # pragma: no cover
+
 
 class _GroupGuard(Generic[K]):
     _controller: "Controller"
@@ -116,13 +122,13 @@ class _GroupGuard(Generic[K]):
             raise KeyAlreadyExistsError
         match d:
             case Datagram():
-                ptr = d._datagram_ptr(self._controller._geometry)
+                ptr = d._datagram_ptr(self._controller.geometry)
                 self._datagrams.append(ptr)
             case (Datagram(), Datagram()):
                 (d1, d2) = d
                 ptr = Base().datagram_tuple(
-                    d1._datagram_ptr(self._controller._geometry),
-                    d2._datagram_ptr(self._controller._geometry),
+                    d1._datagram_ptr(self._controller.geometry),
+                    d2._datagram_ptr(self._controller.geometry),
                 )
                 self._datagrams.append(ptr)
             case _:
@@ -144,7 +150,7 @@ class _GroupGuard(Generic[K]):
             self._controller._ptr,
             self._f_native,  # type: ignore[arg-type]
             None,
-            self._controller._geometry._ptr,
+            self._controller._geometry_ptr,
             keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
             datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
             len(self._keys),
@@ -168,7 +174,7 @@ class _GroupGuard(Generic[K]):
                     self._controller._ptr,
                     self._f_native,  # type: ignore[arg-type]
                     None,
-                    self._controller._geometry._ptr,
+                    self._controller._geometry_ptr,
                     keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
                     datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
                     len(self._keys),
@@ -177,27 +183,20 @@ class _GroupGuard(Generic[K]):
         )
 
 
-class Controller(Generic[L]):
-    _geometry: Geometry
+class Controller(Geometry, Generic[L]):
     _runtime: RuntimePtr
     _handle: HandlePtr
     _ptr: ControllerPtr
     _link: L
     _disposed: bool
 
-    def __init__(self: Self, geometry: Geometry, runtime: RuntimePtr, handle: HandlePtr, ptr: ControllerPtr, link: L) -> None:
-        self._geometry = geometry
+    def __init__(self: Self, geometry: GeometryPtr, runtime: RuntimePtr, handle: HandlePtr, ptr: ControllerPtr, link: L) -> None:
+        super().__init__(geometry)
         self._runtime = runtime
         self._handle = handle
         self._ptr = ptr
         self._link = link
         self._disposed = False
-
-    def __getattr__(self: Self, attr):  # noqa: ANN001, ANN204
-        return object.__getattribute__(self._geometry, attr)
-
-    def __getitem__(self, item):  # noqa: ANN001, ANN204
-        return self._geometry[item]
 
     @property
     def link(self: Self) -> L:
@@ -226,7 +225,7 @@ class Controller(Generic[L]):
 
     @property
     def geometry(self: Self) -> Geometry:
-        return self._geometry
+        return self  # type: ignore[return-value]
 
     @staticmethod
     async def _open_impl_async(
@@ -244,7 +243,7 @@ class Controller(Generic[L]):
             lambda *_: future.set_result(Base().wait_result_controller(handle, ffi_future)),
         )
         ptr = _validate_ptr(await future)
-        geometry = Geometry(Base().geometry(ptr))
+        geometry = Base().geometry(ptr)
         link = link_builder._resolve_link(handle, ptr)
         return Controller(geometry, runtime, handle, ptr, link)
 
@@ -263,7 +262,7 @@ class Controller(Generic[L]):
                 Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns),
             ),
         )
-        geometry = Geometry(Base().geometry(ptr))
+        geometry = Base().geometry(ptr)
         link = link_builder._resolve_link(handle, ptr)
         return Controller(geometry, runtime, handle, ptr, link)
 
@@ -284,7 +283,7 @@ class Controller(Generic[L]):
             info = sb.value.decode("utf-8")
             return FirmwareInfo(info)
 
-        res = list(map(get_firmware_info, range(self.geometry.num_devices)))
+        res = list(map(get_firmware_info, range(self.num_devices)))
         Base().controller_firmware_version_list_pointer_delete(handle)
         return res
 
@@ -302,7 +301,7 @@ class Controller(Generic[L]):
             info = sb.value.decode("utf-8")
             return FirmwareInfo(info)
 
-        res = list(map(get_firmware_info, range(self.geometry.num_devices)))
+        res = list(map(get_firmware_info, range(self.num_devices)))
         Base().controller_firmware_version_list_pointer_delete(handle)
         return res
 
@@ -349,7 +348,7 @@ class Controller(Generic[L]):
             state = int(Base().controller_fpga_state_get(handle, i))
             return None if state == -1 else FPGAState(state)
 
-        res = list(map(get_fpga_state, range(self.geometry.num_devices)))
+        res = list(map(get_fpga_state, range(self.num_devices)))
         Base().controller_fpga_state_delete(handle)
         return res
 
@@ -365,7 +364,7 @@ class Controller(Generic[L]):
             state = int(Base().controller_fpga_state_get(handle, i))
             return None if state == -1 else FPGAState(state)
 
-        res = list(map(get_fpga_state, range(self.geometry.num_devices)))
+        res = list(map(get_fpga_state, range(self.num_devices)))
         Base().controller_fpga_state_delete(handle)
         return res
 
@@ -408,3 +407,6 @@ class Controller(Generic[L]):
 
     def group(self: Self, group_map: Callable[[Device], K | None]) -> _GroupGuard:
         return _GroupGuard(group_map, self)
+
+    def tick(self: "Controller[Recorder]", tick: timedelta) -> None:
+        raise NotImplementedError  # pragma: no cover

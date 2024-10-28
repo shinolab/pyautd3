@@ -300,7 +300,7 @@ def test_group():
 def test_group_check_only_for_enabled():
     autd: Controller[Audit]
     with create_controller() as autd:
-        check = np.zeros(autd.geometry.num_devices, dtype=bool)
+        check = np.zeros(autd.num_devices, dtype=bool)
 
         autd.geometry[0].enable = False
 

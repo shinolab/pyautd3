@@ -42,5 +42,5 @@ class PulseWidthEncoder(
         return (
             Base().datagram_pulse_width_encoder_default()
             if self._f_native is None
-            else Base().datagram_pulse_width_encoder(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
+            else Base().datagram_pulse_width_encoder(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
         )

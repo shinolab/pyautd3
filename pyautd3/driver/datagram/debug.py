@@ -72,4 +72,4 @@ class DebugSettings(
         )(f_native)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_debug_settings(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
+        return Base().datagram_debug_settings(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]

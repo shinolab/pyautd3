@@ -7,7 +7,7 @@ from .autd3capi import NativeMethods as Base
 
 
 def _validate_status(res: ResultStatus) -> int:
-    if int(res.result) == AUTDStatus.ERR:
+    if int(res.result) == AUTDStatus.AUTDErr:
         err = ctypes.create_string_buffer(int(res.err_len))
         Base().get_err(res.err, err)
         raise AUTDError(err)

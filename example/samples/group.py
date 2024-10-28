@@ -18,7 +18,7 @@ def group_by_device(autd: Controller) -> None:
 
     autd.group(grouping).set("null", (Static(), Null())).set(
         "focus",
-        (Sine(150 * Hz), Focus(autd.geometry.center + np.array([0.0, 0.0, 150.0]))),
+        (Sine(150 * Hz), Focus(autd.center + np.array([0.0, 0.0, 150.0]))),
     ).send()
 
 
@@ -26,8 +26,8 @@ def group_by_transducer(autd: Controller) -> None:
     config = Silencer()
     autd.send(config)
 
-    cx = autd.geometry.center[0]
-    g1 = Focus(autd.geometry.center + np.array([0, 0, 150]))
+    cx = autd.center[0]
+    g1 = Focus(autd.center + np.array([0, 0, 150]))
     g2 = Null()
 
     g = Group(lambda _: lambda tr: "focus" if tr.position[0] < cx else "null").set("focus", g1).set("null", g2)

@@ -16,7 +16,7 @@ def test_constraint_uniform():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+        g = Naive(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
             EmissionConstraint.Uniform(EmitIntensity(0x80)),
         )
         autd.send(g)
@@ -30,7 +30,7 @@ def test_constraint_normalize():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+        g = Naive(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
             EmissionConstraint.Normalize,
         )
         autd.send(g)
@@ -44,7 +44,7 @@ def test_constraint_clamp():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+        g = Naive(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
             EmissionConstraint.Clamp(EmitIntensity(67), EmitIntensity(85)),
         )
         autd.send(g)
@@ -59,7 +59,7 @@ def test_constraint_multiply():
     autd: Controller[Audit]
     with create_controller() as autd:
         backend = NalgebraBackend()
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+        g = Naive(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
             EmissionConstraint.Multiply(0),
         )
         autd.send(g)

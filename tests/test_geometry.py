@@ -90,12 +90,12 @@ def test_with_rotation_zyz():
 
 def test_geometry_num_devices():
     with create_controller() as autd:
-        assert autd.geometry.num_devices == 2
+        assert autd.num_devices == 2
 
 
 def test_geometry_center():
     with create_controller() as autd:
-        center = autd.geometry.center
+        center = autd.center
         assert len(center) == 3
         assert center[0] == 86.625267028808594
         assert center[1] == 66.71319580078125
@@ -122,11 +122,11 @@ def test_device_set_sound_speed_from_temp():
             dev.set_sound_speed_from_temp(15)
             assert dev.sound_speed == 340.29525e3
 
-        autd.geometry.set_sound_speed(350e3)
+        autd.set_sound_speed(350e3)
         for dev in autd.geometry:
             assert dev.sound_speed == 350e3
 
-        autd.geometry.set_sound_speed_from_temp(15)
+        autd.set_sound_speed_from_temp(15)
         for dev in autd.geometry:
             assert dev.sound_speed == 340.29525e3
 
@@ -141,7 +141,7 @@ def test_device_enable():
 
 def test_device_num_transducers():
     with create_controller() as autd:
-        assert autd.geometry.num_transducers == 249 * autd.geometry.num_devices
+        assert autd.num_transducers == 249 * autd.num_devices
         for dev in autd.geometry:
             assert dev.num_transducers == 249
 

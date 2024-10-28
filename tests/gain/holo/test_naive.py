@@ -12,14 +12,14 @@ def test_naive():
     with Controller[Audit].builder([AUTD3([0.0, 0.0, 0.0])]).open(Audit.builder()) as autd:
         backend = NalgebraBackend()
 
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
+        g = Naive(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
         autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
-        g = Naive(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
+        g = Naive(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30])).with_constraint(
             EmissionConstraint.Uniform(EmitIntensity(0x80)),
         )
         autd.send(g)

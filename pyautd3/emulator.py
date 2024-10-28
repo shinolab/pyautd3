@@ -1,6 +1,6 @@
 import asyncio
 import ctypes
-from collections.abc import Callable, Iterable
+from collections.abc import Callable
 from datetime import timedelta
 from types import TracebackType
 from typing import Self
@@ -8,19 +8,16 @@ from typing import Self
 import numpy as np
 import polars as pl
 
-from pyautd3.controller.controller import Controller
-from pyautd3.controller.timer import SpinSleeper, TimerStrategy
-from pyautd3.driver.autd3_device import AUTD3
+from pyautd3.controller.controller import Controller, _Builder
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkPtr, TimerStrategyWrap
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, HandlePtr, LinkPtr, TimerStrategyWrap
 from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, RecordPtr, SoundFieldPtr
 from pyautd3.native_methods.autd3capi_emulator import NativeMethods as Emu
 from pyautd3.native_methods.autd3capi_emulator import Range as Range_
 from pyautd3.native_methods.autd3capi_emulator import RecordOption as RecordOption_
-from pyautd3.native_methods.structs import Quaternion, Vector3
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 
 
@@ -189,7 +186,7 @@ class Recorder(Link):
         )
 
 
-Controller[Recorder].tick = lambda self, tick: self._link.tick(tick)  # type: ignore[attr-defined]
+Controller[Recorder].tick = lambda self, tick: self._link.tick(tick)  # type: ignore[method-assign]
 
 
 class Record:
@@ -333,71 +330,31 @@ class Record:
         )
 
 
-class Emulator:
-    devices: list[AUTD3]
-    fallback_parallel_threshold: int
-    fallback_timeout: timedelta
-    send_interval: timedelta
-    receive_interval: timedelta
-    timer_strategy: TimerStrategyWrap
-    _geometry: Geometry | None
-    _ptr: EmulatorPtr | None
+class Emulator(Geometry):
+    _ptr: EmulatorPtr
     _runtime: RuntimePtr
     _handle: HandlePtr
 
-    def __init__(self: Self, iterable: Iterable[AUTD3]) -> None:
-        self.devices = list(iterable)
-        self.fallback_parallel_threshold = 4
-        self.fallback_timeout = timedelta(milliseconds=20)
-        self.send_interval = timedelta(milliseconds=1)
-        self.receive_interval = timedelta(milliseconds=1)
-        self.timer_strategy = TimerStrategy.Spin(SpinSleeper())
-        self._ptr = None
-        self._geometry = None
-        self._runtime = Base().create_runtime()
-        self._handle = Base().get_runtime_handle(self._runtime)
+    def __new__(cls: type["Emulator"]) -> "Emulator":
+        raise NotImplementedError  # pragma: no cover
 
-    def with_fallback_parallel_threshold(self: Self, threshold: int) -> Self:
-        self.fallback_parallel_threshold = threshold
-        return self
+    @classmethod
+    def __private_new__(cls: type["Emulator"], builder: _Builder) -> "Emulator":
+        ptr = Emu().emulator(builder._ptr())
+        geometry_ptr = Emu().emulator_geometry(ptr)
+        ins = super().__new__(cls)
+        ins._ptr = Emu().emulator(builder._ptr())
+        ins._runtime = Base().create_runtime()
+        ins._handle = Base().get_runtime_handle(ins._runtime)
+        ins.__private_init__(geometry_ptr)
+        return ins
 
-    def with_fallback_timeout(self: Self, timeout: timedelta) -> Self:
-        self.fallback_timeout = timeout
-        return self
-
-    def with_send_interval(self: Self, interval: timedelta) -> Self:
-        self.send_interval = interval
-        return self
-
-    def with_receive_interval(self: Self, interval: timedelta) -> Self:
-        self.receive_interval = interval
-        return self
-
-    def with_timer_strategy(self: Self, timer_strategy: TimerStrategyWrap) -> Self:
-        self.timer_strategy = timer_strategy
-        return self
-
-    def __ptr(self: Self) -> EmulatorPtr:
-        if self._ptr is None:
-            pos = np.fromiter((np.void(Vector3(d._pos)) for d in self.devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
-            rot = np.fromiter((np.void(Quaternion(d._rot)) for d in self.devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
-            self._ptr = Emu().emulator(
-                pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
-                rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
-                len(pos),
-                self.fallback_parallel_threshold,
-                int(self.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
-                int(self.send_interval.total_seconds() * 1000 * 1000 * 1000),
-                int(self.receive_interval.total_seconds() * 1000 * 1000 * 1000),
-                self.timer_strategy,
-            )
-        return self._ptr
+    def __private_init__(self: Self, geometry_ptr: GeometryPtr) -> None:
+        super().__init__(geometry_ptr)
 
     @property
     def geometry(self: Self) -> Geometry:
-        if self._geometry is None:
-            self._geometry = Geometry(Emu().emulator_geometry(self.__ptr()))
-        return self._geometry
+        return self
 
     def record(self: Self, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
         return self.record_from(timedelta(seconds=0), f)
@@ -407,7 +364,7 @@ class Emulator:
 
     def record_from(self: Self, t: timedelta, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
         def f_native(ptr: ControllerPtr) -> None:
-            geometry = Geometry(Base().geometry(ptr))
+            geometry = Base().geometry(ptr)
             link = Base().link_get(ptr)
             cnt = Controller(geometry, self._runtime, self._handle, ptr, Recorder(self._handle, link))
             cnt = f(cnt)
@@ -420,7 +377,7 @@ class Emulator:
                 Emu().emulator_wait_result_record(
                     self._handle,
                     Emu().emulator_record_from(
-                        self.__ptr(),
+                        self._ptr,
                         int(t.total_seconds() * 1000 * 1000 * 1000),
                         f_native_,  # type: ignore[arg-type]
                     ),
@@ -431,7 +388,7 @@ class Emulator:
 
     async def record_from_async(self: Self, t: timedelta, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
         def f_native(ptr: ControllerPtr) -> None:
-            geometry = Geometry(Base().geometry(ptr))
+            geometry = Base().geometry(ptr)
             link = Base().link_get(ptr)
             cnt = Controller(geometry, self._runtime, self._handle, ptr, Recorder(self._handle, link))
             cnt = f(cnt)
@@ -440,7 +397,7 @@ class Emulator:
         f_native_ = ctypes.CFUNCTYPE(None, ControllerPtr)(f_native)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
-        ffi_future = Emu().emulator_record_from(self.__ptr(), int(t.total_seconds() * 1000 * 1000 * 1000), f_native_)  # type: ignore[arg-type]
+        ffi_future = Emu().emulator_record_from(self._ptr, int(t.total_seconds() * 1000 * 1000 * 1000), f_native_)  # type: ignore[arg-type]
         loop.call_soon(
             lambda *_: future.set_result(Emu().emulator_wait_result_record(self._handle, ffi_future)),
         )
@@ -453,9 +410,9 @@ class Emulator:
         self._dispose()
 
     def _dispose(self: Self) -> None:
-        if self._ptr is not None:
+        if self._ptr._0 is not None:
             Emu().emulator_free(self._ptr)
-            self._ptr = None
+            self._ptr._0 = None
 
     def __enter__(self: Self) -> Self:
         return self
@@ -467,3 +424,6 @@ class Emulator:
         _traceback: TracebackType | None,
     ) -> None:
         self._dispose()
+
+
+_Builder.into_emulator = lambda self: Emulator.__private_new__(self)  # type: ignore[method-assign]
