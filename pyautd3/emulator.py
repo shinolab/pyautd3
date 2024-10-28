@@ -13,7 +13,7 @@ from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, HandlePtr, LinkPtr, TimerStrategyWrap
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, HandlePtr, LinkPtr
 from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, RecordPtr, SoundFieldPtr
 from pyautd3.native_methods.autd3capi_emulator import NativeMethods as Emu
 from pyautd3.native_methods.autd3capi_emulator import Range as Range_
