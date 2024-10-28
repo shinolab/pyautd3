@@ -427,6 +427,12 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGeometryNumDevices.argtypes = [GeometryPtr]  # type: ignore 
         self.dll.AUTDGeometryNumDevices.restype = ctypes.c_uint32
 
+        self.dll.AUTDGeometryNumTransducers.argtypes = [GeometryPtr]  # type: ignore 
+        self.dll.AUTDGeometryNumTransducers.restype = ctypes.c_uint32
+
+        self.dll.AUTDGeometrCenter.argtypes = [GeometryPtr]  # type: ignore 
+        self.dll.AUTDGeometrCenter.restype = Vector3
+
         self.dll.AUTDRotationFromEulerXYZ.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float] 
         self.dll.AUTDRotationFromEulerXYZ.restype = Quaternion
 
@@ -1020,6 +1026,12 @@ class NativeMethods(metaclass=Singleton):
 
     def geometry_num_devices(self, geo: GeometryPtr) -> ctypes.c_uint32:
         return self.dll.AUTDGeometryNumDevices(geo)
+
+    def geometry_num_transducers(self, geo: GeometryPtr) -> ctypes.c_uint32:
+        return self.dll.AUTDGeometryNumTransducers(geo)
+
+    def geometr_center(self, geo: GeometryPtr) -> Vector3:
+        return self.dll.AUTDGeometrCenter(geo)
 
     def rotation_from_euler_xyz(self, x: float, y: float, z: float) -> Quaternion:
         return self.dll.AUTDRotationFromEulerXYZ(x, y, z)

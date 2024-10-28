@@ -1,6 +1,6 @@
 [project]
 name = "pyautd3"
-version = "29.0.0rc2"
+version = "29.0.0rc2.post1"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
 requires-python = ">=3.11"
