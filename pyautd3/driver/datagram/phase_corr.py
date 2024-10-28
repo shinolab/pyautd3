@@ -37,4 +37,4 @@ class PhaseCorrection(
         self._f_native = ctypes.CFUNCTYPE(ctypes.c_uint8, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8)(f_native)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_phase_corr(self._f_native, None, geometry._ptr)  # type: ignore[arg-type]
+        return Base().datagram_phase_corr(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]

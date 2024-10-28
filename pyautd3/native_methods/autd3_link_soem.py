@@ -7,6 +7,9 @@ from enum import IntEnum
 
 
 class Status(IntEnum):
+    Error = 0
+    Lost = 1
+    StateChanged = 2
 
     @classmethod
     def from_param(cls, obj):

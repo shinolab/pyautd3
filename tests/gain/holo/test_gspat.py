@@ -11,7 +11,7 @@ def test_gspat():
     autd: Controller[Audit]
     with Controller[Audit].builder([AUTD3([0.0, 0.0, 0.0])]).open(Audit.builder()) as autd:
         backend = NalgebraBackend()
-        g = GSPAT(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
+        g = GSPAT(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
         autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
@@ -19,7 +19,7 @@ def test_gspat():
             assert not np.all(phases == 0)
 
         g = (
-            GSPAT(backend, ((autd.geometry.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
+            GSPAT(backend, ((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
             .with_repeat(50)
             .with_constraint(EmissionConstraint.Uniform(EmitIntensity(0x80)))
         )

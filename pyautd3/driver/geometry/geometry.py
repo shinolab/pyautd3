@@ -11,12 +11,12 @@ from .device import Device
 
 
 class Geometry:
-    _ptr: GeometryPtr
+    _geometry_ptr: GeometryPtr
     _devices: list[Device]
 
     def __init__(self: Self, ptr: GeometryPtr) -> None:
-        self._ptr = ptr
-        self._devices = [Device(i, ptr) for i in range(int(Base().geometry_num_devices(self._ptr)))]
+        self._geometry_ptr = ptr
+        self._devices = [Device(i, ptr) for i in range(int(Base().geometry_num_devices(self._geometry_ptr)))]
 
     @property
     def center(self: Self) -> np.ndarray:

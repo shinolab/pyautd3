@@ -182,7 +182,7 @@ def test_foci_stm_1():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints1(center).with_intensity(i) for i in range(size)])
         foci_stm_n([ControlPoints1(ControlPoint(center)).with_intensity(i) for i in range(size)])
 
@@ -193,7 +193,7 @@ def test_foci_stm_2():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints2((center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n([ControlPoints2((ControlPoint(center), ControlPoint(center))).with_intensity(i) for i in range(size)])
 
@@ -204,7 +204,7 @@ def test_foci_stm_3():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints3((center, center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n([ControlPoints3((ControlPoint(center), ControlPoint(center), ControlPoint(center))).with_intensity(i) for i in range(size)])
 
@@ -215,7 +215,7 @@ def test_foci_stm_4():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints4((center, center, center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n(
             [
@@ -231,7 +231,7 @@ def test_foci_stm_5():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints5((center, center, center, center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n(
             [
@@ -249,7 +249,7 @@ def test_foci_stm_6():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints6((center, center, center, center, center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n(
             [
@@ -274,7 +274,7 @@ def test_foci_stm_7():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints7((center, center, center, center, center, center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n(
             [
@@ -300,7 +300,7 @@ def test_foci_stm_8():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.geometry.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints8((center, center, center, center, center, center, center, center)).with_intensity(i) for i in range(size)])
         foci_stm_n(
             [

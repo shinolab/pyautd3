@@ -4,10 +4,10 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from pyautd3 import AUTD3, Controller, EmitIntensity, Focus, Hz, Silencer, Sine, Uniform
-from pyautd3.emulator import Emulator, Range, Recorder, RecordOption
+from pyautd3.emulator import Range, Recorder, RecordOption
 
 if __name__ == "__main__":
-    with Emulator([AUTD3([0.0, 0.0, 0.0])]) as emulator:
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
         # pulse width under 200Hz sine modulation with silencer
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer())
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         plt.show()
 
         # plot sound pressure at focus under 200Hz sin modulation with silencer
-        focus = emulator.geometry.center + np.array([0.0, 0.0, 150.0])
+        focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer())

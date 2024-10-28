@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 def test_group():
     autd: Controller[Audit]
     with create_controller() as autd:
-        cx = autd.geometry.center[0]
+        cx = autd.center[0]
 
         g = (
             Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
@@ -57,7 +57,7 @@ def test_group():
 def test_group_with_parallel():
     autd: Controller[Audit]
     with create_controller() as autd:
-        cx = autd.geometry.center[0]
+        cx = autd.center[0]
 
         g = (
             Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
@@ -87,7 +87,7 @@ def test_group_unknown_key():
 def test_group_check_only_for_enabled():
     autd: Controller[Audit]
     with create_controller() as autd:
-        check = np.zeros(autd.geometry.num_devices, dtype=bool)
+        check = np.zeros(autd.num_devices, dtype=bool)
 
         autd.geometry[0].enable = False
 
