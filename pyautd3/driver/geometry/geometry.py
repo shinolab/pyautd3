@@ -1,5 +1,4 @@
 from collections.abc import Iterator
-from functools import reduce
 from typing import Self
 
 import numpy as np
@@ -20,23 +19,15 @@ class Geometry:
 
     @property
     def center(self: Self) -> np.ndarray:
-        return reduce(
-            lambda acc, x: acc + x.center,
-            self._devices,
-            np.zeros(3),
-        ) / len(self._devices)
+        return Base().geometr_center(self._geometry_ptr).ndarray()
 
     @property
     def num_devices(self: Self) -> int:
-        return sum(1 for _ in self.devices)
+        return int(Base().geometry_num_devices(self._geometry_ptr))
 
     @property
     def num_transducers(self: Self) -> int:
-        return reduce(
-            lambda acc, x: acc + x.num_transducers,
-            self._devices,
-            0,
-        )
+        return int(Base().geometry_num_transducers(self._geometry_ptr))
 
     def __getitem__(self: Self, key: int) -> Device:
         return self._devices[key]
