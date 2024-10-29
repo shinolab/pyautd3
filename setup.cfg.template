@@ -1,6 +1,6 @@
 [metadata]
 name = pyautd3
-version = 29.0.0rc3
+version = 29.0.0rc3.post1
 description = AUTD3 library wrapper for python
 long_description = file: README.md
 long_description_content_type = text/markdown
@@ -20,12 +20,14 @@ packages =
     pyautd3
     pyautd3.bin
     pyautd3.controller
+    pyautd3.derive
     pyautd3.driver
     pyautd3.ethercat
     pyautd3.driver.defined
     pyautd3.driver.firmware
     pyautd3.driver.firmware.fpga
     pyautd3.driver.datagram
+    pyautd3.driver.datagram.silencer
     pyautd3.driver.datagram.stm
     pyautd3.driver.datagram.gain
     pyautd3.driver.datagram.modulation
@@ -33,6 +35,7 @@ packages =
     pyautd3.gain
     pyautd3.gain.holo
     pyautd3.link
+    pyautd3.link.soem
     pyautd3.modulation
     pyautd3.modulation.audio_file
     pyautd3.native_methods

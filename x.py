@@ -169,6 +169,10 @@ class PyiGenerator(ast.NodeVisitor):
                     if field_name.endswith("_u8"):
                         prop_name = prop_name[:-3]
                     properties.append((prop_name, field_type))
+                    if field_type == "EmitIntensity":
+                        field_type = "int | EmitIntensity"
+                    elif field_type == "Phase":
+                        field_type = "int | Phase"
                     methods.append(
                         (
                             f"with_{prop_name}",
