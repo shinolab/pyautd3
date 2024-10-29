@@ -122,4 +122,4 @@ __all__ = [
     "SilencerTarget",
 ]
 
-__version__ = "29.0.0rc3"
+__version__ = "29.0.0rc3.post1"

@@ -20,7 +20,7 @@ def test_bessel():
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
-        g = Bessel(autd.center, [0, 0, 1], np.pi / 4 * rad).with_intensity(EmitIntensity(0x80)).with_phase_offset(Phase(0x90))
+        g = Bessel(autd.center, [0, 0, 1], np.pi / 4 * rad).with_intensity(0x80).with_phase_offset(0x90)
         autd.send(g)
         assert g.intensity == EmitIntensity(0x80)
         assert g.phase_offset == Phase(0x90)
