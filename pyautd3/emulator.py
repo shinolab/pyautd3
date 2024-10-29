@@ -186,7 +186,7 @@ class Recorder(Link):
         )
 
 
-Controller[Recorder].tick = lambda self, tick: self._link.tick(tick)  # type: ignore[method-assign]
+Controller[Recorder].tick = lambda self, tick: self._link.tick(tick)  # type: ignore[attr-defined,method-assign]
 
 
 class Record:

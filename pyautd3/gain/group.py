@@ -17,21 +17,12 @@ K = TypeVar("K")
 class Group(Gain["Group[K]"], Generic[K]):
     _map: dict[K, GainBase]
     _f: Callable[[Device], Callable[[Transducer], K | None]]
-    _parallel: bool
 
     def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], K | None]]) -> None:
         super().__init__()
         self._map = {}
         self._f = f
         self._parallel = False
-
-    def with_parallel(self: Self, parallel: bool) -> Self:  # noqa: FBT001
-        self._parallel = parallel
-        return self
-
-    @property
-    def parallel(self: Self) -> bool:
-        return self._parallel
 
     def set(self: Self, key: K, gain: GainBase) -> Self:
         self._map[key] = gain
@@ -70,5 +61,4 @@ class Group(Gain["Group[K]"], Generic[K]):
             np.ctypeslib.as_ctypes(keys.astype(c_int32)),
             values.ctypes.data_as(POINTER(GainPtr)),  # type: ignore[arg-type]
             len(keys),
-            self._parallel,
         )

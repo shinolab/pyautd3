@@ -349,7 +349,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainGroupMapSet.argtypes = [GroupGainMapPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_int32)]  # type: ignore 
         self.dll.AUTDGainGroupMapSet.restype = GroupGainMapPtr
 
-        self.dll.AUTDGainGroup.argtypes = [GroupGainMapPtr, ctypes.POINTER(ctypes.c_int32), ctypes.POINTER(GainPtr), ctypes.c_uint32, ctypes.c_bool]  # type: ignore 
+        self.dll.AUTDGainGroup.argtypes = [GroupGainMapPtr, ctypes.POINTER(ctypes.c_int32), ctypes.POINTER(GainPtr), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainGroup.restype = GainPtr
 
         self.dll.AUTDGainIntoDatagramWithSegment.argtypes = [GainPtr, Segment, TransitionModeWrap]  # type: ignore 
@@ -949,8 +949,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_group_map_set(self, map: GroupGainMapPtr, dev_idx: int, map_data: ctypes.Array[ctypes.c_int32] | None) -> GroupGainMapPtr:
         return self.dll.AUTDGainGroupMapSet(map, dev_idx, map_data)
 
-    def gain_group(self, map: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32] | None, values_ptr: ctypes.Array | None, kv_len: int, parallel: bool) -> GainPtr:
-        return self.dll.AUTDGainGroup(map, keys_ptr, values_ptr, kv_len, parallel)
+    def gain_group(self, map: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32] | None, values_ptr: ctypes.Array | None, kv_len: int) -> GainPtr:
+        return self.dll.AUTDGainGroup(map, keys_ptr, values_ptr, kv_len)
 
     def gain_into_datagram_with_segment(self, gain: GainPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
         return self.dll.AUTDGainIntoDatagramWithSegment(gain, segment, transition_mode)

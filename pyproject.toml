@@ -1,6 +1,6 @@
 [project]
 name = "pyautd3"
-version = "29.0.0rc2.post1"
+version = "29.0.0rc3"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -22,6 +22,8 @@ fixable = ["ALL"]
 
 [tool.ruff.lint.extend-per-file-ignores]
 "pyautd3/*.py" = ["TD", "FIX002"]
+"pyautd3/*.pyi" = ["ALL"]
+"pyautd3/derive/*.py" = ["ALL"]
 "tests/*.py" = ["S101", "T201", "ANN201", "PLR0915", "PLR2004"]
 "conftest.py" = ["ARG001", "ANN001"]
 "example/*.py" = ["T201", "PLR2004", "PD901"]

@@ -98,10 +98,10 @@ class SamplingModeExact(ISamplingMode):
     ) -> ModulationPtr:
         sine_freq = np.fromiter((m._mode._freq.hz for m in components), dtype=np.uint32)
         sine_config = np.fromiter((np.void(m._config._inner) for m in components), dtype=SamplingConfig)
-        sine_intensity = np.fromiter((m._intensity for m in components), dtype=np.uint8)
-        sine_offset = np.fromiter((m._offset for m in components), dtype=np.uint8)
-        sine_phase = np.fromiter((m._phase.radian for m in components), dtype=np.float32)
-        sine_clamp = np.fromiter((m._clamp for m in components), dtype=np.bool_)
+        sine_intensity = np.fromiter((m._param_intensity_u8 for m in components), dtype=np.uint8)
+        sine_offset = np.fromiter((m._param_offset_u8 for m in components), dtype=np.uint8)
+        sine_phase = np.fromiter((m._param_phase.radian for m in components), dtype=np.float32)
+        sine_clamp = np.fromiter((m._param_clamp for m in components), dtype=np.bool_)
         return _validate_ptr(
             Base().modulation_fourier_exact(
                 sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),  # type: ignore[arg-type]
@@ -182,10 +182,10 @@ class SamplingModeExactFloat(ISamplingMode):
     ) -> ModulationPtr:
         sine_freq = np.fromiter((m._mode._freq.hz for m in components), dtype=np.float32)
         sine_config = np.fromiter((np.void(m._config._inner) for m in components), dtype=SamplingConfig)
-        sine_intensity = np.fromiter((m._intensity for m in components), dtype=np.uint8)
-        sine_offset = np.fromiter((m._offset for m in components), dtype=np.uint8)
-        sine_phase = np.fromiter((m._phase.radian for m in components), dtype=np.float32)
-        sine_clamp = np.fromiter((m._clamp for m in components), dtype=np.bool_)
+        sine_intensity = np.fromiter((m._param_intensity_u8 for m in components), dtype=np.uint8)
+        sine_offset = np.fromiter((m._param_offset_u8 for m in components), dtype=np.uint8)
+        sine_phase = np.fromiter((m._param_phase.radian for m in components), dtype=np.float32)
+        sine_clamp = np.fromiter((m._param_clamp for m in components), dtype=np.bool_)
         return _validate_ptr(
             Base().modulation_fourier_exact_float(
                 sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
@@ -266,10 +266,10 @@ class SamplingModeNearest(ISamplingMode):
     ) -> ModulationPtr:
         sine_freq = np.fromiter((m._mode._freq.hz for m in components), dtype=np.float32)
         sine_config = np.fromiter((np.void(m._config._inner) for m in components), dtype=SamplingConfig)
-        sine_intensity = np.fromiter((m._intensity for m in components), dtype=np.uint8)
-        sine_offset = np.fromiter((m._offset for m in components), dtype=np.uint8)
-        sine_phase = np.fromiter((m._phase.radian for m in components), dtype=np.float32)
-        sine_clamp = np.fromiter((m._clamp for m in components), dtype=np.bool_)
+        sine_intensity = np.fromiter((m._param_intensity_u8 for m in components), dtype=np.uint8)
+        sine_offset = np.fromiter((m._param_offset_u8 for m in components), dtype=np.uint8)
+        sine_phase = np.fromiter((m._param_phase.radian for m in components), dtype=np.float32)
+        sine_clamp = np.fromiter((m._param_clamp for m in components), dtype=np.bool_)
         return _validate_ptr(
             Base().modulation_fourier_nearest(
                 sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
