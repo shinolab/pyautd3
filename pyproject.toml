@@ -1,10 +1,20 @@
 [project]
 name = "pyautd3"
+authors = [{ name = "Shun Suzuki", email = "suzuki@hapis.k.u-tokyo.ac.jp" }]
 version = "29.0.0rc3.post2"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = ["numpy>=2", "polars>=1.1", "forbiddenfruit"]
+classifiers = [
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: POSIX",
+    "License :: OSI Approved :: MIT License",
+]
 
 [build-system]
 requires = ["wheel", "setuptools"]
