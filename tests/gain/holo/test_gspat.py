@@ -33,4 +33,4 @@ def test_gspat():
 
 def test_gspat_default():
     g = GSPAT(NalgebraBackend(), ((np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
-    assert Holo().gain_gspat_is_default(g._constraint, g._repeat)
+    assert Holo().gain_gspat_is_default(g._constraint, g.repeat)

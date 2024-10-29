@@ -2,9 +2,11 @@
 
 
 import argparse
+import ast
 import contextlib
 import glob
 import os
+import pathlib
 import platform
 import re
 import shutil
@@ -15,38 +17,8 @@ import urllib.request
 from typing import Optional
 
 
-def fetch_submodule():
-    if shutil.which("git") is not None:
-        with working_dir(os.path.dirname(os.path.abspath(__file__))):
-            subprocess.run(["git", "submodule", "update", "--init"]).check_returncode()
-    else:
-        err("git is not installed. Skip fetching submodules.")
-
-
-def generate_wrapper():
-    if shutil.which("cargo") is not None:
-        with working_dir(os.path.dirname(os.path.abspath(__file__))):
-            with working_dir("tools/wrapper-generator"):
-                subprocess.run(
-                    [
-                        "cargo",
-                        "run",
-                    ],
-                ).check_returncode()
-    else:
-        err("cargo is not installed. Skip generating wrapper.")
-
-
 def err(msg: str):
     print("\033[91mERR \033[0m: " + msg)
-
-
-def warn(msg: str):
-    print("\033[93mWARN\033[0m: " + msg)
-
-
-def info(msg: str):
-    print("\033[92mINFO\033[0m: " + msg)
 
 
 def rm_f(path):
@@ -103,6 +75,214 @@ def working_dir(path):
         yield
     finally:
         os.chdir(cwd)
+
+
+def fetch_submodule():
+    if shutil.which("git") is not None:
+        with working_dir(os.path.dirname(os.path.abspath(__file__))):
+            subprocess.run(["git", "submodule", "update", "--init"]).check_returncode()
+    else:
+        err("git is not installed. Skip fetching submodules.")
+
+
+def generate_wrapper():
+    if shutil.which("cargo") is not None:
+        with working_dir(os.path.dirname(os.path.abspath(__file__))):
+            with working_dir("tools/wrapper-generator"):
+                subprocess.run(
+                    [
+                        "cargo",
+                        "run",
+                    ],
+                ).check_returncode()
+    else:
+        err("cargo is not installed. Skip generating wrapper.")
+
+
+class PyiGenerator(ast.NodeVisitor):
+    def __init__(self):
+        self.class_defs = []
+        self.has_builder_decorator = False
+
+    def visit_ClassDef(self, node):  # noqa: N802
+        has_builder_decorator = any(d.id == "builder" for d in node.decorator_list if isinstance(d, ast.Name))
+
+        class_name = node.name
+        base_classes = [self._get_type_annotation(base) for base in node.bases]
+        attributes = []
+        async_methods = []
+        methods = []
+        staticmethods = []
+        classmethods = []
+        properties = []
+
+        for body_item in node.body:
+            match body_item:
+                case ast.AnnAssign(target=ast.Name(id=attr_name), annotation=annotation):
+                    if not attr_name.startswith("_param_") and not attr_name.startswith("_prop_"):
+                        attr_type = self._get_type_annotation(annotation)
+                        attributes.append((attr_name, attr_type))
+                case ast.AsyncFunctionDef(
+                    name=method_name,
+                    args=ast.arguments(args=args, defaults=defaults),
+                    returns=returns,
+                    decorator_list=decorators,
+                ):
+                    return_type = self._get_type_annotation(returns)
+                    args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args[1:]]
+                    defaults = [self._get_value_expr(d) for d in defaults]
+                    async_methods.append((method_name, args, defaults, return_type))
+                case ast.FunctionDef(
+                    name=method_name,
+                    args=ast.arguments(args=args, defaults=defaults),
+                    returns=returns,
+                    decorator_list=decorators,
+                ):
+                    if any(d.id == "property" for d in decorators if isinstance(d, ast.Name)):
+                        return_type = self._get_type_annotation(returns)
+                        properties.append((method_name, return_type))
+                    elif any(d.id == "staticmethod" for d in decorators if isinstance(d, ast.Name)):
+                        return_type = self._get_type_annotation(returns)
+                        args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args]
+                        staticmethods.append((method_name, args, return_type))
+                    elif any(d.id == "classmethod" for d in decorators if isinstance(d, ast.Name)):
+                        return_type = self._get_type_annotation(returns)
+                        args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args[1:]]
+                        classmethods.append((method_name, args, return_type))
+                    else:
+                        return_type = self._get_type_annotation(returns)
+                        args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args[1:]]
+                        defaults = [self._get_value_expr(d) for d in defaults]
+                        methods.append((method_name, args, defaults, return_type))
+
+        if has_builder_decorator:
+            self.has_builder_decorator = True
+            fields = {}
+            for class_node in node.body:
+                match class_node:
+                    case ast.AnnAssign(target=ast.Name(id=attr_name), annotation=annotation):
+                        fields[class_node.target.id] = self._get_type_annotation(class_node.annotation)
+
+            for field_name, field_type in fields.items():
+                if field_name.startswith("_param_"):
+                    prop_name = field_name[7:]
+                    if field_name.endswith("_u8"):
+                        prop_name = prop_name[:-3]
+                    properties.append((prop_name, field_type))
+                    methods.append(
+                        (
+                            f"with_{prop_name}",
+                            [(prop_name, field_type)],
+                            [],
+                            class_name,
+                        ),
+                    )
+
+                if field_name.startswith("_prop_"):
+                    properties.append((field_name[6:], field_type))
+
+        self.class_defs.append((class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties))
+
+    def _get_value_expr(self, expr):
+        match expr:
+            case ast.Constant(value=value):
+                return value
+            case ast.Name(id=id):
+                return id
+            case _:
+                return "None"
+
+    def _get_type_annotation(self, annotation):
+        match annotation:
+            case ast.Name(id=id):
+                return id
+            case ast.Constant(value=value):
+                return str(value)
+            case ast.Subscript(value=value, slice=sl):
+                return f"{self._get_type_annotation(value)}[{self._get_type_annotation(sl)}]"
+            case ast.Tuple(elts=elts):
+                return f"{', '.join([self._get_type_annotation(elt) for elt in elts])}"
+            case ast.List(elts=elts):
+                return f"[{', '.join([self._get_type_annotation(elt) for elt in elts])}]"
+            case ast.BinOp(left=left, op=ast.BitOr(), right=right):
+                return f"{self._get_type_annotation(left)} | {self._get_type_annotation(right)}"
+            case ast.Attribute(value=value, attr=attr):
+                return f"{self._get_type_annotation(value)}.{attr}"
+            case None:
+                return "None"
+            case _:
+                return ""
+
+    def generate_pyi(self):
+        lines = []
+        for class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties in self.class_defs:
+            lines.append(f"class {class_name}({', '.join(base_classes)}):")
+            for attr_name, attr_type in attributes:
+                lines.append(f"    {attr_name}: {attr_type}")
+            for method_name, args, defaults, return_type in async_methods:
+                defaults = ["None"] * (len(args) - len(defaults)) + defaults
+                args_str = ", ".join(
+                    [f"{name}: {ty}" + (f" = {default}" if default != "None" else "") for (name, ty), default in zip(args, defaults, strict=True)],
+                )
+                lines.append(f"    async def {method_name}(self, {args_str}) -> {return_type}: ...")
+            for method_name, args, defaults, return_type in methods:
+                defaults = ["None"] * (len(args) - len(defaults)) + defaults
+                args_str = ", ".join(
+                    [f"{name}: {ty}" + (f" = {default}" if default != "None" else "") for (name, ty), default in zip(args, defaults, strict=True)],
+                )
+                lines.append(f"    def {method_name}(self, {args_str}) -> {return_type}: ...")
+            for method_name, args, return_type in staticmethods:
+                args_str = ", ".join([f"{name}: {ty}" for name, ty in args])
+                lines.append("    @staticmethod")
+                lines.append(f"    def {method_name}({args_str}) -> {return_type}: ...")
+            for method_name, args, return_type in classmethods:
+                args_str = ", ".join([f"{name}: {ty}" for name, ty in args])
+                lines.append("    @classmethod")
+                lines.append(f"    def {method_name}(cls, {args_str}) -> {return_type}: ...")
+            for prop_name, prop_type in properties:
+                lines.append("    @property")
+                lines.append(f"    def {prop_name}(self) -> {prop_type}: ...")
+            lines.append("")
+        return "\n".join(lines)
+
+
+def gen_pyi():
+    re_import = re.compile(r"(\s*)from (.*) import (.*)")
+    re_import_as = re.compile(r"import (.*) as (.*)")
+    re_typevar = re.compile(r"(.*) = TypeVar\((.*)\)")
+    with working_dir(os.path.dirname(os.path.abspath(__file__))):
+        files = set(glob.glob(str(pathlib.Path("pyautd3") / "**" / "*.py"), recursive=True)) - set(
+            glob.glob(str(pathlib.Path("pyautd3") / "derive" / "*.py"), recursive=True),
+        )
+        for file in files:
+            with open(file, "r", encoding="utf8") as f:
+                content = f.read()
+                tree = ast.parse(content, type_comments=True)
+                generator = PyiGenerator()
+                generator.visit(tree)
+
+            if generator.has_builder_decorator:
+                imports = []
+                typevars = []
+
+                for line in content.split("\n"):
+                    match = re_import.match(line)
+                    if match and line != "from pyautd3.derive.builder import builder":
+                        imports.append(f"from {match.group(2)} import {match.group(3)}")
+                    match = re_import_as.match(line)
+                    if match:
+                        imports.append(match.group(0))
+                    match = re_typevar.match(line)
+                    if match:
+                        typevars.append(match.group(0))
+
+                pyi_code = generator.generate_pyi()
+                with open(file.replace(".py", ".pyi"), "w", encoding="utf8") as f:
+                    f.write("\n".join(imports))
+                    f.write("\n\n")
+                    f.write("\n".join(typevars))
+                    f.write("\n\n")
+                    f.write(pyi_code)
 
 
 class Config:
@@ -276,6 +456,8 @@ def copy_dll(config: Config):
 def py_build(args):
     config = Config(args)
 
+    gen_pyi()
+
     copy_dll(config)
 
     build_wheel(config)
@@ -285,6 +467,8 @@ def py_test(args):
     config = Config(args)
 
     with working_dir("."):
+        gen_pyi()
+
         subprocess.run(["uv", "run", "mypy", "pyautd3", "--check-untyped-defs"]).check_returncode()
         subprocess.run(["uv", "run", "ruff", "check", "pyautd3"]).check_returncode()
         subprocess.run(["uv", "run", "mypy", "example", "--check-untyped-defs"]).check_returncode()

@@ -4,6 +4,7 @@ from typing import Self
 
 import numpy as np
 
+from pyautd3.derive.builder import builder
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
@@ -15,20 +16,13 @@ from .constraint import EmissionConstraint
 from .holo import Holo
 
 
+@builder
 class Greedy(Holo["Greedy"]):
-    _div: int
+    _param_phase_div_u8: int
 
     def __init__(self: Self, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
         super().__init__(EmissionConstraint.Uniform(EmitIntensity.maximum()), iterable)
-        self._div = 16
-
-    def with_phase_div(self: Self, div: int) -> Self:
-        self._div = div
-        return self
-
-    @property
-    def phase_div(self: Self) -> int:
-        return self._div
+        self._param_phase_div_u8 = 16
 
     def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         size = len(self._amps)
@@ -38,6 +32,6 @@ class Greedy(Holo["Greedy"]):
             foci.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
             amps.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
             size,
-            self._div,
+            self._param_phase_div_u8,
             self._constraint,
         )

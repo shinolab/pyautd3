@@ -2,6 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Self
 
+from pyautd3.derive.builder import builder
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.fir import IntoModulationFir
@@ -10,12 +11,11 @@ from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
-from pyautd3.native_methods.autd3capi_modulation_audio_file import (
-    NativeMethods as ModulationAudioFile,
-)
+from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 from pyautd3.native_methods.utils import _validate_ptr
 
 
+@builder
 class Csv(
     IntoModulationCache["Csv"],
     IntoModulationFir["Csv"],
@@ -24,13 +24,13 @@ class Csv(
 ):
     _path: Path
     _config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]
-    _deliminator: str
+    _param_deliminator: str
 
     def __private_init__(self: Self, path: Path, config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]) -> None:
         super().__init__()
         self._path = path
         self._config = config
-        self._deliminator = ","
+        self._param_deliminator = ","
 
     def __init__(self: Self, path: Path, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
         self.__private_init__(path, SamplingConfig(config))
@@ -46,12 +46,8 @@ class Csv(
         instance.__private_init__(path, (source, SamplingConfig(target), resampler))
         return instance
 
-    def with_deliminator(self: Self, deliminator: str) -> Self:
-        self._deliminator = deliminator
-        return self
-
     def _modulation_ptr(self: Self) -> ModulationPtr:
-        delim = self._deliminator.encode("utf-8")
+        delim = self._param_deliminator.encode("utf-8")
         path = str(self._path).encode("utf-8")
         match self._config:
             case (Freq(), SamplingConfig(), Resampler()):

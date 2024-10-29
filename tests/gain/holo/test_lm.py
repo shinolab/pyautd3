@@ -44,5 +44,5 @@ def test_lm():
 
 def test_gspat_default():
     g = LM(NalgebraBackend(), ((np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]))
-    initial_ = np.ctypeslib.as_ctypes(g._initial.astype(ctypes.c_float))
-    assert Holo().gain_lm_is_default(g._constraint, g._eps1, g._eps2, g._tau, g._kmax, initial_, len(g._initial))
+    initial_ = np.ctypeslib.as_ctypes(g.initial.astype(ctypes.c_float))
+    assert Holo().gain_lm_is_default(g._constraint, g.eps1, g.eps2, g.tau, g.kmax, initial_, len(g.initial))

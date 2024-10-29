@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-from numpy.typing import ArrayLike
 
 from pyautd3 import AUTD3, Controller, EulerAngles, deg, rad
 from pyautd3.driver.geometry.rotation import Angle
@@ -29,7 +28,7 @@ def test_angle_ctr():
 
 
 def test_with_rotation_xyz():
-    def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
+    def open_with_rotation(q: np.ndarray) -> Controller[Audit]:
         return Controller.builder([AUTD3([0.0, 0.0, 0.0]).with_rotation(q)]).open(Audit.builder())
 
     with open_with_rotation(EulerAngles.XYZ(90 * deg, 0 * deg, 0 * deg)) as autd:
@@ -59,7 +58,7 @@ def test_with_rotation_xyz():
 
 
 def test_with_rotation_zyz():
-    def open_with_rotation(q: ArrayLike) -> Controller[Audit]:
+    def open_with_rotation(q: np.ndarray) -> Controller[Audit]:
         return Controller.builder([AUTD3([0.0, 0.0, 0.0]).with_rotation(q)]).open(Audit.builder())
 
     with open_with_rotation(EulerAngles.ZYZ(90 * deg, 0 * deg, 0 * deg)) as autd:

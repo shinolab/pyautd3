@@ -9,6 +9,7 @@ import numpy as np
 
 from pyautd3.autd_error import InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.controller.timer import SpinSleeper, TimerStrategy
+from pyautd3.derive.builder import builder
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.firmware.fpga import FPGAState
@@ -28,54 +29,35 @@ K = TypeVar("K")
 L = TypeVar("L", bound=Link)
 
 
+@builder
 class _Builder:
     devices: list[AUTD3]
-    fallback_parallel_threshold: int
-    fallback_timeout: timedelta
-    send_interval: timedelta
-    receive_interval: timedelta
-    timer_strategy: TimerStrategyWrap
+    _param_fallback_parallel_threshold: int
+    _param_fallback_timeout: timedelta
+    _param_send_interval: timedelta
+    _param_receive_interval: timedelta
+    _param_timer_strategy: TimerStrategyWrap
 
     def __init__(self: Self, iterable: Iterable[AUTD3]) -> None:
         self.devices = list(iterable)
-        self.fallback_parallel_threshold = 4
-        self.fallback_timeout = timedelta(milliseconds=20)
-        self.send_interval = timedelta(milliseconds=1)
-        self.receive_interval = timedelta(milliseconds=1)
-        self.timer_strategy = TimerStrategy.Spin(SpinSleeper())
-
-    def with_fallback_parallel_threshold(self: Self, threshold: int) -> Self:
-        self.fallback_parallel_threshold = threshold
-        return self
-
-    def with_fallback_timeout(self: Self, timeout: timedelta) -> Self:
-        self.fallback_timeout = timeout
-        return self
-
-    def with_send_interval(self: Self, interval: timedelta) -> Self:
-        self.send_interval = interval
-        return self
-
-    def with_receive_interval(self: Self, interval: timedelta) -> Self:
-        self.receive_interval = interval
-        return self
-
-    def with_timer_strategy(self: Self, timer_strategy: TimerStrategyWrap) -> Self:
-        self.timer_strategy = timer_strategy
-        return self
+        self._param_fallback_parallel_threshold = 4
+        self._param_fallback_timeout = timedelta(milliseconds=20)
+        self._param_send_interval = timedelta(milliseconds=1)
+        self._param_receive_interval = timedelta(milliseconds=1)
+        self._param_timer_strategy = TimerStrategy.Spin(SpinSleeper())
 
     def _ptr(self: Self) -> ControllerBuilderPtr:
-        pos = np.fromiter((np.void(Vector3(d._pos)) for d in self.devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
-        rot = np.fromiter((np.void(Quaternion(d._rot)) for d in self.devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+        pos = np.fromiter((np.void(Vector3(d.position)) for d in self.devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
+        rot = np.fromiter((np.void(Quaternion(d.rotation)) for d in self.devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
         return Base().controller_builder(
             pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
             rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
             len(pos),
-            self.fallback_parallel_threshold,
-            int(self.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
-            int(self.send_interval.total_seconds() * 1000 * 1000 * 1000),
-            int(self.receive_interval.total_seconds() * 1000 * 1000 * 1000),
-            self.timer_strategy,
+            self._param_fallback_parallel_threshold,
+            int(self._param_fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
+            int(self._param_send_interval.total_seconds() * 1000 * 1000 * 1000),
+            int(self._param_receive_interval.total_seconds() * 1000 * 1000 * 1000),
+            self._param_timer_strategy,
         )
 
     async def open_async(
