@@ -387,7 +387,6 @@ def build_wheel(config: Config):
         if config.is_windows():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
-                content = content.replace(r"${classifiers_os}", "Operating System :: Microsoft :: Windows")
                 match config.arch:
                     case "x64":
                         plat_name = "win-amd64"
@@ -402,7 +401,6 @@ def build_wheel(config: Config):
         elif config.is_macos():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
-                content = content.replace(r"${classifiers_os}", "Operating System :: MacOS :: MacOS X")
                 content = content.replace(r"${plat_name}", "macosx-11-0-arm64")
                 with open("setup.cfg", "w") as f:
                     f.write(content)
@@ -410,7 +408,6 @@ def build_wheel(config: Config):
         elif config.is_linux():
             with open("setup.cfg.template", "r") as setup:
                 content = setup.read()
-                content = content.replace(r"${classifiers_os}", "Operating System :: POSIX")
                 match config.arch:
                     case "x64":
                         plat_name = "manylinux1_x86_64"
