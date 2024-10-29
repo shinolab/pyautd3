@@ -1,6 +1,6 @@
 from typing import Self
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base

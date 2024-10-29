@@ -9,7 +9,7 @@ import numpy as np
 
 from pyautd3.autd_error import InvalidDatagramTypeError, KeyAlreadyExistsError
 from pyautd3.controller.timer import SpinSleeper, TimerStrategy
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.firmware.fpga import FPGAState

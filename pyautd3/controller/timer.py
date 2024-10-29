@@ -1,7 +1,7 @@
 import platform
 from typing import Self
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import SpinStrategyTag as SpinStrategy
 from pyautd3.native_methods.autd3capi_driver import TimerStrategyWrap

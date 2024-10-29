@@ -1,6 +1,6 @@
 from typing import Self, TypeVar
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq, Hz
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig

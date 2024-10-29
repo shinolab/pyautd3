@@ -1,7 +1,7 @@
 from collections.abc import Iterable
 from typing import Self
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.fir import IntoModulationFir

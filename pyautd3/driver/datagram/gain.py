@@ -11,7 +11,7 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GainPtr, Segmen
 __all__ = []  # type: ignore[var-annotated]
 
 
-class GainBase(
+class Gain(
     DatagramS[GainPtr],
     Datagram,
     metaclass=ABCMeta,
