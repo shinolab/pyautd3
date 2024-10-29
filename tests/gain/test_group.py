@@ -25,7 +25,6 @@ def test_group():
             .set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90))))
             .set("null", Null())
         )
-        assert not g.parallel
         autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
@@ -43,30 +42,6 @@ def test_group():
                 Uniform((EmitIntensity(0x80), Phase(0x90))),
             ),
         )
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
-            for tr in dev:
-                if tr.position[0] < cx:
-                    assert np.all(intensities[tr.idx] == 0x80)
-                    assert np.all(phases[tr.idx] == 0x90)
-                else:
-                    assert np.all(intensities[tr.idx] == 0)
-                    assert np.all(phases[tr.idx] == 0)
-
-
-def test_group_with_parallel():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        cx = autd.center[0]
-
-        g = (
-            Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
-            .with_parallel(True)  # noqa: FBT003
-            .set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90))))
-            .set("null", Null())
-        )
-        assert g.parallel
-        autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             for tr in dev:
