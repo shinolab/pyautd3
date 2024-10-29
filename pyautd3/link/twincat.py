@@ -25,28 +25,6 @@ class TwinCAT(Link):
     def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
         super().__init__(handle, ptr)  # pragma: no cover
 
-    class _Builder(LinkBuilder["RemoteTwinCAT"]):
-        _prop_server_ams_net_id: str
-        _param_server_ip: str
-        _param_client_ams_net_id: str
-
-        def __init__(self: Self, server_ams_net_id: str) -> None:
-            self._prop_server_ams_net_id = server_ams_net_id
-            self._param_server_ip = ""
-            self._param_client_ams_net_id = ""
-
-        def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
-            return _validate_ptr(  # pragma: no cover
-                LinkTwinCAT().link_remote_twin_cat(
-                    self._prop_server_ams_net_id.encode("utf-8"),
-                    self._param_server_ip.encode("utf-8"),
-                    self._param_client_ams_net_id.encode("utf-8"),
-                ),
-            )
-
-        def _resolve_link(self: Self, handle: HandlePtr, _ptr: ControllerPtr) -> "RemoteTwinCAT":
-            return RemoteTwinCAT(handle, Base().link_get(_ptr))  # pragma: no cover
-
 
 @builder
 class _RemoteTwinCATBuilder(LinkBuilder["RemoteTwinCAT"]):
