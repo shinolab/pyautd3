@@ -102,11 +102,10 @@ def generate_wrapper():
 class PyiGenerator(ast.NodeVisitor):
     def __init__(self):
         self.class_defs = []
-        self.has_builder_decorator = False
+        self.imports = []
+        self.should_generate = False
 
     def visit_ClassDef(self, node):  # noqa: N802
-        has_builder_decorator = any(d.id == "builder" for d in node.decorator_list if isinstance(d, ast.Name))
-
         class_name = node.name
         base_classes = [self._get_type_annotation(base) for base in node.bases]
         attributes = []
@@ -155,8 +154,8 @@ class PyiGenerator(ast.NodeVisitor):
                         defaults = [self._get_value_expr(d) for d in defaults]
                         methods.append((method_name, args, defaults, return_type))
 
-        if has_builder_decorator:
-            self.has_builder_decorator = True
+        if any(d.id == "builder" for d in node.decorator_list if isinstance(d, ast.Name)):
+            self.should_generate = True
             fields = {}
             for class_node in node.body:
                 match class_node:
@@ -184,6 +183,56 @@ class PyiGenerator(ast.NodeVisitor):
 
                 if field_name.startswith("_prop_"):
                     properties.append((field_name[6:], field_type))
+
+        if any(d.id == "gain" for d in node.decorator_list if isinstance(d, ast.Name)):
+            self.should_generate = True
+
+            if class_name != "Cache":
+                self.imports.append("from pyautd3.gain.cache import Cache")
+                methods.append(
+                    (
+                        "with_cache",
+                        [],
+                        [],
+                        f"Cache[{class_name}]",
+                    ),
+                )
+            self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
+            self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
+            methods.append(
+                (
+                    "with_segment",
+                    [
+                        ("segment", "Segment"),
+                        ("transition_mode", "TransitionModeWrap | None"),
+                    ],
+                    [],
+                    f"DatagramWithSegment[{class_name}]",
+                ),
+            )
+            self.imports.append("from datetime import timedelta")
+            self.imports.append("from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout")
+            methods.append(
+                (
+                    "with_timeout",
+                    [
+                        ("timeout", "timedelta | None"),
+                    ],
+                    [],
+                    f"DatagramWithTimeout[{class_name}]",
+                ),
+            )
+            self.imports.append("from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold")
+            methods.append(
+                (
+                    "with_parallel_threshold",
+                    [
+                        ("threshold", "int | None"),
+                    ],
+                    [],
+                    f"DatagramWithParallelThreshold[{class_name}]",
+                ),
+            )
 
         self.class_defs.append((class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties))
 
@@ -265,13 +314,13 @@ def gen_pyi():
                 generator = PyiGenerator()
                 generator.visit(tree)
 
-            if generator.has_builder_decorator:
-                imports = []
+            if generator.should_generate:
+                imports = generator.imports
                 typevars = []
 
                 for line in content.split("\n"):
                     match = re_import.match(line)
-                    if match and line != "from pyautd3.derive.builder import builder":
+                    if match and not line.startswith("from pyautd3.derive"):
                         imports.append(f"from {match.group(2)} import {match.group(3)}")
                     match = re_import_as.match(line)
                     if match:

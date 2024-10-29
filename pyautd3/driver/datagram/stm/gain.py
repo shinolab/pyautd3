@@ -6,7 +6,7 @@ from typing import Self
 import numpy as np
 
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.gain.base import GainBase
+from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
 from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
@@ -47,7 +47,7 @@ class GainSTM(
     def __private_init__(
         self: Self,
         sampling_config: STMSamplingConfig,
-        gains: list[GainBase],
+        gains: list[Gain],
     ) -> None:
         self._gains = np.array(gains)
         self._mode = GainSTMMode.PhaseIntensityFull
@@ -58,7 +58,7 @@ class GainSTM(
     def __init__(
         self: Self,
         config: "SamplingConfig | Freq[float] | timedelta",
-        iterable: Iterable[GainBase],
+        iterable: Iterable[Gain],
     ) -> None:
         gains = list(iterable)
         self.__private_init__(STMSamplingConfig(config, len(gains)), gains)
@@ -67,7 +67,7 @@ class GainSTM(
     def nearest(
         cls: type["GainSTM"],
         config: "Freq[float] | timedelta",
-        iterable: Iterable[GainBase],
+        iterable: Iterable[Gain],
     ) -> "GainSTM":
         ins = cls.__new__(cls)
         gains = list(iterable)

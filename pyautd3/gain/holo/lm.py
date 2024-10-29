@@ -4,7 +4,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder, gain
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
 from pyautd3.native_methods.autd3capi_driver import GainPtr
@@ -15,6 +15,7 @@ from .constraint import EmissionConstraint
 from .holo import HoloWithBackend
 
 
+@gain
 @builder
 class LM(HoloWithBackend["LM"]):
     _param_eps1: float

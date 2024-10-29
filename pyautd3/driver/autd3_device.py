@@ -4,7 +4,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 import pyautd3.native_methods.autd3capi_driver as consts
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 
 
 @builder

@@ -3,7 +3,7 @@ from collections.abc import Callable
 from datetime import timedelta
 from typing import Self
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.link.soem.adapter import EtherCATAdapter
 from pyautd3.link.soem.status import Status

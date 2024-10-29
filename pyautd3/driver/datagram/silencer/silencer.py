@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Generic, Self, TypeVar
 
-from pyautd3.derive.builder import builder
+from pyautd3.derive import builder
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.silencer.fixed_completion_time import FixedCompletionTime

@@ -12,7 +12,7 @@ from .backend import Backend
 H = TypeVar("H", bound="Holo")
 
 
-class Holo(Gain[H], Generic[H]):
+class Holo(Gain, Generic[H]):
     _foci: list[np.ndarray]
     _amps: list[Amplitude]
     _constraint: EmissionConstraintWrap
