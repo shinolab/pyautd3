@@ -252,30 +252,34 @@ class PyiGenerator(ast.NodeVisitor):
         if any(d.id == "datagram" for d in node.decorator_list if isinstance(d, ast.Name)):
             self.should_generate = True
 
-            self.imports.append("from datetime import timedelta")
-            self.imports.append("from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout")
-            methods.append(
-                (
-                    "with_timeout",
-                    [
-                        ("timeout", "timedelta | None"),
-                    ],
-                    [],
-                    f"DatagramWithTimeout[{class_name}]",
-                ),
-            )
-            self.imports.append("from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold")
-            methods.append(
-                (
-                    "with_parallel_threshold",
-                    [
-                        ("threshold", "int | None"),
-                    ],
-                    [],
-                    f"DatagramWithParallelThreshold[{class_name}]",
-                ),
-            )
+            if class_name != "DatagramWithTimeout":
+                self.imports.append("from datetime import timedelta")
+                self.imports.append("from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout")
+                methods.append(
+                    (
+                        "with_timeout",
+                        [
+                            ("timeout", "timedelta | None"),
+                        ],
+                        [],
+                        f"DatagramWithTimeout[{class_name}]",
+                    ),
+                )
+            if class_name != "DatagramWithParallelThreshold":
+                self.imports.append("from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold")
+                methods.append(
+                    (
+                        "with_parallel_threshold",
+                        [
+                            ("threshold", "int | None"),
+                        ],
+                        [],
+                        f"DatagramWithParallelThreshold[{class_name}]",
+                    ),
+                )
         if any(d.id == "datagram_with_segment" for d in node.decorator_list if isinstance(d, ast.Name)):
+            self.should_generate = True
+
             self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
             self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
             methods.append(
