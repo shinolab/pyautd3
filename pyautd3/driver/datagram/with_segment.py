@@ -2,10 +2,9 @@ from abc import ABCMeta, abstractmethod
 from typing import Generic, Self, TypeVar
 
 from pyautd3.derive import datagram
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, Segment, TransitionModeWrap
-
-from .datagram import Datagram
 
 __all__ = []  # type: ignore[var-annotated]
 

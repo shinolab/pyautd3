@@ -3,13 +3,12 @@ from collections.abc import Callable
 from typing import Self
 
 from pyautd3.derive import datagram
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.ethercat.dc_sys_time import DcSysTime
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, GeometryPtr, GPIOOut
 from pyautd3.native_methods.utils import ConstantADT
-
-from .datagram import Datagram
 
 __all__ = ["DebugType"]
 

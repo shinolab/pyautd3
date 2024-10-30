@@ -2,12 +2,12 @@ from datetime import timedelta
 
 from forbiddenfruit import curse  # type: ignore[import-untyped]
 
+from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.datagram_tuple import DatagramTuple
 from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
 
 from .clear import Clear
-from .datagram import Datagram
 from .debug import DebugSettings, DebugType
 from .force_fan import ForceFan
 from .phase_corr import PhaseCorrection

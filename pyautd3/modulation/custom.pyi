@@ -1,16 +1,18 @@
-from datetime import timedelta
-from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
-from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
+import ctypes
 from collections.abc import Iterable
 from datetime import timedelta
 from typing import Self
 import numpy as np
+from pyautd3.derive import datagram
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
+from datetime import timedelta
+from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
+from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
 
 
 

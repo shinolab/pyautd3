@@ -1,15 +1,23 @@
+import ctypes
 from collections.abc import Callable
 from datetime import timedelta
 from typing import Self
-from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.derive import builder
+from pyautd3.driver.link import Link
+from pyautd3.driver.link import LinkBuilder
 from pyautd3.link.soem.adapter import EtherCATAdapter
 from pyautd3.link.soem.status import Status
 from pyautd3.link.soem.thread_priority import ThreadPriority
 from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr, SyncMode
+from pyautd3.native_methods.autd3capi_driver import HandlePtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
+from pyautd3.native_methods.autd3capi_driver import LinkPtr
+from pyautd3.native_methods.autd3capi_driver import SyncMode
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
-from pyautd3.native_methods.autd3capi_link_soem import ProcessPriority, ThreadPriorityPtr, TimerStrategy
+from pyautd3.native_methods.autd3capi_link_soem import ProcessPriority
+from pyautd3.native_methods.autd3capi_link_soem import ThreadPriorityPtr
+from pyautd3.native_methods.autd3capi_link_soem import TimerStrategy
 from pyautd3.native_methods.autd3capi_link_soem import Status as _Status
 from pyautd3.native_methods.utils import _validate_ptr
 
