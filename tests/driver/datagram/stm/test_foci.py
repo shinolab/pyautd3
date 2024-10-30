@@ -30,7 +30,7 @@ def test_foci_stm():
         radius = 30.0
         size = 2
         center = np.array([0.0, 0.0, 150.0])
-        stm = FociSTM(
+        stm: FociSTM = FociSTM(
             1.0 * Hz,
             (center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
         ).with_loop_behavior(LoopBehavior.Once)
@@ -131,7 +131,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
         autd.send(Silencer.disable())
 
         size = len(control_points)
-        stm = FociSTM(
+        stm: FociSTM = FociSTM(
             1.0 * Hz,
             control_points,
         )

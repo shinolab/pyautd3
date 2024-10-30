@@ -3,7 +3,7 @@ from typing import Generic, Self, TypeVar
 
 from pyautd3.derive import builder, datagram
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.datagram.silencer.fixed_completion_time import FixedCompletionTime
 from pyautd3.driver.datagram.silencer.fixed_update_rate import FixedUpdateRate
 from pyautd3.driver.datagram.stm.foci import FociSTM
@@ -44,7 +44,7 @@ class Silencer(
         self._strict_mode = mode
         return self
 
-    def is_valid(self: Self, target: ModulationBase | FociSTM | GainSTM) -> bool:
+    def is_valid(self: Self, target: Modulation | FociSTM | GainSTM) -> bool:
         return self._inner._is_valid(target, self._strict_mode)
 
     def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:

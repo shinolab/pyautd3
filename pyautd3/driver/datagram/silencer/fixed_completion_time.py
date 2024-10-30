@@ -1,7 +1,7 @@
 from datetime import timedelta
 from typing import Self
 
-from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.datagram.stm.foci import FociSTM
 from pyautd3.driver.datagram.stm.gain import GainSTM
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -18,7 +18,7 @@ class FixedCompletionTime:
 
     def _is_valid(
         self: Self,
-        v: ModulationBase | FociSTM | GainSTM,
+        v: Modulation | FociSTM | GainSTM,
         strict_mode: bool,  # noqa: FBT001
     ) -> bool:
         return bool(
