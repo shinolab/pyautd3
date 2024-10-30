@@ -302,7 +302,9 @@ class PyiGenerator(ast.NodeVisitor):
                 ),
             )
 
-        self.class_defs.append((class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties))
+        self.class_defs.append(
+            (class_name, full_class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties)
+        )
 
     def _get_value_expr(self, expr):
         match expr:
@@ -336,7 +338,7 @@ class PyiGenerator(ast.NodeVisitor):
 
     def generate_pyi(self):
         lines = []
-        for class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties in self.class_defs:
+        for class_name, full_class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties in self.class_defs:
             lines.append(f"class {class_name}({', '.join(base_classes)}):")
             for attr_name, attr_type in attributes:
                 lines.append(f"    {attr_name}: {attr_type}")
@@ -345,13 +347,16 @@ class PyiGenerator(ast.NodeVisitor):
                 args_str = ", ".join(
                     [f"{name}: {ty}" + (f" = {default}" if default != "None" else "") for (name, ty), default in zip(args, defaults, strict=True)],
                 )
-                lines.append(f"    async def {method_name}(self, {args_str}) -> {return_type}: ...")
+                lines.append(f"    async def {method_name}(self: {full_class_name}, {args_str}) -> {return_type}: ...")
             for method_name, args, defaults, return_type in methods:
                 defaults = ["None"] * (len(args) - len(defaults)) + defaults
                 args_str = ", ".join(
                     [f"{name}: {ty}" + (f" = {default}" if default != "None" else "") for (name, ty), default in zip(args, defaults, strict=True)],
                 )
-                lines.append(f"    def {method_name}(self, {args_str}) -> {return_type}: ...")
+                if method_name == "__new__":
+                    lines.append(f"    def {method_name}(cls, {args_str}) -> {return_type}: ...")
+                else:
+                    lines.append(f"    def {method_name}(self: {full_class_name}, {args_str}) -> {return_type}: ...")
             for method_name, args, return_type in staticmethods:
                 args_str = ", ".join([f"{name}: {ty}" for name, ty in args])
                 lines.append("    @staticmethod")
@@ -362,7 +367,7 @@ class PyiGenerator(ast.NodeVisitor):
                 lines.append(f"    def {method_name}(cls, {args_str}) -> {return_type}: ...")
             for prop_name, prop_type in properties:
                 lines.append("    @property")
-                lines.append(f"    def {prop_name}(self) -> {prop_type}: ...")
+                lines.append(f"    def {prop_name}(self: {full_class_name}) -> {prop_type}: ...")
             lines.append("")
         return "\n".join(lines)
 

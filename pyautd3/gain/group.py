@@ -28,7 +28,7 @@ class Group(Gain, Generic[K]):
         self._f = f
         self._parallel = False
 
-    def set(self: Self, key: K, gain: Gain) -> Self:
+    def set(self: Self, key: K, gain: Gain) -> "Group[K]":
         self._map[key] = gain
         return self
 
