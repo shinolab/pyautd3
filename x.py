@@ -210,6 +210,10 @@ class PyiGenerator(ast.NodeVisitor):
                     f"DatagramWithSegment[{class_name}]",
                 ),
             )
+
+        if any(d.id == "datagram" for d in node.decorator_list if isinstance(d, ast.Name)):
+            self.should_generate = True
+
             self.imports.append("from datetime import timedelta")
             self.imports.append("from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout")
             methods.append(

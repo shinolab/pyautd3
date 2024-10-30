@@ -1,15 +1,13 @@
 from datetime import timedelta
 from typing import Generic, Self, TypeVar
 
-from pyautd3.derive import builder
+from pyautd3.derive import builder, datagram
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.silencer.fixed_completion_time import FixedCompletionTime
 from pyautd3.driver.datagram.silencer.fixed_update_rate import FixedUpdateRate
 from pyautd3.driver.datagram.stm.foci import FociSTM
 from pyautd3.driver.datagram.stm.gain import GainSTM
-from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, SilencerTarget
 
@@ -17,9 +15,8 @@ T = TypeVar("T", FixedCompletionTime, FixedUpdateRate)
 
 
 @builder
+@datagram
 class Silencer(
-    IntoDatagramWithTimeout["Silencer"],
-    IntoDatagramWithParallelThreshold["Silencer"],
     Datagram,
     Generic[T],
 ):

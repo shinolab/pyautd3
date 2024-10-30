@@ -2,8 +2,7 @@ import ctypes
 from collections.abc import Callable
 from typing import Self
 
-from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
+from pyautd3.derive import datagram
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.ethercat.dc_sys_time import DcSysTime
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -51,11 +50,8 @@ class DebugType(metaclass=ConstantADT):
         return Base().debug_type_sys_time_eq(value.sys_time)
 
 
-class DebugSettings(
-    IntoDatagramWithTimeout["DebugSettings"],
-    IntoDatagramWithParallelThreshold["DebugSettings"],
-    Datagram,
-):
+@datagram
+class DebugSettings(Datagram):
     def __init__(self: Self, f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
         super().__init__()
 

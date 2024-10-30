@@ -1,7 +1,6 @@
 from typing import Self
 
-from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
+from pyautd3.derive import datagram
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, Segment, TransitionModeWrap
@@ -13,11 +12,8 @@ class SwapSegment:
     def __new__(cls: type["SwapSegment"]) -> "SwapSegment":
         raise NotImplementedError
 
-    class Gain(
-        IntoDatagramWithTimeout["SwapSegment.Gain"],
-        IntoDatagramWithParallelThreshold["SwapSegment.Gain"],
-        Datagram,
-    ):
+    @datagram
+    class Gain(Datagram):
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
@@ -29,11 +25,8 @@ class SwapSegment:
         def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_gain(self._segment, self._transition_mode)
 
-    class Modulation(
-        IntoDatagramWithTimeout["SwapSegment.Modulation"],
-        IntoDatagramWithParallelThreshold["SwapSegment.Modulation"],
-        Datagram,
-    ):
+    @datagram
+    class Modulation(Datagram):
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
@@ -45,11 +38,8 @@ class SwapSegment:
         def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_modulation(self._segment, self._transition_mode)
 
-    class FociSTM(
-        IntoDatagramWithTimeout["SwapSegment.FociSTM"],
-        IntoDatagramWithParallelThreshold["SwapSegment.FociSTM"],
-        Datagram,
-    ):
+    @datagram
+    class FociSTM(Datagram):
         _segment: Segment
         _transition_mode: TransitionModeWrap
 
@@ -61,11 +51,8 @@ class SwapSegment:
         def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
             return Base().datagram_swap_segment_foci_stm(self._segment, self._transition_mode)
 
-    class GainSTM(
-        IntoDatagramWithTimeout["SwapSegment.GainSTM"],
-        IntoDatagramWithParallelThreshold["SwapSegment.GainSTM"],
-        Datagram,
-    ):
+    @datagram
+    class GainSTM(Datagram):
         _segment: Segment
         _transition_mode: TransitionModeWrap
 

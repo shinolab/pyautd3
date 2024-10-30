@@ -1,4 +1,3 @@
-from abc import ABCMeta
 from datetime import timedelta
 from typing import Generic, Self, TypeVar
 
@@ -24,8 +23,3 @@ class DatagramWithTimeout(Datagram, Generic[D]):
     def _datagram_ptr(self: Self, g: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._datagram_ptr(g)
         return Base().datagram_with_timeout(raw_ptr, int(self._timeout.total_seconds() * 1000 * 1000 * 1000) if self._timeout is not None else -1)
-
-
-class IntoDatagramWithTimeout(Generic[D], metaclass=ABCMeta):
-    def with_timeout(self: D, timeout: timedelta | None) -> DatagramWithTimeout[D]:  # type: ignore[misc]
-        return DatagramWithTimeout(self, timeout)

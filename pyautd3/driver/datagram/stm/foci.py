@@ -6,45 +6,28 @@ from typing import Generic, Self, TypeVar
 import numpy as np
 from numpy.typing import ArrayLike
 
+import pyautd3.driver.datagram.stm.control_point as cp
+from pyautd3.derive import datagram
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.stm.control_point import (
-    ControlPoints1,
-    ControlPoints2,
-    ControlPoints3,
-    ControlPoints4,
-    ControlPoints5,
-    ControlPoints6,
-    ControlPoints7,
-    ControlPoints8,
-    IControlPoints,
-)
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
-from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
-from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import (
-    DatagramPtr,
-    FociSTMPtr,
-    Segment,
-    TransitionModeWrap,
-)
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, FociSTMPtr, Segment, TransitionModeWrap
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
 from pyautd3.native_methods.utils import _validate_ptr
 
 __all__ = []  # type: ignore[var-annotated]
 
-C = TypeVar("C", bound=IControlPoints)
+C = TypeVar("C", bound=cp.IControlPoints)
 
 
+@datagram
 class FociSTM(
-    IntoDatagramWithTimeout["FociSTM[C]"],
-    IntoDatagramWithParallelThreshold["FociSTM[C]"],
     IntoDatagramWithSegment,
     DatagramS[FociSTMPtr],
     Datagram,
@@ -58,30 +41,32 @@ class FociSTM(
     def __private_init__(
         self: "FociSTM",
         sampling_config: STMSamplingConfig,
-        foci: list[ArrayLike]
-        | list[ControlPoints1]
-        | list[ControlPoints2]
-        | list[ControlPoints3]
-        | list[ControlPoints4]
-        | list[ControlPoints5]
-        | list[ControlPoints6]
-        | list[ControlPoints7]
-        | list[ControlPoints8],
+        foci: (
+            list[ArrayLike]
+            | list[cp.ControlPoints1]
+            | list[cp.ControlPoints2]
+            | list[cp.ControlPoints3]
+            | list[cp.ControlPoints4]
+            | list[cp.ControlPoints5]
+            | list[cp.ControlPoints6]
+            | list[cp.ControlPoints7]
+            | list[cp.ControlPoints8]
+        ),
     ) -> None:
         match foci[0]:
             case (
-                ControlPoints1()
-                | ControlPoints2()
-                | ControlPoints3()
-                | ControlPoints4()
-                | ControlPoints5()
-                | ControlPoints6()
-                | ControlPoints7()
-                | ControlPoints8()
+                cp.ControlPoints1()
+                | cp.ControlPoints2()
+                | cp.ControlPoints3()
+                | cp.ControlPoints4()
+                | cp.ControlPoints5()
+                | cp.ControlPoints6()
+                | cp.ControlPoints7()
+                | cp.ControlPoints8()
             ):
                 self._points = foci
             case _:
-                self._points = [ControlPoints1(p) for p in foci]
+                self._points = [cp.ControlPoints1(p) for p in foci]
 
         self._stm_sampling_config = sampling_config
 
@@ -90,15 +75,17 @@ class FociSTM(
     def __init__(
         self: "FociSTM",
         config: "SamplingConfig | Freq[float] | timedelta",
-        iterable: Iterable[ArrayLike]
-        | Iterable[ControlPoints1]
-        | Iterable[ControlPoints2]
-        | Iterable[ControlPoints3]
-        | Iterable[ControlPoints4]
-        | Iterable[ControlPoints5]
-        | Iterable[ControlPoints6]
-        | Iterable[ControlPoints7]
-        | Iterable[ControlPoints8],
+        iterable: (
+            Iterable[ArrayLike]
+            | Iterable[cp.ControlPoints1]
+            | Iterable[cp.ControlPoints2]
+            | Iterable[cp.ControlPoints3]
+            | Iterable[cp.ControlPoints4]
+            | Iterable[cp.ControlPoints5]
+            | Iterable[cp.ControlPoints6]
+            | Iterable[cp.ControlPoints7]
+            | Iterable[cp.ControlPoints8]
+        ),
     ) -> None:
         foci = list(iterable)
         self.__private_init__(STMSamplingConfig(config, len(foci)), foci)
@@ -107,15 +94,17 @@ class FociSTM(
     def nearest(
         cls: type["FociSTM"],
         config: "Freq[float] | timedelta",
-        iterable: Iterable[ArrayLike]
-        | Iterable[ControlPoints1]
-        | Iterable[ControlPoints2]
-        | Iterable[ControlPoints3]
-        | Iterable[ControlPoints4]
-        | Iterable[ControlPoints5]
-        | Iterable[ControlPoints6]
-        | Iterable[ControlPoints7]
-        | Iterable[ControlPoints8],
+        iterable: (
+            Iterable[ArrayLike]
+            | Iterable[cp.ControlPoints1]
+            | Iterable[cp.ControlPoints2]
+            | Iterable[cp.ControlPoints3]
+            | Iterable[cp.ControlPoints4]
+            | Iterable[cp.ControlPoints5]
+            | Iterable[cp.ControlPoints6]
+            | Iterable[cp.ControlPoints7]
+            | Iterable[cp.ControlPoints8]
+        ),
     ) -> "FociSTM":
         ins = cls.__new__(cls)
         foci = list(iterable)
