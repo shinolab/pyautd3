@@ -550,6 +550,8 @@ def py_cov(args):
     copy_dll(config)
 
     with working_dir("."):
+        gen_pyi()
+
         command = ["uv", "run", "pytest", "-n", "auto"]
         if config.is_pcap_available():
             command.append("--soem")
