@@ -5,6 +5,7 @@ from typing import Self
 import numpy as np
 
 from pyautd3.derive import builder, datagram, gain
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
 from pyautd3.gain.holo.backend import Backend
@@ -15,6 +16,7 @@ from pyautd3.native_methods.structs import Vector3
 
 
 @datagram
+@datagram_with_segment
 @gain
 @builder
 class GS(HoloWithBackend["GS"]):

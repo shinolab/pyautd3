@@ -8,9 +8,10 @@ from numpy.typing import ArrayLike
 
 import pyautd3.driver.datagram.stm.control_point as cp
 from pyautd3.derive import datagram
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
-from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -27,8 +28,8 @@ C = TypeVar("C", bound=cp.IControlPoints)
 
 
 @datagram
+@datagram_with_segment
 class FociSTM(
-    IntoDatagramWithSegment,
     DatagramS[FociSTMPtr],
     Datagram,
     Generic[C],

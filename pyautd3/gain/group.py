@@ -6,6 +6,7 @@ import numpy as np
 
 from pyautd3.autd_error import UnknownGroupKeyError
 from pyautd3.derive import datagram, gain
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -15,6 +16,7 @@ K = TypeVar("K")
 
 
 @gain
+@datagram_with_segment
 @datagram
 class Group(Gain, Generic[K]):
     _map: dict[K, Gain]

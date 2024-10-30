@@ -36,8 +36,3 @@ class DatagramWithSegment(Datagram, Generic[DS]):
     def _datagram_ptr(self: Self, g: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._raw_ptr(g)
         return self._datagram._into_segment(raw_ptr, self._segment, self._transition_mode)
-
-
-class IntoDatagramWithSegment(DatagramS, Generic[DS]):
-    def with_segment(self: DS, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramWithSegment[DS]:
-        return DatagramWithSegment(self, segment, transition_mode)

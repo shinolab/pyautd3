@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Self
 
 from pyautd3.derive import builder, datagram, modulation
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -13,6 +14,7 @@ from pyautd3.native_methods.utils import _validate_ptr
 
 
 @datagram
+@datagram_with_segment
 @modulation
 @builder
 class Csv(Modulation):
