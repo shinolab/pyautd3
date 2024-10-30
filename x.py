@@ -105,6 +105,13 @@ class PyiGenerator(ast.NodeVisitor):
         self.imports = []
         self.should_generate = False
 
+    def get_generic_type(self, base: list[str]) -> str | None:
+        r = re.compile(r"Generic\[(.*)\]")
+        for item in base:
+            if match := r.match(item):
+                return match.group(1)
+        return None
+
     def visit_Import(self, node):  # noqa: N802
         for alias in node.names:
             import_name = f"import {alias.name}"
@@ -122,6 +129,7 @@ class PyiGenerator(ast.NodeVisitor):
     def visit_ClassDef(self, node):  # noqa: N802
         class_name = node.name
         base_classes = [self._get_type_annotation(base) for base in node.bases]
+        full_class_name = f"{class_name}[{self.get_generic_type(base_classes)}]" if self.get_generic_type(base_classes) is not None else class_name
         attributes = []
         async_methods = []
         methods = []
@@ -191,7 +199,7 @@ class PyiGenerator(ast.NodeVisitor):
                             f"with_{prop_name}",
                             [(prop_name, field_type)],
                             [],
-                            class_name,
+                            full_class_name,
                         ),
                     )
 
@@ -208,7 +216,7 @@ class PyiGenerator(ast.NodeVisitor):
                         "with_cache",
                         [],
                         [],
-                        f"Cache[{class_name}]",
+                        f"Cache[{full_class_name}]",
                     ),
                 )
 
@@ -222,7 +230,7 @@ class PyiGenerator(ast.NodeVisitor):
                         "with_cache",
                         [],
                         [],
-                        f"Cache[{class_name}]",
+                        f"Cache[{full_class_name}]",
                     ),
                 )
             if class_name != "Fir":
@@ -235,7 +243,7 @@ class PyiGenerator(ast.NodeVisitor):
                             ("iterable", "Iterable[float]"),
                         ],
                         [],
-                        f"Fir[{class_name}]",
+                        f"Fir[{full_class_name}]",
                     ),
                 )
             if class_name != "RadiationPressure":
@@ -245,7 +253,7 @@ class PyiGenerator(ast.NodeVisitor):
                         "with_radiation_pressure",
                         [],
                         [],
-                        f"RadiationPressure[{class_name}]",
+                        f"RadiationPressure[{full_class_name}]",
                     ),
                 )
 
@@ -262,7 +270,7 @@ class PyiGenerator(ast.NodeVisitor):
                             ("timeout", "timedelta | None"),
                         ],
                         [],
-                        f"DatagramWithTimeout[{class_name}]",
+                        f"DatagramWithTimeout[{full_class_name}]",
                     ),
                 )
             if class_name != "DatagramWithParallelThreshold":
@@ -274,7 +282,7 @@ class PyiGenerator(ast.NodeVisitor):
                             ("threshold", "int | None"),
                         ],
                         [],
-                        f"DatagramWithParallelThreshold[{class_name}]",
+                        f"DatagramWithParallelThreshold[{full_class_name}]",
                     ),
                 )
         if any(d.id == "datagram_with_segment" for d in node.decorator_list if isinstance(d, ast.Name)):
@@ -290,7 +298,7 @@ class PyiGenerator(ast.NodeVisitor):
                         ("transition_mode", "TransitionModeWrap | None"),
                     ],
                     [],
-                    f"DatagramWithSegment[{class_name}]",
+                    f"DatagramWithSegment[{full_class_name}]",
                 ),
             )
 
