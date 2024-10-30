@@ -21,7 +21,6 @@ packages =
     pyautd3.driver.datagram
     pyautd3.driver.datagram.silencer
     pyautd3.driver.datagram.stm
-    pyautd3.driver.datagram.modulation
     pyautd3.driver.geometry
     pyautd3.gain
     pyautd3.gain.holo
