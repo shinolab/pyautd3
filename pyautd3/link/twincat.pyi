@@ -1,8 +1,12 @@
 from typing import Self
-from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.derive import builder
+from pyautd3.driver.link import Link
+from pyautd3.driver.link import LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import HandlePtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr
+from pyautd3.native_methods.autd3capi_driver import LinkPtr
 from pyautd3.native_methods.autd3capi_link_twincat import NativeMethods as LinkTwinCAT
 from pyautd3.native_methods.utils import _validate_ptr
 

@@ -105,6 +105,20 @@ class PyiGenerator(ast.NodeVisitor):
         self.imports = []
         self.should_generate = False
 
+    def visit_Import(self, node):  # noqa: N802
+        for alias in node.names:
+            import_name = f"import {alias.name}"
+            if alias.asname:
+                import_name += f" as {alias.asname}"
+            self.imports.append(import_name)
+
+    def visit_ImportFrom(self, node):  # noqa: N802
+        for alias in node.names:
+            import_name = f"from {node.module} import {alias.name}"
+            if alias.asname:
+                import_name += f" as {alias.asname}"
+            self.imports.append(import_name)
+
     def visit_ClassDef(self, node):  # noqa: N802
         class_name = node.name
         base_classes = [self._get_type_annotation(base) for base in node.bases]
@@ -304,8 +318,6 @@ class PyiGenerator(ast.NodeVisitor):
 
 
 def gen_pyi():
-    re_import = re.compile(r"(\s*)from (.*) import (.*)")
-    re_import_as = re.compile(r"import (.*) as (.*)")
     re_typevar = re.compile(r"(.*) = TypeVar\((.*)\)")
     with working_dir(os.path.dirname(os.path.abspath(__file__))):
         files = set(glob.glob(str(pathlib.Path("pyautd3") / "**" / "*.py"), recursive=True)) - set(
@@ -323,12 +335,6 @@ def gen_pyi():
                 typevars = []
 
                 for line in content.split("\n"):
-                    match = re_import.match(line)
-                    if match and not line.startswith("from pyautd3.derive"):
-                        imports.append(f"from {match.group(2)} import {match.group(3)}")
-                    match = re_import_as.match(line)
-                    if match:
-                        imports.append(match.group(0))
                     match = re_typevar.match(line)
                     if match:
                         typevars.append(match.group(0))

@@ -8,12 +8,11 @@ from pyautd3.derive import builder, datagram, gain
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
+from pyautd3.gain.holo.constraint import EmissionConstraint
+from pyautd3.gain.holo.holo import Holo
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 from pyautd3.native_methods.structs import Vector3
-
-from .constraint import EmissionConstraint
-from .holo import Holo
 
 
 @datagram

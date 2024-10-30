@@ -1,12 +1,19 @@
+from typing import Self
+from typing import TypeVar
+from pyautd3.derive import builder
+from pyautd3.derive import datagram
+from pyautd3.driver.datagram.modulation import Modulation
+from pyautd3.driver.defined.freq import Freq
+from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.modulation.sampling_mode import ISamplingMode
+from pyautd3.modulation.sampling_mode import SamplingModeExact
+from pyautd3.modulation.sampling_mode import SamplingModeExactFloat
+from pyautd3.modulation.sampling_mode import SamplingModeNearest
+from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from datetime import timedelta
 from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
 from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
-from typing import Self, TypeVar
-from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.driver.defined.freq import Freq, Hz
-from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
-from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 T = TypeVar("T", int, float)
 

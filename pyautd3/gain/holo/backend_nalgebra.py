@@ -1,12 +1,11 @@
 from ctypes import Array, c_float
 from typing import Self
 
+from pyautd3.gain.holo.backend import Backend
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintWrap
 from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 from pyautd3.native_methods.structs import Vector3
-
-from .backend import Backend
 
 
 class NalgebraBackend(Backend):

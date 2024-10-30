@@ -4,10 +4,10 @@ from typing import Generic, Self, TypeVar
 import numpy as np
 
 from pyautd3.driver.datagram.gain import Gain
+from pyautd3.gain.holo.backend import Backend
 from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintWrap
 
 from .amplitude import Amplitude
-from .backend import Backend
 
 H = TypeVar("H", bound="Holo")
 

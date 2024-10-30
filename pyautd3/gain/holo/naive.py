@@ -7,12 +7,11 @@ import numpy as np
 from pyautd3.derive import datagram, gain
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
+from pyautd3.gain.holo.backend import Backend
+from pyautd3.gain.holo.constraint import EmissionConstraint
+from pyautd3.gain.holo.holo import HoloWithBackend
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 from pyautd3.native_methods.structs import Vector3
-
-from .backend import Backend
-from .constraint import EmissionConstraint
-from .holo import HoloWithBackend
 
 
 @datagram

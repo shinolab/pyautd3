@@ -1,24 +1,32 @@
-from datetime import timedelta
-from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
-from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
+import ctypes
 from collections.abc import Iterable
 from datetime import timedelta
-from typing import Generic, Self, TypeVar
+from typing import Generic
+from typing import Self
+from typing import TypeVar
 import numpy as np
 from numpy.typing import ArrayLike
 import pyautd3.driver.datagram.stm.control_point as cp
+from pyautd3.derive import datagram
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
-from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_segment import DatagramS
+from pyautd3.driver.datagram.with_segment import IntoDatagramWithSegment
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, FociSTMPtr, Segment, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr
+from pyautd3.native_methods.autd3capi_driver import FociSTMPtr
+from pyautd3.native_methods.autd3capi_driver import Segment
+from pyautd3.native_methods.autd3capi_driver import TransitionModeWrap
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
 from pyautd3.native_methods.utils import _validate_ptr
+from datetime import timedelta
+from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
+from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
 
 C = TypeVar("C", bound=cp.IControlPoints)
 
