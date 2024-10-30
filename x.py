@@ -355,6 +355,8 @@ class PyiGenerator(ast.NodeVisitor):
                 )
                 if method_name == "__new__":
                     lines.append(f"    def {method_name}(cls, {args_str}) -> {return_type}: ...")
+                elif method_name == "__init__" and class_name == "FociSTM":
+                    lines.append(f"    def {method_name}(self: {class_name}, {args_str}) -> {return_type}: ...")
                 else:
                     lines.append(f"    def {method_name}(self: {full_class_name}, {args_str}) -> {return_type}: ...")
             for method_name, args, return_type in staticmethods:
