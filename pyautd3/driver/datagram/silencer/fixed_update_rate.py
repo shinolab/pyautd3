@@ -1,6 +1,6 @@
 from typing import Self
 
-from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.datagram.stm.foci import FociSTM
 from pyautd3.driver.datagram.stm.gain import GainSTM
 from pyautd3.driver.utils import _validate_nonzero_u16
@@ -16,7 +16,7 @@ class FixedUpdateRate:
         self.intensity = _validate_nonzero_u16(intensity)
         self.phase = _validate_nonzero_u16(phase)
 
-    def _is_valid(self: Self, v: ModulationBase | FociSTM | GainSTM, _strict_mode: bool) -> bool:  # noqa: FBT001
+    def _is_valid(self: Self, v: Modulation | FociSTM | GainSTM, _strict_mode: bool) -> bool:  # noqa: FBT001
         return bool(
             Base().datagram_silencer_fixed_update_rate_is_valid(
                 self.intensity,

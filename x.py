@@ -225,6 +225,56 @@ class PyiGenerator(ast.NodeVisitor):
                 ),
             )
 
+        if any(d.id == "modulation" for d in node.decorator_list if isinstance(d, ast.Name)):
+            self.should_generate = True
+
+            if class_name != "Cache":
+                self.imports.append("from pyautd3.modulation.cache import Cache")
+                methods.append(
+                    (
+                        "with_cache",
+                        [],
+                        [],
+                        f"Cache[{class_name}]",
+                    ),
+                )
+            self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
+            self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
+            methods.append(
+                (
+                    "with_segment",
+                    [
+                        ("segment", "Segment"),
+                        ("transition_mode", "TransitionModeWrap | None"),
+                    ],
+                    [],
+                    f"DatagramWithSegment[{class_name}]",
+                ),
+            )
+            if class_name != "Fir":
+                self.imports.append("from pyautd3.modulation.fir import Fir")
+                self.imports.append("from collections.abc import Iterable")
+                methods.append(
+                    (
+                        "with_fir",
+                        [
+                            ("iterable", "Iterable[float]"),
+                        ],
+                        [],
+                        f"Fir[{class_name}]",
+                    ),
+                )
+            if class_name != "RadiationPressure":
+                self.imports.append("from pyautd3.modulation.radiation_pressure import RadiationPressure")
+                methods.append(
+                    (
+                        "with_radiation_pressure",
+                        [],
+                        [],
+                        f"RadiationPressure[{class_name}]",
+                    ),
+                )
+
         if any(d.id == "datagram" for d in node.decorator_list if isinstance(d, ast.Name)):
             self.should_generate = True
 

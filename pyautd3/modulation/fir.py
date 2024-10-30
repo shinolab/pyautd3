@@ -4,22 +4,17 @@ from typing import Generic, Self, TypeVar
 
 import numpy as np
 
-from pyautd3.driver.datagram.modulation.modulation import ModulationBase
-from pyautd3.driver.datagram.modulation.radiation_pressure import IntoModulationRadiationPressure
+from pyautd3.derive import datagram, modulation
+from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
-from .cache import IntoModulationCache
-
-M = TypeVar("M", bound=ModulationBase)
+M = TypeVar("M", bound=Modulation)
 
 
-class Fir(
-    IntoModulationCache["Fir[M]"],
-    IntoModulationRadiationPressure["Fir[M]"],
-    ModulationBase["Fir[M]"],
-    Generic[M],
-):
+@datagram
+@modulation
+class Fir(Modulation, Generic[M]):
     _m: M
     _coef: np.ndarray
 
@@ -35,8 +30,3 @@ class Fir(
             self._coef.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
             len(self._coef),
         )
-
-
-class IntoModulationFir(ModulationBase[M], Generic[M]):
-    def with_fir(self: M, iterable: Iterable[float]) -> Fir[M]:
-        return Fir(self, iterable)

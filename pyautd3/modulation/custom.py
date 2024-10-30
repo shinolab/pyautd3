@@ -5,7 +5,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.derive import datagram
+from pyautd3.derive import datagram, modulation
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -15,14 +15,15 @@ from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 
 @datagram
-class Custom(Modulation["Custom"]):
+@modulation
+class Custom(Modulation):
     _buf: np.ndarray
-    _resampler: tuple[Freq[float], SamplingConfig, Resampler] | None
+    _config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]
 
     def __init__(self: Self, buf: Iterable[int], config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
-        super().__init__(config)
+        super().__init__()
         self._buf = np.fromiter(buf, dtype=np.uint8)
-        self._resampler = None
+        self._config = config
 
     @staticmethod
     def new_with_resample(
@@ -32,13 +33,13 @@ class Custom(Modulation["Custom"]):
         resampler: Resampler,
     ) -> "Custom":
         instance = Custom(buf, SamplingConfig(target))
-        instance._resampler = (source, SamplingConfig(target), resampler)
+        instance._config = (source, SamplingConfig(target), resampler)
         return instance
 
     def _modulation_ptr(self: Self) -> ModulationPtr:
-        match self._resampler:
+        match self._config:
             case (Freq(), SamplingConfig(), Resampler()):
-                (source, target, resampler) = self._resampler  # type: ignore[misc]
+                (source, target, resampler) = self._config
                 return Base().modulation_custom_with_resample(
                     self._loop_behavior,
                     self._buf.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]
@@ -47,7 +48,7 @@ class Custom(Modulation["Custom"]):
                     target._inner,
                     resampler._dyn_resampler(),
                 )
-            case _:
+            case SamplingConfig():
                 return Base().modulation_custom(
                     self._config._inner,
                     self._loop_behavior,

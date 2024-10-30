@@ -1,14 +1,17 @@
 from typing import Generic, Self, TypeVar
 
-from pyautd3.driver.datagram.modulation.base import ModulationBase
+from pyautd3.derive import datagram, modulation
+from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.native_methods.autd3capi import ModulationCachePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
-M = TypeVar("M", bound=ModulationBase)
+M = TypeVar("M", bound=Modulation)
 
 
-class Cache(ModulationBase["Cache[M]"], Generic[M]):
+@datagram
+@modulation
+class Cache(Modulation, Generic[M]):
     _m: M
     _ptr: ModulationCachePtr | None
 
@@ -26,8 +29,3 @@ class Cache(ModulationBase["Cache[M]"], Generic[M]):
     def __del__(self: Self) -> None:
         if self._ptr is not None:
             Base().modulation_cache_free(self._ptr)
-
-
-class IntoModulationCache(ModulationBase[M], Generic[M]):
-    def with_cache(self: M) -> Cache[M]:
-        return Cache(self)
