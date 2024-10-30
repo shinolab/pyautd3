@@ -2,7 +2,7 @@ from datetime import timedelta
 from pathlib import Path
 from typing import Self
 
-from pyautd3.derive import builder
+from pyautd3.derive import builder, datagram
 from pyautd3.driver.datagram.modulation.base import ModulationBase
 from pyautd3.driver.datagram.modulation.cache import IntoModulationCache
 from pyautd3.driver.datagram.modulation.fir import IntoModulationFir
@@ -15,6 +15,7 @@ from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods
 from pyautd3.native_methods.utils import _validate_ptr
 
 
+@datagram
 @builder
 class Csv(
     IntoModulationCache["Csv"],

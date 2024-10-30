@@ -1,8 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from typing import Generic, Self, TypeVar
 
-from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
-from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
+from pyautd3.derive import datagram
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, Segment, TransitionModeWrap
 
@@ -24,12 +23,8 @@ class DatagramS(Generic[P], metaclass=ABCMeta):
         pass
 
 
-class DatagramWithSegment(
-    IntoDatagramWithTimeout["DatagramWithSegment[DS]"],
-    IntoDatagramWithParallelThreshold["DatagramWithSegment[DS]"],
-    Datagram,
-    Generic[DS],
-):
+@datagram
+class DatagramWithSegment(Datagram, Generic[DS]):
     _datagram: DS
     _segment: Segment
     _transition_mode: TransitionModeWrap | None

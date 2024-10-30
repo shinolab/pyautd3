@@ -4,7 +4,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.derive import builder, gain
+from pyautd3.derive import builder, datagram, gain
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
@@ -16,6 +16,7 @@ from .constraint import EmissionConstraint
 from .holo import Holo
 
 
+@datagram
 @gain
 @builder
 class Greedy(Holo["Greedy"]):

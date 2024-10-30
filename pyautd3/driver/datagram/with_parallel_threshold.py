@@ -1,4 +1,3 @@
-from abc import ABCMeta
 from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.geometry import Geometry
@@ -23,8 +22,3 @@ class DatagramWithParallelThreshold(Datagram, Generic[D]):
     def _datagram_ptr(self: Self, g: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._datagram_ptr(g)
         return Base().datagram_with_parallel_threshold(raw_ptr, self._threshold if self._threshold is not None else -1)
-
-
-class IntoDatagramWithParallelThreshold(Generic[D], metaclass=ABCMeta):
-    def with_parallel_threshold(self: D, threshold: int | None) -> DatagramWithParallelThreshold[D]:  # type: ignore[misc]
-        return DatagramWithParallelThreshold(self, threshold)

@@ -2,9 +2,7 @@ from abc import ABCMeta, abstractmethod
 from typing import Generic, Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_parallel_threshold import IntoDatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
-from pyautd3.driver.datagram.with_timeout import IntoDatagramWithTimeout
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
@@ -22,8 +20,6 @@ class ModulationBase(
     IntoDatagramWithSegment[M],
     DatagramS[ModulationPtr],
     Generic[M],
-    IntoDatagramWithTimeout[M],
-    IntoDatagramWithParallelThreshold[M],
     Datagram,
     metaclass=ABCMeta,
 ):

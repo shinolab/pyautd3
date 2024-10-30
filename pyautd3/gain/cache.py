@@ -1,6 +1,6 @@
 from typing import Generic, Self, TypeVar
 
-from pyautd3.derive import gain
+from pyautd3.derive import datagram, gain
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import GainCachePtr
@@ -10,6 +10,7 @@ from pyautd3.native_methods.autd3capi_driver import GainPtr
 G = TypeVar("G", bound=Gain)
 
 
+@datagram
 @gain
 class Cache(Gain, Generic[G]):
     _g: G
