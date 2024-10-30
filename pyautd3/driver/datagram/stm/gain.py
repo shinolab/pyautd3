@@ -6,6 +6,7 @@ from typing import Self
 import numpy as np
 
 from pyautd3.derive import datagram
+from pyautd3.derive.derive_builder import builder
 from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain import Gain
@@ -24,14 +25,15 @@ from pyautd3.native_methods.utils import _validate_ptr
 __all__ = []  # type: ignore[var-annotated]
 
 
+@builder
 @datagram
 @datagram_with_segment
 class GainSTM(DatagramS[GainSTMPtr], Datagram):
     _gains: np.ndarray
-    _mode: GainSTMMode
+    _param_mode: GainSTMMode
 
     _stm_sampling_config: STMSamplingConfig
-    _loop_behavior: _LoopBehavior
+    _param_loop_behavior: _LoopBehavior
 
     def __private_init__(
         self: Self,
@@ -39,10 +41,10 @@ class GainSTM(DatagramS[GainSTMPtr], Datagram):
         gains: list[Gain],
     ) -> None:
         self._gains = np.array(gains)
-        self._mode = GainSTMMode.PhaseIntensityFull
+        self._param_mode = GainSTMMode.PhaseIntensityFull
 
         self._stm_sampling_config = sampling_config
-        self._loop_behavior = LoopBehavior.Infinite
+        self._param_loop_behavior = LoopBehavior.Infinite
 
     def __init__(
         self: Self,
@@ -75,8 +77,8 @@ class GainSTM(DatagramS[GainSTMPtr], Datagram):
                 self._stm_sampling_config._inner,
                 gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
                 len(gains),
-                self._mode,
-                self._loop_behavior,
+                self._param_mode,
+                self._param_loop_behavior,
             ),
         )
 
@@ -89,18 +91,6 @@ class GainSTM(DatagramS[GainSTMPtr], Datagram):
             segment,
             transition_mode if transition_mode is not None else TransitionMode.NONE,
         )
-
-    def with_mode(self: Self, mode: GainSTMMode) -> Self:
-        self._mode = mode
-        return self
-
-    @property
-    def mode(self: Self) -> GainSTMMode:
-        return self._mode
-
-    def with_loop_behavior(self: Self, value: _LoopBehavior) -> Self:
-        self._loop_behavior = value
-        return self
 
     @property
     def freq(self: Self) -> Freq[float]:

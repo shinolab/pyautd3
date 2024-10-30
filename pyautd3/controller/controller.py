@@ -99,7 +99,7 @@ class _GroupGuard(Generic[K]):
         self: Self,
         key: K,
         d: Datagram | tuple[Datagram, Datagram],
-    ) -> Self:
+    ) -> "_GroupGuard[K]":
         if key in self._keymap:
             raise KeyAlreadyExistsError
         match d:
@@ -194,7 +194,7 @@ class Controller(Geometry, Generic[L]):
     def _dispose(self: Self) -> None:
         self.close()
 
-    def __enter__(self: Self) -> Self:
+    def __enter__(self: Self) -> "Controller[L]":
         return self
 
     def __exit__(

@@ -37,7 +37,7 @@ class Silencer(
         self._strict_mode = True
         self._param_target = SilencerTarget.Intensity
 
-    def with_strict_mode(self: Self, mode: bool) -> Self:  # noqa: FBT001
+    def with_strict_mode(self: "Silencer[T]", mode: bool) -> "Silencer[T]":  # noqa: FBT001
         if not isinstance(self._inner, FixedCompletionTime):  # pragma: no cover
             msg = "Strict mode is only available for Silencer[FixedCompletionTime]"  # pragma: no cover
             raise TypeError(msg)  # pragma: no cover
