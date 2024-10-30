@@ -48,7 +48,7 @@ class Custom(Modulation):
                     target._inner,
                     resampler._dyn_resampler(),
                 )
-            case SamplingConfig():
+            case _:
                 return Base().modulation_custom(
                     self._config._inner,
                     self._loop_behavior,
