@@ -3,6 +3,7 @@ from collections.abc import Callable
 from typing import Self
 
 from pyautd3.derive import datagram, gain
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.firmware.fpga import Drive
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
@@ -14,6 +15,7 @@ from pyautd3.native_methods.autd3capi_driver import ConstPtr, GainPtr, GeometryP
 
 
 @gain
+@datagram_with_segment
 @datagram
 class Custom(Gain):
     def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], Drive | EmitIntensity | Phase | tuple]]) -> None:

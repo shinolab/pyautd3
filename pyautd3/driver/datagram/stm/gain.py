@@ -6,10 +6,11 @@ from typing import Self
 import numpy as np
 
 from pyautd3.derive import datagram
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
-from pyautd3.driver.datagram.with_segment import DatagramS, IntoDatagramWithSegment
+from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -24,11 +25,8 @@ __all__ = []  # type: ignore[var-annotated]
 
 
 @datagram
-class GainSTM(
-    IntoDatagramWithSegment,
-    DatagramS[GainSTMPtr],
-    Datagram,
-):
+@datagram_with_segment
+class GainSTM(DatagramS[GainSTMPtr], Datagram):
     _gains: np.ndarray
     _mode: GainSTMMode
 

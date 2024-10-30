@@ -2,6 +2,7 @@ from collections.abc import Iterable
 from typing import Self
 
 from pyautd3.derive import builder, datagram, modulation
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.modulation.sine import Sine
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -9,6 +10,7 @@ from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 @modulation
 @datagram
+@datagram_with_segment
 @builder
 class Fourier(Modulation):
     _components: list[Sine]

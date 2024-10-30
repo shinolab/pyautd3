@@ -1,6 +1,7 @@
 from typing import Self, TypeVar
 
 from pyautd3.derive import builder, datagram, modulation
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import ModulationWithSamplingConfig
 from pyautd3.driver.defined.freq import Freq, Hz
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -12,6 +13,7 @@ T = TypeVar("T", int, float)
 
 @modulation
 @datagram
+@datagram_with_segment
 @builder
 class Square(ModulationWithSamplingConfig):
     _mode: ISamplingMode

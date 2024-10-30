@@ -5,6 +5,7 @@ from typing import Generic, Self, TypeVar
 import numpy as np
 
 from pyautd3.derive import datagram, modulation
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
@@ -13,6 +14,7 @@ M = TypeVar("M", bound=Modulation)
 
 
 @datagram
+@datagram_with_segment
 @modulation
 class Fir(Modulation, Generic[M]):
     _m: M

@@ -4,6 +4,7 @@ from typing import Self
 
 from pyautd3 import SamplingConfig
 from pyautd3.derive import datagram, modulation
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.modulation.resample import Resampler
@@ -14,6 +15,7 @@ from pyautd3.native_methods.utils import _validate_ptr
 
 @modulation
 @datagram
+@datagram_with_segment
 class Wav(Modulation):
     _path: Path
     _resampler: tuple[SamplingConfig, Resampler] | None

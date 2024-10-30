@@ -211,19 +211,6 @@ class PyiGenerator(ast.NodeVisitor):
                         f"Cache[{class_name}]",
                     ),
                 )
-            self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
-            self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
-            methods.append(
-                (
-                    "with_segment",
-                    [
-                        ("segment", "Segment"),
-                        ("transition_mode", "TransitionModeWrap | None"),
-                    ],
-                    [],
-                    f"DatagramWithSegment[{class_name}]",
-                ),
-            )
 
         if any(d.id == "modulation" for d in node.decorator_list if isinstance(d, ast.Name)):
             self.should_generate = True
@@ -238,19 +225,6 @@ class PyiGenerator(ast.NodeVisitor):
                         f"Cache[{class_name}]",
                     ),
                 )
-            self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
-            self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
-            methods.append(
-                (
-                    "with_segment",
-                    [
-                        ("segment", "Segment"),
-                        ("transition_mode", "TransitionModeWrap | None"),
-                    ],
-                    [],
-                    f"DatagramWithSegment[{class_name}]",
-                ),
-            )
             if class_name != "Fir":
                 self.imports.append("from pyautd3.modulation.fir import Fir")
                 self.imports.append("from collections.abc import Iterable")
@@ -299,6 +273,20 @@ class PyiGenerator(ast.NodeVisitor):
                     ],
                     [],
                     f"DatagramWithParallelThreshold[{class_name}]",
+                ),
+            )
+        if any(d.id == "datagram_with_segment" for d in node.decorator_list if isinstance(d, ast.Name)):
+            self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
+            self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
+            methods.append(
+                (
+                    "with_segment",
+                    [
+                        ("segment", "Segment"),
+                        ("transition_mode", "TransitionModeWrap | None"),
+                    ],
+                    [],
+                    f"DatagramWithSegment[{class_name}]",
                 ),
             )
 

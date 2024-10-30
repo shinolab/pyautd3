@@ -1,6 +1,7 @@
 from typing import Self, TypeVar
 
 from pyautd3.derive import builder, datagram, modulation
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import ModulationWithSamplingConfig
 from pyautd3.driver.defined.angle import Angle, rad
 from pyautd3.driver.defined.freq import Freq, Hz
@@ -13,6 +14,7 @@ T = TypeVar("T", int, float)
 
 @modulation
 @datagram
+@datagram_with_segment
 @builder
 class Sine(ModulationWithSamplingConfig):
     _mode: ISamplingMode

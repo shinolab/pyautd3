@@ -4,6 +4,7 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 from pyautd3.derive import builder, datagram, gain
+from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
@@ -14,6 +15,7 @@ from pyautd3.native_methods.structs import Vector3
 
 
 @datagram
+@datagram_with_segment
 @gain
 @builder
 class Focus(Gain):
