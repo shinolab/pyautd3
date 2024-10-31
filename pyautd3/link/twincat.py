@@ -6,7 +6,7 @@ from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_twincat import NativeMethods as LinkTwinCAT
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 
 
 class _TwinCATBuilder(LinkBuilder["TwinCAT"]):
@@ -40,9 +40,9 @@ class _RemoteTwinCATBuilder(LinkBuilder["RemoteTwinCAT"]):
     def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
         return _validate_ptr(  # pragma: no cover
             LinkTwinCAT().link_remote_twin_cat(
-                self._prop_server_ams_net_id.encode("utf-8"),
-                self._param_server_ip.encode("utf-8"),
-                self._param_client_ams_net_id.encode("utf-8"),
+                _to_null_terminated_utf8(self._prop_server_ams_net_id),
+                _to_null_terminated_utf8(self._param_server_ip),
+                _to_null_terminated_utf8(self._param_client_ams_net_id),
             ),
         )
 

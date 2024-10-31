@@ -14,7 +14,7 @@ from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, L
 from pyautd3.native_methods.autd3capi_link_soem import NativeMethods as LinkSOEM
 from pyautd3.native_methods.autd3capi_link_soem import ProcessPriority, ThreadPriorityPtr, TimerStrategy
 from pyautd3.native_methods.autd3capi_link_soem import Status as _Status
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 
 ErrHandlerFunc = ctypes.CFUNCTYPE(None, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint8)  # type: ignore[arg-type]
 
@@ -59,7 +59,7 @@ class _SOEMBuilder(LinkBuilder["SOEM"]):
 
         return _validate_ptr(  # pragma: no cover
             LinkSOEM().link_soem(
-                self._param_ifname.encode("utf-8"),
+                _to_null_terminated_utf8(self._param_ifname),
                 self._param_buf_size,
                 int(self._param_send_cycle.total_seconds() * 1000 * 1000 * 1000),
                 int(self._param_sync0_cycle.total_seconds() * 1000 * 1000 * 1000),

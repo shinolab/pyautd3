@@ -6,6 +6,10 @@ from .autd3capi_driver import AUTDStatus, ResultSamplingConfig, ResultStatus
 from .autd3capi import NativeMethods as Base
 
 
+def _to_null_terminated_utf8(s: str) -> bytes:
+    return s.encode("utf-8") + b"\0"
+
+
 def _validate_status(res: ResultStatus) -> int:
     if int(res.result) == AUTDStatus.AUTDErr:
         err = ctypes.create_string_buffer(int(res.err_len))
@@ -34,10 +38,10 @@ class ConstantADT(type):
     _initialized = False
 
     def __setattr__(cls, name, value):
-        if cls._initialized:                                            # pragma: no cover
-            if name in cls.__dict__:                                    # pragma: no cover
-                raise ValueError(f"Do not assign value to {name}")      # pragma: no cover
-            else:                                                       # pragma: no cover
+        if cls._initialized:  # pragma: no cover
+            if name in cls.__dict__:  # pragma: no cover
+                raise ValueError(f"Do not assign value to {name}")  # pragma: no cover
+            else:  # pragma: no cover
                 raise AttributeError("Do not add new member to {cls}")  # pragma: no cover
         super().__setattr__(name, value)
 

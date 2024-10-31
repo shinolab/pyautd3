@@ -10,7 +10,7 @@ from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 
 
 @datagram
@@ -44,7 +44,7 @@ class Csv(Modulation):
 
     def _modulation_ptr(self: Self) -> ModulationPtr:
         delim = self._param_deliminator.encode("utf-8")
-        path = str(self._path).encode("utf-8")
+        path = _to_null_terminated_utf8(str(self._path))
         match self._config:
             case (Freq(), SamplingConfig(), Resampler()):
                 (source, target, resampler) = self._config
@@ -61,7 +61,7 @@ class Csv(Modulation):
             case _:
                 return _validate_ptr(
                     ModulationAudioFile().modulation_audio_file_csv(
-                        str(self._path).encode("utf-8"),
+                        _to_null_terminated_utf8(str(self._path)),
                         self._config._inner,
                         delim[0],
                         self._loop_behavior,

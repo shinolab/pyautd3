@@ -10,7 +10,7 @@ from pyautd3.driver.defined.freq import Freq
 from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 
 
 @modulation
@@ -36,7 +36,7 @@ class Wav(Modulation):
         return instance
 
     def _modulation_ptr(self: Self) -> ModulationPtr:
-        path = str(self._path).encode("utf-8")
+        path = _to_null_terminated_utf8(str(self._path))
         match self._resampler:
             case (SamplingConfig(), Resampler()):
                 (target, resampler) = self._resampler
