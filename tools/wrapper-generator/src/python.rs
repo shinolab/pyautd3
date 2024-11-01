@@ -231,10 +231,10 @@ impl PythonGenerator {
             self.structs.extend(e.into_iter().filter(|s| {
                 !matches!(
                     s.name.as_str(),
-                    "DynamicDatagram"
-                        | "DynamicOperationGenerator"
-                        | "DynamicDatagramTuple"
-                        | "DynamicOperationGeneratorTuple"
+                    "DynDatagram"
+                        | "DynOperationGenerator"
+                        | "DynDatagramTuple"
+                        | "DOperationGeneratorTuple"
                         | "DynamicLinkBuilder"
                         | "SyncLink"
                         | "SyncLinkBuilder"
@@ -275,8 +275,7 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
         if capi {
             writeln!(
                 w,
-                r"from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
-from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority"
+                r"from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive"
             )?;
         }
 

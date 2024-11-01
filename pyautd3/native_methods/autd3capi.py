@@ -4,7 +4,6 @@ import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
-from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
 from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, ControllerPtr, DatagramPtr, DebugTypeWrap, DevicePtr, DynSincInterpolator, FociSTMPtr, GainPtr, GainSTMPtr, GeometryPtr, HandlePtr, LinkBuilderPtr, LinkPtr, ModulationPtr, ResultFociSTM, ResultGainSTM, ResultModulation, ResultSamplingConfig, ResultStatus, RuntimePtr, SpinStrategyTag, TimerStrategyWrap, TransducerPtr, TransitionModeWrap
 
 
@@ -492,6 +491,12 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDLinkAuditRepair.argtypes = [LinkPtr]  # type: ignore 
         self.dll.AUTDLinkAuditRepair.restype = None
+
+        self.dll.AUTDLinkAuditLastTimeout.argtypes = [LinkPtr]  # type: ignore 
+        self.dll.AUTDLinkAuditLastTimeout.restype = ctypes.c_int64
+
+        self.dll.AUTDLinkAuditLastParallelThreshold.argtypes = [LinkPtr]  # type: ignore 
+        self.dll.AUTDLinkAuditLastParallelThreshold.restype = ctypes.c_int64
 
         self.dll.AUTDLinkAuditCpuNumTransducers.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkAuditCpuNumTransducers.restype = ctypes.c_uint32
@@ -1092,6 +1097,12 @@ class NativeMethods(metaclass=Singleton):
 
     def link_audit_repair(self, audit: LinkPtr) -> None:
         return self.dll.AUTDLinkAuditRepair(audit)
+
+    def link_audit_last_timeout(self, audit: LinkPtr) -> ctypes.c_int64:
+        return self.dll.AUTDLinkAuditLastTimeout(audit)
+
+    def link_audit_last_parallel_threshold(self, audit: LinkPtr) -> ctypes.c_int64:
+        return self.dll.AUTDLinkAuditLastParallelThreshold(audit)
 
     def link_audit_cpu_num_transducers(self, audit: LinkPtr, idx: int) -> ctypes.c_uint32:
         return self.dll.AUTDLinkAuditCpuNumTransducers(audit, idx)

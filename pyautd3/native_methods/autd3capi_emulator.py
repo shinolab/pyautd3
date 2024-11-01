@@ -4,7 +4,6 @@ import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
-from pyautd3.native_methods.autd3_link_soem import TimerStrategy, ProcessPriority
 from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, GeometryPtr, HandlePtr, LinkPtr, ResultStatus
 
 
@@ -69,6 +68,12 @@ class NativeMethods(metaclass=Singleton):
 
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_emulator{bin_ext}'))
+
+        self.dll.AUTDEmulatorTracingInit.argtypes = [] 
+        self.dll.AUTDEmulatorTracingInit.restype = None
+
+        self.dll.AUTDEmulatorTracingInitWithFile.argtypes = [ctypes.c_char_p] 
+        self.dll.AUTDEmulatorTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDEmulator.argtypes = [ControllerBuilderPtr]  # type: ignore 
         self.dll.AUTDEmulator.restype = EmulatorPtr
@@ -150,6 +155,12 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDEmulatorSoundFieldFree.argtypes = [SoundFieldPtr]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldFree.restype = None
+
+    def emulator_tracing_init(self) -> None:
+        return self.dll.AUTDEmulatorTracingInit()
+
+    def emulator_tracing_init_with_file(self, path: bytes) -> ResultStatus:
+        return self.dll.AUTDEmulatorTracingInitWithFile(path)
 
     def emulator(self, builder: ControllerBuilderPtr) -> EmulatorPtr:
         return self.dll.AUTDEmulator(builder)

@@ -1,4 +1,5 @@
 import ctypes
+from datetime import timedelta
 from typing import Self
 
 import numpy as np
@@ -45,6 +46,14 @@ class Audit(Link):
 
     def repair(self: Self) -> None:
         LinkAudit().link_audit_repair(self._ptr)
+
+    def last_timeout(self: Self) -> timedelta | None:
+        ns = int(LinkAudit().link_audit_last_timeout(self._ptr))
+        return timedelta(microseconds=ns / 1000) if ns >= 0 else None
+
+    def last_parallel_threshold(self: Self) -> int | None:
+        threshold = int(LinkAudit().link_audit_last_parallel_threshold(self._ptr))
+        return threshold if threshold >= 0 else None
 
     def silencer_strict_mode(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_cpu_silencer_strict_mode(self._ptr, idx))
