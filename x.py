@@ -596,8 +596,6 @@ def py_test(args):
         copy_dll(config)
 
         command = ["uv", "run", "pytest", "-n", "auto"]
-        if config.is_pcap_available():
-            command.append("--soem")
         subprocess.run(command).check_returncode()
 
 
@@ -610,8 +608,6 @@ def py_cov(args):
         gen_pyi()
 
         command = ["uv", "run", "pytest", "-n", "auto"]
-        if config.is_pcap_available():
-            command.append("--soem")
         command.append("--cov-config=.coveragerc")
         command.append("--cov=pyautd3")
         command.append("--cov-branch")
