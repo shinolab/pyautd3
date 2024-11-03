@@ -15,5 +15,4 @@ omit =
     pyautd3/derive/*.py
     pyautd3/native_methods/autd3capi_link_simulator.py
     pyautd3/native_methods/autd3capi_link_twincat.py
-    pyautd3/native_methods/autd3capi_link_soem.py
     pyautd3/native_methods/__init__.py

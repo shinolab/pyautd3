@@ -210,7 +210,6 @@ impl PythonGenerator {
                     | "AUTDInternalError"
                     | "FirmwareVersionType"
                     | "TypeTag"
-                    | "SOEMError"
             )
         }));
         self
