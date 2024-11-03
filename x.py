@@ -3,419 +3,51 @@
 
 import argparse
 import ast
-import contextlib
-import glob
-import os
 import pathlib
 import platform
 import re
 import shutil
-import subprocess
-import sys
 import tarfile
 import urllib.request
-from typing import Optional
+
+from tools.autd3_build_utils.autd3_build_utils import BaseConfig, err, fetch_submodule, rm_glob_f, rrmdir, run_command, working_dir
+from tools.autd3_build_utils.pyi_generator import PyiGenerator
 
 
-def err(msg: str):
-    print("\033[91mERR \033[0m: " + msg)
-
-
-def rm_f(path):
-    try:
-        os.remove(path)
-    except FileNotFoundError:
-        pass
-
-
-def onexc(func, path, exeption):
-    import stat
-
-    if not os.access(path, os.W_OK):
-        os.chmod(path, stat.S_IWUSR)
-        func(path)
-    else:
-        raise
-
-
-def rmtree_f(path):
-    try:
-        shutil.rmtree(path, onerror=onexc)
-    except FileNotFoundError:
-        pass
-
-
-def glob_norm(path, recursive):
-    return [os.path.normpath(p) for p in glob.glob(path, recursive=recursive)]
-
-
-def rm_glob_f(path, exclude=None, recursive=True):
-    if exclude is not None:
-        for f in list(set(glob_norm(path, recursive=recursive)) - set(glob_norm(exclude, recursive=recursive))):
-            rm_f(f)
-    else:
-        for f in glob.glob(path, recursive=recursive):
-            rm_f(f)
-
-
-def rmtree_glob_f(path, exclude=None, recursive=True):
-    if exclude is not None:
-        for f in list(set(glob_norm(path, recursive=recursive)) - set(glob_norm(exclude, recursive=recursive))):
-            rmtree_f(f)
-    else:
-        for f in glob.glob(path, recursive=recursive):
-            rmtree_f(f)
-
-
-@contextlib.contextmanager
-def working_dir(path):
-    cwd = os.getcwd()
-    os.chdir(path)
-    try:
-        yield
-    finally:
-        os.chdir(cwd)
-
-
-def fetch_submodule():
-    if shutil.which("git") is not None:
-        with working_dir(os.path.dirname(os.path.abspath(__file__))):
-            subprocess.run(["git", "submodule", "update", "--init"]).check_returncode()
-    else:
-        err("git is not installed. Skip fetching submodules.")
-
-
-def generate_wrapper():
-    if shutil.which("cargo") is not None:
-        with working_dir(os.path.dirname(os.path.abspath(__file__))):
-            with working_dir("tools/wrapper-generator"):
-                subprocess.run(
-                    [
-                        "cargo",
-                        "run",
-                    ],
-                ).check_returncode()
-    else:
-        err("cargo is not installed. Skip generating wrapper.")
-
-
-class PyiGenerator(ast.NodeVisitor):
-    def __init__(self):
-        self.class_defs = []
-        self.imports = []
-        self.should_generate = False
-
-    def get_generic_type(self, base: list[str]) -> str | None:
-        r = re.compile(r"Generic\[(.*)\]")
-        for item in base:
-            if match := r.match(item):
-                return match.group(1)
-        return None
-
-    def visit_Import(self, node):  # noqa: N802
-        for alias in node.names:
-            import_name = f"import {alias.name}"
-            if alias.asname:
-                import_name += f" as {alias.asname}"
-            self.imports.append(import_name)
-
-    def visit_ImportFrom(self, node):  # noqa: N802
-        for alias in node.names:
-            import_name = f"from {node.module} import {alias.name}"
-            if alias.asname:
-                import_name += f" as {alias.asname}"
-            self.imports.append(import_name)
-
-    def visit_ClassDef(self, node):  # noqa: N802
-        class_name = node.name
-        base_classes = [self._get_type_annotation(base) for base in node.bases]
-        full_class_name = f"{class_name}[{self.get_generic_type(base_classes)}]" if self.get_generic_type(base_classes) is not None else class_name
-        attributes = []
-        async_methods = []
-        methods = []
-        staticmethods = []
-        classmethods = []
-        properties = []
-
-        for body_item in node.body:
-            match body_item:
-                case ast.AnnAssign(target=ast.Name(id=attr_name), annotation=annotation):
-                    if not attr_name.startswith("_param_") and not attr_name.startswith("_prop_"):
-                        attr_type = self._get_type_annotation(annotation)
-                        attributes.append((attr_name, attr_type))
-                case ast.AsyncFunctionDef(
-                    name=method_name,
-                    args=ast.arguments(args=args, defaults=defaults),
-                    returns=returns,
-                    decorator_list=decorators,
-                ):
-                    return_type = self._get_type_annotation(returns)
-                    args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args[1:]]
-                    defaults = [self._get_value_expr(d) for d in defaults]
-                    async_methods.append((method_name, args, defaults, return_type))
-                case ast.FunctionDef(
-                    name=method_name,
-                    args=ast.arguments(args=args, defaults=defaults),
-                    returns=returns,
-                    decorator_list=decorators,
-                ):
-                    if any(d.id == "property" for d in decorators if isinstance(d, ast.Name)):
-                        return_type = self._get_type_annotation(returns)
-                        properties.append((method_name, return_type))
-                    elif any(d.id == "staticmethod" for d in decorators if isinstance(d, ast.Name)):
-                        return_type = self._get_type_annotation(returns)
-                        args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args]
-                        staticmethods.append((method_name, args, return_type))
-                    elif any(d.id == "classmethod" for d in decorators if isinstance(d, ast.Name)):
-                        return_type = self._get_type_annotation(returns)
-                        args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args[1:]]
-                        classmethods.append((method_name, args, return_type))
-                    else:
-                        return_type = self._get_type_annotation(returns)
-                        args = [(arg.arg, self._get_type_annotation(arg.annotation)) for arg in args[1:]]
-                        defaults = [self._get_value_expr(d) for d in defaults]
-                        methods.append((method_name, args, defaults, return_type))
-
-        if any(d.id == "builder" for d in node.decorator_list if isinstance(d, ast.Name)):
-            self.should_generate = True
-            fields = {}
-            for class_node in node.body:
-                match class_node:
-                    case ast.AnnAssign(target=ast.Name(id=attr_name), annotation=annotation):
-                        fields[class_node.target.id] = self._get_type_annotation(class_node.annotation)
-
-            for field_name, field_type in fields.items():
-                if field_name.startswith("_param_"):
-                    prop_name = field_name[7:]
-                    if field_name.endswith("_u8"):
-                        prop_name = prop_name[:-3]
-                    properties.append((prop_name, field_type))
-                    if field_type == "EmitIntensity":
-                        field_type = "int | EmitIntensity"
-                    elif field_type == "Phase":
-                        field_type = "int | Phase"
-                    methods.append(
-                        (
-                            f"with_{prop_name}",
-                            [(prop_name, field_type)],
-                            [],
-                            full_class_name,
-                        ),
-                    )
-
-                if field_name.startswith("_prop_"):
-                    properties.append((field_name[6:], field_type))
-
-        if any(d.id == "gain" for d in node.decorator_list if isinstance(d, ast.Name)):
-            self.should_generate = True
-
-            if class_name != "Cache":
-                self.imports.append("from pyautd3.gain.cache import Cache")
-                methods.append(
-                    (
-                        "with_cache",
-                        [],
-                        [],
-                        f"Cache[{full_class_name}]",
-                    ),
-                )
-
-        if any(d.id == "modulation" for d in node.decorator_list if isinstance(d, ast.Name)):
-            self.should_generate = True
-
-            if class_name != "Cache":
-                self.imports.append("from pyautd3.modulation.cache import Cache")
-                methods.append(
-                    (
-                        "with_cache",
-                        [],
-                        [],
-                        f"Cache[{full_class_name}]",
-                    ),
-                )
-            if class_name != "Fir":
-                self.imports.append("from pyautd3.modulation.fir import Fir")
-                self.imports.append("from collections.abc import Iterable")
-                methods.append(
-                    (
-                        "with_fir",
-                        [
-                            ("iterable", "Iterable[float]"),
-                        ],
-                        [],
-                        f"Fir[{full_class_name}]",
-                    ),
-                )
-            if class_name != "RadiationPressure":
-                self.imports.append("from pyautd3.modulation.radiation_pressure import RadiationPressure")
-                methods.append(
-                    (
-                        "with_radiation_pressure",
-                        [],
-                        [],
-                        f"RadiationPressure[{full_class_name}]",
-                    ),
-                )
-
-        if any(d.id == "datagram" for d in node.decorator_list if isinstance(d, ast.Name)):
-            self.should_generate = True
-
-            if class_name != "DatagramWithTimeout":
-                self.imports.append("from datetime import timedelta")
-                self.imports.append("from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout")
-                methods.append(
-                    (
-                        "with_timeout",
-                        [
-                            ("timeout", "timedelta | None"),
-                        ],
-                        [],
-                        f"DatagramWithTimeout[{full_class_name}]",
-                    ),
-                )
-            if class_name != "DatagramWithParallelThreshold":
-                self.imports.append("from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold")
-                methods.append(
-                    (
-                        "with_parallel_threshold",
-                        [
-                            ("threshold", "int | None"),
-                        ],
-                        [],
-                        f"DatagramWithParallelThreshold[{full_class_name}]",
-                    ),
-                )
-        if any(d.id == "datagram_with_segment" for d in node.decorator_list if isinstance(d, ast.Name)):
-            self.should_generate = True
-
-            self.imports.append("from pyautd3.native_methods.autd3capi_driver import Segment, TransitionModeWrap")
-            self.imports.append("from pyautd3.driver.datagram.with_segment import DatagramWithSegment")
-            methods.append(
-                (
-                    "with_segment",
-                    [
-                        ("segment", "Segment"),
-                        ("transition_mode", "TransitionModeWrap | None"),
-                    ],
-                    [],
-                    f"DatagramWithSegment[{full_class_name}]",
-                ),
-            )
-
-        self.class_defs.append(
-            (class_name, full_class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties)
-        )
-
-    def _get_value_expr(self, expr):
-        match expr:
-            case ast.Constant(value=value):
-                return value
-            case ast.Name(id=id):
-                return id
-            case _:
-                return "None"
-
-    def _get_type_annotation(self, annotation):
-        match annotation:
-            case ast.Name(id=id):
-                return id
-            case ast.Constant(value=value):
-                return str(value)
-            case ast.Subscript(value=value, slice=sl):
-                return f"{self._get_type_annotation(value)}[{self._get_type_annotation(sl)}]"
-            case ast.Tuple(elts=elts):
-                return f"{', '.join([self._get_type_annotation(elt) for elt in elts])}"
-            case ast.List(elts=elts):
-                return f"[{', '.join([self._get_type_annotation(elt) for elt in elts])}]"
-            case ast.BinOp(left=left, op=ast.BitOr(), right=right):
-                return f"{self._get_type_annotation(left)} | {self._get_type_annotation(right)}"
-            case ast.Attribute(value=value, attr=attr):
-                return f"{self._get_type_annotation(value)}.{attr}"
-            case None:
-                return "None"
-            case _:
-                return ""
-
-    def generate_pyi(self):
-        lines = []
-        for class_name, full_class_name, base_classes, attributes, async_methods, methods, staticmethods, classmethods, properties in self.class_defs:
-            lines.append(f"class {class_name}({', '.join(base_classes)}):")
-            for attr_name, attr_type in attributes:
-                lines.append(f"    {attr_name}: {attr_type}")
-            for method_name, args, defaults, return_type in async_methods:
-                defaults = ["None"] * (len(args) - len(defaults)) + defaults
-                args_str = ", ".join(
-                    [f"{name}: {ty}" + (f" = {default}" if default != "None" else "") for (name, ty), default in zip(args, defaults, strict=True)],
-                )
-                lines.append(f"    async def {method_name}(self: {full_class_name}, {args_str}) -> {return_type}: ...")
-            for method_name, args, defaults, return_type in methods:
-                defaults = ["None"] * (len(args) - len(defaults)) + defaults
-                args_str = ", ".join(
-                    [f"{name}: {ty}" + (f" = {default}" if default != "None" else "") for (name, ty), default in zip(args, defaults, strict=True)],
-                )
-                if method_name == "__new__":
-                    lines.append(f"    def {method_name}(cls, {args_str}) -> {return_type}: ...")
-                elif method_name == "__init__" and class_name == "FociSTM":
-                    lines.append(f"    def {method_name}(self: {class_name}, {args_str}) -> {return_type}: ...")
-                else:
-                    lines.append(f"    def {method_name}(self: {full_class_name}, {args_str}) -> {return_type}: ...")
-            for method_name, args, return_type in staticmethods:
-                args_str = ", ".join([f"{name}: {ty}" for name, ty in args])
-                lines.append("    @staticmethod")
-                lines.append(f"    def {method_name}({args_str}) -> {return_type}: ...")
-            for method_name, args, return_type in classmethods:
-                args_str = ", ".join([f"{name}: {ty}" for name, ty in args])
-                lines.append("    @classmethod")
-                lines.append(f"    def {method_name}(cls, {args_str}) -> {return_type}: ...")
-            for prop_name, prop_type in properties:
-                lines.append("    @property")
-                lines.append(f"    def {prop_name}(self: {full_class_name}) -> {prop_type}: ...")
-            lines.append("")
-        return "\n".join(lines)
-
-
-def gen_pyi():
+def gen_pyi() -> None:
     re_typevar = re.compile(r"(.*) = TypeVar\((.*)\)")
-    with working_dir(os.path.dirname(os.path.abspath(__file__))):
-        files = set(glob.glob(str(pathlib.Path("pyautd3") / "**" / "*.py"), recursive=True)) - set(
-            glob.glob(str(pathlib.Path("pyautd3") / "derive" / "*.py"), recursive=True),
-        )
-        for file in files:
-            with open(file, "r", encoding="utf8") as f:
-                content = f.read()
-                tree = ast.parse(content, type_comments=True)
-                generator = PyiGenerator()
-                generator.visit(tree)
+    files = set(pathlib.Path("pyautd3").rglob("*.py")) - set(pathlib.Path("pyautd3/derive").rglob("*.py"))
+    for file in files:
+        with file.open(encoding="utf8") as f:
+            content = f.read()
+            tree = ast.parse(content, type_comments=True)
+            generator = PyiGenerator()
+            generator.visit(tree)
 
-            if generator.should_generate:
-                imports = generator.imports
-                typevars = []
+        if generator.should_generate:
+            imports = generator.imports
+            typevars = []
 
-                for line in content.split("\n"):
-                    match = re_typevar.match(line)
-                    if match:
-                        typevars.append(match.group(0))
+            for line in content.split("\n"):
+                match = re_typevar.match(line)
+                if match:
+                    typevars.append(match.group(0))
 
-                pyi_code = generator.generate_pyi()
-                with open(file.replace(".py", ".pyi"), "w", encoding="utf8") as f:
-                    f.write("\n".join(imports))
-                    f.write("\n\n")
-                    f.write("\n".join(typevars))
-                    f.write("\n\n")
-                    f.write(pyi_code)
+            pyi_code = generator.generate_pyi()
+            with file.with_suffix(".pyi").open("w", encoding="utf8") as f:
+                f.write("\n".join(imports))
+                f.write("\n\n")
+                f.write("\n".join(typevars))
+                f.write("\n\n")
+                f.write(pyi_code)
 
 
-class Config:
-    _platform: str
+class Config(BaseConfig):
     release: bool
-    target: Optional[str]
+    target: str | None
 
-    def __init__(self, args):
-        self._platform = platform.system()
-
-        if not self.is_windows() and not self.is_macos() and not self.is_linux():
-            err(f'platform "{platform.system()}" is not supported.')
-            sys.exit(-1)
+    def __init__(self, args) -> None:  # noqa: ANN001
+        super().__init__()
 
         self.release = hasattr(args, "release") and args.release
 
@@ -431,85 +63,59 @@ class Config:
         else:
             err(f"Unsupported platform: {machine}")
 
-    def is_windows(self):
-        return self._platform == "Windows"
 
-    def is_macos(self):
-        return self._platform == "Darwin"
+def build_wheel(config: Config) -> None:
+    cfg_template_file = pathlib.Path("setup.cfg.template")
+    cfg_file = pathlib.Path("setup.cfg")
 
-    def is_linux(self):
-        return self._platform == "Linux"
-
-    def is_pcap_available(self):
-        if not self.is_windows():
-            return True
-        wpcap_exists = os.path.isfile("C:\\Windows\\System32\\wpcap.dll") and os.path.isfile("C:\\Windows\\System32\\Npcap\\wpcap.dll")
-        packet_exists = os.path.isfile("C:\\Windows\\System32\\Packet.dll") and os.path.isfile("C:\\Windows\\System32\\Npcap\\Packet.dll")
-
-        return wpcap_exists and packet_exists
-
-
-def build_wheel(config: Config):
-    with working_dir("."):
-        if config.is_windows():
-            with open("setup.cfg.template", "r") as setup:
-                content = setup.read()
-                match config.arch:
-                    case "x64":
-                        plat_name = "win-amd64"
-                    case "aarch64":
-                        plat_name = "win-arm64"
-                    case _:
-                        err(f"Unsupported architecture: {config.arch}")
-                content = content.replace(r"${plat_name}", plat_name)
-                with open("setup.cfg", "w") as f:
-                    f.write(content)
-            subprocess.run(["uv", "build"]).check_returncode()
-        elif config.is_macos():
-            with open("setup.cfg.template", "r") as setup:
-                content = setup.read()
-                content = content.replace(r"${plat_name}", "macosx-11-0-arm64")
-                with open("setup.cfg", "w") as f:
-                    f.write(content)
-            subprocess.run(["uv", "build"]).check_returncode()
-        elif config.is_linux():
-            with open("setup.cfg.template", "r") as setup:
-                content = setup.read()
-                match config.arch:
-                    case "x64":
-                        plat_name = "manylinux1_x86_64"
-                    case "aarch64":
-                        plat_name = "manylinux2014_aarch64"
-                    case "armv7l":
-                        plat_name = "linux_armv7l"
-                content = content.replace(r"${plat_name}", plat_name)
-                with open("setup.cfg", "w") as f:
-                    f.write(content)
-            subprocess.run(["uv", "build"]).check_returncode()
+    plat_name: str
+    if config.is_windows():
+        match config.arch:
+            case "x64":
+                plat_name = "win-amd64"
+            case "aarch64":
+                plat_name = "win-arm64"
+            case _:
+                err(f"Unsupported architecture: {config.arch}")
+    elif config.is_macos():
+        plat_name = "macosx-11-0-arm64"
+    elif config.is_linux():
+        match config.arch:
+            case "x64":
+                plat_name = "manylinux1_x86_64"
+            case "aarch64":
+                plat_name = "manylinux2014_aarch64"
+            case "armv7l":
+                plat_name = "linux_armv7l"
+    with cfg_template_file.open() as setup:
+        content = setup.read()
+        content = content.replace(r"${plat_name}", plat_name)
+        with cfg_file.open("w") as f:
+            f.write(content)
+    run_command(["uv", "build"])
 
 
 def should_update_dll(config: Config, version: str) -> bool:
     if config.is_windows():
-        if not os.path.isfile("pyautd3/bin/autd3capi.dll"):
+        if not pathlib.Path("pyautd3/bin/autd3capi.dll").exists():
             return True
     elif config.is_macos():
-        if not os.path.isfile("pyautd3/bin/libautd3capi.dylib"):
+        if not pathlib.Path("pyautd3/bin/libautd3capi.dylib").exists():
             return True
-    elif config.is_linux():
-        if not os.path.isfile("pyautd3/bin/libautd3capi.so"):
-            return True
-
-    if not os.path.isfile("VERSION"):
+    elif config.is_linux() and not pathlib.Path("pyautd3/bin/libautd3capi.so").exists():
         return True
 
-    with open("VERSION", "r") as f:
+    if not pathlib.Path("VERSION").exists():
+        return True
+
+    with pathlib.Path("VERSION").open() as f:
         old_version = f.read().strip()
 
     return old_version != version
 
 
-def copy_dll(config: Config):
-    with open("pyautd3/__init__.py", "r") as f:
+def copy_dll(config: Config) -> None:  # noqa: PLR0912
+    with pathlib.Path("pyautd3/__init__.py").open() as f:
         content = f.read()
         version = re.search(r'__version__ = "(.*)"', content).group(1).split(".")
         if "rc" in version[2] or "alpha" in version[2] or "beta" in version[2]:
@@ -524,7 +130,7 @@ def copy_dll(config: Config):
     if not should_update_dll(config, version):
         return
 
-    os.makedirs("pyautd3/bin", exist_ok=True)
+    pathlib.Path("pyautd3/bin").mkdir(exist_ok=True)
     if config.is_windows():
         match config.arch:
             case "x64":
@@ -535,16 +141,16 @@ def copy_dll(config: Config):
                 err(f"Unsupported platform: {platform.machine()}")
         urllib.request.urlretrieve(url, "tmp.zip")
         shutil.unpack_archive("tmp.zip", ".")
-        rm_f("tmp.zip")
-        for dll in glob.glob("bin/*.dll"):
+        pathlib.Path("tmp.zip").unlink(missing_ok=True)
+        for dll in pathlib.Path("bin").rglob("*.dll"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_macos():
         url = f"https://github.com/shinolab/autd3-capi/releases/download/v{version}/autd3-v{version}-macos-aarch64-shared.tar.gz"
         urllib.request.urlretrieve(url, "tmp.tar.gz")
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
             tar.extractall()
-        rm_f("tmp.tar.gz")
-        for dll in glob.glob("bin/*.dylib"):
+        pathlib.Path("tmp.tar.gz").unlink(missing_ok=True)
+        for dll in pathlib.Path("bin").rglob("*.dylib"):
             shutil.copy(dll, "pyautd3/bin")
     elif config.is_linux():
         match config.arch:
@@ -557,20 +163,20 @@ def copy_dll(config: Config):
         urllib.request.urlretrieve(url, "tmp.tar.gz")
         with tarfile.open("tmp.tar.gz", "r:gz") as tar:
             tar.extractall()
-        rm_f("tmp.tar.gz")
-        for dll in glob.glob("bin/*.so"):
+        pathlib.Path("tmp.tar.gz").unlink(missing_ok=True)
+        for dll in pathlib.Path("bin").rglob("*.so"):
             shutil.copy(dll, "pyautd3/bin")
 
     shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
     shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
 
-    rmtree_f("bin")
+    rrmdir(pathlib.Path("bin"))
 
-    with open("VERSION", mode="w") as f:
+    with pathlib.Path("VERSION").open(mode="w") as f:
         f.write(version)
 
 
-def py_build(args):
+def py_build(args) -> None:  # noqa: ANN001
     config = Config(args)
 
     gen_pyi()
@@ -580,26 +186,26 @@ def py_build(args):
     build_wheel(config)
 
 
-def py_test(args):
+def py_test(args) -> None:  # noqa: ANN001
     config = Config(args)
 
     with working_dir("."):
         gen_pyi()
 
-        subprocess.run(["uv", "run", "mypy", "pyautd3", "--check-untyped-defs"]).check_returncode()
-        subprocess.run(["uv", "run", "ruff", "check", "pyautd3"]).check_returncode()
-        subprocess.run(["uv", "run", "mypy", "example", "--check-untyped-defs"]).check_returncode()
-        subprocess.run(["uv", "run", "ruff", "check", "example"]).check_returncode()
-        subprocess.run(["uv", "run", "mypy", "tests", "--check-untyped-defs"]).check_returncode()
-        subprocess.run(["uv", "run", "ruff", "check", "tests"]).check_returncode()
+        run_command(["uv", "run", "mypy", "pyautd3", "--check-untyped-defs"])
+        run_command(["uv", "run", "ruff", "check", "pyautd3"])
+        run_command(["uv", "run", "mypy", "example", "--check-untyped-defs"])
+        run_command(["uv", "run", "ruff", "check", "example"])
+        run_command(["uv", "run", "mypy", "tests", "--check-untyped-defs"])
+        run_command(["uv", "run", "ruff", "check", "tests"])
 
         copy_dll(config)
 
         command = ["uv", "run", "pytest", "-n", "auto"]
-        subprocess.run(command).check_returncode()
+        run_command(command)
 
 
-def py_cov(args):
+def py_cov(args) -> None:  # noqa: ANN001
     config = Config(args)
 
     copy_dll(config)
@@ -612,28 +218,25 @@ def py_cov(args):
         command.append("--cov=pyautd3")
         command.append("--cov-branch")
         command.append(f"--cov-report={args.cov_report}")
-        subprocess.run(command).check_returncode()
+        run_command(command)
 
 
-def py_clear(_):
-    with working_dir("."):
-        rm_glob_f("*.png")
-        rm_f("setup.cfg")
-        rm_f(".coverage")
-        rm_f("coverage.xml")
-        rm_f("ThirdPartyNotice.txt")
-        rm_f("VERSION")
-        rmtree_f("dist")
-        rmtree_f("build")
-        rmtree_f("pyautd3.egg-info")
-        rmtree_f("pyautd3/bin")
-        rmtree_f(".mypy_cache")
-        rmtree_f("htmlcov")
-        rmtree_glob_f("./**/__pycache__/**/")
-        rmtree_f("tools/wrapper-generator/target")
+def py_clear(_) -> None:  # noqa: ANN001
+    pathlib.Path("setup.cfg").unlink(missing_ok=True)
+    pathlib.Path(".coverage").unlink(missing_ok=True)
+    pathlib.Path("coverage.xml").unlink(missing_ok=True)
+    pathlib.Path("ThirdPartyNotice.txt").unlink(missing_ok=True)
+    pathlib.Path("VERSION").unlink(missing_ok=True)
+    rrmdir(pathlib.Path("dist"))
+    rrmdir(pathlib.Path("build"))
+    rrmdir(pathlib.Path("pyautd3.egg-info"))
+    rrmdir(pathlib.Path("pyautd3/bin"))
+    rrmdir(pathlib.Path(".mypy_cache"))
+    rrmdir(pathlib.Path("htmlcov"))
+    rm_glob_f("./**/__pycache__/**/")
 
 
-def util_update_ver(args):
+def util_update_ver(args) -> None:  # noqa: ANN001
     version: str = args.version
 
     tokens = version.split(".")
@@ -650,7 +253,7 @@ def util_update_ver(args):
         pkg_version = version
 
     with working_dir("."):
-        with open("pyautd3/__init__.py", "r") as f:
+        with pathlib.Path("pyautd3/__init__.py").open() as f:
             content = f.read()
             content = re.sub(
                 r'__version__ = "(.*)"',
@@ -658,33 +261,43 @@ def util_update_ver(args):
                 content,
                 flags=re.MULTILINE,
             )
-        with open("pyautd3/__init__.py", "w") as f:
+        with pathlib.Path("pyautd3/__init__.py").open("w") as f:
             f.write(content)
 
-        with open("setup.cfg.template", "r") as f:
+        with pathlib.Path("setup.cfg.template").open() as f:
             content = f.read()
             content = re.sub(r"version = (.*)", f"version = {pkg_version}", content, flags=re.MULTILINE)
-        with open("setup.cfg.template", "w") as f:
+        with pathlib.Path("setup.cfg.template").open("w") as f:
             f.write(content)
 
-        with open("pyproject.toml", "r") as f:
+        with pathlib.Path("pyproject.toml").open() as f:
             content = f.read()
             content = re.sub(r"^version = (.*)", f'version = "{pkg_version}"', content, flags=re.MULTILINE)
-        with open("pyproject.toml", "w") as f:
+        with pathlib.Path("pyproject.toml").open("w") as f:
             f.write(content)
 
 
-def util_generate_wrapper(_):
-    fetch_submodule()
-    generate_wrapper()
+def util_generate_wrapper(_) -> None:  # noqa: ANN001
+    if shutil.which("cargo") is not None:
+        with working_dir("tools/wrapper-generator"):
+            run_command(
+                [
+                    "cargo",
+                    "run",
+                ],
+            )
+    else:
+        err("cargo is not installed. Skip generating wrapper.")
 
 
-def command_help(args):
-    print(parser.parse_args([args.command, "--help"]))
+def command_help(args) -> None:  # noqa: ANN001
+    print(parser.parse_args([args.command, "--help"]))  # noqa: T201
 
 
 if __name__ == "__main__":
-    with working_dir(os.path.dirname(os.path.abspath(__file__))):
+    fetch_submodule()
+
+    with working_dir(pathlib.Path(__file__).parent):
         parser = argparse.ArgumentParser(description="pyautd3 build script")
         subparsers = parser.add_subparsers()
 
