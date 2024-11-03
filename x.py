@@ -3,8 +3,6 @@
 
 import argparse
 import ast
-import glob
-import os
 import pathlib
 import platform
 import re
@@ -172,7 +170,7 @@ def copy_dll(config: Config) -> None:  # noqa: PLR0912
     shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
     shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
 
-    rrmdir("bin")
+    rrmdir(pathlib.Path("bin"))
 
     with pathlib.Path("VERSION").open(mode="w") as f:
         f.write(version)
@@ -224,17 +222,17 @@ def py_cov(args) -> None:  # noqa: ANN001
 
 
 def py_clear(_) -> None:  # noqa: ANN001
-    pathlib.Path("setup.cfg").unlink()
-    pathlib.Path(".coverage").unlink()
-    pathlib.Path("coverage.xml").unlink()
-    pathlib.Path("ThirdPartyNotice.txt").unlink()
-    pathlib.Path("VERSION").unlink()
-    rrmdir("dist")
-    rrmdir("build")
-    rrmdir("pyautd3.egg-info")
-    rrmdir("pyautd3/bin")
-    rrmdir(".mypy_cache")
-    rrmdir("htmlcov")
+    pathlib.Path("setup.cfg").unlink(missing_ok=True)
+    pathlib.Path(".coverage").unlink(missing_ok=True)
+    pathlib.Path("coverage.xml").unlink(missing_ok=True)
+    pathlib.Path("ThirdPartyNotice.txt").unlink(missing_ok=True)
+    pathlib.Path("VERSION").unlink(missing_ok=True)
+    rrmdir(pathlib.Path("dist"))
+    rrmdir(pathlib.Path("build"))
+    rrmdir(pathlib.Path("pyautd3.egg-info"))
+    rrmdir(pathlib.Path("pyautd3/bin"))
+    rrmdir(pathlib.Path(".mypy_cache"))
+    rrmdir(pathlib.Path("htmlcov"))
     rm_glob_f("./**/__pycache__/**/")
 
 
