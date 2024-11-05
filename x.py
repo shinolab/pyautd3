@@ -10,7 +10,7 @@ import shutil
 import tarfile
 import urllib.request
 
-from tools.autd3_build_utils.autd3_build_utils import BaseConfig, err, fetch_submodule, rm_glob_f, rrmdir, run_command, working_dir
+from tools.autd3_build_utils.autd3_build_utils import BaseConfig, err, fetch_submodule, remove, rremove, run_command, working_dir
 from tools.autd3_build_utils.pyi_generator import PyiGenerator
 
 
@@ -170,7 +170,7 @@ def copy_dll(config: Config) -> None:  # noqa: PLR0912
     shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
     shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
 
-    rrmdir(pathlib.Path("bin"))
+    remove("bin")
 
     with pathlib.Path("VERSION").open(mode="w") as f:
         f.write(version)
@@ -222,18 +222,18 @@ def py_cov(args) -> None:  # noqa: ANN001
 
 
 def py_clear(_) -> None:  # noqa: ANN001
-    pathlib.Path("setup.cfg").unlink(missing_ok=True)
-    pathlib.Path(".coverage").unlink(missing_ok=True)
-    pathlib.Path("coverage.xml").unlink(missing_ok=True)
-    pathlib.Path("ThirdPartyNotice.txt").unlink(missing_ok=True)
-    pathlib.Path("VERSION").unlink(missing_ok=True)
-    rrmdir(pathlib.Path("dist"))
-    rrmdir(pathlib.Path("build"))
-    rrmdir(pathlib.Path("pyautd3.egg-info"))
-    rrmdir(pathlib.Path("pyautd3/bin"))
-    rrmdir(pathlib.Path(".mypy_cache"))
-    rrmdir(pathlib.Path("htmlcov"))
-    rm_glob_f("./**/__pycache__/**/")
+    remove("setup.cfg")
+    remove(".coverage")
+    remove("coverage.xml")
+    remove("ThirdPartyNotice.txt")
+    remove("VERSION")
+    remove("dist")
+    remove("build")
+    remove("pyautd3.eg-info")
+    remove("pyautd3/bi")
+    remove(".mypy_cache")
+    remove("htmlcov")
+    rremove("./**/__pycache__/**/")
 
 
 def util_update_ver(args) -> None:  # noqa: ANN001
