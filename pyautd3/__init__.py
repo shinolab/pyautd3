@@ -62,8 +62,8 @@ def tracing_init() -> None:
         TwinCAT().link_twin_cat_tracing_init()
     with contextlib.suppress(BaseException):
         AudioFile().modulation_audio_file_tracing_init()
-    for func in _ext_tracing_init:
-        func()
+    for func in _ext_tracing_init:  # pragma: no cover
+        func()  # pragma: no cover
 
 
 __all__ = [
