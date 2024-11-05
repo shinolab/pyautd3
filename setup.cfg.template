@@ -4,4 +4,4 @@ license_files =
     ThirdPartyNotice.txt
 
 [bdist_wheel]
-plat_name = ${plat_name}
+plat_name = PLATNAME

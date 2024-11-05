@@ -1,4 +1,5 @@
 import contextlib
+from collections.abc import Callable
 
 from .controller import Controller
 from .driver.autd3_device import AUTD3
@@ -48,6 +49,8 @@ from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
 from .native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 
+_ext_tracing_init: list[Callable[[], None]] = []
+
 
 def tracing_init() -> None:
     Base().tracing_init()
@@ -59,6 +62,8 @@ def tracing_init() -> None:
         TwinCAT().link_twin_cat_tracing_init()
     with contextlib.suppress(BaseException):
         AudioFile().modulation_audio_file_tracing_init()
+    for func in _ext_tracing_init:  # pragma: no cover
+        func()  # pragma: no cover
 
 
 __all__ = [
@@ -122,4 +127,4 @@ __all__ = [
     "SilencerTarget",
 ]
 
-__version__ = "29.0.0rc5"
+__version__ = "29.0.0rc5.post1"
