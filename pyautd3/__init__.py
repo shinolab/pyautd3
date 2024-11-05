@@ -49,7 +49,7 @@ from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
 from .native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
 
-_ext_tracing_init: list[Callable[[None], None]] = []
+_ext_tracing_init: list[Callable[[], None]] = []
 
 
 def tracing_init() -> None:
