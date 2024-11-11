@@ -41,10 +41,7 @@ def plot_focus() -> None:
         print("Calculating sound field around focus...")
         df = sound_field.next(Duration.from_micros(25))
 
-        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
-        p = df.get_columns()[3:]
-        times = times[0]
-        p = p[0]
+        rms = df.get_columns()[3]
 
         x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
 
@@ -53,7 +50,6 @@ def plot_focus() -> None:
         spec = fig.add_gridspec(ncols=2, nrows=1, width_ratios=[10, 1])
         ax = fig.add_subplot(spec[0], projection="3d")
         cax = fig.add_subplot(spec[1])
-        rms = df.select(pl.exclude(r"^.\[mm\]$")).select(pl.all().pow(2)).mean_horizontal().sqrt()
         ax.plot_surface(  # type: ignore[attr-defined]
             x,
             y,
