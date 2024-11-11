@@ -56,13 +56,37 @@ impl PythonGenerator {
             Type::VoidPtr => "ctypes.c_void_p".to_string(),
             Type::Custom(ref s) => match s.as_str() {
                 "* mut c_char" => "ctypes.c_char_p".to_string(),
-                "[u8 ; 2]" => "ctypes.c_uint8 * 2".to_string(),
                 "DynWindow" => "ctypes.c_uint32".to_string(),
                 "Phase" => "ctypes.c_uint8".to_string(),
                 "EmitIntensity" => "ctypes.c_uint8".to_string(),
                 "AUTDStatus" => "ctypes.c_uint8".to_string(),
                 "SyncLinkBuilderPtr" => "LinkBuilderPtr".to_string(),
                 s if s.ends_with("Tag") => "ctypes.c_uint8".to_string(),
+                s => s.to_owned(),
+            },
+        }
+    }
+
+    fn to_union_ty(ty: &Type) -> String {
+        match ty {
+            Type::Int8 => "ctypes.c_int8".to_string(),
+            Type::Int16 => "ctypes.c_int16".to_string(),
+            Type::Int32 => "ctypes.c_int32".to_string(),
+            Type::Int64 => "ctypes.c_int64".to_string(),
+            Type::UInt8 => "ctypes.c_uint8".to_string(),
+            Type::UInt16 => "ctypes.c_uint16".to_string(),
+            Type::UInt32 => "ctypes.c_uint32".to_string(),
+            Type::UInt64 => "ctypes.c_uint64".to_string(),
+            Type::Void => "None".to_string(),
+            Type::Char => "ctypes.c_char".to_string(),
+            Type::Float32 => "ctypes.c_float".to_string(),
+            Type::Float64 => "ctypes.c_float".to_string(),
+            Type::Bool => "ctypes.c_bool".to_string(),
+            Type::VoidPtr => "ctypes.c_void_p".to_string(),
+            Type::Custom(ref s) => match s.as_str() {
+                "DcSysTime" => "ctypes.c_uint64".to_string(),
+                "GPIOIn" => "ctypes.c_uint8".to_string(),
+                "[u8 ; 2]" => "ctypes.c_uint8 * 2".to_string(),
                 s => s.to_owned(),
             },
         }
@@ -241,7 +265,10 @@ impl PythonGenerator {
             }));
         } else {
             self.structs.extend(e.into_iter().filter(|s| {
-                matches!(s.name.as_str(), "Drive" | "SamplingConfig" | "LoopBehavior")
+                matches!(
+                    s.name.as_str(),
+                    "Drive" | "SamplingConfig" | "LoopBehavior" | "DcSysTime"
+                )
             }));
         }
         self
@@ -274,7 +301,7 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
         if capi {
             writeln!(
                 w,
-                r"from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive"
+                r"from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime"
             )?;
         }
 
@@ -329,6 +356,8 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
             "FociSTMPtr",
             "GainSTMPtr",
             "ControllerBuilderPtr",
+            "Duration",
+            "OptionDuration",
         ];
         let holo_ty = vec!["ResultBackend", "BackendPtr", "EmissionConstraintWrap"];
         if used_ty
@@ -439,7 +468,7 @@ class {}(ctypes.Union):",
 ",
                     u.values
                         .iter()
-                        .map(|(name, ty)| format!("(\"{}\", {})", name, Self::to_return_ty(ty)))
+                        .map(|(name, ty)| format!("(\"{}\", {})", name, Self::to_union_ty(ty)))
                         .join(", ")
                 )
             })

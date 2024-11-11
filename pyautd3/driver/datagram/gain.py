@@ -29,7 +29,7 @@ class Gain(
         return Base().gain_into_datagram_with_segment(
             ptr,
             segment,
-            transition_mode if transition_mode is not None else TransitionMode.NONE,
+            transition_mode or TransitionMode.NONE,
         )
 
     @abstractmethod

@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-from datetime import timedelta
 from typing import Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
@@ -12,6 +11,7 @@ from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, ModulationPtr, Segment, TransitionModeWrap
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
+from pyautd3.utils import Duration
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -44,7 +44,7 @@ class Modulation(
         return Base().modulation_into_datagram_with_segment(
             ptr,
             segment,
-            transition_mode if transition_mode is not None else TransitionMode.NONE,
+            transition_mode or TransitionMode.NONE,
         )
 
     @abstractmethod
@@ -73,10 +73,10 @@ class Modulation(
 class ModulationWithSamplingConfig(Modulation, metaclass=ABCMeta):
     _config: SamplingConfig
 
-    def __init__(self: Self, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> None:
         super().__init__()
         self._config = SamplingConfig(config)
 
-    def with_sampling_config(self: Self, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> Self:
+    def with_sampling_config(self: Self, config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> Self:
         self._config = SamplingConfig(config)
         return self

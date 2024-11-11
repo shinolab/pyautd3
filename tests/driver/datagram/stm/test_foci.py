@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -16,6 +15,7 @@ from pyautd3.driver.datagram.stm.control_point import (
     ControlPoints8,
 )
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
+from pyautd3.utils import Duration
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -35,7 +35,7 @@ def test_foci_stm():
             (center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
         ).with_loop_behavior(LoopBehavior.Once)
         assert stm.freq == 1.0 * Hz
-        assert stm.period == timedelta(seconds=1.0)
+        assert stm.period == Duration.from_secs(1)
         assert stm.sampling_config == SamplingConfig(20000)
         autd.send(stm)
         for dev in autd.geometry:
@@ -54,7 +54,7 @@ def test_foci_stm():
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = FociSTM(timedelta(seconds=1.0), [center, center])
+        stm = FociSTM(Duration.from_secs(1), [center, center])
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -63,7 +63,7 @@ def test_foci_stm():
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = FociSTM.nearest(timedelta(seconds=1.0), [center, center])
+        stm = FociSTM.nearest(Duration.from_secs(1), [center, center])
         autd.send(stm)
         for dev in autd.geometry:
             assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -149,7 +149,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
                 assert np.all(intensities == i)
 
         stm = FociSTM(
-            timedelta(seconds=1.0),
+            Duration.from_secs(1),
             control_points,
         )
         autd.send(stm)
@@ -159,7 +159,7 @@ def foci_stm_n(control_points):  # noqa: ANN001
                 assert np.all(intensities == i)
 
         stm = FociSTM.nearest(
-            timedelta(seconds=1.0),
+            Duration.from_secs(1),
             control_points,
         )
         autd.send(stm)

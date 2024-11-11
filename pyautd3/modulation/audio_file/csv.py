@@ -1,4 +1,3 @@
-from datetime import timedelta
 from pathlib import Path
 from typing import Self
 
@@ -11,6 +10,7 @@ from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
+from pyautd3.utils import Duration
 
 
 @datagram
@@ -28,14 +28,14 @@ class Csv(Modulation):
         self._config = config
         self._param_deliminator = ","
 
-    def __init__(self: Self, path: Path, config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, path: Path, config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> None:
         self.__private_init__(path, SamplingConfig(config))
 
     @staticmethod
     def new_with_resample(
         path: Path,
         source: Freq[float],
-        target: SamplingConfig | Freq[int] | Freq[float] | timedelta,
+        target: SamplingConfig | Freq[int] | Freq[float] | Duration,
         resampler: Resampler,
     ) -> "Csv":
         instance = super(Csv, Csv).__new__(Csv)

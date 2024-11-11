@@ -65,6 +65,13 @@ class SilencerTarget(IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class DcSysTime(ctypes.Structure):
+    _fields_ = [("dc_sys_time", ctypes.c_uint64)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DcSysTime) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class Drive(ctypes.Structure):
     _fields_ = [("phase", ctypes.c_uint8), ("intensity", ctypes.c_uint8)]
 

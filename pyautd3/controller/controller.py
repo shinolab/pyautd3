@@ -1,7 +1,6 @@
 import asyncio
 import ctypes
 from collections.abc import Callable, Iterable
-from datetime import timedelta
 from types import TracebackType
 from typing import TYPE_CHECKING, Generic, Self, TypeVar
 
@@ -21,6 +20,8 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr, TimerStrategyWrap
 from pyautd3.native_methods.structs import FfiFuture, Quaternion, Vector3
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
+from pyautd3.utils import Duration
+from pyautd3.utils.duration import into_option_duration
 
 if TYPE_CHECKING:
     from pyautd3.emulator import Emulator, Recorder
@@ -33,17 +34,17 @@ L = TypeVar("L", bound=Link)
 class _Builder:
     devices: list[AUTD3]
     _param_fallback_parallel_threshold: int
-    _param_fallback_timeout: timedelta
-    _param_send_interval: timedelta
-    _param_receive_interval: timedelta
+    _param_fallback_timeout: Duration
+    _param_send_interval: Duration
+    _param_receive_interval: Duration
     _param_timer_strategy: TimerStrategyWrap
 
     def __init__(self: Self, iterable: Iterable[AUTD3]) -> None:
         self.devices = list(iterable)
         self._param_fallback_parallel_threshold = 4
-        self._param_fallback_timeout = timedelta(milliseconds=20)
-        self._param_send_interval = timedelta(milliseconds=1)
-        self._param_receive_interval = timedelta(milliseconds=1)
+        self._param_fallback_timeout = Duration.from_millis(20)
+        self._param_send_interval = Duration.from_millis(1)
+        self._param_receive_interval = Duration.from_millis(1)
         self._param_timer_strategy = TimerStrategy.Spin(SpinSleeper())
 
     def _ptr(self: Self) -> ControllerBuilderPtr:
@@ -54,9 +55,9 @@ class _Builder:
             rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
             len(pos),
             self._param_fallback_parallel_threshold,
-            int(self._param_fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
-            int(self._param_send_interval.total_seconds() * 1000 * 1000 * 1000),
-            int(self._param_receive_interval.total_seconds() * 1000 * 1000 * 1000),
+            self._param_fallback_timeout._inner,
+            self._param_send_interval._inner,
+            self._param_receive_interval._inner,
             self._param_timer_strategy,
         )
 
@@ -64,11 +65,11 @@ class _Builder:
         self: Self,
         link: LinkBuilder[L],
         *,
-        timeout: timedelta | None = None,  # noqa: ASYNC109
+        timeout: Duration | None = None,  # noqa: ASYNC109
     ) -> "Controller[L]":
         return await Controller._open_impl_async(self._ptr(), link, timeout)
 
-    def open(self: Self, link: LinkBuilder[L], *, timeout: timedelta | None = None) -> "Controller[L]":
+    def open(self: Self, link: LinkBuilder[L], *, timeout: Duration | None = None) -> "Controller[L]":
         return Controller._open_impl(self._ptr(), link, timeout)
 
     def into_emulator(self: Self) -> "Emulator":  # type: ignore[empty-body]
@@ -213,14 +214,13 @@ class Controller(Geometry, Generic[L]):
     async def _open_impl_async(
         builder: ControllerBuilderPtr,
         link_builder: LinkBuilder[L],
-        timeout: timedelta | None = None,  # noqa: ASYNC109
+        timeout: Duration | None = None,  # noqa: ASYNC109
     ) -> "Controller[L]":
         runtime = Base().create_runtime()
         handle = Base().get_runtime_handle(runtime)
-        timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
-        ffi_future = Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns)
+        ffi_future = Base().controller_open(builder, link_builder._link_builder_ptr(), into_option_duration(timeout))
         loop.call_soon(
             lambda *_: future.set_result(Base().wait_result_controller(handle, ffi_future)),
         )
@@ -233,15 +233,14 @@ class Controller(Geometry, Generic[L]):
     def _open_impl(
         builder: ControllerBuilderPtr,
         link_builder: LinkBuilder[L],
-        timeout: timedelta | None = None,
+        timeout: Duration | None = None,
     ) -> "Controller[L]":
         runtime = Base().create_runtime()
         handle = Base().get_runtime_handle(runtime)
-        timeout_ns = -1 if timeout is None else int(timeout.total_seconds() * 1000 * 1000 * 1000)
         ptr = _validate_ptr(
             Base().wait_result_controller(
                 handle,
-                Base().controller_open(builder, link_builder._link_builder_ptr(), timeout_ns),
+                Base().controller_open(builder, link_builder._link_builder_ptr(), into_option_duration(timeout)),
             ),
         )
         geometry = Base().geometry(ptr)
@@ -390,5 +389,5 @@ class Controller(Geometry, Generic[L]):
     def group(self: Self, group_map: Callable[[Device], K | None]) -> _GroupGuard:
         return _GroupGuard(group_map, self)
 
-    def tick(self: "Controller[Recorder]", tick: timedelta) -> None:
+    def tick(self: "Controller[Recorder]", tick: Duration) -> None:
         raise NotImplementedError  # pragma: no cover

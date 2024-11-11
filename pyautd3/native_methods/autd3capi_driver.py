@@ -3,7 +3,7 @@ import threading
 import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive
+from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
 from enum import IntEnum
 
 
@@ -143,15 +143,37 @@ class GainSTMPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
+class DebugTypeValue(ctypes.Union):
+    _fields_ = [("null", ctypes.c_uint64), ("sys_time", ctypes.c_uint64), ("idx", ctypes.c_uint16), ("direct", ctypes.c_bool)]
+
+
+class TransitionModeValue(ctypes.Union):
+    _fields_ = [("null", ctypes.c_uint64), ("sys_time", ctypes.c_uint64), ("gpio_in", ctypes.c_uint8)]
+
+
+class Duration(ctypes.Structure):
+    _fields_ = [("nanos", ctypes.c_uint64)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Duration) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class OptionDuration(ctypes.Structure):
+    _fields_ = [("has_value", ctypes.c_bool), ("value", Duration)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, OptionDuration) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class DebugTypeWrap(ctypes.Structure):
-    _fields_ = [("ty", ctypes.c_uint8), ("value", ctypes.c_uint64)]
+    _fields_ = [("ty", ctypes.c_uint8), ("value", DebugTypeValue)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, DebugTypeWrap) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class TransitionModeWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", ctypes.c_uint64)]
+    _fields_ = [("tag", ctypes.c_uint8), ("value", TransitionModeValue)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, TransitionModeWrap) and self._fields_ == other._fields_  # pragma: no cover

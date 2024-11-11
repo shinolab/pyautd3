@@ -1,10 +1,9 @@
-from datetime import timedelta
-
 import numpy as np
 from matplotlib import pyplot as plt
 
 from pyautd3 import AUTD3, Controller, EmitIntensity, Focus, Hz, Silencer, Sine, Uniform
-from pyautd3.emulator import Range, Recorder, RecordOption
+from pyautd3.emulator import InstantRecordOption, Range, Recorder
+from pyautd3.utils import Duration
 
 if __name__ == "__main__":
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
@@ -12,7 +11,7 @@ if __name__ == "__main__":
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer())
             autd.send((Sine(200.0 * Hz), Uniform(EmitIntensity(0xFF))))
-            autd.tick(timedelta(milliseconds=10))
+            autd.tick(Duration.from_millis(10))
             return autd
 
         record = emulator.record(f)
@@ -32,7 +31,7 @@ if __name__ == "__main__":
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer.disable())
             autd.send((Sine(200.0 * Hz), Uniform(EmitIntensity(0xFF))))
-            autd.tick(timedelta(milliseconds=10))
+            autd.tick(Duration.from_millis(10))
             return autd
 
         record = emulator.record(f)
@@ -54,7 +53,7 @@ if __name__ == "__main__":
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer())
             autd.send((Sine(200.0 * Hz), Focus(focus)))
-            autd.tick(timedelta(milliseconds=20))
+            autd.tick(Duration.from_millis(20))
             return autd
 
         record = emulator.record(f)
@@ -70,13 +69,13 @@ if __name__ == "__main__":
                 z_end=focus[2],
                 resolution=1.0,
             ),
-            RecordOption(
-                time_step_ns=1000,
+            InstantRecordOption(
+                time_step=Duration.from_micros(1),
                 print_progress=True,
             ),
         )
 
-        df = sound_field.next(timedelta(milliseconds=20))
+        df = sound_field.next(Duration.from_millis(20))
         time = np.array([float(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in df.columns[3:]])
         p = df.row(0)[3:]
         plt.plot(time / 1000_000, p)

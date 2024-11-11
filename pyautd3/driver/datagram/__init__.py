@@ -1,11 +1,10 @@
-from datetime import timedelta
-
 from forbiddenfruit import curse  # type: ignore[import-untyped]
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.datagram_tuple import DatagramTuple
 from pyautd3.driver.datagram.with_parallel_threshold import DatagramWithParallelThreshold
 from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
+from pyautd3.utils import Duration
 
 from .clear import Clear
 from .debug import DebugSettings, DebugType
@@ -45,7 +44,7 @@ def __with_parallel_threshold(self: tuple[Datagram, Datagram], threshold: int) -
 curse(tuple, "with_parallel_threshold", __with_parallel_threshold)
 
 
-def __with_timeout(self: tuple[Datagram, Datagram], timeout: timedelta) -> DatagramWithTimeout[DatagramTuple]:
+def __with_timeout(self: tuple[Datagram, Datagram], timeout: Duration | None) -> DatagramWithTimeout[DatagramTuple]:
     return DatagramWithTimeout(DatagramTuple(self), timeout)
 
 

@@ -1,11 +1,11 @@
-from datetime import timedelta
+from pyautd3.utils import Duration
 
 from pyautd3.native_methods.autd3_driver import Segment
 from pyautd3.native_methods.autd3capi_driver import TransitionModeWrap
 
 
 def datagram(cls):
-    def with_timeout(self, timeout: timedelta | None):
+    def with_timeout(self, timeout: Duration | None):
         from pyautd3.driver.datagram.with_timeout import DatagramWithTimeout
 
         return DatagramWithTimeout(self, timeout)

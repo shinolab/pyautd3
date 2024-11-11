@@ -8,32 +8,32 @@ from pyautd3.native_methods.autd3capi_driver import GPIOIn, TransitionModeTag
 def test_transition_mode_sync_idx():
     mode = TransitionMode.SyncIdx
     assert mode.tag == TransitionModeTag.SyncIdx
-    assert mode.value == 0
+    assert mode.value.null == 0
 
 
 def test_transition_mode_sys_time():
     sys_time = DcSysTime.now()
     mode = TransitionMode.SysTime(sys_time)
     assert mode.tag == TransitionModeTag.SysTime
-    assert mode.value == sys_time.sys_time
+    assert mode.value.sys_time == sys_time.sys_time
 
 
 def test_transition_mode_gpio():
     mode = TransitionMode.GPIO(GPIOIn.I1)
     assert mode.tag == TransitionModeTag.Gpio
-    assert mode.value == 1
+    assert mode.value.gpio_in == 1
 
 
 def test_transition_mode_ext():
     mode = TransitionMode.Ext
     assert mode.tag == TransitionModeTag.Ext
-    assert mode.value == 0
+    assert mode.value.null == 0
 
 
 def test_transition_mode_immediate():
     mode = TransitionMode.Immediate
     assert mode.tag == TransitionModeTag.Immediate
-    assert mode.value == 0
+    assert mode.value.null == 0
 
 
 def test_transition_mode_ctor():

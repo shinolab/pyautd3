@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import numpy as np
 import pytest
 
@@ -9,17 +7,18 @@ from pyautd3.controller.timer import SpinSleeper, TimerStrategy
 from pyautd3.driver.datagram.silencer import FixedCompletionTime, Silencer
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
-from pyautd3.emulator import Emulator, Range, Recorder, RecordOption
+from pyautd3.emulator import Emulator, InstantRecordOption, Range, Recorder, RmsRecordOption
 from pyautd3.gain import Uniform
+from pyautd3.utils import Duration
 
 
 def create_emulator() -> Emulator:
     return (
         Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
-        .with_send_interval(timedelta(milliseconds=1))
-        .with_receive_interval(timedelta(milliseconds=1))
+        .with_send_interval(Duration.from_millis(1))
+        .with_receive_interval(Duration.from_millis(1))
         .with_fallback_parallel_threshold(4)
-        .with_fallback_timeout(timedelta(milliseconds=20))
+        .with_fallback_timeout(Duration.from_millis(20))
         .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
         .into_emulator()
     )
@@ -29,9 +28,9 @@ def test_record_drive():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
-            autd.send(Silencer(FixedCompletionTime(intensity=timedelta(microseconds=50), phase=timedelta(microseconds=50))))
+            autd.send(Silencer(FixedCompletionTime(intensity=Duration.from_micros(50), phase=Duration.from_micros(50))))
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
-            autd.tick(timedelta(microseconds=50))
+            autd.tick(Duration.from_micros(50))
             return autd
 
         record = emulator.record(f)
@@ -52,9 +51,9 @@ async def test_record_async_drive():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
-            autd.send(Silencer(FixedCompletionTime(intensity=timedelta(microseconds=50), phase=timedelta(microseconds=50))))
+            autd.send(Silencer(FixedCompletionTime(intensity=Duration.from_micros(50), phase=Duration.from_micros(50))))
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
-            autd.tick(timedelta(microseconds=50))
+            autd.tick(Duration.from_micros(50))
             return autd
 
         record = await emulator.record_async(f)
@@ -73,7 +72,7 @@ def test_record_output_voltage():
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
-            autd.tick(timedelta(microseconds=25))
+            autd.tick(Duration.from_micros(25))
             return autd
 
         record = emulator.record(f)
@@ -354,7 +353,7 @@ def test_record_output_ultrasound():
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
-            autd.tick(timedelta(microseconds=25))
+            autd.tick(Duration.from_micros(25))
             return autd
 
         record = emulator.record(f)
@@ -630,12 +629,12 @@ def test_record_output_ultrasound():
                 )
 
 
-def test_sound_field():
+def test_sound_field_instant():
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
-            autd.tick(timedelta(microseconds=25 * 10))
+            autd.tick(Duration.from_micros(25 * 10))
             return autd
 
         record = emulator.record(f)
@@ -650,12 +649,12 @@ def test_sound_field():
                 z_end=10.0,
                 resolution=1.0,
             ),
-            RecordOption(
-                time_step_ns=1000,
+            InstantRecordOption(
+                time_step=Duration.from_micros(1),
             ),
         )
 
-        sound_field_df = sound_field.skip(timedelta(microseconds=25 * 9)).next(timedelta(microseconds=25))
+        sound_field_df = sound_field.skip(Duration.from_micros(25 * 9)).next(Duration.from_micros(25))
         time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
         assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
         assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
@@ -663,131 +662,31 @@ def test_sound_field():
         assert np.array_equal(225000 + 1000 * np.arange(0, 25), time)
         expect = np.array(
             [
-                [
-                    190.96082,
-                    81.954926,
-                    -43.268303,
-                ],
-                [
-                    136.85818,
-                    16.451601,
-                    -93.33133,
-                ],
-                [
-                    73.53783,
-                    -45.61621,
-                    -141.77232,
-                ],
-                [
-                    14.913208,
-                    -93.125145,
-                    -181.12187,
-                ],
-                [
-                    -39.191376,
-                    -136.62769,
-                    -209.01646,
-                ],
-                [
-                    -89.41525,
-                    -176.0103,
-                    -224.6327,
-                ],
-                [
-                    -136.45963,
-                    -210.92961,
-                    -229.61143,
-                ],
-                [
-                    -177.71375,
-                    -232.3485,
-                    -221.54436,
-                ],
-                [
-                    -210.82788,
-                    -238.78197,
-                    -201.05437,
-                ],
-                [
-                    -234.92473,
-                    -235.05318,
-                    -166.11269,
-                ],
-                [
-                    -244.49503,
-                    -217.45775,
-                    -118.06169,
-                ],
-                [
-                    -242.93349,
-                    -189.04797,
-                    -63.85608,
-                ],
-                [
-                    -234.70769,
-                    -149.43028,
-                    -7.931027,
-                ],
-                [
-                    -210.70303,
-                    -101.2128,
-                    52.683804,
-                ],
-                [
-                    -170.8035,
-                    -40.90981,
-                    110.96725,
-                ],
-                [
-                    -114.901855,
-                    28.199083,
-                    158.98596,
-                ],
-                [
-                    -41.33793,
-                    101.697235,
-                    206.40062,
-                ],
-                [
-                    37.44646,
-                    166.75967,
-                    243.50082,
-                ],
-                [
-                    114.190094,
-                    221.40279,
-                    261.52933,
-                ],
-                [
-                    183.8636,
-                    265.89404,
-                    261.34058,
-                ],
-                [
-                    241.15149,
-                    290.09818,
-                    244.31012,
-                ],
-                [
-                    284.7516,
-                    294.92493,
-                    215.68811,
-                ],
-                [
-                    307.23727,
-                    279.7575,
-                    166.62605,
-                ],
-                [
-                    307.96487,
-                    247.80507,
-                    105.14593,
-                ],
-                [
-                    287.04877,
-                    192.38678,
-                    34.32131,
-                ],
+                [190.96082, 81.954926, -43.268303],
+                [136.85695, 16.451164, -93.331795],
+                [73.53783, -45.61621, -141.77232],
+                [14.913369, -93.12651, -181.12183],
+                [-39.191376, -136.62769, -209.01646],
+                [-89.41609, -176.0108, -224.63297],
+                [-136.45963, -210.92961, -229.61143],
+                [-177.71426, -232.34837, -221.5439],
+                [-210.82788, -238.78197, -201.05437],
+                [-234.92447, -235.0538, -166.11209],
+                [-244.49503, -217.45775, -118.06169],
+                [-242.93336, -189.04541, -63.854618],
+                [-234.70769, -149.43028, -7.931027],
+                [-210.70303, -101.2128, 52.683804],
+                [-170.8035, -40.90981, 110.96725],
+                [-114.901855, 28.199083, 158.98596],
+                [-41.33793, 101.697235, 206.40062],
+                [37.44646, 166.75967, 243.50082],
+                [114.190094, 221.40279, 261.52933],
+                [183.8636, 265.89404, 261.34058],
+                [241.15149, 290.09818, 244.31012],
+                [284.7516, 294.92493, 215.68811],
+                [307.23727, 279.7575, 166.62605],
+                [307.96487, 247.80507, 105.14593],
+                [287.04877, 192.38678, 34.32131],
             ],
         )
 
@@ -795,13 +694,47 @@ def test_sound_field():
             assert np.allclose(expect[i], sound_field_df[col])
 
 
-@pytest.mark.asyncio
-async def test_sound_field_async():
+def test_sound_field_rms():
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
-            autd.tick(timedelta(microseconds=25 * 10))
+            autd.tick(Duration.from_micros(25 * 10))
+            return autd
+
+        record = emulator.record(f)
+
+        sound_field = record.sound_field(
+            Range(
+                x_start=-1.0,
+                x_end=1.0,
+                y_start=0.0,
+                y_end=0.0,
+                z_start=10.0,
+                z_end=10.0,
+                resolution=1.0,
+            ),
+            RmsRecordOption(),
+        )
+
+        sound_field_df = sound_field.skip(Duration.from_micros(25 * 9)).next(Duration.from_micros(25))
+        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
+        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
+        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
+        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
+        assert np.array_equal(np.array([225000]), time)
+        expect = np.array([[445.02795, 440.45087, 408.70248]])
+        for i, col in enumerate(sound_field_df.columns[3:]):
+            assert np.allclose(expect[i], sound_field_df[col])
+
+
+@pytest.mark.asyncio
+async def test_sound_field_instant_async():
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+
+        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.tick(Duration.from_micros(25 * 10))
             return autd
 
         record = emulator.record(f)
@@ -816,12 +749,12 @@ async def test_sound_field_async():
                 z_end=10.0,
                 resolution=1.0,
             ),
-            RecordOption(
-                time_step_ns=1000,
+            InstantRecordOption(
+                time_step=Duration.from_micros(1),
             ),
         )
 
-        sound_field_df = await sound_field.skip(timedelta(microseconds=25 * 9)).next_async(timedelta(microseconds=25))
+        sound_field_df = await sound_field.skip(Duration.from_micros(25 * 9)).next_async(Duration.from_micros(25))
         time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
         assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
         assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
@@ -829,133 +762,69 @@ async def test_sound_field_async():
         assert np.array_equal(225000 + 1000 * np.arange(0, 25), time)
         expect = np.array(
             [
-                [
-                    190.96082,
-                    81.954926,
-                    -43.268303,
-                ],
-                [
-                    136.85818,
-                    16.451601,
-                    -93.33133,
-                ],
-                [
-                    73.53783,
-                    -45.61621,
-                    -141.77232,
-                ],
-                [
-                    14.913208,
-                    -93.125145,
-                    -181.12187,
-                ],
-                [
-                    -39.191376,
-                    -136.62769,
-                    -209.01646,
-                ],
-                [
-                    -89.41525,
-                    -176.0103,
-                    -224.6327,
-                ],
-                [
-                    -136.45963,
-                    -210.92961,
-                    -229.61143,
-                ],
-                [
-                    -177.71375,
-                    -232.3485,
-                    -221.54436,
-                ],
-                [
-                    -210.82788,
-                    -238.78197,
-                    -201.05437,
-                ],
-                [
-                    -234.92473,
-                    -235.05318,
-                    -166.11269,
-                ],
-                [
-                    -244.49503,
-                    -217.45775,
-                    -118.06169,
-                ],
-                [
-                    -242.93349,
-                    -189.04797,
-                    -63.85608,
-                ],
-                [
-                    -234.70769,
-                    -149.43028,
-                    -7.931027,
-                ],
-                [
-                    -210.70303,
-                    -101.2128,
-                    52.683804,
-                ],
-                [
-                    -170.8035,
-                    -40.90981,
-                    110.96725,
-                ],
-                [
-                    -114.901855,
-                    28.199083,
-                    158.98596,
-                ],
-                [
-                    -41.33793,
-                    101.697235,
-                    206.40062,
-                ],
-                [
-                    37.44646,
-                    166.75967,
-                    243.50082,
-                ],
-                [
-                    114.190094,
-                    221.40279,
-                    261.52933,
-                ],
-                [
-                    183.8636,
-                    265.89404,
-                    261.34058,
-                ],
-                [
-                    241.15149,
-                    290.09818,
-                    244.31012,
-                ],
-                [
-                    284.7516,
-                    294.92493,
-                    215.68811,
-                ],
-                [
-                    307.23727,
-                    279.7575,
-                    166.62605,
-                ],
-                [
-                    307.96487,
-                    247.80507,
-                    105.14593,
-                ],
-                [
-                    287.04877,
-                    192.38678,
-                    34.32131,
-                ],
+                [190.96082, 81.954926, -43.268303],
+                [136.85695, 16.451164, -93.331795],
+                [73.53783, -45.61621, -141.77232],
+                [14.913369, -93.12651, -181.12183],
+                [-39.191376, -136.62769, -209.01646],
+                [-89.41609, -176.0108, -224.63297],
+                [-136.45963, -210.92961, -229.61143],
+                [-177.71426, -232.34837, -221.5439],
+                [-210.82788, -238.78197, -201.05437],
+                [-234.92447, -235.0538, -166.11209],
+                [-244.49503, -217.45775, -118.06169],
+                [-242.93336, -189.04541, -63.854618],
+                [-234.70769, -149.43028, -7.931027],
+                [-210.70303, -101.2128, 52.683804],
+                [-170.8035, -40.90981, 110.96725],
+                [-114.901855, 28.199083, 158.98596],
+                [-41.33793, 101.697235, 206.40062],
+                [37.44646, 166.75967, 243.50082],
+                [114.190094, 221.40279, 261.52933],
+                [183.8636, 265.89404, 261.34058],
+                [241.15149, 290.09818, 244.31012],
+                [284.7516, 294.92493, 215.68811],
+                [307.23727, 279.7575, 166.62605],
+                [307.96487, 247.80507, 105.14593],
+                [287.04877, 192.38678, 34.32131],
             ],
         )
+
+        for i, col in enumerate(sound_field_df.columns[3:]):
+            assert np.allclose(expect[i], sound_field_df[col])
+
+
+@pytest.mark.asyncio
+async def test_sound_field_rms_async():
+    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+
+        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.tick(Duration.from_micros(25 * 10))
+            return autd
+
+        record = emulator.record(f)
+
+        sound_field = await record.sound_field_async(
+            Range(
+                x_start=-1.0,
+                x_end=1.0,
+                y_start=0.0,
+                y_end=0.0,
+                z_start=10.0,
+                z_end=10.0,
+                resolution=1.0,
+            ),
+            RmsRecordOption(),
+        )
+
+        sound_field_df = await sound_field.skip(Duration.from_micros(25 * 9)).next_async(Duration.from_micros(25))
+        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
+        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
+        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
+        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
+        assert np.array_equal(np.array([225000]), time)
+        expect = np.array([[445.02795, 440.45087, 408.70248]])
 
         for i, col in enumerate(sound_field_df.columns[3:]):
             assert np.allclose(expect[i], sound_field_df[col])
@@ -967,7 +836,7 @@ def test_record_invalid_tick():
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
             with pytest.raises(AUTDError) as e:
-                autd.tick(timedelta(microseconds=1))
+                autd.tick(Duration.from_micros(1))
             assert str(e.value) == "Tick must be multiple of 25µs"
             return autd
 

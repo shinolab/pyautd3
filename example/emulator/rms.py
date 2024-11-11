@@ -6,18 +6,19 @@ from matplotlib.colors import Normalize
 from scipy.interpolate import griddata  # type: ignore[import-untyped]
 
 from pyautd3 import AUTD3, Controller, FociSTM, Focus, SamplingConfig, Silencer, Static, kHz
-from pyautd3.emulator import InstantRecordOption, Range, Recorder
+from pyautd3.emulator import Range, Recorder, RmsRecordOption
 from pyautd3.utils import Duration
 
 
 def plot_focus() -> None:
+
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
         focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer.disable())
             autd.send((Static.with_intensity(0xFF), Focus(focus)))
-            autd.tick(Duration.from_millis(1))
+            autd.tick(Duration.from_micros(25))
             return autd
 
         record = emulator.record(f)
@@ -32,38 +33,20 @@ def plot_focus() -> None:
                 z_end=focus[2],
                 resolution=1.0,
             ),
-            InstantRecordOption(
-                time_step=Duration.from_micros(1),
+            RmsRecordOption(
                 print_progress=True,
                 gpu=True,
             ),
         )
         print("Calculating sound field around focus...")
-        df = sound_field.next(Duration.from_millis(1))
+        df = sound_field.next(Duration.from_micros(25))
 
         times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
         p = df.get_columns()[3:]
-        times = times[440:]
-        p = p[440:]
-
-        fig = plt.figure()
-        spec = fig.add_gridspec(ncols=2, nrows=1, width_ratios=[10, 1])
-        ax = fig.add_subplot(spec[0], projection="3d")
-        cax = fig.add_subplot(spec[1])
-        colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))
+        times = times[0]
+        p = p[0]
 
         x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
-
-        def anim(i: int):  # noqa: ANN202
-            ax.cla()
-            z = griddata((df["x[mm]"], df["y[mm]"]), p[i], (x, y))
-            plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))  # type: ignore[attr-defined]
-            ax.set_zlim(-10e3, 10e3)  # type: ignore[attr-defined]
-            ax.set_title(f"t={times[i]:.3f} [ms]")
-            return plot
-
-        _ = animation.FuncAnimation(fig, anim, frames=len(p), interval=1, repeat=False, blit=False)
-        plt.show()
 
         # plot RMS
         fig = plt.figure()
@@ -113,8 +96,7 @@ def plot_stm() -> None:
                 z_end=focus[2],
                 resolution=1.0,
             ),
-            InstantRecordOption(
-                time_step=Duration.from_nanos(2500),
+            RmsRecordOption(
                 print_progress=True,
                 gpu=True,
             ),
@@ -125,22 +107,22 @@ def plot_stm() -> None:
         times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
         p = df.get_columns()[3:]
 
-        times = times[700:]
-        p = p[700:]
+        times = times[70:]
+        p = p[70:]
 
         fig = plt.figure()
         spec = fig.add_gridspec(ncols=2, nrows=1, width_ratios=[10, 1])
         ax = fig.add_subplot(spec[0], projection="3d")
         cax = fig.add_subplot(spec[1])
-        colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))
+        colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-0, vmax=10e3))
 
         x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
 
         def anim(i: int):  # noqa: ANN202
             ax.cla()
             z = griddata((df["x[mm]"], df["y[mm]"]), p[i], (x, y))
-            plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))  # type: ignore[attr-defined]
-            ax.set_zlim(-10e3, 10e3)  # type: ignore[attr-defined]
+            plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=0, vmax=10e3))  # type: ignore[attr-defined]
+            ax.set_zlim(0, 10e3)  # type: ignore[attr-defined]
             ax.set_title(f"t={times[i]:.3f} [ms]")
             return plot
 
@@ -149,5 +131,6 @@ def plot_stm() -> None:
 
 
 if __name__ == "__main__":
+    print("INFO: rms does not take into account propagation delay nor transducer response.")
     plot_focus()
     plot_stm()

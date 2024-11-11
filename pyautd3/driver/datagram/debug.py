@@ -46,7 +46,7 @@ class DebugType(metaclass=ConstantADT):
 
     @staticmethod
     def SysTimeEq(value: DcSysTime) -> DebugTypeWrap:  # noqa: N802
-        return Base().debug_type_sys_time_eq(value.sys_time)
+        return Base().debug_type_sys_time_eq(value._inner)
 
 
 @datagram
