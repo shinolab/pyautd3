@@ -1,4 +1,3 @@
-from datetime import timedelta
 from pathlib import Path
 from typing import Self
 
@@ -11,6 +10,7 @@ from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
+from pyautd3.utils import Duration
 
 
 @modulation
@@ -28,7 +28,7 @@ class Wav(Modulation):
     @staticmethod
     def new_with_resample(
         path: Path,
-        target: SamplingConfig | Freq[int] | Freq[float] | timedelta,
+        target: SamplingConfig | Freq[int] | Freq[float] | Duration,
         resampler: Resampler,
     ) -> "Wav":
         instance = Wav(path)

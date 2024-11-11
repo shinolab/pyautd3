@@ -1,9 +1,8 @@
-from datetime import timedelta
-
 from matplotlib import pyplot as plt
 
 from pyautd3 import AUTD3, Controller, EmitIntensity, Phase, Silencer, Static, Uniform
 from pyautd3.emulator import Recorder
+from pyautd3.utils import Duration
 
 if __name__ == "__main__":
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
@@ -11,7 +10,7 @@ if __name__ == "__main__":
         def f(autd: Controller[Recorder]) -> Controller[Recorder]:
             autd.send(Silencer.disable())
             autd.send((Static.with_intensity(0xFF), Uniform((Phase(0x40), EmitIntensity(0xFF)))))
-            autd.tick(timedelta(milliseconds=1))
+            autd.tick(Duration.from_millis(1))
             return autd
 
         record = emulator.record(f)

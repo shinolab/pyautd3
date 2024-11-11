@@ -1,9 +1,8 @@
-from datetime import timedelta
-
 from pyautd3.controller.controller import Controller
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.gain.null import Null
 from pyautd3.link.audit import Audit
+from pyautd3.utils import Duration
 
 
 def test_with_timeout():
@@ -12,8 +11,8 @@ def test_with_timeout():
         autd.send(Null().with_timeout(None))
         assert autd.link.last_timeout() is None
 
-        autd.send(Null().with_timeout(timedelta(milliseconds=100)))
-        assert autd.link.last_timeout() == timedelta(milliseconds=100)
+        autd.send(Null().with_timeout(Duration.from_millis(100)))
+        assert autd.link.last_timeout() == Duration.from_millis(100)
 
-        autd.send((Null(), Null()).with_timeout(timedelta(milliseconds=200)))  # type: ignore[attr-defined]
-        assert autd.link.last_timeout() == timedelta(milliseconds=200)
+        autd.send((Null(), Null()).with_timeout(Duration.from_millis(200)))  # type: ignore[attr-defined]
+        assert autd.link.last_timeout() == Duration.from_millis(200)

@@ -1,17 +1,16 @@
-from datetime import timedelta
-
 import pytest
 
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
+from pyautd3.utils import Duration
 
 
 def test_stm_sampl_config_from_freq():
     config = STMSamplingConfig(40000.0 * Hz, 1)
     assert config.freq() == 40000.0 * Hz
-    assert config.period() == timedelta(microseconds=25)
+    assert config.period() == Duration.from_micros(25)
     assert config.sampling_config() == SamplingConfig(40000 * Hz)
 
     with pytest.raises(AUTDError) as e:
@@ -34,23 +33,23 @@ def test_stm_sampl_config_from_freq():
 
 
 def test_stm_sampl_config_from_period():
-    config = STMSamplingConfig(timedelta(microseconds=25), 1)
+    config = STMSamplingConfig(Duration.from_micros(25), 1)
     assert config.freq() == 40000.0 * Hz
-    assert config.period() == timedelta(microseconds=25)
+    assert config.period() == Duration.from_micros(25)
     assert config.sampling_config() == SamplingConfig(40000 * Hz)
 
 
 def test_stm_sampl_config_from_sampl_config():
     config = STMSamplingConfig(SamplingConfig(40000 * Hz), 1)
     assert config.freq() == 40000.0 * Hz
-    assert config.period() == timedelta(microseconds=25)
+    assert config.period() == Duration.from_micros(25)
     assert config.sampling_config() == SamplingConfig(40000 * Hz)
 
 
 def test_stm_sampl_config_from_freq_nearest():
     config = STMSamplingConfig._nearest(40000.0 * Hz, 1)
     assert config.freq() == 40000.0 * Hz
-    assert config.period() == timedelta(microseconds=25)
+    assert config.period() == Duration.from_micros(25)
     assert config.sampling_config() == SamplingConfig(40000 * Hz)
 
     with pytest.raises(TypeError):
@@ -61,7 +60,7 @@ def test_stm_sampl_config_from_freq_nearest():
 
 
 def test_stm_sampl_config_from_period_nearest():
-    config = STMSamplingConfig._nearest(timedelta(microseconds=25), 1)
+    config = STMSamplingConfig._nearest(Duration.from_micros(25), 1)
     assert config.freq() == 40000.0 * Hz
-    assert config.period() == timedelta(microseconds=25)
+    assert config.period() == Duration.from_micros(25)
     assert config.sampling_config() == SamplingConfig(40000 * Hz)

@@ -1,6 +1,5 @@
 import ctypes
 from collections.abc import Iterable
-from datetime import timedelta
 from typing import Generic, Self, TypeVar
 
 import numpy as np
@@ -32,6 +31,7 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, FociSTMPtr, Segment, TransitionModeWrap
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
 from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.utils import Duration
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -87,7 +87,7 @@ class FociSTM(
 
     def __init__(
         self: "FociSTM",
-        config: "SamplingConfig | Freq[float] | timedelta",
+        config: SamplingConfig | Freq[float] | Duration,
         iterable: (
             Iterable[ArrayLike]
             | Iterable[ControlPoints1]
@@ -106,7 +106,7 @@ class FociSTM(
     @classmethod
     def nearest(
         cls: type["FociSTM"],
-        config: "Freq[float] | timedelta",
+        config: Freq[float] | Duration,
         iterable: (
             Iterable[ArrayLike]
             | Iterable[ControlPoints1]
@@ -148,7 +148,7 @@ class FociSTM(
             ptr,
             self._points[0]._value(),
             segment,
-            transition_mode if transition_mode is not None else TransitionMode.NONE,
+            transition_mode or TransitionMode.NONE,
         )
 
     @property
@@ -156,7 +156,7 @@ class FociSTM(
         return self._stm_sampling_config.freq()
 
     @property
-    def period(self: Self) -> timedelta:
+    def period(self: Self) -> Duration:
         return self._stm_sampling_config.period()
 
     @property

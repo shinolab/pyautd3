@@ -41,7 +41,7 @@ class SincInterpolation(
     _window: T
 
     def __init__(self: "SincInterpolation", window: T | None = None) -> None:
-        self._window = window if window is not None else BlackMan(32)
+        self._window = window or BlackMan(32)
 
     def _dyn_resampler(self: Self) -> DynSincInterpolator:
         return DynSincInterpolator(self._window._window(), ctypes.c_uint32(self._window._window_size))

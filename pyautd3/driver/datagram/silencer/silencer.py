@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Generic, Self, TypeVar
 
 from pyautd3.derive import builder, datagram
@@ -10,6 +9,7 @@ from pyautd3.driver.datagram.stm.foci import FociSTM
 from pyautd3.driver.datagram.stm.gain import GainSTM
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, SilencerTarget
+from pyautd3.utils import Duration
 
 T = TypeVar("T", FixedCompletionTime, FixedUpdateRate)
 
@@ -29,10 +29,7 @@ class Silencer(
         self._inner = (
             config
             if config is not None
-            else FixedCompletionTime(
-                intensity=timedelta(microseconds=250),
-                phase=timedelta(microseconds=1000),
-            )  # type: ignore[assignment]
+            else FixedCompletionTime(intensity=Duration.from_micros(250), phase=Duration.from_micros(1000))  # type: ignore[assignment]
         )
         self._strict_mode = True
         self._param_target = SilencerTarget.Intensity
@@ -52,4 +49,4 @@ class Silencer(
 
     @staticmethod
     def disable() -> "Silencer[FixedCompletionTime]":
-        return Silencer(FixedCompletionTime(intensity=timedelta(microseconds=25), phase=timedelta(microseconds=25)))
+        return Silencer(FixedCompletionTime(intensity=Duration.from_micros(25), phase=Duration.from_micros(25)))

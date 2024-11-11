@@ -1,6 +1,5 @@
 import ctypes
 from collections.abc import Iterable
-from datetime import timedelta
 from typing import Self
 
 import numpy as np
@@ -13,6 +12,7 @@ from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
+from pyautd3.utils import Duration
 
 
 @datagram
@@ -22,7 +22,7 @@ class Custom(Modulation):
     _buf: np.ndarray
     _config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]
 
-    def __init__(self: Self, buf: Iterable[int], config: SamplingConfig | Freq[int] | Freq[float] | timedelta) -> None:
+    def __init__(self: Self, buf: Iterable[int], config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> None:
         super().__init__()
         self._buf = np.fromiter(buf, dtype=np.uint8)
         self._config = config
@@ -31,7 +31,7 @@ class Custom(Modulation):
     def new_with_resample(
         buf: Iterable[int],
         source: Freq[float],
-        target: SamplingConfig | Freq[int] | Freq[float] | timedelta,
+        target: SamplingConfig | Freq[int] | Freq[float] | Duration,
         resampler: Resampler,
     ) -> "Custom":
         instance = Custom(buf, SamplingConfig(target))

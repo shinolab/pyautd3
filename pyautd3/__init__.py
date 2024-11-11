@@ -48,6 +48,7 @@ from .native_methods.autd3capi_emulator import NativeMethods as Emulator
 from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
 from .native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
+from .utils import Duration
 
 _ext_tracing_init: list[Callable[[], None]] = []
 
@@ -125,6 +126,7 @@ __all__ = [
     "PulseWidthEncoder",
     "TransitionMode",
     "SilencerTarget",
+    "Duration",
 ]
 
-__version__ = "29.0.0rc5.post1"
+__version__ = "29.0.0rc8"

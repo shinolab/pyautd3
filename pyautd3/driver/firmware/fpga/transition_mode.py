@@ -9,7 +9,7 @@ class TransitionMode(metaclass=ConstantADT):
 
     @staticmethod
     def SysTime(sys_time: DcSysTime) -> TransitionModeWrap:  # noqa: N802
-        return Base().transition_mode_sys_time(sys_time.sys_time)
+        return Base().transition_mode_sys_time(sys_time._inner)
 
     @staticmethod
     def GPIO(gpio: GPIOIn) -> TransitionModeWrap:  # noqa: N802

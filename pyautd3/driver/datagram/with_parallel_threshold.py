@@ -22,4 +22,4 @@ class DatagramWithParallelThreshold(Datagram, Generic[D]):
 
     def _datagram_ptr(self: Self, g: Geometry) -> DatagramPtr:
         raw_ptr = self._datagram._datagram_ptr(g)
-        return Base().datagram_with_parallel_threshold(raw_ptr, self._threshold if self._threshold is not None else -1)
+        return Base().datagram_with_parallel_threshold(raw_ptr, self._threshold or -1)

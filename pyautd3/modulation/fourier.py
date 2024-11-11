@@ -30,7 +30,7 @@ class Fourier(Modulation):
             self._components,
             len(self._components),
             self._param_clamp,
-            self._param_scale_factor if self._param_scale_factor is not None else float("nan"),  # type: ignore[arg-type]
+            self._param_scale_factor or float("nan"),  # type: ignore[arg-type]
             self._param_offset,
             self._loop_behavior,
         )

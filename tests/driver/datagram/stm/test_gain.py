@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import TYPE_CHECKING
 
 import numpy as np
@@ -7,6 +6,7 @@ from pyautd3 import Controller, GainSTM, GainSTMMode, Hz, LoopBehavior, Sampling
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
+from pyautd3.utils import Duration
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -21,7 +21,7 @@ def test_gain_stm():
         size = 2
         stm = GainSTM(1.0 * Hz, (Uniform(EmitIntensity(0xFF // (i + 1))) for i in range(size))).with_loop_behavior(LoopBehavior.Once)
         assert stm.freq == (1.0 * Hz)
-        assert stm.period == timedelta(seconds=1.0)
+        assert stm.period == Duration.from_secs(1)
         assert stm.sampling_config == SamplingConfig(20000)
         autd.send(stm)
         for dev in autd.geometry:
@@ -40,7 +40,7 @@ def test_gain_stm():
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = GainSTM(timedelta(seconds=1.0), [Uniform(EmitIntensity(0xFF)), Uniform(EmitIntensity(0x80))])
+        stm = GainSTM(Duration.from_secs(1), [Uniform(EmitIntensity(0xFF)), Uniform(EmitIntensity(0x80))])
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
@@ -49,7 +49,7 @@ def test_gain_stm():
         for dev in autd.geometry:
             assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
 
-        stm = GainSTM.nearest(timedelta(seconds=1.0), [Uniform(EmitIntensity(0xFF)), Uniform(EmitIntensity(0x80))])
+        stm = GainSTM.nearest(Duration.from_secs(1), [Uniform(EmitIntensity(0xFF)), Uniform(EmitIntensity(0x80))])
         autd.send(stm)
         for dev in autd.geometry:
             assert autd.link.is_stm_gain_mode(dev.idx, Segment.S0)

@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 import numpy as np
 import pytest
 
@@ -16,15 +14,16 @@ from pyautd3.link.audit import Audit
 from pyautd3.modulation import Sine, Static
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import SpinStrategyTag
+from pyautd3.utils import Duration
 
 
 async def create_controller_async() -> Controller[Audit]:
     return (
         await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
-        .with_send_interval(timedelta(milliseconds=1))
-        .with_receive_interval(timedelta(milliseconds=1))
+        .with_send_interval(Duration.from_millis(1))
+        .with_receive_interval(Duration.from_millis(1))
         .with_fallback_parallel_threshold(4)
-        .with_fallback_timeout(timedelta(milliseconds=20))
+        .with_fallback_timeout(Duration.from_millis(20))
         .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
         .open_async(
             Audit.builder(),
@@ -35,10 +34,10 @@ async def create_controller_async() -> Controller[Audit]:
 def create_controller() -> Controller[Audit]:
     return (
         Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
-        .with_send_interval(timedelta(milliseconds=1))
-        .with_receive_interval(timedelta(milliseconds=1))
+        .with_send_interval(Duration.from_millis(1))
+        .with_receive_interval(Duration.from_millis(1))
         .with_fallback_parallel_threshold(4)
-        .with_fallback_timeout(timedelta(milliseconds=20))
+        .with_fallback_timeout(Duration.from_millis(20))
         .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
         .open(Audit.builder())
     )
@@ -48,9 +47,9 @@ def test_controller_is_default():
     default = Controller.builder([])
     assert Base().controller_builder_is_default(
         default.fallback_parallel_threshold,
-        int(default.fallback_timeout.total_seconds() * 1000 * 1000 * 1000),
-        int(default.send_interval.total_seconds() * 1000 * 1000 * 1000),
-        int(default.receive_interval.total_seconds() * 1000 * 1000 * 1000),
+        default.fallback_timeout._inner,
+        default.send_interval._inner,
+        default.receive_interval._inner,
         default.timer_strategy,
     )
 
@@ -62,7 +61,7 @@ def test_with_timer():
     with (
         Controller.builder([])
         .with_timer_strategy(
-            TimerStrategy.Spin(SpinSleeper(700_000).with_spin_strategy(SpinStrategyTag.SpinLoopHint)),
+            TimerStrategy.Spin(SpinSleeper(Duration.from_micros(700)).with_spin_strategy(SpinStrategyTag.SpinLoopHint)),
         )
         .open(Audit.builder()) as autd
     ):
