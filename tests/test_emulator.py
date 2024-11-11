@@ -718,7 +718,7 @@ def test_sound_field_rms():
         )
 
         sound_field_df = sound_field.skip(Duration.from_micros(25 * 9)).next(Duration.from_micros(25))
-        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
+        time = [int(t.replace("rms[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
         assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
         assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
         assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
@@ -819,7 +819,7 @@ async def test_sound_field_rms_async():
         )
 
         sound_field_df = await sound_field.skip(Duration.from_micros(25 * 9)).next_async(Duration.from_micros(25))
-        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
+        time = [int(t.replace("rms[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
         assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
         assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
         assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])

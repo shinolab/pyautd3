@@ -255,7 +255,7 @@ class Rms:
                 "x[mm]": x,
                 "y[mm]": y,
                 "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
+                **{s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
             },
         )
 
@@ -300,7 +300,7 @@ class Rms:
                 "x[mm]": x,
                 "y[mm]": y,
                 "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
+                **{s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
             },
         )
 

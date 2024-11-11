@@ -99,7 +99,7 @@ def plot_stm() -> None:
         print("Calculating sound field around focus...")
         df = sound_field.next(Duration.from_millis(5))
 
-        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
+        times = [float(c.replace("rms[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
         p = df.get_columns()[3:]
 
         times = times[70:]
