@@ -447,7 +447,7 @@ class Record:
                     ),
                     self._handle,
                 )
-            case RmsRecordOption():
+            case RmsRecordOption():  # pragma: no cover
                 return Rms(
                     _validate_ptr(
                         Emu().emulator_sound_field_rms_wait(
@@ -471,7 +471,7 @@ class Record:
                     _validate_ptr(await future),
                     self._handle,
                 )
-            case RmsRecordOption():
+            case RmsRecordOption():  # pragma: no cover
                 ffi_future = Emu().emulator_sound_field_rms(self._ptr, range_._inner, option._inner)
                 loop.call_soon(
                     lambda *_: future.set_result(Emu().emulator_sound_field_rms_wait(self._handle, ffi_future)),
