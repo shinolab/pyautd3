@@ -1,5 +1,4 @@
 import numpy as np
-import polars as pl
 from matplotlib import animation, colorbar
 from matplotlib import pyplot as plt
 from matplotlib.colors import Normalize
