@@ -3,7 +3,6 @@ import polars as pl
 from matplotlib import animation, colorbar
 from matplotlib import pyplot as plt
 from matplotlib.colors import Normalize
-from scipy.interpolate import griddata  # type: ignore[import-untyped]
 
 from pyautd3 import AUTD3, Controller, FociSTM, Focus, SamplingConfig, Silencer, Static, kHz
 from pyautd3.emulator import InstantRecordOption, Range, Recorder
@@ -52,13 +51,18 @@ def plot_focus() -> None:
         cax = fig.add_subplot(spec[1])
         colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))
 
-        x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+        p_shape = [len(y), len(x)]
+        aspect = (len(x), len(y), len(x))
+        x, y = np.meshgrid(x, y)
 
         def anim(i: int):  # noqa: ANN202
             ax.cla()
-            z = griddata((df["x[mm]"], df["y[mm]"]), p[i], (x, y))
+            z = p[i].to_numpy().reshape(p_shape)
             plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))  # type: ignore[attr-defined]
             ax.set_zlim(-10e3, 10e3)  # type: ignore[attr-defined]
+            ax.set_box_aspect(aspect)
             ax.set_title(f"t={times[i]:.3f} [ms]")
             return plot
 
@@ -74,7 +78,7 @@ def plot_focus() -> None:
         ax.plot_surface(  # type: ignore[attr-defined]
             x,
             y,
-            griddata((df["x[mm]"], df["y[mm]"]), rms, (x, y)),
+            rms.to_numpy().reshape(p_shape),
             shade=False,
             cmap="jet",
             norm=Normalize(vmin=0.0, vmax=rms.max()),  # type: ignore[arg-type]
@@ -134,13 +138,18 @@ def plot_stm() -> None:
         cax = fig.add_subplot(spec[1])
         colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))
 
-        x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+        p_shape = [len(y), len(x)]
+        aspect = (len(x), len(y), len(x))
+        x, y = np.meshgrid(x, y)
 
         def anim(i: int):  # noqa: ANN202
             ax.cla()
-            z = griddata((df["x[mm]"], df["y[mm]"]), p[i], (x, y))
+            z = p[i].to_numpy().reshape(p_shape)
             plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))  # type: ignore[attr-defined]
             ax.set_zlim(-10e3, 10e3)  # type: ignore[attr-defined]
+            ax.set_box_aspect(aspect)
             ax.set_title(f"t={times[i]:.3f} [ms]")
             return plot
 

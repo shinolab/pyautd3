@@ -48,15 +48,4 @@ fixable = ["ALL"]
 asyncio_default_fixture_loop_scope = 'session'
 
 [tool.uv]
-dev-dependencies = [
-    "matplotlib>=3.9.2",
-    "mypy>=1.11.2",
-    "pytest>=8.3.3",
-    "pytest-asyncio>=0.24.0",
-    "pytest-xdist>=3.6.1",
-    "ruff>=0.6.9",
-    "scipy>=1.14.1",
-    "pytest-cov>=5.0.0",
-    "build>=1.2.2.post1",
-    "wheel>=0.44.0",
-]
+dev-dependencies = ["matplotlib>=3.9.2", "mypy>=1.11.2", "pytest>=8.3.3", "pytest-asyncio>=0.24.0", "pytest-xdist>=3.6.1", "ruff>=0.6.9", "pytest-cov>=5.0.0", "build>=1.2.2.post1", "wheel>=0.44.0"]

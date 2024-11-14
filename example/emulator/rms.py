@@ -2,7 +2,6 @@ import numpy as np
 from matplotlib import animation, colorbar
 from matplotlib import pyplot as plt
 from matplotlib.colors import Normalize
-from scipy.interpolate import griddata  # type: ignore[import-untyped]
 
 from pyautd3 import AUTD3, Controller, FociSTM, Focus, SamplingConfig, Silencer, Static, kHz
 from pyautd3.emulator import Range, Recorder, RmsRecordOption
@@ -42,7 +41,11 @@ def plot_focus() -> None:
 
         rms = df.get_columns()[3]
 
-        x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+        rms = rms.to_numpy().reshape([len(y), len(x)])
+        aspect = (len(x), len(y), len(x))
+        x, y = np.meshgrid(x, y)
 
         # plot RMS
         fig = plt.figure()
@@ -52,11 +55,12 @@ def plot_focus() -> None:
         ax.plot_surface(  # type: ignore[attr-defined]
             x,
             y,
-            griddata((df["x[mm]"], df["y[mm]"]), rms, (x, y)),
+            rms,
             shade=False,
             cmap="jet",
             norm=Normalize(vmin=0.0, vmax=rms.max()),  # type: ignore[arg-type]
         )
+        ax.set_box_aspect(aspect)
         colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=0.0, vmax=rms.max()))  # type: ignore[arg-type]
         plt.show()
 
@@ -100,28 +104,33 @@ def plot_stm() -> None:
         df = sound_field.next(Duration.from_millis(5))
 
         times = [float(c.replace("rms[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
-        p = df.get_columns()[3:]
+        rms = df.get_columns()[3:]
 
         times = times[70:]
-        p = p[70:]
+        rms = rms[70:]
 
         fig = plt.figure()
         spec = fig.add_gridspec(ncols=2, nrows=1, width_ratios=[10, 1])
         ax = fig.add_subplot(spec[0], projection="3d")
         cax = fig.add_subplot(spec[1])
-        colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-0, vmax=10e3))
+        colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-0, vmax=5e3))
 
-        x, y = np.meshgrid(np.unique(df["x[mm]"]), np.unique(df["y[mm]"]))
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+        rms_shape = [len(y), len(x)]
+        aspect = (len(x), len(y), len(x))
+        x, y = np.meshgrid(x, y)
 
         def anim(i: int):  # noqa: ANN202
             ax.cla()
-            z = griddata((df["x[mm]"], df["y[mm]"]), p[i], (x, y))
-            plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=0, vmax=10e3))  # type: ignore[attr-defined]
-            ax.set_zlim(0, 10e3)  # type: ignore[attr-defined]
+            z = rms[i].to_numpy().reshape(rms_shape)
+            plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=0, vmax=5e3))  # type: ignore[attr-defined]
+            ax.set_zlim(0, 5e3)  # type: ignore[attr-defined]
+            ax.set_box_aspect(aspect)
             ax.set_title(f"t={times[i]:.3f} [ms]")
             return plot
 
-        _ = animation.FuncAnimation(fig, anim, frames=len(p), interval=1, repeat=False, blit=False)
+        _ = animation.FuncAnimation(fig, anim, frames=len(rms), interval=1, repeat=False, blit=False)
         plt.show()
 
 
