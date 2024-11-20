@@ -18,14 +18,14 @@ from pyautd3.native_methods.autd3capi_driver import GeometryPtr, HandlePtr, Link
 from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, InstantPtr, RecordPtr, RmsPtr
 from pyautd3.native_methods.autd3capi_emulator import InstantRecordOption as InstantRecordOption_
 from pyautd3.native_methods.autd3capi_emulator import NativeMethods as Emu
-from pyautd3.native_methods.autd3capi_emulator import Range as Range_
+from pyautd3.native_methods.autd3capi_emulator import RangeXYZ as RangeXYZ_
 from pyautd3.native_methods.autd3capi_emulator import RmsRecordOption as RmsRecordOption_
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
 
 
-class Range:
-    _inner: Range_
+class RangeXYZ:
+    _inner: RangeXYZ_
 
     def __init__(
         self: Self,
@@ -38,7 +38,7 @@ class Range:
         z_end: float,
         resolution: float,
     ) -> None:
-        self._inner = Range_(
+        self._inner = RangeXYZ_(
             x_start,
             x_end,
             y_start,
@@ -131,13 +131,13 @@ class Instant:
                 Emu().emulator_sound_field_instant_next(
                     self._ptr,
                     duration._inner,
-                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
                     ctypes.cast(
                         (ctypes.POINTER(ctypes.c_float) * n)(
                             *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
                         ),
                         ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
-                    ),  # type: ignore[arg-type]
+                    ),
                 ),
             ),
         )
@@ -169,7 +169,7 @@ class Instant:
         ffi_future = Emu().emulator_sound_field_instant_next(
             self._ptr,
             duration._inner,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
             ctypes.cast(
                 (ctypes.POINTER(ctypes.c_float) * n)(
                     *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
@@ -240,7 +240,7 @@ class Rms:
                 Emu().emulator_sound_field_rms_next(
                     self._ptr,
                     duration._inner,
-                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
                     ctypes.cast(
                         (ctypes.POINTER(ctypes.c_float) * n)(
                             *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
@@ -255,7 +255,7 @@ class Rms:
                 "x[mm]": x,
                 "y[mm]": y,
                 "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
+                **{s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
             },
         )
 
@@ -278,7 +278,7 @@ class Rms:
         ffi_future = Emu().emulator_sound_field_rms_next(
             self._ptr,
             duration._inner,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
             ctypes.cast(
                 (ctypes.POINTER(ctypes.c_float) * n)(
                     *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
@@ -300,7 +300,7 @@ class Rms:
                 "x[mm]": x,
                 "y[mm]": y,
                 "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
+                **{s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
             },
         )
 
@@ -334,108 +334,71 @@ class Record:
             Emu().emulator_record_free(self._ptr)
             self._ptr._0 = None
 
-    def drive(self: Self) -> pl.DataFrame:
-        n = int(Emu().emulator_record_drive_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-        Emu().emulator_record_drive_time(
+    def phase(self: Self) -> pl.DataFrame:
+        cols = int(Emu().emulator_record_drive_cols(self._ptr))
+        rows = int(Emu().emulator_record_drive_rows(self._ptr))
+        time = np.zeros(cols, dtype=np.uint64)
+        v = np.zeros([cols, rows], dtype=np.uint8)
+        Emu().emulator_record_phase(
             self._ptr,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
+            ctypes.cast(
+                (ctypes.POINTER(ctypes.c_uint8) * cols)(
+                    *(ctypes.cast(r, ctypes.POINTER(ctypes.c_uint8)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
+                ),
+                ctypes.POINTER(ctypes.POINTER(ctypes.c_uint8)),
+            ),
         )
-        dev_num = int(Emu().emulator_record_num_devices(self._ptr))
-        pulsewidth = np.zeros(n, dtype=np.uint8)
-        phase = np.zeros(n, dtype=np.uint8)
+        return pl.DataFrame({s.name: s for s in (pl.Series(name=f"phase@{time[i]}[ns]", values=v[i]) for i in range(cols))})
 
-        num_cols = sum(2 * int(Emu().emulator_record_num_transducers(self._ptr, dev_idx)) for dev_idx in range(dev_num))
-        series = np.zeros([num_cols], dtype=pl.Series)
-        i = 0
-        for dev_idx in range(dev_num):
-            for tr_idx in range(int(Emu().emulator_record_num_transducers(self._ptr, dev_idx))):
-                Emu().emulator_record_drive_phase(
-                    self._ptr,
-                    dev_idx,
-                    tr_idx,
-                    phase.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]
-                )
-                Emu().emulator_record_drive_pulse_width(
-                    self._ptr,
-                    dev_idx,
-                    tr_idx,
-                    pulsewidth.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]
-                )
-                series[i] = pl.Series(name=f"phase_{dev_idx}_{tr_idx}", values=phase)
-                series[i + 1] = pl.Series(name=f"pulsewidth_{dev_idx}_{tr_idx}", values=pulsewidth)
-                i += 2
-
-        return pl.DataFrame(
-            {
-                "time[ns]": time,
-                **{s.name: s for s in series},
-            },
+    def pulse_width(self: Self) -> pl.DataFrame:
+        cols = int(Emu().emulator_record_drive_cols(self._ptr))
+        rows = int(Emu().emulator_record_drive_rows(self._ptr))
+        time = np.zeros(cols, dtype=np.uint64)
+        v = np.zeros([cols, rows], dtype=np.uint8)
+        Emu().emulator_record_pulse_width(
+            self._ptr,
+            time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
+            ctypes.cast(
+                (ctypes.POINTER(ctypes.c_uint8) * cols)(
+                    *(ctypes.cast(r, ctypes.POINTER(ctypes.c_uint8)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
+                ),
+                ctypes.POINTER(ctypes.POINTER(ctypes.c_uint8)),
+            ),
         )
+        return pl.DataFrame({s.name: s for s in (pl.Series(name=f"pulse_width@{time[i]}[ns]", values=v[i]) for i in range(cols))})
 
     def output_voltage(self: Self) -> pl.DataFrame:
-        n = int(Emu().emulator_record_output_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-        Emu().emulator_record_output_time(
+        cols = int(Emu().emulator_record_output_cols(self._ptr))
+        rows = int(Emu().emulator_record_drive_rows(self._ptr))
+        v = np.zeros([cols, rows], dtype=np.float32)
+        Emu().emulator_record_output_voltage(
             self._ptr,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+            ctypes.cast(
+                (ctypes.POINTER(ctypes.c_float) * cols)(
+                    *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
+                ),
+                ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
+            ),
         )
-        dev_num = int(Emu().emulator_record_num_devices(self._ptr))
-        v = np.zeros(n, dtype=np.float32)
-
-        num_cols = sum(int(Emu().emulator_record_num_transducers(self._ptr, dev_idx)) for dev_idx in range(dev_num))
-        series = np.zeros([num_cols], dtype=pl.Series)
-        i = 0
-        for dev_idx in range(dev_num):
-            for tr_idx in range(int(Emu().emulator_record_num_transducers(self._ptr, dev_idx))):
-                Emu().emulator_record_output_voltage(
-                    self._ptr,
-                    dev_idx,
-                    tr_idx,
-                    v.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
-                )
-                series[i] = pl.Series(name=f"voltage_{dev_idx}_{tr_idx}[V]", values=v)
-                i += 1
-
-        return pl.DataFrame(
-            {
-                "time[25us/256]": time,
-                **{s.name: s for s in series},
-            },
-        )
+        return pl.DataFrame({s.name: s for s in (pl.Series(name=f"voltage[V]@{i}[25us/256]", values=v[i]) for i in range(cols))})
 
     def output_ultrasound(self: Self) -> pl.DataFrame:
-        n = int(Emu().emulator_record_output_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-        Emu().emulator_record_output_time(
+        cols = int(Emu().emulator_record_output_cols(self._ptr))
+        rows = int(Emu().emulator_record_drive_rows(self._ptr))
+        v = np.zeros([cols, rows], dtype=np.float32)
+        Emu().emulator_record_output_ultrasound(
             self._ptr,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_ulonglong)),  # type: ignore[arg-type]
+            ctypes.cast(
+                (ctypes.POINTER(ctypes.c_float) * cols)(
+                    *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
+                ),
+                ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
+            ),
         )
-        dev_num = int(Emu().emulator_record_num_devices(self._ptr))
-        v = np.zeros(n, dtype=np.float32)
+        return pl.DataFrame({s.name: s for s in (pl.Series(name=f"p[a.u.]@{i}[25us/256]", values=v[i]) for i in range(cols))})
 
-        num_cols = sum(int(Emu().emulator_record_num_transducers(self._ptr, dev_idx)) for dev_idx in range(dev_num))
-        series = np.zeros([num_cols], dtype=pl.Series)
-        i = 0
-        for dev_idx in range(dev_num):
-            for tr_idx in range(int(Emu().emulator_record_num_transducers(self._ptr, dev_idx))):
-                Emu().emulator_record_output_ultrasound(
-                    self._ptr,
-                    dev_idx,
-                    tr_idx,
-                    v.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
-                )
-                series[i] = pl.Series(name=f"p_{dev_idx}_{tr_idx}[a.u.]", values=v)
-                i += 1
-
-        return pl.DataFrame(
-            {
-                "time[25us/256]": time,
-                **{s.name: s for s in series},
-            },
-        )
-
-    def sound_field(self: Self, range_: Range, option: InstantRecordOption | RmsRecordOption) -> Instant | Rms:
+    def sound_field(self: Self, range_: RangeXYZ, option: InstantRecordOption | RmsRecordOption) -> Instant | Rms:
         match option:
             case InstantRecordOption():
                 return Instant(
@@ -458,7 +421,7 @@ class Record:
                     self._handle,
                 )
 
-    async def sound_field_async(self: Self, range_: Range, option: InstantRecordOption | RmsRecordOption) -> Instant | Rms:
+    async def sound_field_async(self: Self, range_: RangeXYZ, option: InstantRecordOption | RmsRecordOption) -> Instant | Rms:
         future: asyncio.Future = asyncio.Future()
         loop = asyncio.get_event_loop()
         match option:
@@ -507,6 +470,40 @@ class Emulator(Geometry):
     @property
     def geometry(self: Self) -> Geometry:
         return self
+
+    def transducer_table(self: Self) -> pl.DataFrame:
+        n = int(Emu().emulator_transducer_table_rows(self._ptr))
+        dev_indices = np.zeros(n, dtype=np.uint16)
+        tr_indices = np.zeros(n, dtype=np.uint8)
+        x = np.zeros(n, dtype=np.float32)
+        y = np.zeros(n, dtype=np.float32)
+        z = np.zeros(n, dtype=np.float32)
+        nx = np.zeros(n, dtype=np.float32)
+        ny = np.zeros(n, dtype=np.float32)
+        nz = np.zeros(n, dtype=np.float32)
+        Emu().emulator_transducer_table(
+            self._ptr,
+            dev_indices.ctypes.data_as(ctypes.POINTER(ctypes.c_uint16)),  # type: ignore[arg-type]
+            tr_indices.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]
+            x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            z.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            nx.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            ny.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            nz.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+        )
+        return pl.DataFrame(
+            {
+                "dev_idx": dev_indices,
+                "tr_idx": tr_indices,
+                "x[mm]": x,
+                "y[mm]": y,
+                "z[mm]": z,
+                "nx": nx,
+                "ny": ny,
+                "nz": nz,
+            },
+        )
 
     def record(self: Self, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
         return self.record_from(DcSysTime.__private_new__(_DcSysTime(0)), f)

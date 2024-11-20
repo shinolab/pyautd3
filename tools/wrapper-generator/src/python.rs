@@ -148,6 +148,7 @@ impl PythonGenerator {
                 Type::Custom(ref s) => format!("ctypes.POINTER({})", s),
             },
             2 => match arg.ty {
+                Type::UInt8 => "ctypes.POINTER(ctypes.POINTER(ctypes.c_uint8))".to_owned(),
                 Type::Int32 => "ctypes.POINTER(ctypes.POINTER(ctypes.c_int32))".to_owned(),
                 Type::Float32 => "ctypes.POINTER(ctypes.POINTER(ctypes.c_float))".to_owned(),
                 Type::Float64 => "ctypes.POINTER(ctypes.POINTER(ctypes.c_float))".to_owned(),
@@ -201,6 +202,7 @@ impl PythonGenerator {
                 Type::Custom(_) => "ctypes.Array | None",
             },
             2 => match arg.ty {
+                Type::UInt8 => "ctypes.Array[ctypes.Array[ctypes.c_uint8]]",
                 Type::Int32 => "ctypes.Array[ctypes.Array[ctypes.c_int32]]",
                 Type::Float32 => "ctypes.Array[ctypes.Array[ctypes.c_float]]",
                 Type::Custom(_) => "ctypes.Array",

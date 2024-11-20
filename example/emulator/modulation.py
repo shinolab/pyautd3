@@ -2,7 +2,7 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from pyautd3 import AUTD3, Controller, EmitIntensity, Focus, Hz, Silencer, Sine, Uniform
-from pyautd3.emulator import InstantRecordOption, Range, Recorder
+from pyautd3.emulator import InstantRecordOption, RangeXYZ, Recorder
 from pyautd3.utils import Duration
 
 if __name__ == "__main__":
@@ -16,10 +16,10 @@ if __name__ == "__main__":
 
         record = emulator.record(f)
 
-        df = record.drive()
-        t = df["time[ns]"]
-        pulse_width = df["pulsewidth_0_0"]
-        plt.plot(t / 1000_000, pulse_width)
+        df = record.pulse_width()
+        t = [float(c.replace("pulse_width@", "").replace("[ns]", "")) / 1_000_000 for c in df.columns]
+        pulse_width = df.row(0)
+        plt.plot(t, pulse_width)
         plt.xlim(5, 10)
         plt.ylim(0, 128)
         plt.xlabel("time [ms]")
@@ -36,10 +36,10 @@ if __name__ == "__main__":
 
         record = emulator.record(f)
 
-        df = record.drive()
-        t = df["time[ns]"]
-        pulse_width = df["pulsewidth_0_0"]
-        plt.plot(t / 1000_000, pulse_width)
+        df = record.pulse_width()
+        t = [float(c.replace("pulse_width@", "").replace("[ns]", "")) / 1_000_000 for c in df.columns]
+        pulse_width = df.row(0)
+        plt.plot(t, pulse_width)
         plt.xlim(5, 10)
         plt.ylim(0, 128)
         plt.xlabel("time [ms]")
@@ -60,7 +60,7 @@ if __name__ == "__main__":
 
         print("Calculating sound pressure at focus under 200Hz sin modulation with silencer...")
         sound_field = record.sound_field(
-            Range(
+            RangeXYZ(
                 x_start=focus[0],
                 x_end=focus[0],
                 y_start=focus[1],
