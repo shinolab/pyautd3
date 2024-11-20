@@ -455,7 +455,7 @@ wheels = [
 
 [[package]]
 name = "pyautd3"
-version = "29.0.0rc8"
+version = "29.0.0rc9"
 source = { editable = "." }
 dependencies = [
     { name = "forbiddenfruit" },

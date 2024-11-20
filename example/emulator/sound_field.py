@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import Normalize
 
 from pyautd3 import AUTD3, Controller, FociSTM, Focus, SamplingConfig, Silencer, Static, kHz
-from pyautd3.emulator import InstantRecordOption, Range, Recorder
+from pyautd3.emulator import InstantRecordOption, RangeXYZ, Recorder
 from pyautd3.utils import Duration
 
 
@@ -22,7 +22,7 @@ def plot_focus() -> None:
         record = emulator.record(f)
 
         sound_field = record.sound_field(
-            Range(
+            RangeXYZ(
                 x_start=focus[0] - 20.0,
                 x_end=focus[0] + 20.0,
                 y_start=focus[1] - 20.0,
@@ -62,7 +62,7 @@ def plot_focus() -> None:
             z = p[i].to_numpy().reshape(p_shape)
             plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))  # type: ignore[attr-defined]
             ax.set_zlim(-10e3, 10e3)  # type: ignore[attr-defined]
-            ax.set_box_aspect(aspect)
+            ax.set_box_aspect(aspect)  # type: ignore[arg-type]
             ax.set_title(f"t={times[i]:.3f} [ms]")
             return plot
 
@@ -108,7 +108,7 @@ def plot_stm() -> None:
         record = emulator.record(f)
 
         sound_field = record.sound_field(
-            Range(
+            RangeXYZ(
                 x_start=focus[0] - 30.0,
                 x_end=focus[0] + 30.0,
                 y_start=focus[1] - 30.0,
@@ -149,7 +149,7 @@ def plot_stm() -> None:
             z = p[i].to_numpy().reshape(p_shape)
             plot = ax.plot_surface(x, y, z, shade=False, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))  # type: ignore[attr-defined]
             ax.set_zlim(-10e3, 10e3)  # type: ignore[attr-defined]
-            ax.set_box_aspect(aspect)
+            ax.set_box_aspect(aspect)  # type: ignore[arg-type]
             ax.set_title(f"t={times[i]:.3f} [ms]")
             return plot
 

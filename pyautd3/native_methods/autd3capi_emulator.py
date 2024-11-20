@@ -34,11 +34,11 @@ class InstantRecordOption(ctypes.Structure):
         return isinstance(other, InstantRecordOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class Range(ctypes.Structure):
+class RangeXYZ(ctypes.Structure):
     _fields_ = [("x_start", ctypes.c_float), ("x_end", ctypes.c_float), ("y_start", ctypes.c_float), ("y_end", ctypes.c_float), ("z_start", ctypes.c_float), ("z_end", ctypes.c_float), ("resolution", ctypes.c_float)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Range) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, RangeXYZ) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ResultRecord(ctypes.Structure):
@@ -87,7 +87,19 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi_emulator{bin_ext}'))
 
-        self.dll.AUTDEmulatorSoundFieldInstant.argtypes = [RecordPtr, Range, InstantRecordOption]  # type: ignore 
+        self.dll.AUTDEmulatorRecordDriveCols.argtypes = [RecordPtr]  # type: ignore 
+        self.dll.AUTDEmulatorRecordDriveCols.restype = ctypes.c_uint64
+
+        self.dll.AUTDEmulatorRecordDriveRows.argtypes = [RecordPtr]  # type: ignore 
+        self.dll.AUTDEmulatorRecordDriveRows.restype = ctypes.c_uint64
+
+        self.dll.AUTDEmulatorRecordPhase.argtypes = [RecordPtr, ctypes.POINTER(ctypes.c_uint64), ctypes.POINTER(ctypes.POINTER(ctypes.c_uint8))]  # type: ignore 
+        self.dll.AUTDEmulatorRecordPhase.restype = None
+
+        self.dll.AUTDEmulatorRecordPulseWidth.argtypes = [RecordPtr, ctypes.POINTER(ctypes.c_uint64), ctypes.POINTER(ctypes.POINTER(ctypes.c_uint8))]  # type: ignore 
+        self.dll.AUTDEmulatorRecordPulseWidth.restype = None
+
+        self.dll.AUTDEmulatorSoundFieldInstant.argtypes = [RecordPtr, RangeXYZ, InstantRecordOption]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldInstant.restype = LocalFfiFuture
 
         self.dll.AUTDEmulatorSoundFieldInstantWait.argtypes = [HandlePtr, LocalFfiFuture]  # type: ignore 
@@ -144,37 +156,22 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorTickNs.argtypes = [LinkPtr, Duration]  # type: ignore 
         self.dll.AUTDEmulatorTickNs.restype = ResultStatus
 
-        self.dll.AUTDEmulatorRecordNumDevices.argtypes = [RecordPtr]  # type: ignore 
-        self.dll.AUTDEmulatorRecordNumDevices.restype = ctypes.c_uint16
+        self.dll.AUTDEmulatorTransducerTableRows.argtypes = [EmulatorPtr]  # type: ignore 
+        self.dll.AUTDEmulatorTransducerTableRows.restype = ctypes.c_uint64
 
-        self.dll.AUTDEmulatorRecordNumTransducers.argtypes = [RecordPtr, ctypes.c_uint16]  # type: ignore 
-        self.dll.AUTDEmulatorRecordNumTransducers.restype = ctypes.c_uint8
+        self.dll.AUTDEmulatorTransducerTable.argtypes = [EmulatorPtr, ctypes.POINTER(ctypes.c_uint16), ctypes.POINTER(ctypes.c_uint8), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float), ctypes.POINTER(ctypes.c_float)]  # type: ignore 
+        self.dll.AUTDEmulatorTransducerTable.restype = None
 
-        self.dll.AUTDEmulatorRecordDriveLen.argtypes = [RecordPtr]  # type: ignore 
-        self.dll.AUTDEmulatorRecordDriveLen.restype = ctypes.c_uint64
+        self.dll.AUTDEmulatorRecordOutputCols.argtypes = [RecordPtr]  # type: ignore 
+        self.dll.AUTDEmulatorRecordOutputCols.restype = ctypes.c_uint64
 
-        self.dll.AUTDEmulatorRecordDriveTime.argtypes = [RecordPtr, ctypes.POINTER(ctypes.c_uint64)]  # type: ignore 
-        self.dll.AUTDEmulatorRecordDriveTime.restype = None
-
-        self.dll.AUTDEmulatorRecordDrivePulseWidth.argtypes = [RecordPtr, ctypes.c_uint16, ctypes.c_uint8, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
-        self.dll.AUTDEmulatorRecordDrivePulseWidth.restype = None
-
-        self.dll.AUTDEmulatorRecordDrivePhase.argtypes = [RecordPtr, ctypes.c_uint16, ctypes.c_uint8, ctypes.POINTER(ctypes.c_uint8)]  # type: ignore 
-        self.dll.AUTDEmulatorRecordDrivePhase.restype = None
-
-        self.dll.AUTDEmulatorRecordOutputLen.argtypes = [RecordPtr]  # type: ignore 
-        self.dll.AUTDEmulatorRecordOutputLen.restype = ctypes.c_uint64
-
-        self.dll.AUTDEmulatorRecordOutputTime.argtypes = [RecordPtr, ctypes.POINTER(ctypes.c_uint64)]  # type: ignore 
-        self.dll.AUTDEmulatorRecordOutputTime.restype = None
-
-        self.dll.AUTDEmulatorRecordOutputVoltage.argtypes = [RecordPtr, ctypes.c_uint16, ctypes.c_uint8, ctypes.POINTER(ctypes.c_float)]  # type: ignore 
+        self.dll.AUTDEmulatorRecordOutputVoltage.argtypes = [RecordPtr, ctypes.POINTER(ctypes.POINTER(ctypes.c_float))]  # type: ignore 
         self.dll.AUTDEmulatorRecordOutputVoltage.restype = None
 
-        self.dll.AUTDEmulatorRecordOutputUltrasound.argtypes = [RecordPtr, ctypes.c_uint16, ctypes.c_uint8, ctypes.POINTER(ctypes.c_float)]  # type: ignore 
+        self.dll.AUTDEmulatorRecordOutputUltrasound.argtypes = [RecordPtr, ctypes.POINTER(ctypes.POINTER(ctypes.c_float))]  # type: ignore 
         self.dll.AUTDEmulatorRecordOutputUltrasound.restype = None
 
-        self.dll.AUTDEmulatorSoundFieldRms.argtypes = [RecordPtr, Range, RmsRecordOption]  # type: ignore 
+        self.dll.AUTDEmulatorSoundFieldRms.argtypes = [RecordPtr, RangeXYZ, RmsRecordOption]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldRms.restype = LocalFfiFuture
 
         self.dll.AUTDEmulatorSoundFieldRmsWait.argtypes = [HandlePtr, LocalFfiFuture]  # type: ignore 
@@ -204,7 +201,19 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorSoundFieldRmsFree.argtypes = [RmsPtr]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldRmsFree.restype = None
 
-    def emulator_sound_field_instant(self, record: RecordPtr, range: Range, option: InstantRecordOption) -> LocalFfiFuture:
+    def emulator_record_drive_cols(self, record: RecordPtr) -> ctypes.c_uint64:
+        return self.dll.AUTDEmulatorRecordDriveCols(record)
+
+    def emulator_record_drive_rows(self, record: RecordPtr) -> ctypes.c_uint64:
+        return self.dll.AUTDEmulatorRecordDriveRows(record)
+
+    def emulator_record_phase(self, record: RecordPtr, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_uint8]]) -> None:
+        return self.dll.AUTDEmulatorRecordPhase(record, time, v)
+
+    def emulator_record_pulse_width(self, record: RecordPtr, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_uint8]]) -> None:
+        return self.dll.AUTDEmulatorRecordPulseWidth(record, time, v)
+
+    def emulator_sound_field_instant(self, record: RecordPtr, range: RangeXYZ, option: InstantRecordOption) -> LocalFfiFuture:
         return self.dll.AUTDEmulatorSoundFieldInstant(record, range, option)
 
     def emulator_sound_field_instant_wait(self, handle: HandlePtr, future: LocalFfiFuture) -> ResultInstant:
@@ -261,37 +270,22 @@ class NativeMethods(metaclass=Singleton):
     def emulator_tick_ns(self, record: LinkPtr, tick: Duration) -> ResultStatus:
         return self.dll.AUTDEmulatorTickNs(record, tick)
 
-    def emulator_record_num_devices(self, record: RecordPtr) -> ctypes.c_uint16:
-        return self.dll.AUTDEmulatorRecordNumDevices(record)
+    def emulator_transducer_table_rows(self, emulator: EmulatorPtr) -> ctypes.c_uint64:
+        return self.dll.AUTDEmulatorTransducerTableRows(emulator)
 
-    def emulator_record_num_transducers(self, record: RecordPtr, dev_idx: int) -> ctypes.c_uint8:
-        return self.dll.AUTDEmulatorRecordNumTransducers(record, dev_idx)
+    def emulator_transducer_table(self, emulator: EmulatorPtr, dev_indices: ctypes.Array[ctypes.c_uint16] | None, tr_indices: ctypes.Array[ctypes.c_uint8] | None, x: ctypes.Array[ctypes.c_float] | None, y: ctypes.Array[ctypes.c_float] | None, z: ctypes.Array[ctypes.c_float] | None, nx: ctypes.Array[ctypes.c_float] | None, ny: ctypes.Array[ctypes.c_float] | None, nz: ctypes.Array[ctypes.c_float] | None) -> None:
+        return self.dll.AUTDEmulatorTransducerTable(emulator, dev_indices, tr_indices, x, y, z, nx, ny, nz)
 
-    def emulator_record_drive_len(self, record: RecordPtr) -> ctypes.c_uint64:
-        return self.dll.AUTDEmulatorRecordDriveLen(record)
+    def emulator_record_output_cols(self, record: RecordPtr) -> ctypes.c_uint64:
+        return self.dll.AUTDEmulatorRecordOutputCols(record)
 
-    def emulator_record_drive_time(self, record: RecordPtr, time: ctypes.Array[ctypes.c_uint64] | None) -> None:
-        return self.dll.AUTDEmulatorRecordDriveTime(record, time)
+    def emulator_record_output_voltage(self, record: RecordPtr, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> None:
+        return self.dll.AUTDEmulatorRecordOutputVoltage(record, v)
 
-    def emulator_record_drive_pulse_width(self, record: RecordPtr, dev_idx: int, tr_idx: int, pulsewidth: ctypes.Array[ctypes.c_uint8] | None) -> None:
-        return self.dll.AUTDEmulatorRecordDrivePulseWidth(record, dev_idx, tr_idx, pulsewidth)
+    def emulator_record_output_ultrasound(self, record: RecordPtr, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> None:
+        return self.dll.AUTDEmulatorRecordOutputUltrasound(record, v)
 
-    def emulator_record_drive_phase(self, record: RecordPtr, dev_idx: int, tr_idx: int, pulsewidth: ctypes.Array[ctypes.c_uint8] | None) -> None:
-        return self.dll.AUTDEmulatorRecordDrivePhase(record, dev_idx, tr_idx, pulsewidth)
-
-    def emulator_record_output_len(self, record: RecordPtr) -> ctypes.c_uint64:
-        return self.dll.AUTDEmulatorRecordOutputLen(record)
-
-    def emulator_record_output_time(self, record: RecordPtr, time: ctypes.Array[ctypes.c_uint64] | None) -> None:
-        return self.dll.AUTDEmulatorRecordOutputTime(record, time)
-
-    def emulator_record_output_voltage(self, record: RecordPtr, dev_idx: int, tr_idx: int, v: ctypes.Array[ctypes.c_float] | None) -> None:
-        return self.dll.AUTDEmulatorRecordOutputVoltage(record, dev_idx, tr_idx, v)
-
-    def emulator_record_output_ultrasound(self, record: RecordPtr, dev_idx: int, tr_idx: int, v: ctypes.Array[ctypes.c_float] | None) -> None:
-        return self.dll.AUTDEmulatorRecordOutputUltrasound(record, dev_idx, tr_idx, v)
-
-    def emulator_sound_field_rms(self, record: RecordPtr, range: Range, option: RmsRecordOption) -> LocalFfiFuture:
+    def emulator_sound_field_rms(self, record: RecordPtr, range: RangeXYZ, option: RmsRecordOption) -> LocalFfiFuture:
         return self.dll.AUTDEmulatorSoundFieldRms(record, range, option)
 
     def emulator_sound_field_rms_wait(self, handle: HandlePtr, future: LocalFfiFuture) -> ResultRms:
