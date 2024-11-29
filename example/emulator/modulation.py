@@ -76,8 +76,8 @@ if __name__ == "__main__":
         )
 
         df = sound_field.next(Duration.from_millis(20))
-        time = np.array([float(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in df.columns[3:]])
-        p = df.row(0)[3:]
+        time = np.array([float(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in df.columns])
+        p = df.row(0)
         plt.plot(time / 1000_000, p)
         plt.xlim(0, 20)
         plt.xlabel("time [ms]")

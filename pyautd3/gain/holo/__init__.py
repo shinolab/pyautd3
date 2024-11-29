@@ -9,14 +9,14 @@ from .lm import LM
 from .naive import Naive
 
 __all__ = [
-    "dB",
-    "Pa",
-    "Amplitude",
-    "NalgebraBackend",
-    "EmissionConstraint",
     "GS",
     "GSPAT",
     "LM",
+    "Amplitude",
+    "EmissionConstraint",
     "Greedy",
     "Naive",
+    "NalgebraBackend",
+    "Pa",
+    "dB",
 ]

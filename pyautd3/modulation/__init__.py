@@ -6,13 +6,13 @@ from .square import Square
 from .static import Static
 
 __all__ = [
-    "Static",
-    "Sine",
-    "Fourier",
-    "Square",
-    "Custom",
-    "Resampler",
     "BlackMan",
+    "Custom",
+    "Fourier",
     "Rectangular",
+    "Resampler",
     "SincInterpolation",
+    "Sine",
+    "Square",
+    "Static",
 ]

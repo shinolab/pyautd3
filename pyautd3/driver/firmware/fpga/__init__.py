@@ -9,9 +9,9 @@ from .transition_mode import TransitionMode
 __all__ = [
     "Drive",
     "EmitIntensity",
+    "FPGAState",
+    "LoopBehavior",
     "Phase",
     "SamplingConfig",
-    "LoopBehavior",
-    "FPGAState",
     "TransitionMode",
 ]

@@ -671,11 +671,13 @@ def test_sound_field_instant():
             ),
         )
 
+        points_df = sound_field.observe_points()
+        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), points_df["x[mm]"])
+        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), points_df["y[mm]"])
+        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), points_df["z[mm]"])
+
         sound_field_df = sound_field.skip(Duration.from_micros(25 * 9)).next(Duration.from_micros(25))
-        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
-        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
-        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
-        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
+        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns]
         assert np.array_equal(225000 + 1000 * np.arange(0, 25), time)
         expect = np.array(
             [
@@ -707,7 +709,7 @@ def test_sound_field_instant():
             ],
         )
 
-        for i, col in enumerate(sound_field_df.columns[3:]):
+        for i, col in enumerate(sound_field_df.columns):
             assert np.allclose(expect[i], sound_field_df[col])
 
 
@@ -734,14 +736,16 @@ def test_sound_field_rms():
             RmsRecordOption(),
         )
 
+        points_df = sound_field.observe_points()
+        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), points_df["x[mm]"])
+        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), points_df["y[mm]"])
+        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), points_df["z[mm]"])
+
         sound_field_df = sound_field.skip(Duration.from_micros(25 * 9)).next(Duration.from_micros(25))
-        time = [int(t.replace("rms[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
-        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
-        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
-        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
+        time = [int(t.replace("rms[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns]
         assert np.array_equal(np.array([225000]), time)
         expect = np.array([[445.02795, 440.45087, 408.70248]])
-        for i, col in enumerate(sound_field_df.columns[3:]):
+        for i, col in enumerate(sound_field_df.columns):
             assert np.allclose(expect[i], sound_field_df[col])
 
 
@@ -771,11 +775,13 @@ async def test_sound_field_instant_async():
             ),
         )
 
+        points_df = sound_field.observe_points()
+        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), points_df["x[mm]"])
+        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), points_df["y[mm]"])
+        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), points_df["z[mm]"])
+
         sound_field_df = await sound_field.skip(Duration.from_micros(25 * 9)).next_async(Duration.from_micros(25))
-        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
-        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
-        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
-        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
+        time = [int(t.replace("p[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns]
         assert np.array_equal(225000 + 1000 * np.arange(0, 25), time)
         expect = np.array(
             [
@@ -807,7 +813,7 @@ async def test_sound_field_instant_async():
             ],
         )
 
-        for i, col in enumerate(sound_field_df.columns[3:]):
+        for i, col in enumerate(sound_field_df.columns):
             assert np.allclose(expect[i], sound_field_df[col])
 
 
@@ -835,15 +841,17 @@ async def test_sound_field_rms_async():
             RmsRecordOption(),
         )
 
+        points_df = sound_field.observe_points()
+        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), points_df["x[mm]"])
+        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), points_df["y[mm]"])
+        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), points_df["z[mm]"])
+
         sound_field_df = await sound_field.skip(Duration.from_micros(25 * 9)).next_async(Duration.from_micros(25))
-        time = [int(t.replace("rms[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns[3:]]
-        assert np.array_equal(np.array([-1, 0, 1], dtype=np.float32), sound_field_df["x[mm]"])
-        assert np.array_equal(np.array([0, 0, 0], dtype=np.float32), sound_field_df["y[mm]"])
-        assert np.array_equal(np.array([10, 10, 10], dtype=np.float32), sound_field_df["z[mm]"])
+        time = [int(t.replace("rms[Pa]@", "").replace("[ns]", "")) for t in sound_field_df.columns]
         assert np.array_equal(np.array([225000]), time)
         expect = np.array([[445.02795, 440.45087, 408.70248]])
 
-        for i, col in enumerate(sound_field_df.columns[3:]):
+        for i, col in enumerate(sound_field_df.columns):
             assert np.allclose(expect[i], sound_field_df[col])
 
 

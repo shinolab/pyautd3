@@ -6,4 +6,4 @@ from .null import Null
 from .plane import Plane
 from .uniform import Uniform
 
-__all__ = ["Focus", "Bessel", "Plane", "Null", "Group", "Custom", "Uniform"]
+__all__ = ["Bessel", "Custom", "Focus", "Group", "Null", "Plane", "Uniform"]
