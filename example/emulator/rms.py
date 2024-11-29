@@ -37,11 +37,14 @@ def plot_focus() -> None:
             ),
         )
         print("Calculating sound field around focus...")
-        df = sound_field.next(Duration.from_micros(25))
 
+        df = sound_field.observe_points()
         x = np.unique(df["x[mm]"])
         y = np.unique(df["y[mm]"])
-        rms = df.get_columns()[3].to_numpy().reshape([len(y), len(x)])
+
+        df = sound_field.next(Duration.from_micros(25))
+
+        rms = df.get_columns()[0].to_numpy().reshape([len(y), len(x)])
         aspect = (len(x), len(y), len(x))
         x, y = np.meshgrid(x, y)
 
@@ -99,10 +102,15 @@ def plot_stm() -> None:
             ),
         )
         print("Calculating sound field around focus...")
+
+        df = sound_field.observe_points()
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+
         df = sound_field.next(Duration.from_millis(5))
 
-        times = [float(c.replace("rms[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
-        rms = df.get_columns()[3:]
+        times = [float(c.replace("rms[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns]
+        rms = df.get_columns()
 
         times = times[70:]
         rms = rms[70:]
@@ -113,8 +121,6 @@ def plot_stm() -> None:
         cax = fig.add_subplot(spec[1])
         colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-0, vmax=5e3))
 
-        x = np.unique(df["x[mm]"])
-        y = np.unique(df["y[mm]"])
         rms_shape = [len(y), len(x)]
         aspect = (len(x), len(y), len(x))
         x, y = np.meshgrid(x, y)

@@ -19,21 +19,21 @@ from .synchronize import Synchronize
 
 __all__ = [
     "Clear",
-    "Silencer",
-    "FixedCompletionTime",
-    "FixedUpdateRate",
+    "Datagram",
     "DebugSettings",
     "DebugType",
-    "ReadsFPGAState",
-    "ForceFan",
-    "Datagram",
-    "Synchronize",
-    "GainSTM",
+    "FixedCompletionTime",
+    "FixedUpdateRate",
     "FociSTM",
+    "ForceFan",
+    "GainSTM",
     "GainSTMMode",
-    "SwapSegment",
-    "PulseWidthEncoder",
     "PhaseCorrection",
+    "PulseWidthEncoder",
+    "ReadsFPGAState",
+    "Silencer",
+    "SwapSegment",
+    "Synchronize",
 ]
 
 

@@ -30,7 +30,7 @@ class EmitIntensity:
     def __floordiv__(self: Self, other: int) -> "EmitIntensity":
         return EmitIntensity(self.value // other)
 
-    def __eq__(self: Self, __value: object) -> bool:
+    def __eq__(self: Self, __value: object, /) -> bool:
         return isinstance(__value, EmitIntensity) and self.value == __value.value
 
     def __str__(self: Self) -> str:

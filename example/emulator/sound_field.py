@@ -38,10 +38,15 @@ def plot_focus() -> None:
             ),
         )
         print("Calculating sound field around focus...")
+
+        df = sound_field.observe_points()
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+
         df = sound_field.next(Duration.from_millis(1))
 
-        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
-        p = df.get_columns()[3:]
+        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns]
+        p = df.get_columns()
         times = times[440:]
         p = p[440:]
 
@@ -51,8 +56,6 @@ def plot_focus() -> None:
         cax = fig.add_subplot(spec[1])
         colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))
 
-        x = np.unique(df["x[mm]"])
-        y = np.unique(df["y[mm]"])
         p_shape = [len(y), len(x)]
         aspect = (len(x), len(y), len(x))
         x, y = np.meshgrid(x, y)
@@ -124,10 +127,15 @@ def plot_stm() -> None:
             ),
         )
         print("Calculating sound field around focus...")
+
+        df = sound_field.observe_points()
+        x = np.unique(df["x[mm]"])
+        y = np.unique(df["y[mm]"])
+
         df = sound_field.next(Duration.from_millis(5))
 
-        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns[3:]]
-        p = df.get_columns()[3:]
+        times = [float(c.replace("p[Pa]@", "").replace("[ns]", "")) / 1000_000 for c in df.columns]
+        p = df.get_columns()
 
         times = times[700:]
         p = p[700:]
@@ -138,8 +146,6 @@ def plot_stm() -> None:
         cax = fig.add_subplot(spec[1])
         colorbar.ColorbarBase(cax, cmap="jet", norm=Normalize(vmin=-10e3, vmax=10e3))
 
-        x = np.unique(df["x[mm]"])
-        y = np.unique(df["y[mm]"])
         p_shape = [len(y), len(x)]
         aspect = (len(x), len(y), len(x))
         x, y = np.meshgrid(x, y)

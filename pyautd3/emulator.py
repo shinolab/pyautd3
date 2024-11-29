@@ -112,17 +112,26 @@ class Instant:
         )
         return self
 
-    def next(self: Self, duration: Duration) -> pl.DataFrame:
-        n = int(Emu().emulator_sound_field_instant_time_len(self._ptr, duration._inner))
+    def observe_points(self: Self) -> pl.DataFrame:
         points_len = int(Emu().emulator_sound_field_instant_points_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-
         x = np.zeros(points_len, dtype=np.float32)
         y = np.zeros(points_len, dtype=np.float32)
         z = np.zeros(points_len, dtype=np.float32)
         Emu().emulator_sound_field_instant_get_x(self._ptr, x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
         Emu().emulator_sound_field_instant_get_y(self._ptr, y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
         Emu().emulator_sound_field_instant_get_z(self._ptr, z.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
+        return pl.DataFrame(
+            {
+                "x[mm]": x,
+                "y[mm]": y,
+                "z[mm]": z,
+            },
+        )
+
+    def next(self: Self, duration: Duration) -> pl.DataFrame:
+        n = int(Emu().emulator_sound_field_instant_time_len(self._ptr, duration._inner))
+        points_len = int(Emu().emulator_sound_field_instant_points_len(self._ptr))
+        time = np.zeros(n, dtype=np.uint64)
 
         v = np.zeros([n, points_len], dtype=np.float32)
         _validate_status(
@@ -142,12 +151,7 @@ class Instant:
             ),
         )
         return pl.DataFrame(
-            {
-                "x[mm]": x,
-                "y[mm]": y,
-                "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
-            },
+            {s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
         )
 
     async def next_async(self: Self, duration: Duration) -> pl.DataFrame:
@@ -157,13 +161,6 @@ class Instant:
         n = int(Emu().emulator_sound_field_instant_time_len(self._ptr, duration._inner))
         points_len = int(Emu().emulator_sound_field_instant_points_len(self._ptr))
         time = np.zeros(n, dtype=np.uint64)
-
-        x = np.zeros(points_len, dtype=np.float32)
-        y = np.zeros(points_len, dtype=np.float32)
-        z = np.zeros(points_len, dtype=np.float32)
-        Emu().emulator_sound_field_instant_get_x(self._ptr, x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
-        Emu().emulator_sound_field_instant_get_y(self._ptr, y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
-        Emu().emulator_sound_field_instant_get_z(self._ptr, z.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
 
         v = np.zeros([n, points_len], dtype=np.float32)
         ffi_future = Emu().emulator_sound_field_instant_next(
@@ -187,12 +184,7 @@ class Instant:
         )
         _validate_status(await future)
         return pl.DataFrame(
-            {
-                "x[mm]": x,
-                "y[mm]": y,
-                "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
-            },
+            {s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
         )
 
 
@@ -221,17 +213,26 @@ class Rms:
         )
         return self
 
-    def next(self: Self, duration: Duration) -> pl.DataFrame:
-        n = int(Emu().emulator_sound_field_rms_time_len(self._ptr, duration._inner))
+    def observe_points(self: Self) -> pl.DataFrame:
         points_len = int(Emu().emulator_sound_field_rms_points_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-
         x = np.zeros(points_len, dtype=np.float32)
         y = np.zeros(points_len, dtype=np.float32)
         z = np.zeros(points_len, dtype=np.float32)
         Emu().emulator_sound_field_rms_get_x(self._ptr, x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
         Emu().emulator_sound_field_rms_get_y(self._ptr, y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
         Emu().emulator_sound_field_rms_get_z(self._ptr, z.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
+        return pl.DataFrame(
+            {
+                "x[mm]": x,
+                "y[mm]": y,
+                "z[mm]": z,
+            },
+        )
+
+    def next(self: Self, duration: Duration) -> pl.DataFrame:
+        n = int(Emu().emulator_sound_field_rms_time_len(self._ptr, duration._inner))
+        points_len = int(Emu().emulator_sound_field_rms_points_len(self._ptr))
+        time = np.zeros(n, dtype=np.uint64)
 
         v = np.zeros([n, points_len], dtype=np.float32)
         _validate_status(
@@ -251,12 +252,7 @@ class Rms:
             ),
         )
         return pl.DataFrame(
-            {
-                "x[mm]": x,
-                "y[mm]": y,
-                "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
-            },
+            {s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
         )
 
     async def next_async(self: Self, duration: Duration) -> pl.DataFrame:
@@ -266,13 +262,6 @@ class Rms:
         n = int(Emu().emulator_sound_field_rms_time_len(self._ptr, duration._inner))
         points_len = int(Emu().emulator_sound_field_rms_points_len(self._ptr))
         time = np.zeros(n, dtype=np.uint64)
-
-        x = np.zeros(points_len, dtype=np.float32)
-        y = np.zeros(points_len, dtype=np.float32)
-        z = np.zeros(points_len, dtype=np.float32)
-        Emu().emulator_sound_field_rms_get_x(self._ptr, x.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
-        Emu().emulator_sound_field_rms_get_y(self._ptr, y.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
-        Emu().emulator_sound_field_rms_get_z(self._ptr, z.ctypes.data_as(ctypes.POINTER(ctypes.c_float)))  # type: ignore[arg-type]
 
         v = np.zeros([n, points_len], dtype=np.float32)
         ffi_future = Emu().emulator_sound_field_rms_next(
@@ -296,12 +285,7 @@ class Rms:
         )
         _validate_status(await future)
         return pl.DataFrame(
-            {
-                "x[mm]": x,
-                "y[mm]": y,
-                "z[mm]": z,
-                **{s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
-            },
+            {s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
         )
 
 
