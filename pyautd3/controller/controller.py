@@ -33,16 +33,16 @@ L = TypeVar("L", bound=Link)
 @builder
 class _Builder:
     devices: list[AUTD3]
-    _param_fallback_parallel_threshold: int
-    _param_fallback_timeout: Duration
+    _param_default_parallel_threshold: int
+    _param_default_timeout: Duration
     _param_send_interval: Duration
     _param_receive_interval: Duration
     _param_timer_strategy: TimerStrategyWrap
 
     def __init__(self: Self, iterable: Iterable[AUTD3]) -> None:
         self.devices = list(iterable)
-        self._param_fallback_parallel_threshold = 4
-        self._param_fallback_timeout = Duration.from_millis(20)
+        self._param_default_parallel_threshold = 4
+        self._param_default_timeout = Duration.from_millis(20)
         self._param_send_interval = Duration.from_millis(1)
         self._param_receive_interval = Duration.from_millis(1)
         self._param_timer_strategy = TimerStrategy.Spin(SpinSleeper())
@@ -54,8 +54,8 @@ class _Builder:
             pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
             rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
             len(pos),
-            self._param_fallback_parallel_threshold,
-            self._param_fallback_timeout._inner,
+            self._param_default_parallel_threshold,
+            self._param_default_timeout._inner,
             self._param_send_interval._inner,
             self._param_receive_interval._inner,
             self._param_timer_strategy,

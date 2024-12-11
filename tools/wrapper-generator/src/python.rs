@@ -341,6 +341,7 @@ from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, Local
             "GainPtr",
             "ResultLinkBuilder",
             "LinkBuilderPtr",
+            "ResultGain",
             "ResultModulation",
             "DynSincInterpolator",
             "DatagramPtr",

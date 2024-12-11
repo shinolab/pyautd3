@@ -22,8 +22,8 @@ async def create_controller_async() -> Controller[Audit]:
         await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(Duration.from_millis(1))
         .with_receive_interval(Duration.from_millis(1))
-        .with_fallback_parallel_threshold(4)
-        .with_fallback_timeout(Duration.from_millis(20))
+        .with_default_parallel_threshold(4)
+        .with_default_timeout(Duration.from_millis(20))
         .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
         .open_async(
             Audit.builder(),
@@ -36,8 +36,8 @@ def create_controller() -> Controller[Audit]:
         Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
         .with_send_interval(Duration.from_millis(1))
         .with_receive_interval(Duration.from_millis(1))
-        .with_fallback_parallel_threshold(4)
-        .with_fallback_timeout(Duration.from_millis(20))
+        .with_default_parallel_threshold(4)
+        .with_default_timeout(Duration.from_millis(20))
         .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
         .open(Audit.builder())
     )
@@ -46,8 +46,8 @@ def create_controller() -> Controller[Audit]:
 def test_controller_is_default():
     default = Controller.builder([])
     assert Base().controller_builder_is_default(
-        default.fallback_parallel_threshold,
-        default.fallback_timeout._inner,
+        default.default_parallel_threshold,
+        default.default_timeout._inner,
         default.send_interval._inner,
         default.receive_interval._inner,
         default.timer_strategy,
