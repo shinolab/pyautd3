@@ -186,6 +186,13 @@ class ResultDatagram(ctypes.Structure):
         return isinstance(other, ResultDatagram) and self._fields_ == other._fields_  # pragma: no cover
 
 
+class ResultGain(ctypes.Structure):
+    _fields_ = [("result", GainPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultGain) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class ResultLinkBuilder(ctypes.Structure):
     _fields_ = [("result", LinkBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 

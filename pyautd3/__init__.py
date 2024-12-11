@@ -129,4 +129,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "29.0.0rc10"
+__version__ = "29.0.0rc11"

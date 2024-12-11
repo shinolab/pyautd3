@@ -4,7 +4,7 @@ import ctypes
 import os
 from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
-from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, ControllerPtr, DatagramPtr, DebugTypeWrap, DevicePtr, Duration, DynSincInterpolator, FociSTMPtr, GainPtr, GainSTMPtr, GeometryPtr, HandlePtr, LinkBuilderPtr, LinkPtr, ModulationPtr, OptionDuration, ResultFociSTM, ResultGainSTM, ResultModulation, ResultSamplingConfig, ResultStatus, RuntimePtr, SpinStrategyTag, TimerStrategyWrap, TransducerPtr, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, ControllerPtr, DatagramPtr, DebugTypeWrap, DevicePtr, Duration, DynSincInterpolator, FociSTMPtr, GainPtr, GainSTMPtr, GeometryPtr, HandlePtr, LinkBuilderPtr, LinkPtr, ModulationPtr, OptionDuration, ResultFociSTM, ResultGain, ResultGainSTM, ResultModulation, ResultSamplingConfig, ResultStatus, RuntimePtr, SpinStrategyTag, TimerStrategyWrap, TransducerPtr, TransitionModeWrap
 
 
 class FPGAStateListPtr(ctypes.Structure):
@@ -349,7 +349,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainGroupMapSet.restype = GroupGainMapPtr
 
         self.dll.AUTDGainGroup.argtypes = [GroupGainMapPtr, ctypes.POINTER(ctypes.c_int32), ctypes.POINTER(GainPtr), ctypes.c_uint32]  # type: ignore 
-        self.dll.AUTDGainGroup.restype = GainPtr
+        self.dll.AUTDGainGroup.restype = ResultGain
 
         self.dll.AUTDGainIntoDatagramWithSegment.argtypes = [GainPtr, Segment, TransitionModeWrap]  # type: ignore 
         self.dll.AUTDGainIntoDatagramWithSegment.restype = DatagramPtr
@@ -672,11 +672,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGetErr.argtypes = [ctypes.c_void_p, ctypes.c_char_p] 
         self.dll.AUTDGetErr.restype = None
 
-    def controller_builder(self, pos: ctypes.Array | None, rot: ctypes.Array | None, len: int, fallback_parallel_threshold: int, fallback_timeout: Duration, send_interval: Duration, receive_interval: Duration, timer_strategy: TimerStrategyWrap) -> ControllerBuilderPtr:
-        return self.dll.AUTDControllerBuilder(pos, rot, len, fallback_parallel_threshold, fallback_timeout, send_interval, receive_interval, timer_strategy)
+    def controller_builder(self, pos: ctypes.Array | None, rot: ctypes.Array | None, len: int, default_parallel_threshold: int, default_timeout: Duration, send_interval: Duration, receive_interval: Duration, timer_strategy: TimerStrategyWrap) -> ControllerBuilderPtr:
+        return self.dll.AUTDControllerBuilder(pos, rot, len, default_parallel_threshold, default_timeout, send_interval, receive_interval, timer_strategy)
 
-    def controller_builder_is_default(self, fallback_parallel_threshold: int, fallback_timeout: Duration, send_interval_ns: Duration, receive_interval: Duration, timer_strategy: TimerStrategyWrap) -> ctypes.c_bool:
-        return self.dll.AUTDControllerBuilderIsDefault(fallback_parallel_threshold, fallback_timeout, send_interval_ns, receive_interval, timer_strategy)
+    def controller_builder_is_default(self, default_parallel_threshold: int, default_timeout: Duration, send_interval_ns: Duration, receive_interval: Duration, timer_strategy: TimerStrategyWrap) -> ctypes.c_bool:
+        return self.dll.AUTDControllerBuilderIsDefault(default_parallel_threshold, default_timeout, send_interval_ns, receive_interval, timer_strategy)
 
     def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout: OptionDuration) -> FfiFuture:
         return self.dll.AUTDControllerOpen(builder, link_builder, timeout)
@@ -954,7 +954,7 @@ class NativeMethods(metaclass=Singleton):
     def gain_group_map_set(self, map: GroupGainMapPtr, dev_idx: int, map_data: ctypes.Array[ctypes.c_int32] | None) -> GroupGainMapPtr:
         return self.dll.AUTDGainGroupMapSet(map, dev_idx, map_data)
 
-    def gain_group(self, map: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32] | None, values_ptr: ctypes.Array | None, kv_len: int) -> GainPtr:
+    def gain_group(self, map: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32] | None, values_ptr: ctypes.Array | None, kv_len: int) -> ResultGain:
         return self.dll.AUTDGainGroup(map, keys_ptr, values_ptr, kv_len)
 
     def gain_into_datagram_with_segment(self, gain: GainPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
