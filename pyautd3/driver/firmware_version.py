@@ -1,18 +1,16 @@
 import ctypes
 from typing import Self
 
+from pyautd3.derive.derive_builder import builder
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 
+@builder
 class FirmwareInfo:
-    _info: str
+    _prop_info: str
 
     def __init__(self: Self, info: str) -> None:
-        self._info = info
-
-    @property
-    def info(self: Self) -> str:
-        return self._info
+        self._prop_info = info
 
     @staticmethod
     def latest_version() -> str:
@@ -21,4 +19,4 @@ class FirmwareInfo:
         return sb.value.decode("utf-8")
 
     def __str__(self: Self) -> str:
-        return self._info
+        return self._prop_info
