@@ -12,7 +12,7 @@ from pyautd3.gain.holo.backend import Backend
 from pyautd3.gain.holo.constraint import EmissionConstraint
 from pyautd3.gain.holo.holo import HoloWithBackend
 from pyautd3.native_methods.autd3capi_driver import GainPtr
-from pyautd3.native_methods.structs import Vector3
+from pyautd3.native_methods.structs import Point3
 
 
 @datagram
@@ -24,10 +24,10 @@ class Naive(HoloWithBackend["Naive"]):
 
     def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         size = len(self._amps)
-        foci = np.fromiter((np.void(Vector3(d)) for d in self._foci), dtype=Vector3)  # type: ignore[type-var,call-overload]
+        foci = np.fromiter((np.void(Point3(d)) for d in self._foci), dtype=Point3)  # type: ignore[type-var,call-overload]
         amps = np.fromiter((d.pascal for d in self._amps), dtype=ctypes.c_float)  # type: ignore[type-var,call-overload]
         return self._backend._naive(
-            foci.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
+            foci.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
             amps.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
             size,
             self._constraint,

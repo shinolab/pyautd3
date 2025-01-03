@@ -11,7 +11,7 @@ from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import GainPtr
-from pyautd3.native_methods.structs import Vector3
+from pyautd3.native_methods.structs import Point3
 
 
 @datagram
@@ -31,7 +31,7 @@ class Focus(Gain):
 
     def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         return Base().gain_focus(
-            Vector3(self._prop_pos),
+            Point3(self._prop_pos),
             self._param_intensity.value,
             self._param_phase_offset.value,
         )

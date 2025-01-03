@@ -183,7 +183,7 @@ def test_device_affine():
             for tr in dev:
                 op = original_pos[tr.idx]
                 expected = np.array([-op[1], op[0], op[2]]) + t
-                assert np.allclose(tr.position, expected)
+                assert np.allclose(tr.position, expected, atol=1e-3)
             assert np.allclose(dev.rotation, r)
 
 

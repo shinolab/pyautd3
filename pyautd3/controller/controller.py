@@ -18,7 +18,7 @@ from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerBuilderPtr, ControllerPtr, RuntimePtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, HandlePtr, TimerStrategyWrap
-from pyautd3.native_methods.structs import FfiFuture, Quaternion, Vector3
+from pyautd3.native_methods.structs import FfiFuture, Point3, Quaternion
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
 from pyautd3.utils.duration import into_option_duration
@@ -48,10 +48,10 @@ class _Builder:
         self._param_timer_strategy = TimerStrategy.Spin(SpinSleeper())
 
     def _ptr(self: Self) -> ControllerBuilderPtr:
-        pos = np.fromiter((np.void(Vector3(d.position)) for d in self.devices), dtype=Vector3)  # type: ignore[type-var,call-overload]
+        pos = np.fromiter((np.void(Point3(d.position)) for d in self.devices), dtype=Point3)  # type: ignore[type-var,call-overload]
         rot = np.fromiter((np.void(Quaternion(d.rotation)) for d in self.devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
         return Base().controller_builder(
-            pos.ctypes.data_as(ctypes.POINTER(Vector3)),  # type: ignore[arg-type]
+            pos.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
             rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
             len(pos),
             self._param_default_parallel_threshold,

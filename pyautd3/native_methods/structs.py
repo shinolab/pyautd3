@@ -23,6 +23,18 @@ class Vector3(ctypes.Structure):
         return np.array([self.x, self.y, self.z])
 
 
+class Point3(ctypes.Structure):
+    _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float)]
+
+    def __init__(self: Self, v: np.ndarray) -> None:
+        self.x = v[0]
+        self.y = v[1]
+        self.z = v[2]
+
+    def ndarray(self):
+        return np.array([self.x, self.y, self.z])
+
+
 class Quaternion(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float), ("w", ctypes.c_float)]
 
