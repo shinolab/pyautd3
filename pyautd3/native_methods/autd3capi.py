@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
 from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, ControllerPtr, DatagramPtr, DebugTypeWrap, DevicePtr, Duration, DynSincInterpolator, FociSTMPtr, GainPtr, GainSTMPtr, GeometryPtr, HandlePtr, LinkBuilderPtr, LinkPtr, ModulationPtr, OptionDuration, ResultFociSTM, ResultGain, ResultGainSTM, ResultModulation, ResultSamplingConfig, ResultStatus, RuntimePtr, SpinStrategyTag, TimerStrategyWrap, TransducerPtr, TransitionModeWrap
 
@@ -66,7 +66,7 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: str, bin_prefix: str, bin_ext: str):
         self.dll = ctypes.CDLL(os.path.join(bin_location, f'{bin_prefix}autd3capi{bin_ext}'))
 
-        self.dll.AUTDControllerBuilder.argtypes = [ctypes.POINTER(Vector3), ctypes.POINTER(Quaternion), ctypes.c_uint16, ctypes.c_uint16, Duration, Duration, Duration, TimerStrategyWrap]  # type: ignore 
+        self.dll.AUTDControllerBuilder.argtypes = [ctypes.POINTER(Point3), ctypes.POINTER(Quaternion), ctypes.c_uint16, ctypes.c_uint16, Duration, Duration, Duration, TimerStrategyWrap]  # type: ignore 
         self.dll.AUTDControllerBuilder.restype = ControllerBuilderPtr
 
         self.dll.AUTDControllerBuilderIsDefault.argtypes = [ctypes.c_uint16, Duration, Duration, Duration, TimerStrategyWrap]  # type: ignore 
@@ -158,9 +158,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDDatagramSilencerFromUpdateRate.argtypes = [ctypes.c_uint16, ctypes.c_uint16, SilencerTarget]  # type: ignore 
         self.dll.AUTDDatagramSilencerFromUpdateRate.restype = DatagramPtr
-
-        self.dll.AUTDDatagramSilencerFixedUpdateRateIsValid.argtypes = [ctypes.c_uint16, ctypes.c_uint16, SamplingConfig, SamplingConfig]  # type: ignore 
-        self.dll.AUTDDatagramSilencerFixedUpdateRateIsValid.restype = ctypes.c_bool
 
         self.dll.AUTDDatagramSilencerFromCompletionTime.argtypes = [Duration, Duration, ctypes.c_bool, SilencerTarget]  # type: ignore 
         self.dll.AUTDDatagramSilencerFromCompletionTime.restype = DatagramPtr
@@ -318,7 +315,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDTransitionModeNone.argtypes = [] 
         self.dll.AUTDTransitionModeNone.restype = TransitionModeWrap
 
-        self.dll.AUTDGainBessel.argtypes = [Vector3, Vector3, ctypes.c_float, ctypes.c_uint8, ctypes.c_uint8]  # type: ignore 
+        self.dll.AUTDGainBessel.argtypes = [Point3, Vector3, ctypes.c_float, ctypes.c_uint8, ctypes.c_uint8]  # type: ignore 
         self.dll.AUTDGainBessel.restype = GainPtr
 
         self.dll.AUTDGainBesselIsDefault.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
@@ -336,7 +333,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainCustom.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]  # type: ignore 
         self.dll.AUTDGainCustom.restype = GainPtr
 
-        self.dll.AUTDGainFocus.argtypes = [Vector3, ctypes.c_uint8, ctypes.c_uint8]  # type: ignore 
+        self.dll.AUTDGainFocus.argtypes = [Point3, ctypes.c_uint8, ctypes.c_uint8]  # type: ignore 
         self.dll.AUTDGainFocus.restype = GainPtr
 
         self.dll.AUTDGainFocusIsDefault.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
@@ -385,7 +382,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDeviceSetSoundSpeedFromTemp.restype = None
 
         self.dll.AUTDDeviceCenter.argtypes = [DevicePtr]  # type: ignore 
-        self.dll.AUTDDeviceCenter.restype = Vector3
+        self.dll.AUTDDeviceCenter.restype = Point3
 
         self.dll.AUTDDeviceTranslate.argtypes = [GeometryPtr, ctypes.c_uint16, Vector3]  # type: ignore 
         self.dll.AUTDDeviceTranslate.restype = None
@@ -430,7 +427,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGeometryNumTransducers.restype = ctypes.c_uint32
 
         self.dll.AUTDGeometrCenter.argtypes = [GeometryPtr]  # type: ignore 
-        self.dll.AUTDGeometrCenter.restype = Vector3
+        self.dll.AUTDGeometrCenter.restype = Point3
 
         self.dll.AUTDRotationFromEulerXYZ.argtypes = [ctypes.c_float, ctypes.c_float, ctypes.c_float] 
         self.dll.AUTDRotationFromEulerXYZ.restype = Quaternion
@@ -442,7 +439,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDTransducer.restype = TransducerPtr
 
         self.dll.AUTDTransducerPosition.argtypes = [TransducerPtr]  # type: ignore 
-        self.dll.AUTDTransducerPosition.restype = Vector3
+        self.dll.AUTDTransducerPosition.restype = Point3
 
         self.dll.AUTDCreateRuntime.argtypes = [] 
         self.dll.AUTDCreateRuntime.restype = RuntimePtr
@@ -765,9 +762,6 @@ class NativeMethods(metaclass=Singleton):
     def datagram_silencer_from_update_rate(self, intensity: int, phase: int, target: SilencerTarget) -> DatagramPtr:
         return self.dll.AUTDDatagramSilencerFromUpdateRate(intensity, phase, target)
 
-    def datagram_silencer_fixed_update_rate_is_valid(self, intensity: int, phase: int, config_intensity: SamplingConfig, config_phase: SamplingConfig) -> ctypes.c_bool:
-        return self.dll.AUTDDatagramSilencerFixedUpdateRateIsValid(intensity, phase, config_intensity, config_phase)
-
     def datagram_silencer_from_completion_time(self, intensity: Duration, phase: Duration, strict_mode: bool, target: SilencerTarget) -> DatagramPtr:
         return self.dll.AUTDDatagramSilencerFromCompletionTime(intensity, phase, strict_mode, target)
 
@@ -924,7 +918,7 @@ class NativeMethods(metaclass=Singleton):
     def transition_mode_none(self) -> TransitionModeWrap:
         return self.dll.AUTDTransitionModeNone()
 
-    def gain_bessel(self, p: Vector3, n: Vector3, theta_z: float, intensity: int, phase_offset: int) -> GainPtr:
+    def gain_bessel(self, p: Point3, n: Vector3, theta_z: float, intensity: int, phase_offset: int) -> GainPtr:
         return self.dll.AUTDGainBessel(p, n, theta_z, intensity, phase_offset)
 
     def gain_bessel_is_default(self, intensity: int, phase_offset: int) -> ctypes.c_bool:
@@ -942,7 +936,7 @@ class NativeMethods(metaclass=Singleton):
     def gain_custom(self, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr) -> GainPtr:
         return self.dll.AUTDGainCustom(f, context, geometry)
 
-    def gain_focus(self, p: Vector3, intensity: int, phase_offset: int) -> GainPtr:
+    def gain_focus(self, p: Point3, intensity: int, phase_offset: int) -> GainPtr:
         return self.dll.AUTDGainFocus(p, intensity, phase_offset)
 
     def gain_focus_is_default(self, intensity: int, phase_offset: int) -> ctypes.c_bool:
@@ -990,7 +984,7 @@ class NativeMethods(metaclass=Singleton):
     def device_set_sound_speed_from_temp(self, geo: GeometryPtr, dev_idx: int, temp: float, k: float, r: float, m: float) -> None:
         return self.dll.AUTDDeviceSetSoundSpeedFromTemp(geo, dev_idx, temp, k, r, m)
 
-    def device_center(self, dev: DevicePtr) -> Vector3:
+    def device_center(self, dev: DevicePtr) -> Point3:
         return self.dll.AUTDDeviceCenter(dev)
 
     def device_translate(self, geo: GeometryPtr, dev_idx: int, t: Vector3) -> None:
@@ -1035,7 +1029,7 @@ class NativeMethods(metaclass=Singleton):
     def geometry_num_transducers(self, geo: GeometryPtr) -> ctypes.c_uint32:
         return self.dll.AUTDGeometryNumTransducers(geo)
 
-    def geometr_center(self, geo: GeometryPtr) -> Vector3:
+    def geometr_center(self, geo: GeometryPtr) -> Point3:
         return self.dll.AUTDGeometrCenter(geo)
 
     def rotation_from_euler_xyz(self, x: float, y: float, z: float) -> Quaternion:
@@ -1047,7 +1041,7 @@ class NativeMethods(metaclass=Singleton):
     def transducer(self, dev: DevicePtr, idx: int) -> TransducerPtr:
         return self.dll.AUTDTransducer(dev, idx)
 
-    def transducer_position(self, tr: TransducerPtr) -> Vector3:
+    def transducer_position(self, tr: TransducerPtr) -> Point3:
         return self.dll.AUTDTransducerPosition(tr)
 
     def create_runtime(self) -> RuntimePtr:

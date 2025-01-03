@@ -2,7 +2,7 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Vector3, Quaternion, FfiFuture, LocalFfiFuture
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
 from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 
@@ -72,28 +72,28 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloConstraintClamp.argtypes = [ctypes.c_uint8, ctypes.c_uint8] 
         self.dll.AUTDGainHoloConstraintClamp.restype = EmissionConstraintWrap
 
-        self.dll.AUTDGainHoloGreedySphere.argtypes = [ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint8, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloGreedySphere.argtypes = [ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint8, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGreedySphere.restype = GainPtr
 
-        self.dll.AUTDGainHoloGreedyT4010A1.argtypes = [ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint8, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloGreedyT4010A1.argtypes = [ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint8, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGreedyT4010A1.restype = GainPtr
 
         self.dll.AUTDGainGreedyIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_uint8]  # type: ignore 
         self.dll.AUTDGainGreedyIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainHoloGSSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloGSSphere.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGSSphere.restype = GainPtr
 
-        self.dll.AUTDGainHoloGST4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloGST4010A1.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGST4010A1.restype = GainPtr
 
         self.dll.AUTDGainGSIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainGSIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainHoloGSPATSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloGSPATSphere.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGSPATSphere.restype = GainPtr
 
-        self.dll.AUTDGainHoloGSPATT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloGSPATT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloGSPATT4010A1.restype = GainPtr
 
         self.dll.AUTDGainGSPATIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_uint32]  # type: ignore 
@@ -105,19 +105,19 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainHoloPascalToSPL.argtypes = [ctypes.c_float] 
         self.dll.AUTDGainHoloPascalToSPL.restype = ctypes.c_float
 
-        self.dll.AUTDGainHoloLMSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloLMSphere.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloLMSphere.restype = GainPtr
 
-        self.dll.AUTDGainHoloLMT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloLMT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloLMT4010A1.restype = GainPtr
 
         self.dll.AUTDGainLMIsDefault.argtypes = [EmissionConstraintWrap, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_uint32, ctypes.POINTER(ctypes.c_float), ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDGainLMIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainHoloNaiveSphere.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloNaiveSphere.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloNaiveSphere.restype = GainPtr
 
-        self.dll.AUTDGainHoloNaiveT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Vector3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
+        self.dll.AUTDGainHoloNaiveT4010A1.argtypes = [BackendPtr, ctypes.POINTER(Point3), ctypes.POINTER(ctypes.c_float), ctypes.c_uint32, EmissionConstraintWrap]  # type: ignore 
         self.dll.AUTDGainHoloNaiveT4010A1.restype = GainPtr
 
         self.dll.AUTDGainNaiveIsDefault.argtypes = [EmissionConstraintWrap]  # type: ignore 

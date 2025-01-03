@@ -77,7 +77,6 @@ def test_silencer_from_update_rate():
             assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
             assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
 
-        assert Silencer(FixedUpdateRate(intensity=2, phase=3)).is_valid(Sine(150 * Hz).with_sampling_config(SamplingConfig(1)))
         autd.send(Silencer(FixedUpdateRate(intensity=2, phase=3)).with_target(SilencerTarget.PulseWidth))
 
         for dev in autd.geometry:

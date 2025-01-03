@@ -1,7 +1,7 @@
 use std::{fs::File, io::Read, path::Path};
 
 use anyhow::Result;
-use syn::__private::ToTokens;
+use syn::{ItemEnum, __private::ToTokens};
 
 use crate::types::{InOut, Type};
 
@@ -148,6 +148,20 @@ where
         .collect())
 }
 
+fn get_enum_ty(int_enum: &ItemEnum) -> Option<Type> {
+    int_enum.attrs.iter().find_map(|attr| match &attr.meta {
+        syn::Meta::List(meta_list) => {
+            if meta_list.path.is_ident("repr") {
+                let args: syn::Type = meta_list.parse_args().ok()?;
+                Some(Type::parse_str(args.to_token_stream().to_string().as_str()))
+            } else {
+                None
+            }
+        }
+        _ => None,
+    })
+}
+
 pub fn parse_enum<P>(header: P) -> Result<Vec<Enum>>
 where
     P: AsRef<Path>,
@@ -164,18 +178,7 @@ where
         .filter_map(|item| match item {
             syn::Item::Enum(item_enum) => {
                 let name = item_enum.ident.to_string();
-                if item_enum.attrs.is_empty() || item_enum.attrs[0].meta.require_list().is_err() {
-                    return None;
-                }
-                let ty = Type::parse_str(
-                    item_enum.attrs[0]
-                        .meta
-                        .require_list()
-                        .unwrap()
-                        .tokens
-                        .to_string()
-                        .as_str(),
-                );
+                let ty = get_enum_ty(&item_enum)?;
                 let values = item_enum
                     .variants
                     .into_iter()
