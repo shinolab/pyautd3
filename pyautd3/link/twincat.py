@@ -4,14 +4,14 @@ from pyautd3.derive import builder
 from pyautd3.driver.link import Link, LinkBuilder
 from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import HandlePtr, LinkBuilderPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_link_twincat import NativeMethods as LinkTwinCAT
 from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 
 
 class _TwinCATBuilder(LinkBuilder["TwinCAT"]):
-    def _resolve_link(self: Self, handle: HandlePtr, ptr: ControllerPtr) -> "TwinCAT":
-        return TwinCAT(handle, Base().link_get(ptr))  # pragma: no cover
+    def _resolve_link(self: Self, ptr: ControllerPtr) -> "TwinCAT":
+        return TwinCAT(Base().link_get(ptr))  # pragma: no cover
 
     def _link_builder_ptr(self: LinkBuilder) -> LinkBuilderPtr:
         return LinkTwinCAT().link_twin_cat()  # pragma: no cover
@@ -22,8 +22,8 @@ class TwinCAT(Link):
     def builder() -> _TwinCATBuilder:
         return _TwinCATBuilder()
 
-    def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
-        super().__init__(handle, ptr)  # pragma: no cover
+    def __init__(self: Self, ptr: LinkPtr) -> None:
+        super().__init__(ptr)  # pragma: no cover
 
 
 @builder
@@ -46,13 +46,13 @@ class _RemoteTwinCATBuilder(LinkBuilder["RemoteTwinCAT"]):
             ),
         )
 
-    def _resolve_link(self: Self, handle: HandlePtr, _ptr: ControllerPtr) -> "RemoteTwinCAT":
-        return RemoteTwinCAT(handle, Base().link_get(_ptr))  # pragma: no cover
+    def _resolve_link(self: Self, _ptr: ControllerPtr) -> "RemoteTwinCAT":
+        return RemoteTwinCAT(Base().link_get(_ptr))  # pragma: no cover
 
 
 class RemoteTwinCAT(Link):
-    def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
-        super().__init__(handle, ptr)  # pragma: no cover
+    def __init__(self: Self, ptr: LinkPtr) -> None:
+        super().__init__(ptr)  # pragma: no cover
 
     @staticmethod
     def builder(server_ams_net_id: str) -> _RemoteTwinCATBuilder:

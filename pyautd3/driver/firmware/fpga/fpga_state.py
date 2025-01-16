@@ -1,6 +1,6 @@
 from typing import Self
 
-from pyautd3.native_methods.autd3_driver import Segment
+from pyautd3.native_methods.autd3_core import Segment
 
 
 class FPGAState:

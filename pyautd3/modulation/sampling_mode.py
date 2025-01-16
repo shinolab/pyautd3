@@ -6,7 +6,7 @@ import numpy as np
 
 from pyautd3.driver.defined.angle import Angle
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.native_methods.autd3_driver import SamplingConfig
+from pyautd3.native_methods.autd3_core import SamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import LoopBehavior, ModulationPtr
 from pyautd3.native_methods.utils import _validate_ptr

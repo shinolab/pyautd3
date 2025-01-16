@@ -2,9 +2,10 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
-from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, Duration, GeometryPtr, HandlePtr, LinkPtr, ResultStatus
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion
+from pyautd3.native_methods.autd3_driver import GainSTMMode, SilencerTarget
+from pyautd3.native_methods.autd3_core import SamplingConfig, LoopBehavior, GPIOOut, GPIOIn, Segment, Drive, DcSysTime
+from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, Duration, GeometryPtr, LinkPtr, ResultStatus
 
 
 class EmulatorControllerPtr(ctypes.Structure):
@@ -100,10 +101,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorRecordPulseWidth.restype = None
 
         self.dll.AUTDEmulatorSoundFieldInstant.argtypes = [RecordPtr, RangeXYZ, InstantRecordOption]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldInstant.restype = LocalFfiFuture
-
-        self.dll.AUTDEmulatorSoundFieldInstantWait.argtypes = [HandlePtr, LocalFfiFuture]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldInstantWait.restype = ResultInstant
+        self.dll.AUTDEmulatorSoundFieldInstant.restype = ResultInstant
 
         self.dll.AUTDEmulatorSoundFieldInstantTimeLen.argtypes = [InstantPtr, Duration]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldInstantTimeLen.restype = ctypes.c_uint64
@@ -121,10 +119,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorSoundFieldInstantGetZ.restype = None
 
         self.dll.AUTDEmulatorSoundFieldInstantSkip.argtypes = [InstantPtr, Duration]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldInstantSkip.restype = LocalFfiFuture
+        self.dll.AUTDEmulatorSoundFieldInstantSkip.restype = ResultStatus
 
         self.dll.AUTDEmulatorSoundFieldInstantNext.argtypes = [InstantPtr, Duration, ctypes.POINTER(ctypes.c_uint64), ctypes.POINTER(ctypes.POINTER(ctypes.c_float))]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldInstantNext.restype = LocalFfiFuture
+        self.dll.AUTDEmulatorSoundFieldInstantNext.restype = ResultStatus
 
         self.dll.AUTDEmulatorSoundFieldInstantFree.argtypes = [InstantPtr]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldInstantFree.restype = None
@@ -145,13 +143,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorGeometry.restype = GeometryPtr
 
         self.dll.AUTDEmulatorRecordFrom.argtypes = [EmulatorPtr, DcSysTime, ctypes.c_void_p]  # type: ignore 
-        self.dll.AUTDEmulatorRecordFrom.restype = FfiFuture
+        self.dll.AUTDEmulatorRecordFrom.restype = ResultRecord
 
         self.dll.AUTDEmulatorRecordFree.argtypes = [RecordPtr]  # type: ignore 
         self.dll.AUTDEmulatorRecordFree.restype = None
-
-        self.dll.AUTDEmulatorWaitResultRecord.argtypes = [HandlePtr, FfiFuture]  # type: ignore 
-        self.dll.AUTDEmulatorWaitResultRecord.restype = ResultRecord
 
         self.dll.AUTDEmulatorTickNs.argtypes = [LinkPtr, Duration]  # type: ignore 
         self.dll.AUTDEmulatorTickNs.restype = ResultStatus
@@ -172,10 +167,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorRecordOutputUltrasound.restype = None
 
         self.dll.AUTDEmulatorSoundFieldRms.argtypes = [RecordPtr, RangeXYZ, RmsRecordOption]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldRms.restype = LocalFfiFuture
-
-        self.dll.AUTDEmulatorSoundFieldRmsWait.argtypes = [HandlePtr, LocalFfiFuture]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldRmsWait.restype = ResultRms
+        self.dll.AUTDEmulatorSoundFieldRms.restype = ResultRms
 
         self.dll.AUTDEmulatorSoundFieldRmsTimeLen.argtypes = [RmsPtr, Duration]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldRmsTimeLen.restype = ctypes.c_uint64
@@ -193,10 +185,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDEmulatorSoundFieldRmsGetZ.restype = None
 
         self.dll.AUTDEmulatorSoundFieldRmsSkip.argtypes = [RmsPtr, Duration]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldRmsSkip.restype = LocalFfiFuture
+        self.dll.AUTDEmulatorSoundFieldRmsSkip.restype = ResultStatus
 
         self.dll.AUTDEmulatorSoundFieldRmsNext.argtypes = [RmsPtr, Duration, ctypes.POINTER(ctypes.c_uint64), ctypes.POINTER(ctypes.POINTER(ctypes.c_float))]  # type: ignore 
-        self.dll.AUTDEmulatorSoundFieldRmsNext.restype = LocalFfiFuture
+        self.dll.AUTDEmulatorSoundFieldRmsNext.restype = ResultStatus
 
         self.dll.AUTDEmulatorSoundFieldRmsFree.argtypes = [RmsPtr]  # type: ignore 
         self.dll.AUTDEmulatorSoundFieldRmsFree.restype = None
@@ -213,11 +205,8 @@ class NativeMethods(metaclass=Singleton):
     def emulator_record_pulse_width(self, record: RecordPtr, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_uint8]]) -> None:
         return self.dll.AUTDEmulatorRecordPulseWidth(record, time, v)
 
-    def emulator_sound_field_instant(self, record: RecordPtr, range: RangeXYZ, option: InstantRecordOption) -> LocalFfiFuture:
+    def emulator_sound_field_instant(self, record: RecordPtr, range: RangeXYZ, option: InstantRecordOption) -> ResultInstant:
         return self.dll.AUTDEmulatorSoundFieldInstant(record, range, option)
-
-    def emulator_sound_field_instant_wait(self, handle: HandlePtr, future: LocalFfiFuture) -> ResultInstant:
-        return self.dll.AUTDEmulatorSoundFieldInstantWait(handle, future)
 
     def emulator_sound_field_instant_time_len(self, sound_field: InstantPtr, duration: Duration) -> ctypes.c_uint64:
         return self.dll.AUTDEmulatorSoundFieldInstantTimeLen(sound_field, duration)
@@ -234,10 +223,10 @@ class NativeMethods(metaclass=Singleton):
     def emulator_sound_field_instant_get_z(self, sound_field: InstantPtr, z: ctypes.Array[ctypes.c_float] | None) -> None:
         return self.dll.AUTDEmulatorSoundFieldInstantGetZ(sound_field, z)
 
-    def emulator_sound_field_instant_skip(self, sound_field: InstantPtr, duration: Duration) -> LocalFfiFuture:
+    def emulator_sound_field_instant_skip(self, sound_field: InstantPtr, duration: Duration) -> ResultStatus:
         return self.dll.AUTDEmulatorSoundFieldInstantSkip(sound_field, duration)
 
-    def emulator_sound_field_instant_next(self, sound_field: InstantPtr, duration: Duration, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> LocalFfiFuture:
+    def emulator_sound_field_instant_next(self, sound_field: InstantPtr, duration: Duration, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> ResultStatus:
         return self.dll.AUTDEmulatorSoundFieldInstantNext(sound_field, duration, time, v)
 
     def emulator_sound_field_instant_free(self, sound_field: InstantPtr) -> None:
@@ -258,14 +247,11 @@ class NativeMethods(metaclass=Singleton):
     def emulator_geometry(self, emulator: EmulatorPtr) -> GeometryPtr:
         return self.dll.AUTDEmulatorGeometry(emulator)
 
-    def emulator_record_from(self, emulator: EmulatorPtr, start_time: DcSysTime, f: ctypes.c_void_p | None) -> FfiFuture:
+    def emulator_record_from(self, emulator: EmulatorPtr, start_time: DcSysTime, f: ctypes.c_void_p | None) -> ResultRecord:
         return self.dll.AUTDEmulatorRecordFrom(emulator, start_time, f)
 
     def emulator_record_free(self, record: RecordPtr) -> None:
         return self.dll.AUTDEmulatorRecordFree(record)
-
-    def emulator_wait_result_record(self, handle: HandlePtr, future: FfiFuture) -> ResultRecord:
-        return self.dll.AUTDEmulatorWaitResultRecord(handle, future)
 
     def emulator_tick_ns(self, record: LinkPtr, tick: Duration) -> ResultStatus:
         return self.dll.AUTDEmulatorTickNs(record, tick)
@@ -285,11 +271,8 @@ class NativeMethods(metaclass=Singleton):
     def emulator_record_output_ultrasound(self, record: RecordPtr, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> None:
         return self.dll.AUTDEmulatorRecordOutputUltrasound(record, v)
 
-    def emulator_sound_field_rms(self, record: RecordPtr, range: RangeXYZ, option: RmsRecordOption) -> LocalFfiFuture:
+    def emulator_sound_field_rms(self, record: RecordPtr, range: RangeXYZ, option: RmsRecordOption) -> ResultRms:
         return self.dll.AUTDEmulatorSoundFieldRms(record, range, option)
-
-    def emulator_sound_field_rms_wait(self, handle: HandlePtr, future: LocalFfiFuture) -> ResultRms:
-        return self.dll.AUTDEmulatorSoundFieldRmsWait(handle, future)
 
     def emulator_sound_field_rms_time_len(self, sound_field: RmsPtr, duration: Duration) -> ctypes.c_uint64:
         return self.dll.AUTDEmulatorSoundFieldRmsTimeLen(sound_field, duration)
@@ -306,10 +289,10 @@ class NativeMethods(metaclass=Singleton):
     def emulator_sound_field_rms_get_z(self, sound_field: RmsPtr, z: ctypes.Array[ctypes.c_float] | None) -> None:
         return self.dll.AUTDEmulatorSoundFieldRmsGetZ(sound_field, z)
 
-    def emulator_sound_field_rms_skip(self, sound_field: RmsPtr, duration: Duration) -> LocalFfiFuture:
+    def emulator_sound_field_rms_skip(self, sound_field: RmsPtr, duration: Duration) -> ResultStatus:
         return self.dll.AUTDEmulatorSoundFieldRmsSkip(sound_field, duration)
 
-    def emulator_sound_field_rms_next(self, sound_field: RmsPtr, duration: Duration, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> LocalFfiFuture:
+    def emulator_sound_field_rms_next(self, sound_field: RmsPtr, duration: Duration, time: ctypes.Array[ctypes.c_uint64] | None, v: ctypes.Array[ctypes.Array[ctypes.c_float]]) -> ResultStatus:
         return self.dll.AUTDEmulatorSoundFieldRmsNext(sound_field, duration, time, v)
 
     def emulator_sound_field_rms_free(self, sound_field: RmsPtr) -> None:

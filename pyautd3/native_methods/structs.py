@@ -3,14 +3,6 @@ from typing import Self
 import numpy as np
 
 
-class FfiFuture(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_byte * 24)]
-
-
-class LocalFfiFuture(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_byte * 24)]
-
-
 class Vector3(ctypes.Structure):
     _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float)]
 

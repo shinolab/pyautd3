@@ -1,6 +1,6 @@
 from typing import Self
 
-from pyautd3.native_methods.autd3_driver import DcSysTime as _DcSysTime
+from pyautd3.native_methods.autd3_core import DcSysTime as _DcSysTime
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.utils import Duration
 

@@ -1,6 +1,7 @@
 from pyautd3.ethercat.dc_sys_time import DcSysTime
+from pyautd3.native_methods.autd3_core import GPIOIn
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import GPIOIn, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import TransitionModeWrap
 from pyautd3.native_methods.utils import ConstantADT
 
 

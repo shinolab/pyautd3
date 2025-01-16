@@ -7,3 +7,6 @@
 [submodule "tools/autd3_build_utils"]
 	path = tools/autd3_build_utils
 	url = https://github.com/shinolab/autd3_build_utils.git
+[submodule "tools/wrapper-generator/capi-emulator"]
+	path = tools/wrapper-generator/capi-emulator
+	url = https://github.com/shinolab/autd3-capi-emulator

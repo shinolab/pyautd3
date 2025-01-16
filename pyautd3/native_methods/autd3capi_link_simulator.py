@@ -2,9 +2,10 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
-from pyautd3.native_methods.autd3capi_driver import ResultStatus, ResultSyncLinkBuilder
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion
+from pyautd3.native_methods.autd3_driver import GainSTMMode, SilencerTarget
+from pyautd3.native_methods.autd3_core import SamplingConfig, LoopBehavior, GPIOOut, GPIOIn, Segment, Drive, DcSysTime
+from pyautd3.native_methods.autd3capi_driver import ResultLinkBuilder, ResultStatus
 
 
 
@@ -32,7 +33,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSimulatorTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_char_p] 
-        self.dll.AUTDLinkSimulator.restype = ResultSyncLinkBuilder
+        self.dll.AUTDLinkSimulator.restype = ResultLinkBuilder
 
     def link_simulator_tracing_init(self) -> None:
         return self.dll.AUTDLinkSimulatorTracingInit()
@@ -40,5 +41,5 @@ class NativeMethods(metaclass=Singleton):
     def link_simulator_tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDLinkSimulatorTracingInitWithFile(path)
 
-    def link_simulator(self, addr: bytes) -> ResultSyncLinkBuilder:
+    def link_simulator(self, addr: bytes) -> ResultLinkBuilder:
         return self.dll.AUTDLinkSimulator(addr)

@@ -2,8 +2,9 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion
+from pyautd3.native_methods.autd3_driver import GainSTMMode, SilencerTarget
+from pyautd3.native_methods.autd3_core import SamplingConfig, LoopBehavior, GPIOOut, GPIOIn, Segment, Drive, DcSysTime
 from enum import IntEnum
 
 
@@ -62,7 +63,6 @@ class AUTDStatus(IntEnum):
 class TimerStrategyTag(IntEnum):
     Std = 0
     Spin = 1
-    Async = 2
     Waitable = 3
 
     @classmethod
@@ -119,19 +119,7 @@ class LinkPtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
-class SyncLinkBuilderPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
 class ModulationPtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class RuntimePtr(ctypes.Structure):
-    _fields_ = [("_0", ctypes.c_void_p)]
-
-
-class HandlePtr(ctypes.Structure):
     _fields_ = [("_0", ctypes.c_void_p)]
 
 
@@ -198,13 +186,6 @@ class ResultLinkBuilder(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultLinkBuilder) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ResultSyncLinkBuilder(ctypes.Structure):
-    _fields_ = [("result", LinkBuilderPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultSyncLinkBuilder) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ResultModulation(ctypes.Structure):

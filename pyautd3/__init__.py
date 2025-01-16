@@ -37,13 +37,9 @@ from .ethercat import DcSysTime
 from .gain import Bessel, Focus, Group, Null, Plane, Uniform
 from .link.nop import Nop
 from .modulation import Sine, Square, Static
+from .native_methods.autd3_core import GPIOIn, GPIOOut, Segment
 from .native_methods.autd3capi import NativeMethods as Base
-from .native_methods.autd3capi_driver import (
-    GPIOIn,
-    GPIOOut,
-    Segment,
-    SilencerTarget,
-)
+from .native_methods.autd3capi_driver import SilencerTarget
 from .native_methods.autd3capi_emulator import NativeMethods as Emulator
 from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
@@ -129,4 +125,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "29.0.0rc12"
+__version__ = "29.0.0rc16"

@@ -4,9 +4,10 @@ from typing import Self
 import numpy as np
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3_driver import Drive as Drive_
+from pyautd3.native_methods.autd3_core import Drive as Drive_
+from pyautd3.native_methods.autd3_core import LoopBehavior, Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import ControllerPtr, HandlePtr, LinkBuilderPtr, LinkPtr, LoopBehavior, Segment, SilencerTarget
+from pyautd3.native_methods.autd3capi_driver import ControllerPtr, LinkBuilderPtr, LinkPtr, SilencerTarget
 from pyautd3.utils import Duration
 
 __all__ = []  # type: ignore[var-annotated]
@@ -19,11 +20,11 @@ class Audit(Link):
         def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
             return LinkAudit().link_audit()
 
-        def _resolve_link(self: Self, handle: HandlePtr, ptr: ControllerPtr) -> "Audit":
-            return Audit(handle, LinkAudit().link_get(ptr))
+        def _resolve_link(self: Self, ptr: ControllerPtr) -> "Audit":
+            return Audit(LinkAudit().link_get(ptr))
 
-    def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
-        super().__init__(handle, ptr)
+    def __init__(self: Self, ptr: LinkPtr) -> None:
+        super().__init__(ptr)
 
     @staticmethod
     def builder() -> _Builder:
@@ -64,11 +65,11 @@ class Audit(Link):
     def silencer_update_rate_phase(self: Self, idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_update_rate_phase(self._ptr, idx))
 
-    def silencer_completion_steps_intensity(self: Self, idx: int) -> Duration:
-        return Duration.__private_new__(LinkAudit().link_audit_fpga_silencer_completion_steps_intensity(self._ptr, idx))
+    def silencer_completion_steps_intensity(self: Self, idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_silencer_completion_steps_intensity(self._ptr, idx))
 
-    def silencer_completion_steps_phase(self: Self, idx: int) -> Duration:
-        return Duration.__private_new__(LinkAudit().link_audit_fpga_silencer_completion_steps_phase(self._ptr, idx))
+    def silencer_completion_steps_phase(self: Self, idx: int) -> int:
+        return int(LinkAudit().link_audit_fpga_silencer_completion_steps_phase(self._ptr, idx))
 
     def silencer_fixed_completion_steps_mode(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_silencer_fixed_completion_steps_mode(self._ptr, idx))

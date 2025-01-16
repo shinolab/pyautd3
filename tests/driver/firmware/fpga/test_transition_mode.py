@@ -2,7 +2,8 @@ import pytest
 
 from pyautd3 import TransitionMode
 from pyautd3.ethercat.dc_sys_time import DcSysTime
-from pyautd3.native_methods.autd3capi_driver import GPIOIn, TransitionModeTag
+from pyautd3.native_methods.autd3_core import GPIOIn
+from pyautd3.native_methods.autd3capi_driver import TransitionModeTag
 
 
 def test_transition_mode_sync_idx():
