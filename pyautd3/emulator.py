@@ -365,15 +365,15 @@ class Emulator(Geometry):
             },
         )
 
-    def record(self: Self, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
+    def record(self: Self, f: Callable[[Controller[Recorder]], None]) -> Record:
         return self.record_from(DcSysTime.__private_new__(_DcSysTime(0)), f)
 
-    def record_from(self: Self, start_time: DcSysTime, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
+    def record_from(self: Self, start_time: DcSysTime, f: Callable[[Controller[Recorder]], None]) -> Record:
         def f_native(ptr: ControllerPtr) -> None:
             geometry = Base().geometry(ptr)
             link = Base().link_get(ptr)
             cnt = Controller(geometry, ptr, Recorder(link))
-            cnt = f(cnt)
+            f(cnt)
             cnt._disposed = True
 
         f_native_ = ctypes.CFUNCTYPE(None, ControllerPtr)(f_native)

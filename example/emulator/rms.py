@@ -13,11 +13,10 @@ def plot_focus() -> None:
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
         focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer.disable())
             autd.send((Static.with_intensity(0xFF), Focus(focus)))
             autd.tick(Duration.from_micros(25))
-            return autd
 
         record = emulator.record(f)
 
@@ -70,7 +69,7 @@ def plot_stm() -> None:
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
         focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer())
             autd.send(
                 (
@@ -82,7 +81,6 @@ def plot_stm() -> None:
                 ),
             )
             autd.tick(Duration.from_millis(5))
-            return autd
 
         record = emulator.record(f)
 

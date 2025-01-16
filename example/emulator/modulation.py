@@ -8,11 +8,10 @@ from pyautd3.utils import Duration
 if __name__ == "__main__":
     with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
         # pulse width under 200Hz sine modulation with silencer
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer())
             autd.send((Sine(200.0 * Hz), Uniform(EmitIntensity(0xFF))))
             autd.tick(Duration.from_millis(10))
-            return autd
 
         record = emulator.record(f)
 
@@ -28,11 +27,10 @@ if __name__ == "__main__":
         plt.show()
 
         # pulse width under 200Hz sine modulation without silencer
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer.disable())
             autd.send((Sine(200.0 * Hz), Uniform(EmitIntensity(0xFF))))
             autd.tick(Duration.from_millis(10))
-            return autd
 
         record = emulator.record(f)
 
@@ -50,11 +48,10 @@ if __name__ == "__main__":
         # plot sound pressure at focus under 200Hz sin modulation with silencer
         focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer())
             autd.send((Sine(200.0 * Hz), Focus(focus)))
             autd.tick(Duration.from_millis(20))
-            return autd
 
         record = emulator.record(f)
 
