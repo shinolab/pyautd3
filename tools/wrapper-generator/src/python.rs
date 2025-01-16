@@ -297,13 +297,17 @@ impl PythonGenerator {
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture"
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion"
         )?;
 
         if capi {
             writeln!(
                 w,
-                r"from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime"
+                r"from pyautd3.native_methods.autd3_driver import GainSTMMode, SilencerTarget"
+            )?;
+            writeln!(
+                w,
+                r"from pyautd3.native_methods.autd3_core import SamplingConfig, LoopBehavior, GPIOOut, GPIOIn, Segment, Drive, DcSysTime"
             )?;
         }
 
@@ -334,7 +338,6 @@ from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFutur
         let def_ty = vec![
             "TimerStrategyWrap",
             "GeometryPtr",
-            "HandlePtr",
             "LinkPtr",
             "ResultStatus",
             "ResultSyncLinkBuilder",
@@ -352,7 +355,6 @@ from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFutur
             "DebugTypeWrap",
             "DevicePtr",
             "ModulationPtr",
-            "RuntimePtr",
             "SpinStrategyTag",
             "TransitionModeWrap",
             "TransducerPtr",

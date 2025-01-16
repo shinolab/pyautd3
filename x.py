@@ -112,8 +112,14 @@ def copy_dll(config: Config) -> None:
 
     config.download_and_extract("autd3-capi", "autd3", version, ["pyautd3/bin"])
     shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
-    shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
+    shutil.copyfile("ThirdPartyNotice.txt", "ThirdPartyNotice-orig.txt")
     remove("bin")
+
+    config.download_and_extract("autd3-capi-emulator", "autd3", version, ["pyautd3/bin"])
+    notice = pathlib.Path("ThirdPartyNotice-orig.txt").read_text() + "\n" + pathlib.Path("ThirdPartyNotice.txt").read_text()
+    pathlib.Path("ThirdPartyNotice.txt").write_text(notice)
+    shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
+
     pathlib.Path("VERSION").write_text(version)
 
 

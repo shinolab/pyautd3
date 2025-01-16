@@ -9,7 +9,7 @@ from pyautd3.driver.firmware.fpga import Drive
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Device, Geometry, Transducer
-from pyautd3.native_methods.autd3_driver import Drive as _Drive
+from pyautd3.native_methods.autd3_core import Drive as _Drive
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ConstPtr, GainPtr, GeometryPtr
 

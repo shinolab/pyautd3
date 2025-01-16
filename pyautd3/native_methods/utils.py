@@ -1,7 +1,7 @@
 import ctypes
 
 from pyautd3.autd_error import AUTDError
-from pyautd3.native_methods.autd3_driver import SamplingConfig
+from pyautd3.native_methods.autd3_core import SamplingConfig
 from .autd3capi_driver import AUTDStatus, ResultSamplingConfig, ResultStatus
 from .autd3capi import NativeMethods as Base
 

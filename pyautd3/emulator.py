@@ -1,4 +1,3 @@
-import asyncio
 import ctypes
 from collections.abc import Callable
 from types import TracebackType
@@ -11,10 +10,10 @@ from pyautd3.controller.controller import Controller, _Builder
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.link import Link
 from pyautd3.ethercat.dc_sys_time import DcSysTime
-from pyautd3.native_methods.autd3_driver import DcSysTime as _DcSysTime
-from pyautd3.native_methods.autd3capi import ControllerPtr, RuntimePtr
+from pyautd3.native_methods.autd3_core import DcSysTime as _DcSysTime
+from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, HandlePtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkPtr
 from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, InstantPtr, RecordPtr, RmsPtr
 from pyautd3.native_methods.autd3capi_emulator import InstantRecordOption as InstantRecordOption_
 from pyautd3.native_methods.autd3capi_emulator import NativeMethods as Emu
@@ -89,11 +88,9 @@ class RmsRecordOption:
 
 class Instant:
     _ptr: InstantPtr
-    _handle: HandlePtr
 
-    def __init__(self: Self, ptr: InstantPtr, handle: HandlePtr) -> None:
+    def __init__(self: Self, ptr: InstantPtr) -> None:
         self._ptr = ptr
-        self._handle = handle
 
     def __del__(self: Self) -> None:
         self._dispose()
@@ -104,12 +101,7 @@ class Instant:
             self._ptr._0 = None
 
     def skip(self: Self, duration: Duration) -> Self:
-        _validate_status(
-            Base().wait_local_result_status(
-                self._handle,
-                Emu().emulator_sound_field_instant_skip(self._ptr, duration._inner),
-            ),
-        )
+        _validate_status(Emu().emulator_sound_field_instant_skip(self._ptr, duration._inner))
         return self
 
     def observe_points(self: Self) -> pl.DataFrame:
@@ -135,54 +127,18 @@ class Instant:
 
         v = np.zeros([n, points_len], dtype=np.float32)
         _validate_status(
-            Base().wait_local_result_status(
-                self._handle,
-                Emu().emulator_sound_field_instant_next(
-                    self._ptr,
-                    duration._inner,
-                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
-                    ctypes.cast(
-                        (ctypes.POINTER(ctypes.c_float) * n)(
-                            *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
-                        ),
-                        ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
+            Emu().emulator_sound_field_instant_next(
+                self._ptr,
+                duration._inner,
+                time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
+                ctypes.cast(
+                    (ctypes.POINTER(ctypes.c_float) * n)(
+                        *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
                     ),
+                    ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
                 ),
             ),
         )
-        return pl.DataFrame(
-            {s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
-        )
-
-    async def next_async(self: Self, duration: Duration) -> pl.DataFrame:
-        future: asyncio.Future = asyncio.Future()
-        loop = asyncio.get_event_loop()
-
-        n = int(Emu().emulator_sound_field_instant_time_len(self._ptr, duration._inner))
-        points_len = int(Emu().emulator_sound_field_instant_points_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-
-        v = np.zeros([n, points_len], dtype=np.float32)
-        ffi_future = Emu().emulator_sound_field_instant_next(
-            self._ptr,
-            duration._inner,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
-            ctypes.cast(
-                (ctypes.POINTER(ctypes.c_float) * n)(
-                    *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
-                ),
-                ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
-            ),  # type: ignore[arg-type]
-        )
-        loop.call_soon(
-            lambda *_: future.set_result(
-                Base().wait_local_result_status(
-                    self._handle,
-                    ffi_future,
-                ),
-            ),
-        )
-        _validate_status(await future)
         return pl.DataFrame(
             {s.name: s for s in (pl.Series(name=f"p[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
         )
@@ -190,11 +146,9 @@ class Instant:
 
 class Rms:
     _ptr: RmsPtr
-    _handle: HandlePtr
 
-    def __init__(self: Self, ptr: RmsPtr, handle: HandlePtr) -> None:
+    def __init__(self: Self, ptr: RmsPtr) -> None:
         self._ptr = ptr
-        self._handle = handle
 
     def __del__(self: Self) -> None:
         self._dispose()
@@ -205,12 +159,7 @@ class Rms:
             self._ptr._0 = None
 
     def skip(self: Self, duration: Duration) -> Self:
-        _validate_status(
-            Base().wait_local_result_status(
-                self._handle,
-                Emu().emulator_sound_field_rms_skip(self._ptr, duration._inner),
-            ),
-        )
+        _validate_status(Emu().emulator_sound_field_rms_skip(self._ptr, duration._inner))
         return self
 
     def observe_points(self: Self) -> pl.DataFrame:
@@ -236,62 +185,26 @@ class Rms:
 
         v = np.zeros([n, points_len], dtype=np.float32)
         _validate_status(
-            Base().wait_local_result_status(
-                self._handle,
-                Emu().emulator_sound_field_rms_next(
-                    self._ptr,
-                    duration._inner,
-                    time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
-                    ctypes.cast(
-                        (ctypes.POINTER(ctypes.c_float) * n)(
-                            *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
-                        ),
-                        ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
-                    ),  # type: ignore[arg-type]
-                ),
+            Emu().emulator_sound_field_rms_next(
+                self._ptr,
+                duration._inner,
+                time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
+                ctypes.cast(
+                    (ctypes.POINTER(ctypes.c_float) * n)(
+                        *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
+                    ),
+                    ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
+                ),  # type: ignore[arg-type]
             ),
         )
-        return pl.DataFrame(
-            {s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
-        )
-
-    async def next_async(self: Self, duration: Duration) -> pl.DataFrame:
-        future: asyncio.Future = asyncio.Future()
-        loop = asyncio.get_event_loop()
-
-        n = int(Emu().emulator_sound_field_rms_time_len(self._ptr, duration._inner))
-        points_len = int(Emu().emulator_sound_field_rms_points_len(self._ptr))
-        time = np.zeros(n, dtype=np.uint64)
-
-        v = np.zeros([n, points_len], dtype=np.float32)
-        ffi_future = Emu().emulator_sound_field_rms_next(
-            self._ptr,
-            duration._inner,
-            time.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
-            ctypes.cast(
-                (ctypes.POINTER(ctypes.c_float) * n)(
-                    *(ctypes.cast(r, ctypes.POINTER(ctypes.c_float)) for r in np.ctypeslib.as_ctypes(v)),  # type: ignore[arg-type]
-                ),
-                ctypes.POINTER(ctypes.POINTER(ctypes.c_float)),
-            ),  # type: ignore[arg-type]
-        )
-        loop.call_soon(
-            lambda *_: future.set_result(
-                Base().wait_local_result_status(
-                    self._handle,
-                    ffi_future,
-                ),
-            ),
-        )
-        _validate_status(await future)
         return pl.DataFrame(
             {s.name: s for s in (pl.Series(name=f"rms[Pa]@{time[i]}[ns]", values=v[i]) for i in range(n))},
         )
 
 
 class Recorder(Link):
-    def __init__(self: Self, handle: HandlePtr, ptr: LinkPtr) -> None:
-        super().__init__(handle, ptr)
+    def __init__(self: Self, ptr: LinkPtr) -> None:
+        super().__init__(ptr)
 
     def tick(self: Self, tick: Duration) -> None:
         _validate_status(
@@ -304,11 +217,9 @@ Controller[Recorder].tick = lambda self, tick: self._link.tick(tick)  # type: ig
 
 class Record:
     _ptr: RecordPtr
-    _handle: HandlePtr
 
-    def __init__(self: Self, ptr: RecordPtr, handle: HandlePtr) -> None:
+    def __init__(self: Self, ptr: RecordPtr) -> None:
         self._ptr = ptr
-        self._handle = handle
 
     def __del__(self: Self) -> None:
         self._dispose()
@@ -387,52 +298,19 @@ class Record:
             case InstantRecordOption():
                 return Instant(
                     _validate_ptr(
-                        Emu().emulator_sound_field_instant_wait(
-                            self._handle,
-                            Emu().emulator_sound_field_instant(self._ptr, range_._inner, option._inner),
-                        ),
+                        Emu().emulator_sound_field_instant(self._ptr, range_._inner, option._inner),
                     ),
-                    self._handle,
                 )
             case RmsRecordOption():  # pragma: no cover
                 return Rms(
                     _validate_ptr(
-                        Emu().emulator_sound_field_rms_wait(
-                            self._handle,
-                            Emu().emulator_sound_field_rms(self._ptr, range_._inner, option._inner),
-                        ),
+                        Emu().emulator_sound_field_rms(self._ptr, range_._inner, option._inner),
                     ),
-                    self._handle,
-                )
-
-    async def sound_field_async(self: Self, range_: RangeXYZ, option: InstantRecordOption | RmsRecordOption) -> Instant | Rms:
-        future: asyncio.Future = asyncio.Future()
-        loop = asyncio.get_event_loop()
-        match option:
-            case InstantRecordOption():
-                ffi_future = Emu().emulator_sound_field_instant(self._ptr, range_._inner, option._inner)
-                loop.call_soon(
-                    lambda *_: future.set_result(Emu().emulator_sound_field_instant_wait(self._handle, ffi_future)),
-                )
-                return Instant(
-                    _validate_ptr(await future),
-                    self._handle,
-                )
-            case RmsRecordOption():  # pragma: no cover
-                ffi_future = Emu().emulator_sound_field_rms(self._ptr, range_._inner, option._inner)
-                loop.call_soon(
-                    lambda *_: future.set_result(Emu().emulator_sound_field_rms_wait(self._handle, ffi_future)),
-                )
-                return Rms(
-                    _validate_ptr(await future),
-                    self._handle,
                 )
 
 
 class Emulator(Geometry):
     _ptr: EmulatorPtr
-    _runtime: RuntimePtr
-    _handle: HandlePtr
 
     def __new__(cls: type["Emulator"]) -> "Emulator":
         raise NotImplementedError  # pragma: no cover
@@ -443,8 +321,6 @@ class Emulator(Geometry):
         geometry_ptr = Emu().emulator_geometry(ptr)
         ins = super().__new__(cls)
         ins._ptr = Emu().emulator(builder._ptr())
-        ins._runtime = Base().create_runtime()
-        ins._handle = Base().get_runtime_handle(ins._runtime)
         ins.__private_init__(geometry_ptr)
         return ins
 
@@ -492,14 +368,11 @@ class Emulator(Geometry):
     def record(self: Self, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
         return self.record_from(DcSysTime.__private_new__(_DcSysTime(0)), f)
 
-    async def record_async(self: Self, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
-        return await self.record_from_async(DcSysTime.__private_new__(_DcSysTime(0)), f)
-
     def record_from(self: Self, start_time: DcSysTime, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
         def f_native(ptr: ControllerPtr) -> None:
             geometry = Base().geometry(ptr)
             link = Base().link_get(ptr)
-            cnt = Controller(geometry, self._runtime, self._handle, ptr, Recorder(self._handle, link))
+            cnt = Controller(geometry, ptr, Recorder(link))
             cnt = f(cnt)
             cnt._disposed = True
 
@@ -507,32 +380,8 @@ class Emulator(Geometry):
 
         return Record(
             _validate_ptr(
-                Emu().emulator_wait_result_record(
-                    self._handle,
-                    Emu().emulator_record_from(self._ptr, start_time._inner, f_native_),  # type: ignore[arg-type]
-                ),
+                Emu().emulator_record_from(self._ptr, start_time._inner, f_native_),  # type: ignore[arg-type]
             ),
-            self._handle,
-        )
-
-    async def record_from_async(self: Self, start_time: DcSysTime, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
-        def f_native(ptr: ControllerPtr) -> None:
-            geometry = Base().geometry(ptr)
-            link = Base().link_get(ptr)
-            cnt = Controller(geometry, self._runtime, self._handle, ptr, Recorder(self._handle, link))
-            cnt = f(cnt)
-            cnt._disposed = True
-
-        f_native_ = ctypes.CFUNCTYPE(None, ControllerPtr)(f_native)
-        future: asyncio.Future = asyncio.Future()
-        loop = asyncio.get_event_loop()
-        ffi_future = Emu().emulator_record_from(self._ptr, start_time._inner, f_native_)  # type: ignore[arg-type]
-        loop.call_soon(
-            lambda *_: future.set_result(Emu().emulator_wait_result_record(self._handle, ffi_future)),
-        )
-        return Record(
-            _validate_ptr(await future),
-            self._handle,
         )
 
     def __del__(self: Self) -> None:

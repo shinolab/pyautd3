@@ -2,8 +2,9 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion
+from pyautd3.native_methods.autd3_driver import GainSTMMode, SilencerTarget
+from pyautd3.native_methods.autd3_core import SamplingConfig, LoopBehavior, GPIOOut, GPIOIn, Segment, Drive, DcSysTime
 from pyautd3.native_methods.autd3capi_driver import GainPtr
 
 from enum import IntEnum

@@ -85,6 +85,11 @@ fn main() -> Result<()> {
         let crate_path = Path::new(&entry).parent().unwrap();
         gen_capi(&crate_path, "../../pyautd3/native_methods")?;
     }
+    for entry in glob(&format!("{}/capi-emulator/Cargo.toml", home))? {
+        let entry = entry?;
+        let crate_path = Path::new(&entry).parent().unwrap();
+        gen_capi(&crate_path, "../../pyautd3/native_methods")?;
+    }
 
     Ok(())
 }

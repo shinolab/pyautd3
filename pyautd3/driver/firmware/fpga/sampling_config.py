@@ -3,7 +3,7 @@ from typing import Self
 from pyautd3.driver.defined import Freq
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.utils import _validate_nonzero_u16
-from pyautd3.native_methods.autd3_driver import SamplingConfig as _SamplingConfig
+from pyautd3.native_methods.autd3_core import SamplingConfig as _SamplingConfig
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.utils import _validate_sampling_config
 from pyautd3.utils import Duration

@@ -2,9 +2,10 @@
 import threading
 import ctypes
 import os
-from pyautd3.native_methods.structs import Point3, Vector3, Quaternion, FfiFuture, LocalFfiFuture
-from pyautd3.native_methods.autd3_driver import SamplingConfig, LoopBehavior, SyncMode, GainSTMMode, GPIOOut, GPIOIn, Segment, SilencerTarget, Drive, DcSysTime
-from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, ControllerPtr, DatagramPtr, DebugTypeWrap, DevicePtr, Duration, DynSincInterpolator, FociSTMPtr, GainPtr, GainSTMPtr, GeometryPtr, HandlePtr, LinkBuilderPtr, LinkPtr, ModulationPtr, OptionDuration, ResultFociSTM, ResultGain, ResultGainSTM, ResultModulation, ResultSamplingConfig, ResultStatus, RuntimePtr, SpinStrategyTag, TimerStrategyWrap, TransducerPtr, TransitionModeWrap
+from pyautd3.native_methods.structs import Point3, Vector3, Quaternion
+from pyautd3.native_methods.autd3_driver import GainSTMMode, SilencerTarget
+from pyautd3.native_methods.autd3_core import SamplingConfig, LoopBehavior, GPIOOut, GPIOIn, Segment, Drive, DcSysTime
+from pyautd3.native_methods.autd3capi_driver import ControllerBuilderPtr, ControllerPtr, DatagramPtr, DebugTypeWrap, DevicePtr, Duration, DynSincInterpolator, FociSTMPtr, GainPtr, GainSTMPtr, GeometryPtr, LinkBuilderPtr, LinkPtr, ModulationPtr, OptionDuration, ResultFociSTM, ResultGain, ResultGainSTM, ResultModulation, ResultSamplingConfig, ResultStatus, SpinStrategyTag, TimerStrategyWrap, TransducerPtr, TransitionModeWrap
 
 
 class FPGAStateListPtr(ctypes.Structure):
@@ -73,16 +74,16 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDControllerBuilderIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDControllerOpen.argtypes = [ControllerBuilderPtr, LinkBuilderPtr, OptionDuration]  # type: ignore 
-        self.dll.AUTDControllerOpen.restype = FfiFuture
+        self.dll.AUTDControllerOpen.restype = ResultController
 
         self.dll.AUTDControllerGroup.argtypes = [ControllerPtr, ctypes.c_void_p, ctypes.c_void_p, GeometryPtr, ctypes.POINTER(ctypes.c_int32), ctypes.POINTER(DatagramPtr), ctypes.c_uint16]  # type: ignore 
-        self.dll.AUTDControllerGroup.restype = LocalFfiFuture
+        self.dll.AUTDControllerGroup.restype = ResultStatus
 
         self.dll.AUTDControllerClose.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerClose.restype = FfiFuture
+        self.dll.AUTDControllerClose.restype = ResultStatus
 
         self.dll.AUTDControllerFPGAState.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerFPGAState.restype = FfiFuture
+        self.dll.AUTDControllerFPGAState.restype = ResultFPGAStateList
 
         self.dll.AUTDControllerFPGAStateGet.argtypes = [FPGAStateListPtr, ctypes.c_uint32]  # type: ignore 
         self.dll.AUTDControllerFPGAStateGet.restype = ctypes.c_int16
@@ -91,7 +92,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDControllerFPGAStateDelete.restype = None
 
         self.dll.AUTDControllerFirmwareVersionListPointer.argtypes = [ControllerPtr]  # type: ignore 
-        self.dll.AUTDControllerFirmwareVersionListPointer.restype = FfiFuture
+        self.dll.AUTDControllerFirmwareVersionListPointer.restype = ResultFirmwareVersionList
 
         self.dll.AUTDControllerFirmwareVersionGet.argtypes = [FirmwareVersionListPtr, ctypes.c_uint32, ctypes.c_char_p]  # type: ignore 
         self.dll.AUTDControllerFirmwareVersionGet.restype = None
@@ -103,7 +104,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDFirmwareLatest.restype = None
 
         self.dll.AUTDControllerSend.argtypes = [ControllerPtr, DatagramPtr]  # type: ignore 
-        self.dll.AUTDControllerSend.restype = FfiFuture
+        self.dll.AUTDControllerSend.restype = ResultStatus
 
         self.dll.AUTDTimerStrategyStd.argtypes = [ctypes.c_uint32] 
         self.dll.AUTDTimerStrategyStd.restype = TimerStrategyWrap
@@ -113,9 +114,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDTimerStrategySpin.argtypes = [ctypes.c_uint32, SpinStrategyTag]  # type: ignore 
         self.dll.AUTDTimerStrategySpin.restype = TimerStrategyWrap
-
-        self.dll.AUTDTimerStrategyAsync.argtypes = [ctypes.c_uint32] 
-        self.dll.AUTDTimerStrategyAsync.restype = TimerStrategyWrap
 
         self.dll.AUTDTimerStrategyWaitable.argtypes = [] 
         self.dll.AUTDTimerStrategyWaitable.restype = TimerStrategyWrap
@@ -159,14 +157,20 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSilencerFromUpdateRate.argtypes = [ctypes.c_uint16, ctypes.c_uint16, SilencerTarget]  # type: ignore 
         self.dll.AUTDDatagramSilencerFromUpdateRate.restype = DatagramPtr
 
+        self.dll.AUTDDatagramSilencerFromCompletionSteps.argtypes = [ctypes.c_uint16, ctypes.c_uint16, ctypes.c_bool, SilencerTarget]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFromCompletionSteps.restype = DatagramPtr
+
         self.dll.AUTDDatagramSilencerFromCompletionTime.argtypes = [Duration, Duration, ctypes.c_bool, SilencerTarget]  # type: ignore 
         self.dll.AUTDDatagramSilencerFromCompletionTime.restype = DatagramPtr
+
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsValid.argtypes = [ctypes.c_uint16, ctypes.c_uint16, ctypes.c_bool, SamplingConfig, SamplingConfig]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsValid.restype = ctypes.c_bool
 
         self.dll.AUTDDatagramSilencerFixedCompletionTimeIsValid.argtypes = [Duration, Duration, ctypes.c_bool, SamplingConfig, SamplingConfig]  # type: ignore 
         self.dll.AUTDDatagramSilencerFixedCompletionTimeIsValid.restype = ctypes.c_bool
 
-        self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault.argtypes = [Duration, Duration, ctypes.c_bool, SilencerTarget]  # type: ignore 
-        self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault.restype = ctypes.c_bool
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.argtypes = [ctypes.c_uint16, ctypes.c_uint16, ctypes.c_bool, SilencerTarget]  # type: ignore 
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDSTMFoci.argtypes = [SamplingConfig, ctypes.c_void_p, ctypes.c_uint16, ctypes.c_uint8, LoopBehavior]  # type: ignore 
         self.dll.AUTDSTMFoci.restype = ResultFociSTM
@@ -441,30 +445,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDTransducerPosition.argtypes = [TransducerPtr]  # type: ignore 
         self.dll.AUTDTransducerPosition.restype = Point3
 
-        self.dll.AUTDCreateRuntime.argtypes = [] 
-        self.dll.AUTDCreateRuntime.restype = RuntimePtr
-
-        self.dll.AUTDGetRuntimeHandle.argtypes = [RuntimePtr]  # type: ignore 
-        self.dll.AUTDGetRuntimeHandle.restype = HandlePtr
-
-        self.dll.AUTDDeleteRuntime.argtypes = [RuntimePtr]  # type: ignore 
-        self.dll.AUTDDeleteRuntime.restype = None
-
-        self.dll.AUTDWaitResultStatus.argtypes = [HandlePtr, FfiFuture]  # type: ignore 
-        self.dll.AUTDWaitResultStatus.restype = ResultStatus
-
-        self.dll.AUTDWaitLocalResultStatus.argtypes = [HandlePtr, LocalFfiFuture]  # type: ignore 
-        self.dll.AUTDWaitLocalResultStatus.restype = ResultStatus
-
-        self.dll.AUTDWaitResultController.argtypes = [HandlePtr, FfiFuture]  # type: ignore 
-        self.dll.AUTDWaitResultController.restype = ResultController
-
-        self.dll.AUTDWaitResultFPGAStateList.argtypes = [HandlePtr, FfiFuture]  # type: ignore 
-        self.dll.AUTDWaitResultFPGAStateList.restype = ResultFPGAStateList
-
-        self.dll.AUTDWaitResultFirmwareVersionList.argtypes = [HandlePtr, FfiFuture]  # type: ignore 
-        self.dll.AUTDWaitResultFirmwareVersionList.restype = ResultFirmwareVersionList
-
         self.dll.AUTDTracingInit.argtypes = [] 
         self.dll.AUTDTracingInit.restype = None
 
@@ -526,10 +506,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaSilencerUpdateRatePhase.restype = ctypes.c_uint16
 
         self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity.restype = Duration
+        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity.restype = ctypes.c_uint16
 
         self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
-        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase.restype = Duration
+        self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase.restype = ctypes.c_uint16
 
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.argtypes = [LinkPtr, ctypes.c_uint16]  # type: ignore 
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.restype = ctypes.c_bool
@@ -675,16 +655,16 @@ class NativeMethods(metaclass=Singleton):
     def controller_builder_is_default(self, default_parallel_threshold: int, default_timeout: Duration, send_interval_ns: Duration, receive_interval: Duration, timer_strategy: TimerStrategyWrap) -> ctypes.c_bool:
         return self.dll.AUTDControllerBuilderIsDefault(default_parallel_threshold, default_timeout, send_interval_ns, receive_interval, timer_strategy)
 
-    def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout: OptionDuration) -> FfiFuture:
+    def controller_open(self, builder: ControllerBuilderPtr, link_builder: LinkBuilderPtr, timeout: OptionDuration) -> ResultController:
         return self.dll.AUTDControllerOpen(builder, link_builder, timeout)
 
-    def controller_group(self, cnt: ControllerPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr, keys: ctypes.Array[ctypes.c_int32] | None, d: ctypes.Array | None, n: int) -> LocalFfiFuture:
+    def controller_group(self, cnt: ControllerPtr, f: ctypes.c_void_p | None, context: ctypes.c_void_p | None, geometry: GeometryPtr, keys: ctypes.Array[ctypes.c_int32] | None, d: ctypes.Array | None, n: int) -> ResultStatus:
         return self.dll.AUTDControllerGroup(cnt, f, context, geometry, keys, d, n)
 
-    def controller_close(self, cnt: ControllerPtr) -> FfiFuture:
+    def controller_close(self, cnt: ControllerPtr) -> ResultStatus:
         return self.dll.AUTDControllerClose(cnt)
 
-    def controller_fpga_state(self, cnt: ControllerPtr) -> FfiFuture:
+    def controller_fpga_state(self, cnt: ControllerPtr) -> ResultFPGAStateList:
         return self.dll.AUTDControllerFPGAState(cnt)
 
     def controller_fpga_state_get(self, p: FPGAStateListPtr, idx: int) -> ctypes.c_int16:
@@ -693,7 +673,7 @@ class NativeMethods(metaclass=Singleton):
     def controller_fpga_state_delete(self, p: FPGAStateListPtr) -> None:
         return self.dll.AUTDControllerFPGAStateDelete(p)
 
-    def controller_firmware_version_list_pointer(self, cnt: ControllerPtr) -> FfiFuture:
+    def controller_firmware_version_list_pointer(self, cnt: ControllerPtr) -> ResultFirmwareVersionList:
         return self.dll.AUTDControllerFirmwareVersionListPointer(cnt)
 
     def controller_firmware_version_get(self, p_info_list: FirmwareVersionListPtr, idx: int, info: ctypes.Array[ctypes.c_char] | None) -> None:
@@ -705,7 +685,7 @@ class NativeMethods(metaclass=Singleton):
     def firmware_latest(self, latest: ctypes.Array[ctypes.c_char] | None) -> None:
         return self.dll.AUTDFirmwareLatest(latest)
 
-    def controller_send(self, cnt: ControllerPtr, d: DatagramPtr) -> FfiFuture:
+    def controller_send(self, cnt: ControllerPtr, d: DatagramPtr) -> ResultStatus:
         return self.dll.AUTDControllerSend(cnt, d)
 
     def timer_strategy_std(self, timer_resolution: int) -> TimerStrategyWrap:
@@ -716,9 +696,6 @@ class NativeMethods(metaclass=Singleton):
 
     def timer_strategy_spin(self, native_accuracy_ns: int, spin_strategy: SpinStrategyTag) -> TimerStrategyWrap:
         return self.dll.AUTDTimerStrategySpin(native_accuracy_ns, spin_strategy)
-
-    def timer_strategy_async(self, timer_resolution: int) -> TimerStrategyWrap:
-        return self.dll.AUTDTimerStrategyAsync(timer_resolution)
 
     def timer_strategy_waitable(self) -> TimerStrategyWrap:
         return self.dll.AUTDTimerStrategyWaitable()
@@ -762,14 +739,20 @@ class NativeMethods(metaclass=Singleton):
     def datagram_silencer_from_update_rate(self, intensity: int, phase: int, target: SilencerTarget) -> DatagramPtr:
         return self.dll.AUTDDatagramSilencerFromUpdateRate(intensity, phase, target)
 
+    def datagram_silencer_from_completion_steps(self, intensity: int, phase: int, strict_mode: bool, target: SilencerTarget) -> DatagramPtr:
+        return self.dll.AUTDDatagramSilencerFromCompletionSteps(intensity, phase, strict_mode, target)
+
     def datagram_silencer_from_completion_time(self, intensity: Duration, phase: Duration, strict_mode: bool, target: SilencerTarget) -> DatagramPtr:
         return self.dll.AUTDDatagramSilencerFromCompletionTime(intensity, phase, strict_mode, target)
+
+    def datagram_silencer_fixed_completion_steps_is_valid(self, intensity: int, phase: int, strict_mode: bool, config_intensity: SamplingConfig, config_phase: SamplingConfig) -> ctypes.c_bool:
+        return self.dll.AUTDDatagramSilencerFixedCompletionStepsIsValid(intensity, phase, strict_mode, config_intensity, config_phase)
 
     def datagram_silencer_fixed_completion_time_is_valid(self, intensity: Duration, phase: Duration, strict_mode: bool, config_intensity: SamplingConfig, config_phase: SamplingConfig) -> ctypes.c_bool:
         return self.dll.AUTDDatagramSilencerFixedCompletionTimeIsValid(intensity, phase, strict_mode, config_intensity, config_phase)
 
-    def datagram_silencer_fixed_completion_time_is_default(self, intensity: Duration, phase: Duration, strict_mode: bool, target: SilencerTarget) -> ctypes.c_bool:
-        return self.dll.AUTDDatagramSilencerFixedCompletionTimeIsDefault(intensity, phase, strict_mode, target)
+    def datagram_silencer_fixed_completion_steps_is_default(self, intensity: int, phase: int, strict_mode: bool, target: SilencerTarget) -> ctypes.c_bool:
+        return self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault(intensity, phase, strict_mode, target)
 
     def stm_foci(self, config: SamplingConfig, points: ctypes.c_void_p | None, size: int, n: int, loop_behavior: LoopBehavior) -> ResultFociSTM:
         return self.dll.AUTDSTMFoci(config, points, size, n, loop_behavior)
@@ -1044,30 +1027,6 @@ class NativeMethods(metaclass=Singleton):
     def transducer_position(self, tr: TransducerPtr) -> Point3:
         return self.dll.AUTDTransducerPosition(tr)
 
-    def create_runtime(self) -> RuntimePtr:
-        return self.dll.AUTDCreateRuntime()
-
-    def get_runtime_handle(self, runtime: RuntimePtr) -> HandlePtr:
-        return self.dll.AUTDGetRuntimeHandle(runtime)
-
-    def delete_runtime(self, runtime: RuntimePtr) -> None:
-        return self.dll.AUTDDeleteRuntime(runtime)
-
-    def wait_result_status(self, handle: HandlePtr, future: FfiFuture) -> ResultStatus:
-        return self.dll.AUTDWaitResultStatus(handle, future)
-
-    def wait_local_result_status(self, handle: HandlePtr, future: LocalFfiFuture) -> ResultStatus:
-        return self.dll.AUTDWaitLocalResultStatus(handle, future)
-
-    def wait_result_controller(self, handle: HandlePtr, future: FfiFuture) -> ResultController:
-        return self.dll.AUTDWaitResultController(handle, future)
-
-    def wait_result_fpga_state_list(self, handle: HandlePtr, future: FfiFuture) -> ResultFPGAStateList:
-        return self.dll.AUTDWaitResultFPGAStateList(handle, future)
-
-    def wait_result_firmware_version_list(self, handle: HandlePtr, future: FfiFuture) -> ResultFirmwareVersionList:
-        return self.dll.AUTDWaitResultFirmwareVersionList(handle, future)
-
     def tracing_init(self) -> None:
         return self.dll.AUTDTracingInit()
 
@@ -1128,10 +1087,10 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_silencer_update_rate_phase(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaSilencerUpdateRatePhase(audit, idx)
 
-    def link_audit_fpga_silencer_completion_steps_intensity(self, audit: LinkPtr, idx: int) -> Duration:
+    def link_audit_fpga_silencer_completion_steps_intensity(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsIntensity(audit, idx)
 
-    def link_audit_fpga_silencer_completion_steps_phase(self, audit: LinkPtr, idx: int) -> Duration:
+    def link_audit_fpga_silencer_completion_steps_phase(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaSilencerCompletionStepsPhase(audit, idx)
 
     def link_audit_fpga_silencer_fixed_completion_steps_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:

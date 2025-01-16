@@ -1,6 +1,6 @@
 from pyautd3.utils import Duration
 
-from pyautd3.native_methods.autd3_driver import Segment
+from pyautd3.native_methods.autd3_core import Segment
 from pyautd3.native_methods.autd3capi_driver import TransitionModeWrap
 
 

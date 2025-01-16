@@ -3,7 +3,7 @@ import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
-from pyautd3.controller.timer import AsyncSleeper, SpinSleeper, StdSleeper, TimerStrategy, WaitableSleeper
+from pyautd3.controller.timer import SpinSleeper, StdSleeper, TimerStrategy, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
@@ -15,20 +15,6 @@ from pyautd3.modulation import Sine, Static
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import SpinStrategyTag
 from pyautd3.utils import Duration
-
-
-async def create_controller_async() -> Controller[Audit]:
-    return (
-        await Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
-        .with_send_interval(Duration.from_millis(1))
-        .with_receive_interval(Duration.from_millis(1))
-        .with_default_parallel_threshold(4)
-        .with_default_timeout(Duration.from_millis(20))
-        .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
-        .open_async(
-            Audit.builder(),
-        )
-    )
 
 
 def create_controller() -> Controller[Audit]:
@@ -66,8 +52,6 @@ def test_with_timer():
         .open(Audit.builder()) as autd
     ):
         autd.send(Static())
-    with Controller.builder([]).with_timer_strategy(TimerStrategy.Async(AsyncSleeper())).open(Audit.builder()) as autd:
-        autd.send(Static())
 
     _ = TimerStrategy.Waitable(WaitableSleeper())
 
@@ -78,6 +62,8 @@ def test_with_timer():
 def test_firmware_info():
     autd: Controller[Audit]
     with create_controller() as autd:
+        assert FirmwareInfo.latest_version() == "v10.0.1"
+
         for i, firm in enumerate(autd.firmware_version()):
             assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
             assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
@@ -85,23 +71,6 @@ def test_firmware_info():
         autd.link.down()
         with pytest.raises(AUTDError) as e:
             autd.firmware_version()
-        assert str(e.value) == "Read firmware info failed: 0, 1"
-        autd.link.up()
-
-
-@pytest.mark.asyncio
-async def test_firmware_info_async():
-    autd: Controller[Audit]
-    with await create_controller_async() as autd:
-        assert FirmwareInfo.latest_version() == "v10.0.1"
-
-        for i, firm in enumerate(await autd.firmware_version_async()):
-            assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
-
-        autd.link.down()
-        with pytest.raises(AUTDError) as e:
-            await autd.firmware_version_async()
         assert str(e.value) == "Read firmware info failed: 0, 1"
         autd.link.up()
 
@@ -118,22 +87,6 @@ def test_close():
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             autd.close()
-        assert str(e.value) == "broken"
-
-
-@pytest.mark.asyncio
-async def test_close_async():
-    autd: Controller[Audit]
-    with await create_controller_async() as autd:
-        assert autd.link.is_open()
-
-        await autd.close_async()
-        await autd.close_async()
-
-    with create_controller() as autd:
-        autd.link.break_down()
-        with pytest.raises(AUTDError) as e:
-            await autd.close_async()
         assert str(e.value) == "broken"
 
 
@@ -157,64 +110,6 @@ def test_send_single():
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
             autd.send(Static())
-        assert str(e.value) == "broken"
-        autd.link.repair()
-
-
-@pytest.mark.asyncio
-async def test_send_async_single():
-    autd: Controller[Audit]
-    with await create_controller_async() as autd:
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-
-        await autd.send_async(Static())
-
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-
-        autd.link.down()
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async(Static())
-        assert str(e.value) == "Failed to send data"
-        autd.link.up()
-
-        autd.link.break_down()
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async(Static())
-        assert str(e.value) == "broken"
-        autd.link.repair()
-
-
-@pytest.mark.asyncio
-async def test_send_async_tuple():
-    autd: Controller[Audit]
-    with await create_controller_async() as autd:
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
-            assert np.all(intensities == 0)
-            assert np.all(phases == 0)
-
-        await autd.send_async((Static(), Uniform(EmitIntensity(0x80))))
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
-            assert np.all(intensities == 0x80)
-            assert np.all(phases == 0)
-
-        with pytest.raises(InvalidDatagramTypeError):
-            await autd.send_async(0)  # type: ignore[arg-type]
-
-        autd.link.down()
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
-        assert str(e.value) == "Failed to send data"
-        autd.link.up()
-
-        autd.link.break_down()
-        with pytest.raises(AUTDError) as e:
-            await autd.send_async((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "broken"
         autd.link.repair()
 
@@ -249,29 +144,6 @@ def test_send_tuple():
             autd.send((Static(), Uniform(EmitIntensity(0xFF))))
         assert str(e.value) == "broken"
         autd.link.repair()
-
-
-@pytest.mark.asyncio
-async def test_group_async():
-    autd: Controller[Audit]
-    with await create_controller_async() as autd:
-        await autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send_async()
-
-        mod = autd.link.modulation_buffer(0, Segment.S0)
-        assert len(mod) == 80
-        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
-        assert np.all(intensities == 0xFF)
-        assert np.all(phases == 0)
-
-        mod = autd.link.modulation_buffer(1, Segment.S0)
-        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
-        assert np.all(intensities == 0)
-
-        with pytest.raises(InvalidDatagramTypeError):
-            await autd.group(lambda dev: dev.idx).set(0, 0).send_async()  # type: ignore[arg-type]
-
-        with pytest.raises(KeyAlreadyExistsError):
-            await autd.group(lambda dev: dev.idx).set(0, Null()).set(0, Null()).send_async()
 
 
 def test_group():
