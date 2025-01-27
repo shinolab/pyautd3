@@ -28,7 +28,7 @@ pyautd3 = ["py.typed"]
 [tool.ruff]
 target-version = "py311"
 line-length = 150
-exclude = [".venv", "venv", "pyautd3/native_methods/*.py"]
+exclude = [".venv", "venv"]
 
 [tool.ruff.lint]
 ignore = ["D", "SLF001", "C901", "PLR0913"]
@@ -43,6 +43,7 @@ fixable = ["ALL"]
 "conftest.py" = ["ARG001", "ANN001"]
 "example/*.py" = ["T201", "PLR2004", "PD901"]
 "x.py" = ["S"]
+"pyautd3/native_methods/*.py" = ["ANN", "RUF012", "FBT001", "PLR0915"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = 'session'

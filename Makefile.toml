@@ -1,0 +1,23 @@
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+[tasks.format]
+command = "uv"
+args = ["run", "ruff", "format", "."]
+
+[tasks.generate-wrapper]
+dependencies = ["generate-wrapper-pre", "generate-wrapper-main", "format", "generate-wrapper-post"]
+
+[tasks.generate-wrapper-pre]
+command = "git"
+args = ["submodule", "update", "--init"]
+
+[tasks.generate-wrapper-main]
+cwd = "./tools/wrapper-generator"
+command = "cargo"
+args = ["r", "--release"]
+
+[tasks.generate-wrapper-post]
+command = "uv"
+args = ["run", "ruff", "check", "pyautd3/native_methods", "--fix"]
