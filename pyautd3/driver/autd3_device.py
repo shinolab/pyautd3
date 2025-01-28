@@ -4,17 +4,15 @@ import numpy as np
 from numpy.typing import ArrayLike
 
 import pyautd3.native_methods.autd3capi_driver as consts
-from pyautd3.derive import builder
 
 
-@builder
 class AUTD3:
-    _prop_position: np.ndarray
-    _param_rotation: np.ndarray
+    pos: np.ndarray
+    rot: np.ndarray
 
-    def __init__(self: Self, pos: ArrayLike) -> None:
-        self._prop_position = np.array(pos)
-        self._param_rotation = np.array([1, 0, 0, 0])
+    def __init__(self: Self, *, pos: ArrayLike, rot: ArrayLike) -> None:
+        self.pos = np.array(pos)
+        self.rot = np.array(rot)
 
     TRANS_SPACING: float = consts.TRANS_SPACING_MM
     DEVICE_WIDTH: float = consts.DEVICE_WIDTH_MM

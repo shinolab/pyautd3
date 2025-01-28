@@ -1,5 +1,6 @@
 import ctypes
 from typing import Self
+
 import numpy as np
 
 
@@ -11,7 +12,7 @@ class Vector3(ctypes.Structure):
         self.y = v[1]
         self.z = v[2]
 
-    def ndarray(self):
+    def ndarray(self) -> np.ndarray:
         return np.array([self.x, self.y, self.z])
 
 
@@ -23,7 +24,7 @@ class Point3(ctypes.Structure):
         self.y = v[1]
         self.z = v[2]
 
-    def ndarray(self):
+    def ndarray(self) -> np.ndarray:
         return np.array([self.x, self.y, self.z])
 
 
@@ -36,5 +37,5 @@ class Quaternion(ctypes.Structure):
         self.y = v[2]
         self.z = v[3]
 
-    def ndarray(self):
+    def ndarray(self) -> np.ndarray:
         return np.array([self.w, self.x, self.y, self.z])

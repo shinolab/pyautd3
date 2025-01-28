@@ -1,0 +1,171 @@
+[config]
+default_to_workspace = false
+skip_core_tasks = true
+
+[tasks.format]
+command = "uv"
+args = ["run", "ruff", "format", "."]
+
+[tasks.clean]
+dependencies = ["clean-pycache"]
+ignore_errors = true
+script_runner = "@shell"
+script = '''
+rm ./setup.cfg
+rm ./.coverage
+rm LICENSE
+rm ThirdPartyNotice.txt
+rm VERSION
+rm -rf dist
+rm -rf pyautd3.egg-info
+rm -rf pyautd3/bin
+rm pyautd3/LICENSE.txt
+rm pyautd3/ThirdPartyNotice.txt
+rm -rf htmlcov
+rm -rf .ruff_cache
+rm -rf .mypy_cache
+rm -rf .pytest_cache
+rm uv.lock
+'''
+
+[tasks.clean-pycache]
+ignore_errors = true
+script_runner = "python"
+script_extension = "py"
+script = '''
+from pathlib import Path
+
+for p in Path('.').rglob('*.py[co]'):
+    p.unlink()
+for p in Path('.').rglob('__pycache__'):
+    p.rmdir()
+'''
+
+[tasks.sync]
+command = "uv"
+args = ["sync", "--all-extras", "--dev"]
+
+[tasks.mypy]
+command = "uv"
+args = ["run", "mypy", ".", "--check-untyped-defs"]
+
+[tasks.ruff]
+command = "uv"
+args = ["run", "ruff", "check", "."]
+
+[tasks.check]
+dependencies = ["sync", "format", "mypy", "ruff", "test", "build"]
+
+[tasks.test]
+dependencies = ["update-bin"]
+command = "uv"
+args = ["run", "pytest", "-n", "auto"]
+
+[tasks.build]
+dependencies = ["sync", "build-setup", "update-bin", "build-wheel"]
+
+[tasks.build-wheel]
+command = "uv"
+args = ["build"]
+
+[tasks.build-setup]
+run_task = [
+    { name = "build-setup-win-x64", condition = { platforms = [
+        "windows",
+    ] } },
+    { name = "build-setup-linux-x64", condition = { platforms = [
+        "linux",
+    ] } },
+    { name = "build-setup-macos-arm64", condition = { platforms = [
+        "mac",
+    ] } },
+]
+
+[tasks.build-setup-win-x64]
+script_runner = "python"
+script_extension = "py"
+script = '''
+import re
+from pathlib import Path
+
+src = Path("setup.cfg.template")
+content = src.read_text(encoding="utf-8")
+content = re.sub("PLATNAME", "win-amd64", content, flags=re.MULTILINE)
+dst = Path("setup.cfg")
+dst.write_text(content, encoding="utf-8")
+'''
+
+[tasks.build-setup-linux-x64]
+script_runner = "python"
+script_extension = "py"
+script = '''
+import re
+from pathlib import Path
+
+src = Path("setup.cfg.template")
+content = src.read_text(encoding="utf-8")
+content = re.sub("PLATNAME", "manylinux1_x86_64", content, flags=re.MULTILINE)
+dst = Path("setup.cfg")
+dst.write_text(content, encoding="utf-8")
+'''
+
+[tasks.build-setup-macos-arm64]
+script_runner = "python"
+script_extension = "py"
+script = '''
+import re
+from pathlib import Path
+
+src = Path("setup.cfg.template")
+content = src.read_text(encoding="utf-8")
+content = re.sub("PLATNAME", "macosx-11-0-arm64", content, flags=re.MULTILINE)
+dst = Path("setup.cfg")
+dst.write_text(content, encoding="utf-8")
+'''
+
+[tasks.cov]
+command = "uv"
+args = ["run", "pytest", "-n", "auto", "--cov-config=.coveragerc", "--cov=pyautd3", "--cov-branch", "--cov-report=${@}"]
+dependencies = ["sync", "update-bin"]
+
+[tasks.generate-wrapper]
+dependencies = ["generate-wrapper-pre", "generate-wrapper-main", "format", "generate-wrapper-post"]
+
+[tasks.generate-wrapper-pre]
+command = "git"
+args = ["submodule", "update", "--init"]
+
+[tasks.generate-wrapper-main]
+cwd = "./tools/wrapper-generator"
+command = "cargo"
+args = ["r", "--release"]
+
+[tasks.generate-wrapper-post]
+command = "uv"
+args = ["run", "ruff", "check", "pyautd3/native_methods", "--fix"]
+
+[tasks.update-bin]
+script_runner = "python"
+script_extension = "py"
+script = { file = "tools/update_bin.py" }
+
+[tasks.update-version]
+script_runner = "python"
+script_extension = "py"
+script = '''
+import sys
+import re
+from pathlib import Path
+
+version = sys.argv[1]
+
+def substitute_in_file(file: str, pattern: str, repl: str) -> None:
+    file = Path(file)
+    content = file.read_text(encoding="utf-8")
+    content = re.sub(pattern, repl, content, flags=re.MULTILINE)
+    file.write_text(content, encoding="utf-8")
+
+substitute_in_file("pyautd3/__init__.py", r'__version__ = "(.*)"', f'__version__ = "{version}"')
+substitute_in_file("setup.cfg.template", r"version = (.*)", f"version = {version}")
+substitute_in_file("pyproject.toml", r'^version = "(.*)"', f'version = "{version}"')
+'''

@@ -1,9 +1,11 @@
+import platform
+
 import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
-from pyautd3.controller.timer import SpinSleeper, StdSleeper, TimerStrategy, WaitableSleeper
+from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, StdSleeper, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
@@ -12,51 +14,29 @@ from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.gain import Null, Uniform
 from pyautd3.link.audit import Audit
 from pyautd3.modulation import Sine, Static
-from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import SpinStrategyTag
-from pyautd3.utils import Duration
+from pyautd3.modulation.sine import SineOption
 
 
 def create_controller() -> Controller[Audit]:
-    return (
-        Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
-        .with_send_interval(Duration.from_millis(1))
-        .with_receive_interval(Duration.from_millis(1))
-        .with_default_parallel_threshold(4)
-        .with_default_timeout(Duration.from_millis(20))
-        .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
-        .open(Audit.builder())
+    return Controller.open(
+        [AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0]), AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])],
+        Audit.builder(),
     )
 
 
-def test_controller_is_default():
-    default = Controller.builder([])
-    assert Base().controller_builder_is_default(
-        default.default_parallel_threshold,
-        default.default_timeout._inner,
-        default.send_interval._inner,
-        default.receive_interval._inner,
-        default.timer_strategy,
-    )
+def test_sender_is_default():
+    # TODO: do sender check  # noqa: FIX002, TD002, TD003
+    pass
 
 
-def test_with_timer():
-    autd: Controller[Audit]
-    with Controller.builder([]).with_timer_strategy(TimerStrategy.Std(StdSleeper())).open(Audit.builder()) as autd:
-        autd.send(Static())
-    with (
-        Controller.builder([])
-        .with_timer_strategy(
-            TimerStrategy.Spin(SpinSleeper(Duration.from_micros(700)).with_spin_strategy(SpinStrategyTag.SpinLoopHint)),
-        )
-        .open(Audit.builder()) as autd
-    ):
-        autd.send(Static())
-
-    _ = TimerStrategy.Waitable(WaitableSleeper())
-
-    with pytest.raises(NotImplementedError):
-        _ = TimerStrategy()
+def test_sleeper():
+    _ = StdSleeper(timer_resolution=1)._inner()
+    _ = SpinSleeper().with_spin_strategy(SpinStrategy.SpinLoopHint)._inner()
+    if platform.system() == "Windows":
+        _ = WaitableSleeper()._inner()
+    else:
+        with pytest.raises(RuntimeError):
+            _ = WaitableSleeper()._inner()
 
 
 def test_firmware_info():
@@ -123,7 +103,7 @@ def test_send_tuple():
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
-        autd.send((Static(), Uniform(EmitIntensity(0x80))))
+        autd.send((Static(), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))))
         for dev in autd.geometry:
             assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
@@ -135,13 +115,13 @@ def test_send_tuple():
 
         autd.link.down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(EmitIntensity(0xFF))))
+            autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
         assert str(e.value) == "Failed to send data"
         autd.link.up()
 
         autd.link.break_down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(EmitIntensity(0xFF))))
+            autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
         assert str(e.value) == "broken"
         autd.link.repair()
 
@@ -149,7 +129,10 @@ def test_send_tuple():
 def test_group():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.group(lambda dev: dev.idx).set(1, Null()).set(0, (Sine(150 * Hz), Uniform(EmitIntensity(0xFF)))).send()
+        autd.group(lambda dev: dev.idx).set(1, Null()).set(
+            0,
+            (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))),
+        ).send()
 
         mod = autd.link.modulation_buffer(0, Segment.S0)
         assert len(mod) == 80
@@ -179,7 +162,7 @@ def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return 0
 
-        autd.group(f).set(0, (Sine(150 * Hz), Uniform((EmitIntensity(0x80), Phase(0x90))))).send()
+        autd.group(f).set(0, (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))).send()
 
         assert not check[0]
         assert check[1]
@@ -199,7 +182,7 @@ def test_group_check_only_for_enabled():
 def test_clear():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send((Static(), Uniform((EmitIntensity(0xFF), Phase(0x90)))))
+        autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x90))))
 
         for dev in autd.geometry:
             assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)

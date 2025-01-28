@@ -2,6 +2,8 @@ from typing import Self
 
 import numpy as np
 
+from pyautd3.native_methods.autd3 import Angle as Angle_
+
 
 class Angle:
     _value: float
@@ -18,6 +20,9 @@ class Angle:
     @property
     def radian(self: Self) -> float:
         return self._value
+
+    def _inner(self: Self) -> Angle_:
+        return Angle_(self._value)
 
     def __eq__(self: Self, other: object) -> bool:
         return isinstance(other, Angle) and self._value == other._value

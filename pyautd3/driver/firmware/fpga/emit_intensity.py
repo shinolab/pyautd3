@@ -1,23 +1,14 @@
 from typing import Self
 
 from pyautd3.driver.utils import _validate_u8
+from pyautd3.native_methods.autd3 import EmitIntensity as EmitIntensity_
 
 
 class EmitIntensity:
-    _value: int
+    value: int
 
-    def __init__(self: Self, intensity: "int | EmitIntensity") -> None:
-        match intensity:
-            case EmitIntensity():
-                self._value = intensity._value
-            case int():
-                self._value = _validate_u8(intensity)
-            case _:
-                raise TypeError
-
-    @property
-    def value(self: Self) -> int:
-        return self._value
+    def __init__(self: Self, intensity: int) -> None:
+        self.value = _validate_u8(intensity)
 
     @staticmethod
     def maximum() -> "EmitIntensity":
@@ -38,3 +29,6 @@ class EmitIntensity:
 
     def __repr__(self: Self) -> str:
         return f"EmitIntensity({self.value})"
+
+    def _inner(self: Self) -> EmitIntensity_:
+        return EmitIntensity_(self.value)

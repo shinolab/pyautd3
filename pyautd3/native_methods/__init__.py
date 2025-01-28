@@ -1,14 +1,16 @@
+import contextlib
 import os
 import os.path
 import platform
 import sys
+from pathlib import Path
 
 from .autd3capi import NativeMethods as Base
+from .autd3capi_emulator import NativeMethods as Emulator
 from .autd3capi_gain_holo import NativeMethods as GainHolo
-from .autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 from .autd3capi_link_simulator import NativeMethods as LinkSimulator
 from .autd3capi_link_twincat import NativeMethods as LinkTwincAT
-from .autd3capi_emulator import NativeMethods as Emulator
+from .autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 
 _PLATFORM = platform.system()
 _PREFIX = ""
@@ -22,21 +24,18 @@ elif _PLATFORM == "Linux":
     _PREFIX = "lib"
     _BIN_EXT = ".so"
 else:
-    raise ImportError("Not supported OS")
+    err = "Not supported OS"
+    raise ImportError(err)
 
-_LIB_PATH = os.path.join(os.path.dirname(__file__), "..", "bin")
+_LIB_PATH = Path(__file__).parent.parent / "bin"
 
 Base().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 GainHolo().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 ModulationAudioFile().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 LinkSimulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 if sys.platform == "win32":
-    try:
+    with contextlib.suppress(FileNotFoundError):
         os.add_dll_directory("C:\\TwinCAT\\Common64")
-    except FileNotFoundError:
-        pass
-try:
+with contextlib.suppress(Exception):
     LinkTwincAT().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
-except Exception:  # pragma: no cover
-    pass  # pragma: no cover
 Emulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)

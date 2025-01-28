@@ -3,5 +3,5 @@ from pyautd3.link.audit import Audit
 
 
 def test_audit():
-    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).open(Audit.builder()) as _:
+    with Controller.open([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])], Audit.builder()) as _:
         pass

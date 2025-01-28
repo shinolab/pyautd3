@@ -19,10 +19,10 @@ class ControlPoint(ctypes.Structure):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, point: ArrayLike) -> None:
+    def __init__(self: Self, *, point: ArrayLike, phase_offset: Phase | None = None) -> None:
         super().__init__()
         self._point = Vector3(np.array(point))
-        self._offset = 0
+        self._offset = (phase_offset or Phase(0)).value
 
     @property
     def point(self: Self) -> np.ndarray:
@@ -31,10 +31,6 @@ class ControlPoint(ctypes.Structure):
     @property
     def offset(self: Self) -> Phase:
         return Phase(self._offset)
-
-    def with_phase_offset(self: Self, phase: int | Phase) -> Self:
-        self._offset = Phase(phase).value
-        return self
 
 
 class IControlPoints:
@@ -51,22 +47,22 @@ class ControlPoints1(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, point: ArrayLike | ControlPoint) -> None:
+    def __init__(self: Self, *, points: ArrayLike | ControlPoint, intensity: EmitIntensity | None = None) -> None:
         super().__init__()
-        match point:
+        match points:
             case ControlPoint():
-                self._point = point
+                self._point = points
             case _:
-                self._point = ControlPoint(point)
-        self._intensity = 0xFF
+                self._point = ControlPoint(point=points)
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array([self._point.point])
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -81,22 +77,27 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint]) -> None:
+    def __init__(
+        self: Self,
+        *,
+        points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
+    ) -> None:
         super().__init__()
         match points:
             case (ControlPoint(), ControlPoint()):
                 self._point1, self._point2 = points  # type: ignore[var-annotated]
             case _:
-                self._point1, self._point2 = ControlPoint(points[0]), ControlPoint(points[1])
-        self._intensity = 0xFF
+                self._point1, self._point2 = ControlPoint(point=points[0]), ControlPoint(point=points[1])
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array([self._point1.point, self._point2.point])  # type: ignore[union-attr]
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -112,22 +113,27 @@ class ControlPoints3(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint]) -> None:
+    def __init__(
+        self: Self,
+        *,
+        points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
+    ) -> None:
         super().__init__()
         match points:
             case (ControlPoint(), ControlPoint(), ControlPoint()):
                 self._point1, self._point2, self._point3 = points  # type: ignore[var-annotated]
             case _:
-                self._point1, self._point2, self._point3 = ControlPoint(points[0]), ControlPoint(points[1]), ControlPoint(points[2])
-        self._intensity = 0xFF
+                self._point1, self._point2, self._point3 = ControlPoint(point=points[0]), ControlPoint(point=points[1]), ControlPoint(point=points[2])
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array([self._point1.point, self._point2.point, self._point3.point])  # type: ignore[union-attr]
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -146,7 +152,9 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
+        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
     ) -> None:
         super().__init__()
         match points:
@@ -154,20 +162,20 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
                 self._point1, self._point2, self._point3, self._point4 = points  # type: ignore[var-annotated]
             case _:
                 self._point1, self._point2, self._point3, self._point4 = (
-                    ControlPoint(points[0]),
-                    ControlPoint(points[1]),
-                    ControlPoint(points[2]),
-                    ControlPoint(points[3]),
+                    ControlPoint(point=points[0]),
+                    ControlPoint(point=points[1]),
+                    ControlPoint(point=points[2]),
+                    ControlPoint(point=points[3]),
                 )
-        self._intensity = 0xFF
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array([self._point1.point, self._point2.point, self._point3.point, self._point4.point])  # type: ignore[union-attr]
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -187,8 +195,10 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
+        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
     ) -> None:
         super().__init__()
         match points:
@@ -196,21 +206,21 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
                 self._point1, self._point2, self._point3, self._point4, self._point5 = points  # type: ignore[var-annotated]
             case _:
                 self._point1, self._point2, self._point3, self._point4, self._point5 = (
-                    ControlPoint(points[0]),
-                    ControlPoint(points[1]),
-                    ControlPoint(points[2]),
-                    ControlPoint(points[3]),
-                    ControlPoint(points[4]),
+                    ControlPoint(point=points[0]),
+                    ControlPoint(point=points[1]),
+                    ControlPoint(point=points[2]),
+                    ControlPoint(point=points[3]),
+                    ControlPoint(point=points[4]),
                 )
-        self._intensity = 0xFF
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array([self._point1.point, self._point2.point, self._point3.point, self._point4.point, self._point5.point])  # type: ignore[union-attr]
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -231,8 +241,10 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
+        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
     ) -> None:
         super().__init__()
         match points:
@@ -240,22 +252,31 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
                 self._point1, self._point2, self._point3, self._point4, self._point5, self._point6 = points  # type: ignore[var-annotated]
             case _:
                 self._point1, self._point2, self._point3, self._point4, self._point5, self._point6 = (
-                    ControlPoint(points[0]),
-                    ControlPoint(points[1]),
-                    ControlPoint(points[2]),
-                    ControlPoint(points[3]),
-                    ControlPoint(points[4]),
-                    ControlPoint(points[5]),
+                    ControlPoint(point=points[0]),
+                    ControlPoint(point=points[1]),
+                    ControlPoint(point=points[2]),
+                    ControlPoint(point=points[3]),
+                    ControlPoint(point=points[4]),
+                    ControlPoint(point=points[5]),
                 )
-        self._intensity = 0xFF
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array(
+            [
+                self._point1.point,  # type: ignore[union-attr]
+                self._point2.point,  # type: ignore[union-attr]
+                self._point3.point,  # type: ignore[union-attr]
+                self._point4.point,  # type: ignore[union-attr]
+                self._point5.point,  # type: ignore[union-attr]
+                self._point6.point,  # type: ignore[union-attr]
+            ],
+        )
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -277,8 +298,10 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
+        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
     ) -> None:
         super().__init__()
         match points:
@@ -294,23 +317,33 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
                 ) = points  # type: ignore[var-annotated]
             case _:
                 self._point1, self._point2, self._point3, self._point4, self._point5, self._point6, self._point7 = (
-                    ControlPoint(points[0]),
-                    ControlPoint(points[1]),
-                    ControlPoint(points[2]),
-                    ControlPoint(points[3]),
-                    ControlPoint(points[4]),
-                    ControlPoint(points[5]),
-                    ControlPoint(points[6]),
+                    ControlPoint(point=points[0]),
+                    ControlPoint(point=points[1]),
+                    ControlPoint(point=points[2]),
+                    ControlPoint(point=points[3]),
+                    ControlPoint(point=points[4]),
+                    ControlPoint(point=points[5]),
+                    ControlPoint(point=points[6]),
                 )
-        self._intensity = 0xFF
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array(
+            [
+                self._point1.point,  # type: ignore[union-attr]
+                self._point2.point,  # type: ignore[union-attr]
+                self._point3.point,  # type: ignore[union-attr]
+                self._point4.point,  # type: ignore[union-attr]
+                self._point5.point,  # type: ignore[union-attr]
+                self._point6.point,  # type: ignore[union-attr]
+                self._point7.point,  # type: ignore[union-attr]
+            ],
+        )
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:
@@ -333,8 +366,10 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
+        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
+        intensity: EmitIntensity | None = None,
     ) -> None:
         super().__init__()
         match points:
@@ -351,24 +386,35 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
                 ) = points  # type: ignore[var-annotated]
             case _:
                 self._point1, self._point2, self._point3, self._point4, self._point5, self._point6, self._point7, self._point8 = (
-                    ControlPoint(points[0]),
-                    ControlPoint(points[1]),
-                    ControlPoint(points[2]),
-                    ControlPoint(points[3]),
-                    ControlPoint(points[4]),
-                    ControlPoint(points[5]),
-                    ControlPoint(points[6]),
-                    ControlPoint(points[7]),
+                    ControlPoint(point=points[0]),
+                    ControlPoint(point=points[1]),
+                    ControlPoint(point=points[2]),
+                    ControlPoint(point=points[3]),
+                    ControlPoint(point=points[4]),
+                    ControlPoint(point=points[5]),
+                    ControlPoint(point=points[6]),
+                    ControlPoint(point=points[7]),
                 )
-        self._intensity = 0xFF
+        self._intensity = (intensity or EmitIntensity.maximum()).value
+
+    @property
+    def points(self: Self) -> np.ndarray:
+        return np.array(
+            [
+                self._point1.point,  # type: ignore[union-attr]
+                self._point2.point,  # type: ignore[union-attr]
+                self._point3.point,  # type: ignore[union-attr]
+                self._point4.point,  # type: ignore[union-attr]
+                self._point5.point,  # type: ignore[union-attr]
+                self._point6.point,  # type: ignore[union-attr]
+                self._point7.point,  # type: ignore[union-attr]
+                self._point8.point,  # type: ignore[union-attr]
+            ],
+        )
 
     @property
     def intensity(self: Self) -> EmitIntensity:
         return EmitIntensity(self._intensity)
-
-    def with_intensity(self: Self, intensity: int | EmitIntensity) -> Self:
-        self._intensity = EmitIntensity(intensity).value
-        return self
 
     @staticmethod
     def _value() -> int:

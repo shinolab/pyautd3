@@ -2,11 +2,11 @@ from pyautd3.gain.holo.constraint import EmissionConstraint
 
 from .amplitude import Amplitude, Pa, dB
 from .backend_nalgebra import NalgebraBackend
-from .greedy import Greedy
-from .gs import GS
-from .gspat import GSPAT
-from .lm import LM
-from .naive import Naive
+from .greedy import Greedy, GreedyOption
+from .gs import GS, GSOption
+from .gspat import GSPAT, GSPATOption
+from .lm import LM, LMOption
+from .naive import Naive, NaiveOption
 
 __all__ = [
     "GS",
@@ -14,8 +14,13 @@ __all__ = [
     "LM",
     "Amplitude",
     "EmissionConstraint",
+    "GSOption",
+    "GSPATOption",
     "Greedy",
+    "GreedyOption",
+    "LMOption",
     "Naive",
+    "NaiveOption",
     "NalgebraBackend",
     "Pa",
     "dB",

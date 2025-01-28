@@ -4,6 +4,7 @@ import numpy as np
 
 from pyautd3 import Controller, EmitIntensity, Phase, Segment
 from pyautd3.gain import Uniform
+from pyautd3.gain.cache import Cache
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -13,7 +14,7 @@ if TYPE_CHECKING:
 def test_cache():
     autd: Controller[Audit]
     with create_controller() as autd:
-        g = Uniform((EmitIntensity(0x80), Phase(0x90))).with_cache()
+        g = Cache(Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))
         autd.send(g)
         autd.send(g)
 
@@ -22,4 +23,4 @@ def test_cache():
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0x90)
 
-    _ = Uniform((EmitIntensity(0x80), Phase(0x90))).with_cache()
+    _ = Cache(Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))

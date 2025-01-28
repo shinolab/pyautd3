@@ -1,36 +1,77 @@
+import ctypes
 from collections.abc import Iterable
 from typing import Self
 
-from pyautd3.derive import builder, datagram, modulation
-from pyautd3.derive.derive_datagram import datagram_with_segment
+import numpy as np
+
 from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.modulation.sine import Sine
+from pyautd3.modulation.sine import Sine, SineMode
+from pyautd3.native_methods.autd3capi import FourierOption as FourierOption_
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi import SineOption as SineOption_
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 
-@modulation
-@datagram
-@datagram_with_segment
-@builder
-class Fourier(Modulation):
-    _components: list[Sine]
-    _param_clamp: bool
-    _param_scale_factor: float | None
-    _param_offset: int
+class FourierOption:
+    scale_factor: float | None
+    clamp: bool
+    offset: int
 
-    def __init__(self: Self, iterable: Iterable[Sine]) -> None:
+    def __init__(
+        self: Self,
+        *,
+        scale_factor: float | None = None,
+        clamp: bool = False,
+        offset: int = 0,
+    ) -> None:
+        self.scale_factor = scale_factor
+        self.clamp = clamp or False
+        self.offset = offset or 0
+
+    def _inner(self: Self) -> FourierOption_:
+        return FourierOption_(
+            self.scale_factor is not None,
+            self.scale_factor or float("nan"),
+            self.clamp,
+            self.offset,
+        )
+
+
+class Fourier(Modulation):
+    components: list[Sine]
+    option: FourierOption
+
+    def __init__(self: Self, *, components: Iterable[Sine], option: FourierOption) -> None:
         super().__init__()
-        self._components = list(iterable)
-        self._param_clamp = False
-        self._param_scale_factor = float("nan")
-        self._param_offset = 0
+        self.components = list(components)
+        self.option = option
 
     def _modulation_ptr(self: Self) -> ModulationPtr:
-        return self._components[0]._mode.fourier_ptr(
-            self._components,
-            len(self._components),
-            self._param_clamp,
-            self._param_scale_factor or float("nan"),  # type: ignore[arg-type]
-            self._param_offset,
-            self._loop_behavior,
-        )
+        size = len(self.components)
+        option = self.option._inner()
+        sine_option = np.fromiter((np.void(m.option._inner()) for m in self.components), dtype=SineOption_)  # type: ignore[type-var,call-overload]
+        match self.components[0]._mode:
+            case SineMode.Exact:
+                sine_freq = np.fromiter((m.freq.hz for m in self.components), dtype=np.uint32)
+                return Base().modulation_fourier_exact(
+                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),  # type: ignore[arg-type]
+                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
+                    size,
+                    option,
+                )
+            case SineMode.ExactFloat:
+                sine_freq = np.fromiter((m.freq.hz for m in self.components), dtype=np.float32)
+                return Base().modulation_fourier_exact_float(
+                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
+                    size,
+                    option,
+                )
+            case SineMode.Nearest:  # pragma: no cover
+                sine_freq = np.fromiter((m.freq.hz for m in self.components), dtype=np.float32)
+                return Base().modulation_fourier_nearest(
+                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
+                    size,
+                    option,
+                )

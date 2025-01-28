@@ -10,35 +10,26 @@ env:
 
 jobs:
   publish:
-    name: publish-to-pypi-${{ matrix.os }}-${{ matrix.arch }}
+    name: publish-to-pypi-${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
           - os: windows-latest
-            arch: amd64
-          - os: windows-latest
-            arch: aarch64
           - os: ubuntu-latest
-            arch: amd64
-          - os: ubuntu-latest
-            arch: armv7l
-          - os: ubuntu-latest
-            arch: aarch64
           - os: macos-latest
-            arch: aarch64
     steps:
       - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
         with:
-          submodules: true
+          tool: cargo-make
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - uses: astral-sh/setup-uv@v3
       - run: |
-          uv sync --all-extras --dev
-          python3 x.py build --arch ${{ matrix.arch }}
+          cargo make build
           uv tool install twine
           twine upload dist/* -u ${{ secrets.TWINE_USERNAME }} -p ${{ secrets.TWINE_PASS }} --non-interactive --skip-existing
   

@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyautd3 import Controller, FociSTM, Focus, GainSTM, Hz, Silencer, Static
+from pyautd3 import Controller, FociSTM, Focus, FocusOption, GainSTM, GainSTMOption, Hz, Silencer, Static
 
 
 def stm_focus(autd: Controller) -> None:
@@ -13,8 +13,8 @@ def stm_focus(autd: Controller) -> None:
     size = 200
     center = autd.center + np.array([0.0, 0.0, 150.0])
     stm = FociSTM(
-        1.0 * Hz,
-        (center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
+        foci=(center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
+        config=1.0 * Hz,
     )
 
     autd.send((m, stm))
@@ -30,8 +30,12 @@ def stm_gain(autd: Controller) -> None:
     size = 50
     center = autd.center + np.array([0.0, 0.0, 150.0])
     stm = GainSTM(
-        1.0 * Hz,
-        (Focus(center + radius * np.array([np.cos(theta), np.sin(theta), 0])) for theta in (2.0 * np.pi * i / size for i in range(size))),
+        gains=(
+            Focus(pos=center + radius * np.array([np.cos(theta), np.sin(theta), 0]), option=FocusOption())
+            for theta in (2.0 * np.pi * i / size for i in range(size))
+        ),
+        config=1.0 * Hz,
+        option=GainSTMOption(),
     )
 
     autd.send((m, stm))

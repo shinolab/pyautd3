@@ -1,24 +1,26 @@
 import ctypes
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from types import TracebackType
 from typing import Self
 
 import numpy as np
 import polars as pl
 
-from pyautd3.controller.controller import Controller, _Builder
+from pyautd3.controller.controller import Controller
+from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.geometry.geometry import Geometry
 from pyautd3.driver.link import Link
 from pyautd3.ethercat.dc_sys_time import DcSysTime
-from pyautd3.native_methods.autd3_core import DcSysTime as _DcSysTime
+from pyautd3.native_methods.autd3 import DcSysTime as _DcSysTime
 from pyautd3.native_methods.autd3capi import ControllerPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, LinkPtr
+from pyautd3.native_methods.autd3capi_driver import LinkPtr
 from pyautd3.native_methods.autd3capi_emulator import EmulatorPtr, InstantPtr, RecordPtr, RmsPtr
 from pyautd3.native_methods.autd3capi_emulator import InstantRecordOption as InstantRecordOption_
 from pyautd3.native_methods.autd3capi_emulator import NativeMethods as Emu
 from pyautd3.native_methods.autd3capi_emulator import RangeXYZ as RangeXYZ_
 from pyautd3.native_methods.autd3capi_emulator import RmsRecordOption as RmsRecordOption_
+from pyautd3.native_methods.structs import Point3, Quaternion
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
 
@@ -54,18 +56,18 @@ class InstantRecordOption:
     def __init__(
         self: Self,
         *,
-        sound_speed: float | None = None,
+        sound_speed: float = 340e3,
         time_step: Duration | None = None,
-        print_progress: bool | None = None,
-        memory_limits_hint_mb: int | None = None,
-        gpu: bool | None = None,
+        print_progress: bool = False,
+        memory_limits_hint_mb: int = 128,
+        gpu: bool = False,
     ) -> None:
         self._inner = InstantRecordOption_(
-            sound_speed or 340e3,
+            sound_speed,
             (time_step or Duration.from_micros(1))._inner,
-            print_progress or False,
-            memory_limits_hint_mb or 128,
-            gpu or False,
+            print_progress,
+            memory_limits_hint_mb,
+            gpu,
         )
 
 
@@ -75,14 +77,14 @@ class RmsRecordOption:
     def __init__(
         self: Self,
         *,
-        sound_speed: float | None = None,
-        print_progress: bool | None = None,
-        gpu: bool | None = None,
+        sound_speed: float = 340e3,
+        print_progress: bool = False,
+        gpu: bool = False,
     ) -> None:
         self._inner = RmsRecordOption_(
-            sound_speed or 340e3,
-            print_progress or False,
-            gpu or False,
+            sound_speed,
+            print_progress,
+            gpu,
         )
 
 
@@ -96,9 +98,9 @@ class Instant:
         self._dispose()
 
     def _dispose(self: Self) -> None:
-        if self._ptr._0 is not None:  # pragma: no cover
+        if self._ptr.value is not None:  # pragma: no cover
             Emu().emulator_sound_field_instant_free(self._ptr)
-            self._ptr._0 = None
+            self._ptr.value = None
 
     def skip(self: Self, duration: Duration) -> Self:
         _validate_status(Emu().emulator_sound_field_instant_skip(self._ptr, duration._inner))
@@ -154,9 +156,9 @@ class Rms:
         self._dispose()
 
     def _dispose(self: Self) -> None:
-        if self._ptr._0 is not None:  # pragma: no cover
+        if self._ptr.value is not None:  # pragma: no cover
             Emu().emulator_sound_field_rms_free(self._ptr)
-            self._ptr._0 = None
+            self._ptr.value = None
 
     def skip(self: Self, duration: Duration) -> Self:
         _validate_status(Emu().emulator_sound_field_rms_skip(self._ptr, duration._inner))
@@ -225,9 +227,9 @@ class Record:
         self._dispose()
 
     def _dispose(self: Self) -> None:
-        if self._ptr._0 is not None:  # pragma: no cover
+        if self._ptr.value is not None:  # pragma: no cover
             Emu().emulator_record_free(self._ptr)
-            self._ptr._0 = None
+            self._ptr.value = None
 
     def phase(self: Self) -> pl.DataFrame:
         cols = int(Emu().emulator_record_drive_cols(self._ptr))
@@ -312,20 +314,16 @@ class Record:
 class Emulator(Geometry):
     _ptr: EmulatorPtr
 
-    def __new__(cls: type["Emulator"]) -> "Emulator":
-        raise NotImplementedError  # pragma: no cover
-
-    @classmethod
-    def __private_new__(cls: type["Emulator"], builder: _Builder) -> "Emulator":
-        ptr = Emu().emulator(builder._ptr())
-        geometry_ptr = Emu().emulator_geometry(ptr)
-        ins = super().__new__(cls)
-        ins._ptr = Emu().emulator(builder._ptr())
-        ins.__private_init__(geometry_ptr)
-        return ins
-
-    def __private_init__(self: Self, geometry_ptr: GeometryPtr) -> None:
-        super().__init__(geometry_ptr)
+    def __init__(self: Self, devices: Iterable[AUTD3]) -> None:
+        devices = list(devices)
+        pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
+        rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+        self._ptr = Emu().emulator(
+            pos.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
+            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
+            len(devices),
+        )
+        super().__init__(Emu().emulator_geometry(self._ptr))
 
     @property
     def geometry(self: Self) -> Geometry:
@@ -365,15 +363,15 @@ class Emulator(Geometry):
             },
         )
 
-    def record(self: Self, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
+    def record(self: Self, f: Callable[[Controller[Recorder]], None]) -> Record:
         return self.record_from(DcSysTime.__private_new__(_DcSysTime(0)), f)
 
-    def record_from(self: Self, start_time: DcSysTime, f: Callable[[Controller[Recorder]], Controller[Recorder]]) -> Record:
+    def record_from(self: Self, start_time: DcSysTime, f: Callable[[Controller[Recorder]], None]) -> Record:
         def f_native(ptr: ControllerPtr) -> None:
             geometry = Base().geometry(ptr)
             link = Base().link_get(ptr)
             cnt = Controller(geometry, ptr, Recorder(link))
-            cnt = f(cnt)
+            f(cnt)
             cnt._disposed = True
 
         f_native_ = ctypes.CFUNCTYPE(None, ControllerPtr)(f_native)
@@ -388,9 +386,9 @@ class Emulator(Geometry):
         self._dispose()
 
     def _dispose(self: Self) -> None:
-        if self._ptr._0 is not None:
+        if self._ptr.value is not None:
             Emu().emulator_free(self._ptr)
-            self._ptr._0 = None
+            self._ptr.value = None
 
     def __enter__(self: Self) -> Self:
         return self
@@ -402,6 +400,3 @@ class Emulator(Geometry):
         _traceback: TracebackType | None,
     ) -> None:
         self._dispose()
-
-
-_Builder.into_emulator = lambda self: Emulator.__private_new__(self)  # type: ignore[method-assign]

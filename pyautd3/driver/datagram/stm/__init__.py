@@ -1,4 +1,4 @@
-from pyautd3.native_methods.autd3capi import GainSTMMode
+from pyautd3.native_methods.autd3 import GainSTMMode
 
 from .control_point import (
     ControlPoint,
@@ -12,7 +12,7 @@ from .control_point import (
     ControlPoints8,
 )
 from .foci import FociSTM
-from .gain import GainSTM
+from .gain import GainSTM, GainSTMOption
 
 __all__ = [
     "ControlPoint",
@@ -27,4 +27,5 @@ __all__ = [
     "FociSTM",
     "GainSTM",
     "GainSTMMode",
+    "GainSTMOption",
 ]

@@ -13,12 +13,12 @@ class EmissionConstraint(metaclass=ConstantADT):
     Normalize: EmissionConstraintWrap = GainHolo().gain_holo_constraint_normalize()
 
     @staticmethod
-    def Uniform(value: int | EmitIntensity) -> EmissionConstraintWrap:  # noqa: N802
-        return GainHolo().gain_holo_constraint_uniform(EmitIntensity(value).value)
+    def Uniform(value: EmitIntensity) -> EmissionConstraintWrap:  # noqa: N802
+        return GainHolo().gain_holo_constraint_uniform(value._inner())
 
     @staticmethod
-    def Clamp(min_v: int | EmitIntensity, max_v: int | EmitIntensity) -> EmissionConstraintWrap:  # noqa: N802
-        return GainHolo().gain_holo_constraint_clamp(EmitIntensity(min_v).value, EmitIntensity(max_v).value)
+    def Clamp(min_v: EmitIntensity, max_v: EmitIntensity) -> EmissionConstraintWrap:  # noqa: N802
+        return GainHolo().gain_holo_constraint_clamp(min_v._inner(), max_v._inner())
 
     @staticmethod
     def Multiply(value: float) -> EmissionConstraintWrap:  # noqa: N802

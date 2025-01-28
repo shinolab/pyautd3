@@ -1,69 +1,34 @@
 from pathlib import Path
 from typing import Self
 
-from pyautd3.derive import builder, datagram, modulation
-from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.modulation.resample import Resampler
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile
 from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 from pyautd3.utils import Duration
 
 
-@datagram
-@datagram_with_segment
-@modulation
-@builder
+class CsvOption:
+    deliminator: str
+
+    def __init__(self: Self, *, deliminator: str = ",") -> None:
+        self.deliminator = deliminator
+
+
 class Csv(Modulation):
-    _path: Path
-    _config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]
-    _param_deliminator: str
+    path: Path
+    config: SamplingConfig | Freq[int] | Freq[float] | Duration
+    option: CsvOption
 
-    def __private_init__(self: Self, path: Path, config: SamplingConfig | tuple[Freq[float], SamplingConfig, Resampler]) -> None:
+    def __init__(self: Self, *, path: Path, sampling_config: SamplingConfig | Freq[int] | Freq[float] | Duration, option: CsvOption) -> None:
         super().__init__()
-        self._path = path
-        self._config = config
-        self._param_deliminator = ","
-
-    def __init__(self: Self, path: Path, config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> None:
-        self.__private_init__(path, SamplingConfig(config))
-
-    @staticmethod
-    def new_with_resample(
-        path: Path,
-        source: Freq[float],
-        target: SamplingConfig | Freq[int] | Freq[float] | Duration,
-        resampler: Resampler,
-    ) -> "Csv":
-        instance = super(Csv, Csv).__new__(Csv)
-        instance.__private_init__(path, (source, SamplingConfig(target), resampler))
-        return instance
+        self.path = path
+        self.config = sampling_config
+        self.option = option
 
     def _modulation_ptr(self: Self) -> ModulationPtr:
-        delim = self._param_deliminator.encode("utf-8")
-        path = _to_null_terminated_utf8(str(self._path))
-        match self._config:
-            case (Freq(), SamplingConfig(), Resampler()):
-                (source, target, resampler) = self._config
-                return _validate_ptr(
-                    ModulationAudioFile().modulation_audio_file_csv_with_resample(
-                        path,
-                        delim[0],
-                        self._loop_behavior,
-                        source.hz,
-                        target._inner,
-                        resampler._dyn_resampler(),
-                    ),
-                )
-            case _:
-                return _validate_ptr(
-                    ModulationAudioFile().modulation_audio_file_csv(
-                        _to_null_terminated_utf8(str(self._path)),
-                        self._config._inner,
-                        delim[0],
-                        self._loop_behavior,
-                    ),
-                )
+        delim = self.option.deliminator.encode("utf-8")
+        path = _to_null_terminated_utf8(str(self.path))
+        return _validate_ptr(ModulationAudioFile().modulation_audio_file_csv(path, SamplingConfig(self.config)._inner, delim[0]))

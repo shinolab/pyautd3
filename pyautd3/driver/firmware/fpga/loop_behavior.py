@@ -13,7 +13,7 @@ class LoopBehavior(metaclass=ConstantADT):
             raise CantBeZeroError(v)
         return Base().loop_behavior_finite(v)
 
-    Once: _LoopBehavior = Base().loop_behavior_once()
+    ONCE: _LoopBehavior = Finite(1)
 
     def __new__(cls: type["LoopBehavior"]) -> "LoopBehavior":
         raise NotImplementedError

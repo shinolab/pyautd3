@@ -1,55 +1,79 @@
-from typing import Self, TypeVar
+from enum import Enum
+from typing import Generic, Self, TypeVar
 
-from pyautd3.derive import builder, datagram, modulation
-from pyautd3.derive.derive_datagram import datagram_with_segment
-from pyautd3.driver.datagram.modulation import ModulationWithSamplingConfig
-from pyautd3.driver.defined.freq import Freq, Hz
+from pyautd3.driver.datagram.modulation import Modulation
+from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.modulation.sampling_mode import ISamplingMode, SamplingModeExact, SamplingModeExactFloat, SamplingModeNearest
+from pyautd3.driver.utils import _validate_u8
+from pyautd3.native_methods.autd3 import SquareOption as SquareOption_
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 T = TypeVar("T", int, float)
 
 
-@modulation
-@datagram
-@datagram_with_segment
-@builder
-class Square(ModulationWithSamplingConfig):
-    _mode: ISamplingMode
-    _param_low_u8: int
-    _param_high_u8: int
-    _param_duty: float
+class SquareOption:
+    low: int
+    high: int
+    duty: float
+    sampling_config: SamplingConfig
 
-    def __private__init__(self: Self, mode: ISamplingMode) -> None:
-        super().__init__(SamplingConfig(10))
-        self._mode = mode
-        self._param_low_u8 = 0x00
-        self._param_high_u8 = 0xFF
-        self._param_duty = 0.5
+    def __init__(
+        self: Self,
+        *,
+        low: int = 0x00,
+        high: int = 0xFF,
+        duty: float = 0.5,
+        sampling_config: SamplingConfig | None = None,
+    ) -> None:
+        self.low = _validate_u8(low)
+        self.high = _validate_u8(high)
+        self.duty = duty
+        self.sampling_config = sampling_config or SamplingConfig(10)
 
-    def __init__(self: Self, freq: Freq[T]) -> None:
+    def _inner(self: Self) -> SquareOption_:
+        return SquareOption_(
+            self.low,
+            self.high,
+            self.duty,
+            self.sampling_config._inner,
+        )
+
+
+class SquareMode(Enum):
+    Exact = 0
+    ExactFloat = 1
+    Nearest = 2
+
+
+class Square(Modulation, Generic[T]):
+    _mode: SquareMode
+    freq: Freq[T]
+    option: SquareOption
+
+    def __init__(self: Self, *, freq: Freq[T], option: SquareOption) -> None:
+        super().__init__()
         match freq.hz:
             case int():
-                self.__private__init__(SamplingModeExact(freq))  # type: ignore[arg-type]
+                self._mode = SquareMode.Exact
             case _:
-                self.__private__init__(SamplingModeExactFloat(freq))
+                self._mode = SquareMode.ExactFloat
+        self.freq = freq
+        self.option = option or SquareOption()
 
-    @classmethod
-    def nearest(cls: "type[Square]", freq: Freq[float]) -> "Square":
-        ins = super().__new__(cls)
-        ins.__private__init__(SamplingModeNearest(freq))
-        return ins
-
-    @property
-    def freq(self: Self) -> Freq[int] | Freq[float]:
-        return self._mode.square_freq() * Hz
+    def into_nearest(self: Self) -> "Square":
+        match self._mode:
+            case SquareMode.ExactFloat:
+                self._mode = SquareMode.Nearest
+                return self
+            case _:
+                raise TypeError
 
     def _modulation_ptr(self) -> ModulationPtr:
-        return self._mode.square_ptr(
-            self._config._inner,
-            self._param_low_u8,
-            self._param_high_u8,
-            self._param_duty,
-            self._loop_behavior,
-        )
+        match self._mode:
+            case SquareMode.Exact:
+                return Base().modulation_square_exact(self.freq.hz, self.option._inner())  # type: ignore[arg-type]
+            case SquareMode.ExactFloat:
+                return Base().modulation_square_exact_float(self.freq.hz, self.option._inner())
+            case SquareMode.Nearest:  # pragma: no cover
+                return Base().modulation_square_nearest(self.freq.hz, self.option._inner())

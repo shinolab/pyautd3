@@ -13,7 +13,7 @@ def run(autd: Controller) -> None:
         (stm.stm_gain, "GainSTM test"),
         (holo.holo, "Multiple foci test"),
         (flag.flag, "Flag test"),
-        (custom.transtest, "Custom gain test"),
+        (custom.custom, "Custom gain test"),
         (group.group_by_transducer, "Group (by Transducer) test"),
     ]
 

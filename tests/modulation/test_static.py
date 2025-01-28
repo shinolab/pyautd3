@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 def test_static():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Static.with_intensity(0x80)
+        m = Static(intensity=0x80)
         assert m.intensity == 0x80
         autd.send(m)
 
@@ -33,4 +33,4 @@ def test_static_default():
 
 def test_static_error():
     with pytest.raises(TypeError):
-        _ = Static.with_intensity(1.0)  # type: ignore[arg-type]
+        _ = Static(intensity=1.0)  # type: ignore[arg-type]

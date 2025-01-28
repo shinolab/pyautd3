@@ -19,14 +19,15 @@ def test_custom():
 
         def f(dev: Device) -> Callable[[Transducer], Drive]:
             if dev.idx == 0:
-                return lambda tr: Drive((Phase(0x90), EmitIntensity(0x80))) if tr.idx == 0 else Drive.NULL()
+                return lambda tr: Drive(phase=Phase(0x90), intensity=EmitIntensity(0x80)) if tr.idx == 0 else Drive.NULL()
             if dev.idx == 1:
-                return lambda tr: Drive((Phase(0x91), EmitIntensity(0x81))) if tr.idx == 248 else Drive.NULL()
+                return lambda tr: Drive(phase=Phase(0x91), intensity=EmitIntensity(0x81)) if tr.idx == 248 else Drive.NULL()
             return lambda _: Drive.NULL()
 
         autd.send(Custom(f))
 
         intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
+        print(intensities)
         assert intensities[0] == 0x80
         assert phases[0] == 0x90
         assert np.all(intensities[1:-1] == 0)

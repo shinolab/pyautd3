@@ -7,6 +7,8 @@ from pyautd3 import Controller, Segment
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation import Fourier, Sine
+from pyautd3.modulation.fourier import FourierOption
+from pyautd3.modulation.sine import SineOption
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -16,7 +18,10 @@ if TYPE_CHECKING:
 def test_fourier_exact():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier(Sine(x * Hz) for x in [50, 100, 150, 200, 250])
+        m = Fourier(
+            components=(Sine(freq=x * Hz, option=SineOption()) for x in [50, 100, 150, 200, 250]),
+            option=FourierOption(),
+        )
         autd.send(m)
 
         for dev in autd.geometry:
@@ -110,7 +115,10 @@ def test_fourier_exact():
 def test_fourier_exact_float():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier(Sine(x * Hz) for x in [50.0, 100.0, 150.0, 200.0, 250.0])
+        m = Fourier(
+            components=(Sine(freq=x * Hz, option=SineOption()) for x in [50.0, 100.0, 150.0, 200.0, 250.0]),
+            option=FourierOption(),
+        )
         autd.send(m)
 
         for dev in autd.geometry:
@@ -204,7 +212,10 @@ def test_fourier_exact_float():
 def test_fourier_nearest():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier([Sine.nearest(50.0 * Hz), Sine.nearest(100.0 * Hz)])
+        m = Fourier(
+            components=[Sine(freq=50.0 * Hz, option=SineOption()).into_nearest(), Sine(freq=100.0 * Hz, option=SineOption()).into_nearest()],
+            option=FourierOption(),
+        )
         autd.send(m)
 
         for dev in autd.geometry:
@@ -298,16 +309,19 @@ def test_fourier_nearest():
 def test_fourier_clamp():
     autd: Controller[Audit]
     with create_controller() as autd:
-        m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(False).with_scale_factor(None).with_offset(0)  # noqa: FBT003
-        assert not m.clamp
-        assert m.scale_factor is None
-        assert m.offset == 0
+        m = Fourier(
+            components=[Sine(freq=200 * Hz, option=SineOption(offset=0x00))],
+            option=FourierOption(clamp=False, scale_factor=None, offset=0x00),
+        )
         with pytest.raises(AUTDError) as e:
             autd.send(m)
         assert str(e.value) == "Fourier modulation value (-1) is out of range [0, 255]"
 
     with create_controller() as autd:
-        m = Fourier([Sine(200 * Hz).with_offset(0)]).with_clamp(True).with_scale_factor(None).with_offset(0)  # noqa: FBT003
+        m = Fourier(
+            components=[Sine(freq=200 * Hz, option=SineOption(offset=0x00))],
+            option=FourierOption(clamp=True, scale_factor=None, offset=0x00),
+        )
         autd.send(m)
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
@@ -315,8 +329,10 @@ def test_fourier_clamp():
             assert np.array_equal(mod, mod_expect)
 
     with create_controller() as autd:
-        m = Fourier([Sine(200 * Hz).with_offset(0xFF)]).with_clamp(False).with_scale_factor(2.0).with_offset(0)  # noqa: FBT003
-        assert not m.clamp
+        m = Fourier(
+            components=[Sine(freq=200 * Hz, option=SineOption(offset=0xFF))],
+            option=FourierOption(clamp=False, scale_factor=2.0, offset=0x00),
+        )
         with pytest.raises(AUTDError) as e:
             autd.send(m)
         assert str(e.value) == "Fourier modulation value (510) is out of range [0, 255]"

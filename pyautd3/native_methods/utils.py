@@ -1,9 +1,8 @@
-import ctypes
-
 from pyautd3.autd_error import AUTDError
-from pyautd3.native_methods.autd3_core import SamplingConfig
-from .autd3capi_driver import AUTDStatus, ResultSamplingConfig, ResultStatus
+from pyautd3.native_methods.autd3 import SamplingConfig
+
 from .autd3capi import NativeMethods as Base
+from .autd3capi_driver import AUTDStatus, ResultSamplingConfig, ResultStatus
 
 
 def _to_null_terminated_utf8(s: str) -> bytes:
@@ -12,7 +11,7 @@ def _to_null_terminated_utf8(s: str) -> bytes:
 
 def _validate_status(res: ResultStatus) -> int:
     if int(res.result) == AUTDStatus.AUTDErr:
-        err = ctypes.create_string_buffer(int(res.err_len))
+        err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return int(res.result)
@@ -20,15 +19,15 @@ def _validate_status(res: ResultStatus) -> int:
 
 def _validate_sampling_config(res: ResultSamplingConfig) -> SamplingConfig:
     if int(res.err_len) != 0:
-        err = ctypes.create_string_buffer(int(res.err_len))
+        err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return res.result
 
 
-def _validate_ptr(res):  # noqa: ANN001, ANN202
-    if res.result._0 is None:
-        err = ctypes.create_string_buffer(int(res.err_len))
+def _validate_ptr(res):
+    if res.result.value is None:
+        err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return res.result
@@ -37,14 +36,15 @@ def _validate_ptr(res):  # noqa: ANN001, ANN202
 class ConstantADT(type):
     _initialized = False
 
-    def __setattr__(cls, name, value):
+    def __setattr__(cls, name, value) -> None:
         if cls._initialized:  # pragma: no cover
             if name in cls.__dict__:  # pragma: no cover
-                raise ValueError(f"Do not assign value to {name}")  # pragma: no cover
-            else:  # pragma: no cover
-                raise AttributeError("Do not add new member to {cls}")  # pragma: no cover
+                err = f"Do not assign value to {name}"
+                raise ValueError(err)  # pragma: no cover
+            err = f"Do not add new member to {cls}"
+            raise AttributeError(err)  # pragma: no cover
         super().__setattr__(name, value)
 
-    def __init__(cls, *args, **kwargs):
+    def __init__(cls, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         cls._initialized = True

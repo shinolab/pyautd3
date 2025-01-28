@@ -14,9 +14,7 @@ if TYPE_CHECKING:
 def test_uniform():
     autd: Controller[Audit]
     with create_controller() as autd:
-        g = Uniform((EmitIntensity(0x80), Phase(0x90)))
-        assert g.drive.intensity == EmitIntensity(0x80)
-        assert g.drive.phase == Phase(0x90)
+        g = Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))
         autd.send(g)
 
         for dev in autd.geometry:

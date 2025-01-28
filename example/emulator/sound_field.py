@@ -5,19 +5,19 @@ from matplotlib import pyplot as plt
 from matplotlib.colors import Normalize
 
 from pyautd3 import AUTD3, Controller, FociSTM, Focus, SamplingConfig, Silencer, Static, kHz
-from pyautd3.emulator import InstantRecordOption, RangeXYZ, Recorder
+from pyautd3.emulator import Emulator, InstantRecordOption, RangeXYZ, Recorder
+from pyautd3.gain.focus import FocusOption
 from pyautd3.utils import Duration
 
 
 def plot_focus() -> None:
-    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+    with Emulator([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])]) as emulator:
         focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer.disable())
-            autd.send((Static.with_intensity(0xFF), Focus(focus)))
+            autd.send((Static(intensity=0xFF), Focus(pos=focus, option=FocusOption())))
             autd.tick(Duration.from_millis(1))
-            return autd
 
         record = emulator.record(f)
 
@@ -91,22 +91,21 @@ def plot_focus() -> None:
 
 
 def plot_stm() -> None:
-    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+    with Emulator([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])]) as emulator:
         focus = emulator.center + np.array([0.0, 0.0, 150.0])
 
-        def f(autd: Controller[Recorder]) -> Controller[Recorder]:
+        def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer())
             autd.send(
                 (
-                    Static.with_intensity(0xFF),
+                    Static(intensity=0xFF),
                     FociSTM(
-                        SamplingConfig(1.0 * kHz),
-                        (focus + 20.0 * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / 4 for i in range(4))),
+                        foci=(focus + 20.0 * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / 4 for i in range(4))),
+                        config=SamplingConfig(1.0 * kHz),
                     ),
                 ),
             )
             autd.tick(Duration.from_millis(5))
-            return autd
 
         record = emulator.record(f)
 
