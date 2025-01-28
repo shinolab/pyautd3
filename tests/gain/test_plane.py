@@ -4,6 +4,7 @@ import numpy as np
 
 from pyautd3 import Controller, EmitIntensity, Phase, Segment
 from pyautd3.gain import Plane
+from pyautd3.gain.plane import PlaneOption
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from tests.test_autd import create_controller
 
@@ -14,16 +15,13 @@ if TYPE_CHECKING:
 def test_plane():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send(Plane([0, 0, 1]))
+        autd.send(Plane(direction=[0, 0, 1], option=PlaneOption()))
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
-        g = Plane([0, 0, 1]).with_intensity(EmitIntensity(0x80)).with_phase_offset(Phase(0x81))
-        assert np.array_equal(g.dir, [0, 0, 1])
-        assert g.intensity == EmitIntensity(0x80)
-        assert g.phase_offset == Phase(0x81)
+        g = Plane(direction=[0, 0, 1], option=PlaneOption(intensity=EmitIntensity(0x80), phase_offset=Phase(0x81)))
         autd.send(g)
         for dev in autd.geometry:
             intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
@@ -32,6 +30,4 @@ def test_plane():
 
 
 def test_plane_default():
-    g = Plane([0, 0, 1])
-    assert np.array_equal(g.dir, [0, 0, 1])
-    assert Base().gain_planel_is_default(g.intensity.value, g.phase_offset.value)
+    assert Base().gain_planel_is_default(PlaneOption()._inner())

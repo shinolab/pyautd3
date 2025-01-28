@@ -5,7 +5,6 @@ import numpy as np
 
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.gain.holo.backend import Backend
-from pyautd3.native_methods.autd3capi_gain_holo import EmissionConstraintWrap
 
 from .amplitude import Amplitude
 
@@ -13,29 +12,19 @@ H = TypeVar("H", bound="Holo")
 
 
 class Holo(Gain, Generic[H]):
-    _foci: list[np.ndarray]
-    _amps: list[Amplitude]
-    _constraint: EmissionConstraintWrap
+    foci: list[tuple[np.ndarray, Amplitude]]
 
-    def __init__(self: Self, constraint: EmissionConstraintWrap, iterable: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
-        foci = list(iterable)
-        self._foci = [np.array(focus) for focus, _ in foci]
-        self._amps = [amp for _, amp in foci]
-        self._constraint = constraint
-
-    def with_constraint(self: H, constraint: EmissionConstraintWrap) -> H:
-        self._constraint = constraint
-        return self
+    def __init__(self: Self, foci: Iterable[tuple[np.ndarray, Amplitude]]) -> None:
+        self.foci = list(foci)
 
 
 class HoloWithBackend(Holo[H], Generic[H]):
-    _backend: Backend
+    backend: Backend
 
     def __init__(
         self: Self,
-        constraint: EmissionConstraintWrap,
+        foci: Iterable[tuple[np.ndarray, Amplitude]],
         backend: Backend,
-        iterable: Iterable[tuple[np.ndarray, Amplitude]],
     ) -> None:
-        super().__init__(constraint, iterable)
-        self._backend = backend
+        super().__init__(foci)
+        self.backend = backend

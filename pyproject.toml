@@ -1,11 +1,11 @@
 [project]
 name = "pyautd3"
 authors = [{ name = "Shun Suzuki", email = "suzuki@hapis.k.u-tokyo.ac.jp" }]
-version = "29.0.0rc16"
+version = "29.0.0rc17"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["numpy>=2", "polars>=1.1", "forbiddenfruit"]
+dependencies = ["numpy>=2", "polars>=1.1"]
 classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -42,7 +42,6 @@ fixable = ["ALL"]
 "tests/*.py" = ["S101", "T201", "ANN201", "PLR0915", "PLR2004"]
 "conftest.py" = ["ARG001", "ANN001"]
 "example/*.py" = ["T201", "PLR2004", "PD901"]
-"x.py" = ["S"]
 "pyautd3/native_methods/*.py" = ["ANN", "RUF012", "FBT001", "PLR0915"]
 
 [tool.pytest.ini_options]

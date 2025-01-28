@@ -7,7 +7,7 @@ from pyautd3.driver.firmware.fpga import Phase
 
 def test_phase():
     for i in range(256):
-        phase = Phase(Phase(i))
+        phase = Phase(i)
         assert phase.value == i
         assert str(phase) == f"Phase({i})"
 

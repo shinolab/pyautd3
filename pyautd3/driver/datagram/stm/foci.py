@@ -5,9 +5,6 @@ from typing import Generic, Self, TypeVar
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3.derive import datagram
-from pyautd3.derive.derive_builder import builder
-from pyautd3.derive.derive_datagram import datagram_with_segment
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.stm.control_point import (
     ControlPoints1,
@@ -20,18 +17,16 @@ from pyautd3.driver.datagram.stm.control_point import (
     ControlPoints8,
     IControlPoints,
 )
-from pyautd3.driver.datagram.stm.stm_sampling_config import STMSamplingConfig
+from pyautd3.driver.datagram.stm.stm_sampling_config import FreqNearest, PeriodNearest, _sampling_config
+from pyautd3.driver.datagram.with_loop_behavior import DatagramL
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.defined.freq import Freq
-from pyautd3.driver.firmware.fpga import LoopBehavior
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
-from pyautd3.native_methods.autd3_core import Segment
+from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, FociSTMPtr, TransitionModeWrap
-from pyautd3.native_methods.autd3capi_driver import LoopBehavior as _LoopBehavior
-from pyautd3.native_methods.utils import _validate_ptr
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, FociSTMPtr, LoopBehavior, TransitionModeWrap
 from pyautd3.utils import Duration
 
 __all__ = []  # type: ignore[var-annotated]
@@ -39,34 +34,51 @@ __all__ = []  # type: ignore[var-annotated]
 C = TypeVar("C", bound=IControlPoints)
 
 
-@builder
-@datagram
-@datagram_with_segment
 class FociSTM(
     DatagramS[FociSTMPtr],
+    DatagramL[FociSTMPtr],
     Datagram,
     Generic[C],
 ):
-    _points: list[C]
+    foci: list[C]
+    config: SamplingConfig | Freq[float] | Duration | FreqNearest | PeriodNearest
 
-    _stm_sampling_config: STMSamplingConfig
-    _param_loop_behavior: _LoopBehavior
+    @classmethod
+    def __private_new__(
+        cls: type["FociSTM"],
+        foci: (
+            Iterable[ArrayLike]
+            | Iterable[ControlPoints1]
+            | Iterable[ControlPoints2]
+            | Iterable[ControlPoints3]
+            | Iterable[ControlPoints4]
+            | Iterable[ControlPoints5]
+            | Iterable[ControlPoints6]
+            | Iterable[ControlPoints7]
+            | Iterable[ControlPoints8]
+        ),
+        config: SamplingConfig | Freq[float] | Duration | FreqNearest | PeriodNearest,
+    ) -> "FociSTM":
+        ins = super().__new__(cls)
+        ins.__private_init__(foci, config)
+        return ins
 
     def __private_init__(
         self: "FociSTM",
-        sampling_config: STMSamplingConfig,
         foci: (
-            list[ArrayLike]
-            | list[ControlPoints1]
-            | list[ControlPoints2]
-            | list[ControlPoints3]
-            | list[ControlPoints4]
-            | list[ControlPoints5]
-            | list[ControlPoints6]
-            | list[ControlPoints7]
-            | list[ControlPoints8]
+            Iterable[ArrayLike]
+            | Iterable[ControlPoints1]
+            | Iterable[ControlPoints2]
+            | Iterable[ControlPoints3]
+            | Iterable[ControlPoints4]
+            | Iterable[ControlPoints5]
+            | Iterable[ControlPoints6]
+            | Iterable[ControlPoints7]
+            | Iterable[ControlPoints8]
         ),
+        config: SamplingConfig | Freq[float] | Duration | FreqNearest | PeriodNearest,
     ) -> None:
+        foci = list(foci)
         match foci[0]:
             case (
                 ControlPoints1()
@@ -78,94 +90,70 @@ class FociSTM(
                 | ControlPoints7()
                 | ControlPoints8()
             ):
-                self._points = foci
+                self.foci = foci
             case _:
-                self._points = [ControlPoints1(p) for p in foci]
+                self.foci = [ControlPoints1(points=p) for p in foci]
 
-        self._stm_sampling_config = sampling_config
-
-        self._param_loop_behavior = LoopBehavior.Infinite
+        self.config = config
 
     def __init__(
         self: "FociSTM",
+        *,
+        foci: (
+            Iterable[ArrayLike]
+            | Iterable[ControlPoints1]
+            | Iterable[ControlPoints2]
+            | Iterable[ControlPoints3]
+            | Iterable[ControlPoints4]
+            | Iterable[ControlPoints5]
+            | Iterable[ControlPoints6]
+            | Iterable[ControlPoints7]
+            | Iterable[ControlPoints8]
+        ),
         config: SamplingConfig | Freq[float] | Duration,
-        iterable: (
-            Iterable[ArrayLike]
-            | Iterable[ControlPoints1]
-            | Iterable[ControlPoints2]
-            | Iterable[ControlPoints3]
-            | Iterable[ControlPoints4]
-            | Iterable[ControlPoints5]
-            | Iterable[ControlPoints6]
-            | Iterable[ControlPoints7]
-            | Iterable[ControlPoints8]
-        ),
     ) -> None:
-        foci = list(iterable)
-        self.__private_init__(STMSamplingConfig(config, len(foci)), foci)
+        self.__private_init__(foci, config)
 
-    @classmethod
-    def nearest(
-        cls: type["FociSTM"],
-        config: Freq[float] | Duration,
-        iterable: (
-            Iterable[ArrayLike]
-            | Iterable[ControlPoints1]
-            | Iterable[ControlPoints2]
-            | Iterable[ControlPoints3]
-            | Iterable[ControlPoints4]
-            | Iterable[ControlPoints5]
-            | Iterable[ControlPoints6]
-            | Iterable[ControlPoints7]
-            | Iterable[ControlPoints8]
-        ),
-    ) -> "FociSTM":
-        ins = cls.__new__(cls)
-        foci = list(iterable)
-        ins.__private_init__(STMSamplingConfig._nearest(config, len(foci)), foci)
-        return ins
+    def into_nearest(self: Self) -> "FociSTM":
+        match self.config:
+            case Freq() as freq:
+                return FociSTM.__private_new__(self.foci, FreqNearest(freq))  # type: ignore[arg-type]
+            case Duration() as period:
+                return FociSTM.__private_new__(self.foci, PeriodNearest(period))  # type: ignore[arg-type]
+            case _:
+                raise TypeError
 
     def _raw_ptr(self: Self, _: Geometry) -> FociSTMPtr:
-        return self._ptr()
+        n = self.foci[0]._value()
+        foci = np.fromiter((np.void(p) for p in self.foci), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
+        return Base().stm_foci(
+            self.sampling_config._inner,
+            foci.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
+            len(self.foci),
+            n,
+        )
 
-    def _ptr(self: Self) -> FociSTMPtr:
-        n = self._points[0]._value()
-        points = np.fromiter((np.void(p) for p in self._points), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
-        return _validate_ptr(
-            Base().stm_foci(
-                self._stm_sampling_config._inner,
-                points.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
-                len(self._points),
-                n,
-                self._param_loop_behavior,
-            ),
+    def _into_segment(self: Self, ptr: FociSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
+        return Base().stm_foci_into_datagram_with_segment(ptr, self.foci[0]._value(), segment, transition_mode or TransitionMode.NONE)
+
+    def _into_loop_behavior(
+        self: Self,
+        ptr: FociSTMPtr,
+        segment: Segment,
+        transition_mode: TransitionModeWrap | None,
+        loop_behavior: LoopBehavior,
+    ) -> DatagramPtr:
+        return Base().stm_foci_into_datagram_with_loop_behavior(
+            ptr,
+            self.foci[0]._value(),
+            segment,
+            transition_mode or TransitionMode.NONE,
+            loop_behavior,
         )
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().stm_foci_into_datagram(self._raw_ptr(geometry), self._points[0]._value())
-
-    def _into_segment(self: Self, ptr: FociSTMPtr, segment: Segment, transition_mode: TransitionModeWrap | None) -> DatagramPtr:
-        return Base().stm_foci_into_datagram_with_segment(
-            ptr,
-            self._points[0]._value(),
-            segment,
-            transition_mode or TransitionMode.NONE,
-        )
-
-    @property
-    def freq(self: Self) -> Freq[float]:
-        return self._stm_sampling_config.freq()
-
-    @property
-    def period(self: Self) -> Duration:
-        return self._stm_sampling_config.period()
+        return Base().stm_foci_into_datagram(self._raw_ptr(geometry), self.foci[0]._value())
 
     @property
     def sampling_config(self: Self) -> SamplingConfig:
-        return self._stm_sampling_config.sampling_config()
-
-    def _sampling_config_intensity(self: Self) -> SamplingConfig:
-        return self.sampling_config
-
-    def _sampling_config_phase(self: Self) -> SamplingConfig:
-        return self.sampling_config
+        return _sampling_config(self.config, len(self.foci))

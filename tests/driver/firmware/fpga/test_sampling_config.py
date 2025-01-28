@@ -26,15 +26,15 @@ def test_sampl_config_from_freq():
 
     with pytest.raises(AUTDError) as e:
         _ = SamplingConfig(39999 * Hz).division
-    assert str(e.value) == "Sampling frequency (39999 Hz) must divide theultrasound frequency"
+    assert str(e.value) == "Sampling frequency (39999 Hz) must divide the ultrasound frequency"
 
     with pytest.raises(AUTDError) as e:
         _ = SamplingConfig(39999 * Hz).freq
-    assert str(e.value) == "Sampling frequency (39999 Hz) must divide theultrasound frequency"
+    assert str(e.value) == "Sampling frequency (39999 Hz) must divide the ultrasound frequency"
 
     with pytest.raises(AUTDError) as e:
         _ = SamplingConfig(39999 * Hz).period
-    assert str(e.value) == "Sampling frequency (39999 Hz) must divide theultrasound frequency"
+    assert str(e.value) == "Sampling frequency (39999 Hz) must divide the ultrasound frequency"
 
     with pytest.raises(TypeError):
         _ = SamplingConfig(Freq.__private_new__(1j))

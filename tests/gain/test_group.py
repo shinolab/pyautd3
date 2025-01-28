@@ -22,7 +22,7 @@ def test_group():
 
         g = (
             Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else "null")
-            .set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90))))
+            .set("uniform", Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))
             .set("null", Null())
         )
         autd.send(g)
@@ -39,7 +39,7 @@ def test_group():
         autd.send(
             Group(lambda _: lambda tr: "uniform" if tr.position[0] < cx else None).set(
                 "uniform",
-                Uniform((EmitIntensity(0x80), Phase(0x90))),
+                Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)),
             ),
         )
         for dev in autd.geometry:
@@ -56,7 +56,7 @@ def test_group():
 def test_group_unknown_key():
     autd: Controller[Audit]
     with create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
-        autd.send(Group(lambda _: lambda _tr: "null").set("uniform", Uniform((EmitIntensity(0x80), Phase(0x90)))).set("null", Null()))
+        autd.send(Group(lambda _: lambda _tr: "null").set("uniform", Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))).set("null", Null()))
 
 
 def test_group_check_only_for_enabled():
@@ -70,7 +70,7 @@ def test_group_check_only_for_enabled():
             check[dev.idx] = True
             return lambda _: 0
 
-        autd.send(Group(f).set(0, Uniform((EmitIntensity(0x80), Phase(0x90)))))
+        autd.send(Group(f).set(0, Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))))
 
         assert not check[0]
         assert check[1]

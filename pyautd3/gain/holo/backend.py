@@ -3,8 +3,8 @@ from ctypes import Array, c_float
 from typing import Self
 
 from pyautd3.native_methods.autd3capi_driver import GainPtr
-from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr, EmissionConstraintWrap
-from pyautd3.native_methods.structs import Vector3
+from pyautd3.native_methods.autd3capi_gain_holo import BackendPtr, GSOption, GSPATOption, LMOption, NaiveOption
+from pyautd3.native_methods.structs import Point3
 
 
 class Backend(metaclass=ABCMeta):
@@ -17,29 +17,17 @@ class Backend(metaclass=ABCMeta):
         return self._ptr
 
     @abstractmethod
-    def _gs(self: Self, foci: Array[Vector3], amps: Array[c_float], size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
+    def _gs(self: Self, foci: Array[Point3], amps: Array[c_float], size: int, option: GSOption) -> GainPtr:
         pass
 
     @abstractmethod
-    def _gspat(self: Self, foci: Array[Vector3], amps: Array[c_float], size: int, repeat: int, constraint: EmissionConstraintWrap) -> GainPtr:
+    def _gspat(self: Self, foci: Array[Point3], amps: Array[c_float], size: int, option: GSPATOption) -> GainPtr:
         pass
 
     @abstractmethod
-    def _naive(self: Self, foci: Array[Vector3], amps: Array[c_float], size: int, constraint: EmissionConstraintWrap) -> GainPtr:
+    def _naive(self: Self, foci: Array[Point3], amps: Array[c_float], size: int, option: NaiveOption) -> GainPtr:
         pass
 
     @abstractmethod
-    def _lm(
-        self: Self,
-        foci: Array[Vector3],
-        amps: Array[c_float],
-        size: int,
-        eps1: float,
-        eps2: float,
-        tau: float,
-        kmax: int,
-        initial: Array[c_float],
-        initial_size: int,
-        constraint: EmissionConstraintWrap,
-    ) -> GainPtr:
+    def _lm(self: Self, foci: Array[Point3], amps: Array[c_float], size: int, option: LMOption) -> GainPtr:
         pass

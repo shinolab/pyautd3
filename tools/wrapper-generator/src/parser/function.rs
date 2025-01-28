@@ -8,12 +8,7 @@ pub struct Arg {
 
 impl std::fmt::Debug for Arg {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}: {}",
-            self.name,
-            self.ty.to_token_stream().to_string()
-        )
+        write!(f, "{}: {}", self.name, self.ty.to_token_stream())
     }
 }
 
@@ -34,7 +29,7 @@ impl std::fmt::Debug for Function {
                 .map(|arg| format!("{:?}", arg))
                 .collect::<Vec<_>>()
                 .join(", "),
-            self.return_ty.to_token_stream().to_string()
+            self.return_ty.to_token_stream()
         )
     }
 }

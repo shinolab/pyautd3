@@ -15,29 +15,41 @@ pub fn is_public_item(item: &syn::Item) -> bool {
 }
 
 pub fn is_ffi_safe_item(item: &syn::Item) -> bool {
-    let vec = match item {
+    match item {
         syn::Item::Struct(ItemStruct { attrs, .. })
-        | syn::Item::Const(ItemConst { attrs, .. })
         | syn::Item::Enum(ItemEnum { attrs, .. })
-        | syn::Item::Union(ItemUnion { attrs, .. }) => attrs,
-        syn::Item::Fn(_) => return true,
-        _ => return false,
-    };
-    let attrs = vec;
-    attrs.into_iter().any(|attr| {
-        if attr.path().is_ident("repr") {
-            attr.parse_nested_meta(|meta| {
-                if meta.path.is_ident("C") {
-                    return Ok(());
-                }
-                if meta.path.is_ident("u8") {
-                    return Ok(());
-                }
-                Err(meta.error(""))
-            })
-            .is_ok()
-        } else {
-            false
-        }
-    })
+        | syn::Item::Union(ItemUnion { attrs, .. }) => attrs.iter().any(|attr| {
+            if attr.path().is_ident("repr") {
+                attr.parse_nested_meta(|meta| {
+                    if meta.path.is_ident("C") {
+                        return Ok(());
+                    }
+                    if meta.path.is_ident("u8") {
+                        return Ok(());
+                    }
+                    Err(meta.error(""))
+                })
+                .is_ok()
+            } else {
+                false
+            }
+        }),
+        syn::Item::Const(ItemConst { ty, .. }) => match **ty {
+            syn::Type::Path(ref ty) => {
+                ty.path.is_ident("i8")
+                    || ty.path.is_ident("i16")
+                    || ty.path.is_ident("i32")
+                    || ty.path.is_ident("i64")
+                    || ty.path.is_ident("u8")
+                    || ty.path.is_ident("u16")
+                    || ty.path.is_ident("u32")
+                    || ty.path.is_ident("u64")
+                    || ty.path.is_ident("f32")
+                    || ty.path.is_ident("f64")
+            }
+            _ => false,
+        },
+        syn::Item::Fn(_) => true,
+        _ => false,
+    }
 }

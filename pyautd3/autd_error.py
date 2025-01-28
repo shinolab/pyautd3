@@ -1,12 +1,11 @@
-import ctypes
 from typing import Self
 
 
 class AUTDError(Exception):
     msg: str
 
-    def __init__(self: Self, err: ctypes.Array[ctypes.c_char] | str) -> None:
-        self.msg = err if isinstance(err, str) else err.value.decode("utf-8")
+    def __init__(self: Self, err: bytes | str) -> None:
+        self.msg = err if isinstance(err, str) else err.decode("utf-8").rstrip(" \t\r\n\0")
 
     def __str__(self: Self) -> str:
         return self.msg

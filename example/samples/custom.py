@@ -1,17 +1,17 @@
 from collections.abc import Callable
 
-from pyautd3 import Controller, Device, Drive, EmitIntensity, Hz, Phase, Silencer, Sine, Transducer
+from pyautd3 import Controller, Device, Drive, EmitIntensity, Hz, Phase, Silencer, Sine, SineOption, Transducer
 from pyautd3.gain import Custom
 
 
-def transtest(autd: Controller) -> None:
+def custom(autd: Controller) -> None:
     config = Silencer()
     autd.send(config)
 
     def f(dev: Device) -> Callable[[Transducer], Drive]:
-        return lambda tr: Drive((Phase(0), EmitIntensity.maximum())) if dev.idx == 0 and tr.idx in (0, 248) else Drive.NULL()
+        return lambda tr: Drive(phase=Phase(0), intensity=EmitIntensity.maximum()) if dev.idx == 0 and tr.idx in (0, 248) else Drive.NULL()
 
     g = Custom(f)
-    m = Sine(150 * Hz)
+    m = Sine(freq=150 * Hz, option=SineOption())
 
     autd.send((m, g))

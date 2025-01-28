@@ -4,11 +4,10 @@ from typing import Self
 import numpy as np
 
 from pyautd3.driver.link import Link, LinkBuilder
-from pyautd3.native_methods.autd3_core import Drive as Drive_
-from pyautd3.native_methods.autd3_core import LoopBehavior, Segment
+from pyautd3.native_methods.autd3 import Drive as Drive_
+from pyautd3.native_methods.autd3 import Segment, SilencerTarget
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import ControllerPtr, LinkBuilderPtr, LinkPtr, SilencerTarget
-from pyautd3.utils import Duration
+from pyautd3.native_methods.autd3capi_driver import ControllerPtr, LinkBuilderPtr, LinkPtr, LoopBehavior
 
 __all__ = []  # type: ignore[var-annotated]
 
@@ -47,14 +46,6 @@ class Audit(Link):
 
     def repair(self: Self) -> None:
         LinkAudit().link_audit_repair(self._ptr)
-
-    def last_timeout(self: Self) -> Duration | None:
-        timeout = LinkAudit().link_audit_last_timeout(self._ptr)
-        return Duration.__private_new__(timeout.value) if bool(timeout.has_value) else None
-
-    def last_parallel_threshold(self: Self) -> int | None:
-        threshold = int(LinkAudit().link_audit_last_parallel_threshold(self._ptr))
-        return threshold if threshold >= 0 else None
 
     def silencer_strict_mode(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_cpu_silencer_strict_mode(self._ptr, idx))
@@ -119,7 +110,7 @@ class Audit(Link):
             stm_idx,
             drive.ctypes.data_as(ctypes.POINTER(Drive_)),  # type: ignore[arg-type]
         )
-        return np.array([int(d[1]) for d in drive]), np.array([int(d[0]) for d in drive])
+        return np.array([int(d[1][0]) for d in drive]), np.array([int(d[0][0]) for d in drive])
 
     def sound_speed(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_sound_speed(self._ptr, segment, idx))

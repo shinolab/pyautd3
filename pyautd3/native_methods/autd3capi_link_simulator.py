@@ -6,7 +6,7 @@ from pyautd3.native_methods.autd3capi_driver import ResultLinkBuilder, ResultSta
 
 
 class Singleton(type):
-    _instances = {}
+    _instances = {}  # type: ignore[var-annotated]
     _lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
@@ -33,8 +33,8 @@ class NativeMethods(metaclass=Singleton):
     def link_simulator_tracing_init(self) -> None:
         return self.dll.AUTDLinkSimulatorTracingInit()
 
-    def link_simulator_tracing_init_with_file(self, path: ctypes.Array[ctypes.c_char]) -> ResultStatus:
+    def link_simulator_tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDLinkSimulatorTracingInitWithFile(path)
 
-    def link_simulator(self, addr: ctypes.Array[ctypes.c_char]) -> ResultLinkBuilder:
+    def link_simulator(self, addr: bytes) -> ResultLinkBuilder:
         return self.dll.AUTDLinkSimulator(addr)

@@ -7,7 +7,7 @@ from pyautd3.native_methods.autd3capi_driver import ResultModulation, ResultStat
 
 
 class Singleton(type):
-    _instances = {}
+    _instances = {}  # type: ignore[var-annotated]
     _lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
@@ -37,11 +37,11 @@ class NativeMethods(metaclass=Singleton):
     def modulation_audio_file_tracing_init(self) -> None:
         return self.dll.AUTDModulationAudioFileTracingInit()
 
-    def modulation_audio_file_tracing_init_with_file(self, path: ctypes.Array[ctypes.c_char]) -> ResultStatus:
+    def modulation_audio_file_tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDModulationAudioFileTracingInitWithFile(path)
 
-    def modulation_audio_file_wav(self, path: ctypes.Array[ctypes.c_char]) -> ResultModulation:
+    def modulation_audio_file_wav(self, path: bytes) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path)
 
-    def modulation_audio_file_csv(self, path: ctypes.Array[ctypes.c_char], sampling_config: SamplingConfig, deliminator: int) -> ResultModulation:
+    def modulation_audio_file_csv(self, path: bytes, sampling_config: SamplingConfig, deliminator: int) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileCsv(path, sampling_config, deliminator)

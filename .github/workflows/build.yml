@@ -19,13 +19,11 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
+      - uses: taiki-e/install-action@v2
         with:
-          submodules: true
+          tool: cargo-make
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - uses: astral-sh/setup-uv@v3
-      - run: |
-          uv sync --all-extras --dev
-          python3 x.py build
-          python3 x.py test
+      - run: cargo make check

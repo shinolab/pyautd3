@@ -1,3 +1,4 @@
+mod r#const;
 mod ctypes;
 mod r#enum;
 mod function;
@@ -33,6 +34,7 @@ impl TryFrom<syn::Type> for PythonType {
                         "isize" | "usize" => {
                             anyhow::bail!("isize and usize are not supported")
                         }
+                        "ConstPtr" => "ctypes.c_void_p",
                         v => v,
                     }
                     .to_owned(),
@@ -41,8 +43,10 @@ impl TryFrom<syn::Type> for PythonType {
             syn::Type::Ptr(syn::TypePtr { elem, .. }) => match *elem {
                 syn::Type::Ptr(syn::TypePtr { elem, .. }) => CtypesType::try_from(*elem)
                     .map(|inner| PythonType(format!("ctypes.Array[ctypes.Array[{}]]", inner.0))),
-                elem => CtypesType::try_from(elem)
-                    .map(|inner| PythonType(format!("ctypes.Array[{}]", inner.0))),
+                elem => CtypesType::try_from(elem).map(|inner| match inner.0.as_str() {
+                    "ctypes.c_char" => PythonType("bytes".to_owned()),
+                    v => PythonType(format!("ctypes.Array[{}]", v)),
+                }),
             },
             _ => anyhow::bail!("Unsupported type: {}", value.to_token_stream().to_string()),
         }

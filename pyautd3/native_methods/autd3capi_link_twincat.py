@@ -6,7 +6,7 @@ from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, ResultLinkBu
 
 
 class Singleton(type):
-    _instances = {}
+    _instances = {}  # type: ignore[var-annotated]
     _lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
@@ -36,13 +36,11 @@ class NativeMethods(metaclass=Singleton):
     def link_twin_cat_tracing_init(self) -> None:
         return self.dll.AUTDLinkTwinCATTracingInit()
 
-    def link_twin_cat_tracing_init_with_file(self, path: ctypes.Array[ctypes.c_char]) -> ResultStatus:
+    def link_twin_cat_tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDLinkTwinCATTracingInitWithFile(path)
 
     def link_twin_cat(self) -> LinkBuilderPtr:
         return self.dll.AUTDLinkTwinCAT()
 
-    def link_remote_twin_cat(
-        self, server_ams_net_id: ctypes.Array[ctypes.c_char], server_ip: ctypes.Array[ctypes.c_char], client_ams_net_id: ctypes.Array[ctypes.c_char],
-    ) -> ResultLinkBuilder:
+    def link_remote_twin_cat(self, server_ams_net_id: bytes, server_ip: bytes, client_ams_net_id: bytes) -> ResultLinkBuilder:
         return self.dll.AUTDLinkRemoteTwinCAT(server_ams_net_id, server_ip, client_ams_net_id)

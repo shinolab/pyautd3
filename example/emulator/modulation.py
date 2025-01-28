@@ -2,15 +2,18 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 from pyautd3 import AUTD3, Controller, EmitIntensity, Focus, Hz, Silencer, Sine, Uniform
-from pyautd3.emulator import InstantRecordOption, RangeXYZ, Recorder
+from pyautd3.driver.firmware.fpga.phase import Phase
+from pyautd3.emulator import Emulator, InstantRecordOption, RangeXYZ, Recorder
+from pyautd3.gain.focus import FocusOption
+from pyautd3.modulation.sine import SineOption
 from pyautd3.utils import Duration
 
 if __name__ == "__main__":
-    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+    with Emulator([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])]) as emulator:
         # pulse width under 200Hz sine modulation with silencer
         def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer())
-            autd.send((Sine(200.0 * Hz), Uniform(EmitIntensity(0xFF))))
+            autd.send((Sine(freq=200.0 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
             autd.tick(Duration.from_millis(10))
 
         record = emulator.record(f)
@@ -29,7 +32,7 @@ if __name__ == "__main__":
         # pulse width under 200Hz sine modulation without silencer
         def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer.disable())
-            autd.send((Sine(200.0 * Hz), Uniform(EmitIntensity(0xFF))))
+            autd.send((Sine(freq=200.0 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
             autd.tick(Duration.from_millis(10))
 
         record = emulator.record(f)
@@ -50,7 +53,7 @@ if __name__ == "__main__":
 
         def f(autd: Controller[Recorder]) -> None:
             autd.send(Silencer())
-            autd.send((Sine(200.0 * Hz), Focus(focus)))
+            autd.send((Sine(freq=200.0 * Hz, option=SineOption()), Focus(pos=focus, option=FocusOption())))
             autd.tick(Duration.from_millis(20))
 
         record = emulator.record(f)

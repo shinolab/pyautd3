@@ -1,7 +1,5 @@
-// mod parse;
 mod parser;
 mod python;
-// mod types;
 mod utils;
 
 use std::env;
@@ -14,72 +12,31 @@ use glob::glob;
 
 use cargo_metadata::MetadataCommand;
 use itertools::Itertools;
-use parser::{Enum, Function, Struct, Union};
-// use parse::*;
-// use python::PythonGenerator;
+use parser::{Const, Enum, Function, Struct, Union};
 use python::{escape_python_builtin, sort_structs, to_python_func_name, CtypesType, PythonType};
 use utils::{is_ffi_safe_item, is_public_item};
-
-// pub fn gen<P1: AsRef<Path>, P2: AsRef<Path>>(crate_path: P1, dest_dir: P2) -> Result<()> {
-//     std::fs::create_dir_all(dest_dir.as_ref())?;
-
-//     let metadata = MetadataCommand::new()
-//         .manifest_path(crate_path.as_ref().join("Cargo.toml"))
-//         .exec()?;
-
-//     let crate_name = metadata.root_package().unwrap().name.as_str();
-
-//     glob::glob(&format!(
-//         "{}/**/*.rs",
-//         crate_path.as_ref().join("src").display()
-//     ))?
-//     .try_fold(PythonGenerator::new(), |acc, path| -> Result<_> {
-//         let path = path?;
-//         Ok(acc
-//             .register_enum(parse_enum(&path)?)
-//             .register_struct(parse_struct(&path)?, false))
-//     })?
-//     .write(dest_dir, crate_name, false)
-// }
-
-// pub fn gen_capi<P1: AsRef<Path>, P2: AsRef<Path>>(crate_path: P1, dest_dir: P2) -> Result<()> {
-//     std::fs::create_dir_all(dest_dir.as_ref())?;
-
-//     let metadata = MetadataCommand::new()
-//         .manifest_path(crate_path.as_ref().join("Cargo.toml"))
-//         .exec()?;
-
-//     let crate_name = metadata.root_package().unwrap().name.as_str();
-
-//     glob::glob(&format!(
-//         "{}/**/*.rs",
-//         crate_path.as_ref().join("src").display()
-//     ))?
-//     .try_fold(PythonGenerator::new(), |acc, path| -> Result<_> {
-//         let path = path?;
-//         Ok(acc
-//             .register_func(parse_func(&path)?)
-//             .register_const(parse_const(&path)?)
-//             .register_enum(parse_enum(&path)?)
-//             .register_union(parse_union(&path)?)
-//             .register_struct(parse_struct(&path)?, true))
-//     })?
-//     .write(dest_dir, crate_name, true)
-// }
 
 struct PythonWrapperGenerator {
     ignore_items: Vec<&'static str>,
 }
 
 impl PythonWrapperGenerator {
+    #[allow(clippy::type_complexity)]
     fn parse(
         &self,
         root: impl AsRef<Path>,
-    ) -> anyhow::Result<(Vec<Struct>, Vec<Enum>, Vec<Union>, Vec<Function>)> {
+    ) -> anyhow::Result<(
+        Vec<Struct>,
+        Vec<Enum>,
+        Vec<Union>,
+        Vec<Function>,
+        Vec<Const>,
+    )> {
         let mut structs = vec![];
         let mut enums = vec![];
         let mut unions = vec![];
         let mut functions = vec![];
+        let mut consts = vec![];
 
         for src in glob::glob(&format!("{}/**/*.rs", root.as_ref().join("src").display()))? {
             let mut file = std::fs::File::open(src?)?;
@@ -126,16 +83,23 @@ impl PythonWrapperGenerator {
                     }
                     functions.push(f);
                 }
+                if let Some(c) = parser::parse_const(&item) {
+                    if self.ignore_items.contains(&c.name.as_str()) {
+                        return;
+                    }
+                    consts.push(c);
+                }
             });
         }
 
-        Ok((structs, enums, unions, functions))
+        Ok((structs, enums, unions, functions, consts))
     }
 
     pub fn gen(
         &self,
         root: impl AsRef<Path>,
         defined: &mut Vec<(String, String)>,
+        defined_enum: &mut Vec<Enum>,
     ) -> anyhow::Result<()> {
         let mut structs = vec![];
         let mut enums = vec![];
@@ -143,12 +107,22 @@ impl PythonWrapperGenerator {
             let entry = entry?;
             let manifest_path = Path::new(&entry);
 
-            let (s, e, _, _) = self.parse(manifest_path.parent().unwrap())?;
+            let (s, e, _, _, _) = self.parse(manifest_path.parent().unwrap())?;
             structs.extend(s);
             enums.extend(e);
         }
 
-        Self::write(root, "autd3", &structs, &enums, &[], &[], defined)?;
+        Self::write(
+            root,
+            "autd3",
+            &structs,
+            &enums,
+            &[],
+            &[],
+            &[],
+            defined,
+            defined_enum,
+        )?;
 
         Ok(())
     }
@@ -158,13 +132,14 @@ impl PythonWrapperGenerator {
         root: impl AsRef<Path>,
         manifest_path: impl AsRef<Path>,
         defined: &mut Vec<(String, String)>,
+        defined_enum: &mut Vec<Enum>,
     ) -> anyhow::Result<()> {
         let metadata = MetadataCommand::new()
             .manifest_path(manifest_path.as_ref())
             .exec()?;
         let crate_name = metadata.root_package().unwrap().name.as_str();
 
-        let (structs, enums, unions, functions) =
+        let (structs, enums, unions, functions, consts) =
             self.parse(manifest_path.as_ref().parent().unwrap())?;
 
         Self::write(
@@ -174,12 +149,15 @@ impl PythonWrapperGenerator {
             &enums,
             &unions,
             &functions,
+            &consts,
             defined,
+            defined_enum,
         )?;
 
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn write<P: AsRef<Path>>(
         root: P,
         src: &str,
@@ -187,7 +165,9 @@ impl PythonWrapperGenerator {
         enums: &[Enum],
         unions: &[Union],
         functions: &[Function],
+        consts: &[Const],
         defined: &mut Vec<(String, String)>,
+        defined_enum: &mut Vec<Enum>,
     ) -> anyhow::Result<()> {
         let path = format!("pyautd3/native_methods/{}", src);
         let module_name = path.replace("/", ".").replace("\\", ".");
@@ -234,18 +214,31 @@ impl PythonWrapperGenerator {
             }
         }
 
+        for c in consts {
+            writeln!(w, "\n\n{}", c.to_python_def()?)?;
+        }
+
         for e in enums {
             writeln!(w, "\n\n{}", e.to_python_def()?)?;
         }
         defined.extend(enums.iter().map(|e| (e.name.clone(), module_name.clone())));
+        defined_enum.extend(enums.iter().cloned());
 
         for u in unions {
-            writeln!(w, "\n\n{}", u.to_python_def()?)?;
+            let mut content = u.to_python_def()?;
+            for e in defined_enum.iter() {
+                content = content.replace(&e.name, &CtypesType::try_from(e.ty.clone())?.0);
+            }
+            writeln!(w, "\n\n{}", content)?;
         }
         defined.extend(unions.iter().map(|e| (e.name.clone(), module_name.clone())));
 
         for s in sort_structs(structs, defined.iter().map(|(n, _)| n.clone()).collect())? {
-            writeln!(w, "\n\n{}", s.to_python_def()?)?;
+            let mut content = s.to_python_def()?;
+            for e in defined_enum.iter() {
+                content = content.replace(&e.name, &CtypesType::try_from(e.ty.clone())?.0);
+            }
+            writeln!(w, "\n\n{}", content)?;
         }
         defined.extend(
             structs
@@ -261,7 +254,7 @@ impl PythonWrapperGenerator {
             w,
             r"
 class Singleton(type):
-    _instances = {{}}
+    _instances = {{}}  # type: ignore[var-annotated]
     _lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
@@ -278,13 +271,17 @@ class NativeMethods(metaclass=Singleton):
         )?;
 
         for f in functions {
+            let mut args = f.to_python_def_arg()?;
+            for e in defined_enum.iter() {
+                args = args.replace(&e.name, &CtypesType::try_from(e.ty.clone())?.0);
+            }
             writeln!(
                 w,
                 r"
         self.dll.{}.argtypes = [{}]
         self.dll.{0}.restype = {}",
                 f.name,
-                f.to_python_def_arg()?,
+                args,
                 f.to_python_def_return()?
             )?;
         }
@@ -338,6 +335,7 @@ fn main() -> Result<()> {
             "pyautd3.native_methods.structs".to_string(),
         ),
     ];
+    let mut defined_enum = vec![];
 
     PythonWrapperGenerator {
         ignore_items: vec![
@@ -354,15 +352,16 @@ fn main() -> Result<()> {
             "FirmwareVersionType",
         ],
     }
-    .gen(&home, &mut defined)?;
+    .gen(&home, &mut defined, &mut defined_enum)?;
 
     PythonWrapperGenerator {
         ignore_items: vec![],
     }
     .gen_capi(
         &home,
-        &format!("{}/capi/autd3capi-driver/Cargo.toml", home),
+        format!("{}/capi/autd3capi-driver/Cargo.toml", home),
         &mut defined,
+        &mut defined_enum,
     )?;
 
     for entry in glob(&format!("{}/capi/*/Cargo.toml", home))? {
@@ -381,7 +380,7 @@ fn main() -> Result<()> {
                 "AUTDDeleteNalgebraBackendT4010A1",
             ],
         }
-        .gen_capi(&home, &entry, &mut defined)?;
+        .gen_capi(&home, &entry, &mut defined, &mut defined_enum)?;
     }
 
     PythonWrapperGenerator {
@@ -389,8 +388,9 @@ fn main() -> Result<()> {
     }
     .gen_capi(
         &home,
-        &format!("{}/capi-emulator/Cargo.toml", home),
+        format!("{}/capi-emulator/Cargo.toml", home),
         &mut defined,
+        &mut defined_enum,
     )?;
 
     Ok(())

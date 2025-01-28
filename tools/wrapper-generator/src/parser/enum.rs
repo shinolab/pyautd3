@@ -1,9 +1,10 @@
 use syn::MetaList;
 use syn::__private::ToTokens;
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct Enum {
     pub name: String,
+    pub ty: syn::Type,
     pub variants: Vec<(String, String)>,
 }
 
@@ -17,7 +18,7 @@ pub fn parse_enum(item: &syn::Item) -> Option<Enum> {
     {
         let name = ident.to_string();
 
-        let ty = attrs.into_iter().find_map(|attr| {
+        let ty = attrs.iter().find_map(|attr| {
             if attr.path().is_ident("repr") {
                 match attr.meta.clone() {
                     syn::Meta::List(MetaList { tokens, .. }) => Some(tokens.to_string()),
@@ -32,6 +33,9 @@ pub fn parse_enum(item: &syn::Item) -> Option<Enum> {
             tracing::info!("Skip enum {} because it has no repr attribute", name);
             return None;
         };
+
+        let ty = ty.unwrap();
+        let ty: syn::Type = syn::parse_str(&ty).unwrap();
 
         let variants_ = variants
             .iter()
@@ -50,6 +54,7 @@ pub fn parse_enum(item: &syn::Item) -> Option<Enum> {
         }
         Some(Enum {
             name,
+            ty,
             variants: variants_,
         })
     } else {

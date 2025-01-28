@@ -1,13 +1,12 @@
-import csv
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, Segment, kHz
+from pyautd3 import Controller, Segment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.modulation.audio_file import Csv
-from pyautd3.modulation.resample import SincInterpolation
+from pyautd3.modulation.audio_file.csv_ import CsvOption
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -17,7 +16,7 @@ if TYPE_CHECKING:
 def test_csv():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send(Csv(Path(__file__).parent / "sin150.csv", 4000 * Hz).with_deliminator(","))
+        autd.send(Csv(path=Path(__file__).parent / "sin150.csv", sampling_config=4000 * Hz, option=CsvOption()))
 
         for dev in autd.geometry:
             mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
@@ -106,24 +105,6 @@ def test_csv():
             assert np.array_equal(mod, mod_expect)
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
 
-        autd.send(Csv(Path(__file__).parent / "sin150.csv", 2000 * Hz))
+        autd.send(Csv(path=Path(__file__).parent / "sin150.csv", sampling_config=2000 * Hz, option=CsvOption()))
         for dev in autd.geometry:
             assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 20
-
-
-def test_csv_with_resample():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        expect = [127, 217, 255, 217, 127, 37, 0, 37]
-        buf = [127, 255, 127, 0]
-
-        with Path.open(Path(__file__).parent / "custom.csv", "w") as f:
-            writer = csv.writer(f)
-            writer.writerow(buf)
-
-        autd.send(Csv.new_with_resample(Path(__file__).parent / "custom.csv", 2.0 * kHz, 4 * kHz, SincInterpolation()))
-
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
-            assert np.array_equal(expect, mod)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10

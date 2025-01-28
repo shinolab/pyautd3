@@ -10,9 +10,11 @@ from pyautd3 import (
 )
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.datagram.segment import SwapSegment
+from pyautd3.driver.datagram.stm.gain import GainSTMOption
+from pyautd3.driver.datagram.with_segment import WithSegment
 from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
-from pyautd3.native_methods.autd3_core import Segment
+from pyautd3.native_methods.autd3 import Segment
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -56,7 +58,13 @@ def test_fpga_state():
         assert infos[1].current_mod_segment == Segment.S1
         assert infos[1].current_stm_segment is None
 
-        autd.send(GainSTM(1.0 * Hz, [Null(), Null()]).with_segment(Segment.S0, TransitionMode.Immediate))
+        autd.send(
+            WithSegment(
+                inner=GainSTM(gains=[Null(), Null()], config=1.0 * Hz, option=GainSTMOption()),
+                segment=Segment.S0,
+                transition_mode=TransitionMode.Immediate,
+            ),
+        )
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert infos[0].current_gain_segment is None
@@ -65,7 +73,13 @@ def test_fpga_state():
         assert infos[1].current_gain_segment is None
         assert infos[1].current_stm_segment == Segment.S0
 
-        autd.send(GainSTM(1.0 * Hz, [Null(), Null()]).with_segment(Segment.S1, TransitionMode.Immediate))
+        autd.send(
+            WithSegment(
+                inner=GainSTM(gains=[Null(), Null()], config=1.0 * Hz, option=GainSTMOption()),
+                segment=Segment.S1,
+                transition_mode=TransitionMode.Immediate,
+            ),
+        )
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert infos[0].current_gain_segment is None

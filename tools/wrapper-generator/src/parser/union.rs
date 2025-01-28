@@ -14,9 +14,9 @@ pub fn parse_union(item: &syn::Item) -> Option<Union> {
             fields: fields
                 .named
                 .iter()
-                .filter_map(|field| {
+                .map(|field| {
                     let name = field.ident.clone().unwrap().to_string();
-                    Some((name, field.ty.clone()))
+                    (name, field.ty.clone())
                 })
                 .collect::<Vec<_>>(),
         })

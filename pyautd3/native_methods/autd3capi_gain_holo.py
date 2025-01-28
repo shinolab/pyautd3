@@ -23,11 +23,32 @@ class EmissionConstraintValue(ctypes.Union):
     _fields_ = [("null", EmitIntensity), ("uniform", EmitIntensity), ("multiply", ctypes.c_float), ("clamp", EmitIntensity * 2)]
 
 
+class BackendPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, BackendPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class EmissionConstraintWrap(ctypes.Structure):
-    _fields_ = [("tag", EmissionConstraintTag), ("value", EmissionConstraintValue)]
+    _fields_ = [("tag", ctypes.c_uint8), ("value", EmissionConstraintValue)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, EmissionConstraintWrap) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GSOption(ctypes.Structure):
+    _fields_ = [("constraint", EmissionConstraintWrap), ("repeat", ctypes.c_uint32)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GSOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GreedyOption(ctypes.Structure):
+    _fields_ = [("constraint", EmissionConstraintWrap), ("phase_div", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GreedyOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class GSPATOption(ctypes.Structure):
@@ -35,13 +56,6 @@ class GSPATOption(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, GSPATOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class BackendPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, BackendPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class LMOption(ctypes.Structure):
@@ -66,22 +80,8 @@ class NaiveOption(ctypes.Structure):
         return isinstance(other, NaiveOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class GreedyOption(ctypes.Structure):
-    _fields_ = [("constraint", EmissionConstraintWrap), ("phase_div", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GreedyOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GSOption(ctypes.Structure):
-    _fields_ = [("constraint", EmissionConstraintWrap), ("repeat", ctypes.c_uint32)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GSOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class Singleton(type):
-    _instances = {}
+    _instances = {}  # type: ignore[var-annotated]
     _lock = threading.Lock()
 
     def __call__(cls, *args, **kwargs):
@@ -169,7 +169,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainGreedyIsDefault(option)
 
     def gain_holo_gs_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GSOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: GSOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloGSSphere(backend, points, amps, size, option)
 
@@ -177,7 +182,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainGSIsDefault(option)
 
     def gain_holo_gspat_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GSPATOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: GSPATOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloGSPATSphere(backend, points, amps, size, option)
 
@@ -191,7 +201,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainHoloPascalToSPL(value)
 
     def gain_holo_lm_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: LMOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: LMOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloLMSphere(backend, points, amps, size, option)
 
@@ -199,7 +214,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainLMIsDefault(option)
 
     def gain_holo_naive_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: NaiveOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: NaiveOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloNaiveSphere(backend, points, amps, size, option)
 

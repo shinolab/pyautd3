@@ -1,4 +1,4 @@
-from pyautd3.link.twincat import RemoteTwinCAT, TwinCAT
+from pyautd3.link.twincat import RemoteTwinCAT, RemoteTwinCATOption, TwinCAT
 
 
 def test_twincat():
@@ -6,4 +6,7 @@ def test_twincat():
 
 
 def test_remote_twincat():
-    _ = RemoteTwinCAT.builder("xxx.xxx.xxx.xxx.xxx.xxx").with_server_ip("127.0.0.1").with_client_ams_net_id("127.0.0.1")
+    _ = RemoteTwinCAT.builder(
+        server_ams_net_id="xxx.xxx.xxx.xxx.xxx.xxx",
+        option=RemoteTwinCATOption(server_ip="127.0.0.1", client_ams_net_id="127.0.0.1"),
+    )

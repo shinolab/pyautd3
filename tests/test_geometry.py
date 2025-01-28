@@ -29,7 +29,7 @@ def test_angle_ctr():
 
 def test_with_rotation_xyz():
     def open_with_rotation(q: np.ndarray) -> Controller[Audit]:
-        return Controller.builder([AUTD3([0.0, 0.0, 0.0]).with_rotation(q)]).open(Audit.builder())
+        return Controller.open([AUTD3(pos=[0.0, 0.0, 0.0], rot=q)], Audit.builder())
 
     with open_with_rotation(EulerAngles.XYZ(90 * deg, 0 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0].x_direction, [1.0, 0.0, 0.0])
@@ -59,7 +59,7 @@ def test_with_rotation_xyz():
 
 def test_with_rotation_zyz():
     def open_with_rotation(q: np.ndarray) -> Controller[Audit]:
-        return Controller.builder([AUTD3([0.0, 0.0, 0.0]).with_rotation(q)]).open(Audit.builder())
+        return Controller.open([AUTD3(pos=[0.0, 0.0, 0.0], rot=q)], Audit.builder())
 
     with open_with_rotation(EulerAngles.ZYZ(90 * deg, 0 * deg, 0 * deg)) as autd:
         assert np.allclose(autd.geometry[0].x_direction, [0.0, 1.0, 0.0])

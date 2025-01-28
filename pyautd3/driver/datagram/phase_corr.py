@@ -3,7 +3,6 @@ from ctypes import CFUNCTYPE, c_uint8, c_uint16, c_void_p
 from threading import Lock
 from typing import Self
 
-from pyautd3.derive import datagram
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry
@@ -13,7 +12,6 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
 
 
-@datagram
 class PhaseCorrection(Datagram):
     _cache: dict[int, Callable[[Transducer], Phase]]
     _lock: Lock

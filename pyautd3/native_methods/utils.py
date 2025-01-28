@@ -1,7 +1,5 @@
-import ctypes
-
 from pyautd3.autd_error import AUTDError
-from pyautd3.native_methods.autd3_core import SamplingConfig
+from pyautd3.native_methods.autd3 import SamplingConfig
 
 from .autd3capi import NativeMethods as Base
 from .autd3capi_driver import AUTDStatus, ResultSamplingConfig, ResultStatus
@@ -13,7 +11,7 @@ def _to_null_terminated_utf8(s: str) -> bytes:
 
 def _validate_status(res: ResultStatus) -> int:
     if int(res.result) == AUTDStatus.AUTDErr:
-        err = ctypes.create_string_buffer(int(res.err_len))
+        err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return int(res.result)
@@ -21,15 +19,15 @@ def _validate_status(res: ResultStatus) -> int:
 
 def _validate_sampling_config(res: ResultSamplingConfig) -> SamplingConfig:
     if int(res.err_len) != 0:
-        err = ctypes.create_string_buffer(int(res.err_len))
+        err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return res.result
 
 
 def _validate_ptr(res):
-    if res.result._0 is None:
-        err = ctypes.create_string_buffer(int(res.err_len))
+    if res.result.value is None:
+        err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)
         raise AUTDError(err)
     return res.result

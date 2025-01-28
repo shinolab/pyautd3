@@ -9,7 +9,8 @@ from pyautd3 import (
     DebugType,
 )
 from pyautd3.driver.geometry.device import Device
-from pyautd3.native_methods.autd3capi_driver import DebugTypeWrap, GPIOOut
+from pyautd3.native_methods.autd3 import GPIOOut
+from pyautd3.native_methods.autd3capi_driver import DebugTypeWrap
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:

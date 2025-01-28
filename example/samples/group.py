@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyautd3 import Controller, Device, Focus, Group, Hz, Null, Silencer, Sine, Static
+from pyautd3 import Controller, Device, Focus, FocusOption, Group, Hz, Null, Silencer, Sine, SineOption, Static
 
 
 def group_by_device(autd: Controller) -> None:
@@ -18,7 +18,7 @@ def group_by_device(autd: Controller) -> None:
 
     autd.group(grouping).set("null", (Static(), Null())).set(
         "focus",
-        (Sine(150 * Hz), Focus(autd.center + np.array([0.0, 0.0, 150.0]))),
+        (Sine(freq=150 * Hz, option=SineOption()), Focus(pos=autd.center + np.array([0.0, 0.0, 150.0]), option=FocusOption())),
     ).send()
 
 
@@ -27,11 +27,11 @@ def group_by_transducer(autd: Controller) -> None:
     autd.send(config)
 
     cx = autd.center[0]
-    g1 = Focus(autd.center + np.array([0, 0, 150]))
+    g1 = Focus(pos=autd.center + np.array([0, 0, 150]), option=FocusOption())
     g2 = Null()
 
     g = Group(lambda _: lambda tr: "focus" if tr.position[0] < cx else "null").set("focus", g1).set("null", g2)
 
-    m = Sine(150 * Hz)
+    m = Sine(freq=150 * Hz, option=SineOption())
 
     autd.send((m, g))

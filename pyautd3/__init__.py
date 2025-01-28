@@ -12,7 +12,7 @@ from .driver.datagram import (
     FociSTM,
     ForceFan,
     GainSTM,
-    GainSTMMode,
+    GainSTMOption,
     PhaseCorrection,
     PulseWidthEncoder,
     ReadsFPGAState,
@@ -34,12 +34,11 @@ from .driver.defined import Hz, deg, kHz, rad
 from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, SamplingConfig, TransitionMode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
 from .ethercat import DcSysTime
-from .gain import Bessel, Focus, Group, Null, Plane, Uniform
+from .gain import Bessel, BesselOption, Focus, FocusOption, Group, Null, Plane, PlaneOption, Uniform
 from .link.nop import Nop
-from .modulation import Sine, Square, Static
-from .native_methods.autd3_core import GPIOIn, GPIOOut, Segment
+from .modulation import Sine, SineOption, Square, SquareOption, Static
+from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, Segment, SilencerTarget
 from .native_methods.autd3capi import NativeMethods as Base
-from .native_methods.autd3capi_driver import SilencerTarget
 from .native_methods.autd3capi_emulator import NativeMethods as Emulator
 from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
@@ -66,6 +65,7 @@ def tracing_init() -> None:
 __all__ = [
     "AUTD3",
     "Bessel",
+    "BesselOption",
     "Clear",
     "ControlPoint",
     "ControlPoints1",
@@ -90,11 +90,13 @@ __all__ = [
     "FixedUpdateRate",
     "FociSTM",
     "Focus",
+    "FocusOption",
     "ForceFan",
     "GPIOIn",
     "GPIOOut",
     "GainSTM",
     "GainSTMMode",
+    "GainSTMOption",
     "Geometry",
     "Group",
     "Hz",
@@ -104,6 +106,7 @@ __all__ = [
     "Phase",
     "PhaseCorrection",
     "Plane",
+    "PlaneOption",
     "PulseWidthEncoder",
     "ReadsFPGAState",
     "SamplingConfig",
@@ -112,7 +115,9 @@ __all__ = [
     "Silencer",
     "SilencerTarget",
     "Sine",
+    "SineOption",
     "Square",
+    "SquareOption",
     "Static",
     "SwapSegment",
     "Transducer",
@@ -125,4 +130,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "29.0.0rc16"
+__version__ = "29.0.0rc17"

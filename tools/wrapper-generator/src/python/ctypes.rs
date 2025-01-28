@@ -40,6 +40,7 @@ impl TryFrom<syn::Type> for CtypesType {
                         "NonZeroU32" => "ctypes.c_uint32",
                         "NonZeroU64" => "ctypes.c_uint64",
                         "libc :: c_void" => "void",
+                        "ConstPtr" => "ctypes.c_void_p",
                         v => v,
                     }
                     .to_owned(),

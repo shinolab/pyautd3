@@ -3,25 +3,17 @@ import pytest
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.autd_error import AUTDError
-from pyautd3.controller.timer import SpinSleeper, TimerStrategy
 from pyautd3.driver.datagram.silencer import FixedCompletionTime, Silencer
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.emulator import Emulator, InstantRecordOption, RangeXYZ, Recorder, RmsRecordOption
 from pyautd3.gain import Uniform
+from pyautd3.native_methods.autd3 import SilencerTarget
 from pyautd3.utils import Duration
 
 
 def create_emulator() -> Emulator:
-    return (
-        Controller.builder([AUTD3([0.0, 0.0, 0.0]), AUTD3([0.0, 0.0, 0.0])])
-        .with_send_interval(Duration.from_millis(1))
-        .with_receive_interval(Duration.from_millis(1))
-        .with_default_parallel_threshold(4)
-        .with_default_timeout(Duration.from_millis(20))
-        .with_timer_strategy(TimerStrategy.Spin(SpinSleeper()))
-        .into_emulator()
-    )
+    return Emulator([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0]), AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])])
 
 
 def test_transducer_table():
@@ -41,8 +33,13 @@ def test_record_phase():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Silencer(FixedCompletionTime(intensity=Duration.from_micros(50), phase=Duration.from_micros(50))))
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(
+                Silencer(
+                    config=FixedCompletionTime(intensity=Duration.from_micros(50), phase=Duration.from_micros(50)),
+                    target=SilencerTarget.Intensity,
+                ),
+            )
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             autd.tick(Duration.from_micros(50))
 
         record = emulator.record(f)
@@ -58,8 +55,13 @@ def test_record_pulse_width():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Silencer(FixedCompletionTime(intensity=Duration.from_micros(50), phase=Duration.from_micros(50))))
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(
+                Silencer(
+                    config=FixedCompletionTime(intensity=Duration.from_micros(50), phase=Duration.from_micros(50)),
+                    target=SilencerTarget.Intensity,
+                ),
+            )
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             autd.tick(Duration.from_micros(50))
 
         record = emulator.record(f)
@@ -75,7 +77,7 @@ def test_record_output_voltage():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             autd.tick(Duration.from_micros(25))
 
         record = emulator.record(f)
@@ -351,7 +353,7 @@ def test_record_output_ultrasound():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             autd.tick(Duration.from_micros(25))
 
         record = emulator.record(f)
@@ -624,10 +626,10 @@ def test_record_output_ultrasound():
 
 
 def test_sound_field_instant():
-    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+    with Emulator([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])]) as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             autd.tick(Duration.from_micros(25 * 10))
 
         record = emulator.record(f)
@@ -690,10 +692,10 @@ def test_sound_field_instant():
 
 
 def test_sound_field_rms():
-    with Controller.builder([AUTD3([0.0, 0.0, 0.0])]).into_emulator() as emulator:
+    with Emulator([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])]) as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             autd.tick(Duration.from_micros(25 * 10))
 
         record = emulator.record(f)
@@ -728,7 +730,7 @@ def test_record_invalid_tick():
     with create_emulator() as emulator:
 
         def f(autd: Controller[Recorder]) -> None:
-            autd.send(Uniform((EmitIntensity(0xFF), Phase(0x40))))
+            autd.send(Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x40)))
             with pytest.raises(AUTDError) as e:
                 autd.tick(Duration.from_micros(1))
             assert str(e.value) == "Tick must be multiple of 25µs"
