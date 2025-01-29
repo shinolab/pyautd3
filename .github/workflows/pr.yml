@@ -21,6 +21,7 @@ jobs:
         with:
           files_yaml: |
             src:
+              - pyproject.toml
               - setup.cfg.template
               - MANIFEST.in
               - '**/*.py'
