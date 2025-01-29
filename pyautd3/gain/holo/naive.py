@@ -29,7 +29,7 @@ class NaiveOption:
 class Naive(HoloWithBackend["Naive"]):
     option: NaiveOption
 
-    def __init__(self: Self, *, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: NaiveOption) -> None:
+    def __init__(self: Self, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: NaiveOption) -> None:
         super().__init__(foci, backend)
         self.option = option
 

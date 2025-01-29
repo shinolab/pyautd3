@@ -9,5 +9,5 @@ if __name__ == "__main__":
 
     tracing_init()
 
-    with Controller.open([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])], Nop.builder()) as autd:
+    with Controller.open([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])], Nop()) as autd:
         runner.run(autd)

@@ -16,7 +16,7 @@ class Custom(Modulation):
     buffer: np.ndarray
     config: SamplingConfig | Freq[int] | Freq[float] | Duration
 
-    def __init__(self: Self, *, buffer: Iterable[int], sampling_config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> None:
+    def __init__(self: Self, buffer: Iterable[int], sampling_config: SamplingConfig | Freq[int] | Freq[float] | Duration) -> None:
         super().__init__()
         self.buffer = np.fromiter(buffer, dtype=np.uint8)
         self.config = sampling_config

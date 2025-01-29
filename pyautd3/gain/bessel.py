@@ -32,7 +32,7 @@ class Bessel(Gain):
     theta: Angle
     option: BesselOption
 
-    def __init__(self: Self, *, pos: ArrayLike, direction: ArrayLike, theta: Angle, option: BesselOption) -> None:
+    def __init__(self: Self, pos: ArrayLike, direction: ArrayLike, theta: Angle, option: BesselOption) -> None:
         super().__init__()
         self.pos = np.array(pos)
         self.direction = np.array(direction)

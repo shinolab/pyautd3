@@ -12,7 +12,7 @@ class Uniform(Gain):
     intensity: EmitIntensity
     phase: Phase
 
-    def __init__(self: Self, *, intensity: EmitIntensity, phase: Phase) -> None:
+    def __init__(self: Self, intensity: EmitIntensity, phase: Phase) -> None:
         super().__init__()
         self.intensity = intensity
         self.phase = phase

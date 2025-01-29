@@ -29,7 +29,7 @@ class Focus(Gain):
     pos: np.ndarray
     option: FocusOption
 
-    def __init__(self: Self, *, pos: ArrayLike, option: FocusOption) -> None:
+    def __init__(self: Self, pos: ArrayLike, option: FocusOption) -> None:
         super().__init__()
         self.pos = np.array(pos)
         self.option = option

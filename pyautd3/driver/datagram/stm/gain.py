@@ -52,7 +52,6 @@ class GainSTM(DatagramS[GainSTMPtr], DatagramL[GainSTMPtr], Datagram):
 
     def __init__(
         self: Self,
-        *,
         gains: Iterable[Gain],
         config: SamplingConfig | Freq[float] | Duration,
         option: GainSTMOption,

@@ -37,27 +37,6 @@ class EmissionConstraintWrap(ctypes.Structure):
         return isinstance(other, EmissionConstraintWrap) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class GSOption(ctypes.Structure):
-    _fields_ = [("constraint", EmissionConstraintWrap), ("repeat", ctypes.c_uint32)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GSOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GreedyOption(ctypes.Structure):
-    _fields_ = [("constraint", EmissionConstraintWrap), ("phase_div", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GreedyOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GSPATOption(ctypes.Structure):
-    _fields_ = [("constraint", EmissionConstraintWrap), ("repeat", ctypes.c_uint32)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GSPATOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class LMOption(ctypes.Structure):
     _fields_ = [
         ("constraint", EmissionConstraintWrap),
@@ -78,6 +57,27 @@ class NaiveOption(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, NaiveOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GSPATOption(ctypes.Structure):
+    _fields_ = [("constraint", EmissionConstraintWrap), ("repeat", ctypes.c_uint32)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GSPATOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GreedyOption(ctypes.Structure):
+    _fields_ = [("constraint", EmissionConstraintWrap), ("phase_div", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GreedyOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GSOption(ctypes.Structure):
+    _fields_ = [("constraint", EmissionConstraintWrap), ("repeat", ctypes.c_uint32)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GSOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class Singleton(type):

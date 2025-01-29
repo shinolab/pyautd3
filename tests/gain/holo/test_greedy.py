@@ -9,7 +9,7 @@ from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as Holo
 
 def test_greedy():
     autd: Controller[Audit]
-    with Controller[Audit].open([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])], Audit.builder()) as autd:
+    with Controller[Audit].open([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])], Audit()) as autd:
         autd.send(
             Greedy(
                 foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),

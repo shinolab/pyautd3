@@ -1,6 +1,7 @@
 import platform
 from typing import Self
 
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import SleeperTag, SleeperWrap
 from pyautd3.native_methods.autd3capi_driver import SpinStrategyTag as SpinStrategy
 from pyautd3.utils import Duration
@@ -24,8 +25,7 @@ class SpinSleeper:
         self: Self,
         native_accuracy: Duration | None = None,
     ) -> None:
-        # TODO: replace with int(Base().spin_sleep_default_accuracy())
-        self.native_accuracy = native_accuracy or Duration.from_nanos(700000)
+        self.native_accuracy = native_accuracy or Duration.from_nanos(int(Base().spin_sleep_default_accuracy()))
         self.spin_strategy = SpinStrategy.SpinLoopHint if platform.system() == "Windows" else SpinStrategy.YieldThread
 
     def with_spin_strategy(self: Self, spin_strategy: SpinStrategy) -> Self:

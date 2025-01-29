@@ -10,7 +10,7 @@ M = TypeVar("M", bound=Modulation)
 class RadiationPressure(Modulation, Generic[M]):
     target: M
 
-    def __init__(self: Self, *, target: M) -> None:
+    def __init__(self: Self, target: M) -> None:
         self.target = target
 
     def _modulation_ptr(self: Self) -> ModulationPtr:

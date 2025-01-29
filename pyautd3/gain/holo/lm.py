@@ -50,7 +50,7 @@ class LMOption:
 class LM(HoloWithBackend["LM"]):
     option: LMOption
 
-    def __init__(self: Self, *, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: LMOption) -> None:
+    def __init__(self: Self, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: LMOption) -> None:
         super().__init__(foci, backend)
         self.option = option or LMOption()
 

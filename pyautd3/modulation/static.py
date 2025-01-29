@@ -9,7 +9,7 @@ from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 class Static(Modulation):
     intensity: int
 
-    def __init__(self: Self, *, intensity: int = 0xFF) -> None:
+    def __init__(self: Self, intensity: int = 0xFF) -> None:
         super().__init__()
         self.intensity = _validate_u8(intensity)
 

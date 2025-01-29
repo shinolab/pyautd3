@@ -56,7 +56,7 @@ class Sine(Modulation, Generic[T]):
     freq: Freq[T]
     option: SineOption
 
-    def __init__(self: Self, *, freq: Freq[T], option: SineOption) -> None:
+    def __init__(self: Self, freq: Freq[T], option: SineOption) -> None:
         super().__init__()
         match freq.hz:
             case int():

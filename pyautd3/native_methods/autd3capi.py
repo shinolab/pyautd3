@@ -31,7 +31,6 @@ from pyautd3.native_methods.autd3capi_driver import (
     GainPtr,
     GainSTMPtr,
     GeometryPtr,
-    LinkBuilderPtr,
     LinkPtr,
     LoopBehavior,
     ModulationPtr,
@@ -47,11 +46,18 @@ from pyautd3.native_methods.autd3capi_driver import (
 from pyautd3.native_methods.structs import Point3, Quaternion, Vector3
 
 
-class FourierOption(ctypes.Structure):
-    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
+class ModulationCachePtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FPGAStateListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class FixedCompletionTime(ctypes.Structure):
@@ -59,6 +65,20 @@ class FixedCompletionTime(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultController(ctypes.Structure):
+    _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FourierOption(ctypes.Structure):
+    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class GainCachePtr(ctypes.Structure):
@@ -81,27 +101,6 @@ class SenderOption(ctypes.Structure):
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class FPGAStateListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FirmwareVersionListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ModulationCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class ResultFPGAStateList(ctypes.Structure):
     _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
@@ -116,11 +115,11 @@ class GroupGainMapPtr(ctypes.Structure):
         return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultController(ctypes.Structure):
-    _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class FirmwareVersionListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ResultFirmwareVersionList(ctypes.Structure):
@@ -157,7 +156,7 @@ class NativeMethods(metaclass=Singleton):
         ]
         self.dll.AUTDControllerGroup.restype = ResultStatus
 
-        self.dll.AUTDControllerOpen.argtypes = [ctypes.POINTER(Point3), ctypes.POINTER(Quaternion), ctypes.c_uint16, LinkBuilderPtr, SenderOption]
+        self.dll.AUTDControllerOpen.argtypes = [ctypes.POINTER(Point3), ctypes.POINTER(Quaternion), ctypes.c_uint16, LinkPtr, SenderOption]
         self.dll.AUTDControllerOpen.restype = ResultController
 
         self.dll.AUTDControllerClose.argtypes = [ControllerPtr]
@@ -189,6 +188,12 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDSenderSend.argtypes = [SenderPtr, DatagramPtr]
         self.dll.AUTDSenderSend.restype = ResultStatus
+
+        self.dll.AUTDSpinSleepDefaultAccuracy.argtypes = []
+        self.dll.AUTDSpinSleepDefaultAccuracy.restype = ctypes.c_uint32
+
+        self.dll.AUTDSenderOptionIsDefault.argtypes = [SenderOption]
+        self.dll.AUTDSenderOptionIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDDatagramClear.argtypes = []
         self.dll.AUTDDatagramClear.restype = DatagramPtr
@@ -269,10 +274,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSTMConfigFromPeriod.restype = ResultSamplingConfig
 
         self.dll.AUTDSTMConfigFromFreqNearest.argtypes = [ctypes.c_float, ctypes.c_uint16]
-        self.dll.AUTDSTMConfigFromFreqNearest.restype = ResultSamplingConfig
+        self.dll.AUTDSTMConfigFromFreqNearest.restype = SamplingConfig
 
         self.dll.AUTDSTMConfigFromPeriodNearest.argtypes = [Duration, ctypes.c_uint16]
-        self.dll.AUTDSTMConfigFromPeriodNearest.restype = ResultSamplingConfig
+        self.dll.AUTDSTMConfigFromPeriodNearest.restype = SamplingConfig
 
         self.dll.AUTDDatagramSynchronize.argtypes = []
         self.dll.AUTDDatagramSynchronize.restype = DatagramPtr
@@ -516,7 +521,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDLinkAudit.argtypes = []
-        self.dll.AUTDLinkAudit.restype = LinkBuilderPtr
+        self.dll.AUTDLinkAudit.restype = LinkPtr
 
         self.dll.AUTDLinkAuditIsOpen.argtypes = [LinkPtr]
         self.dll.AUTDLinkAuditIsOpen.restype = ctypes.c_bool
@@ -621,7 +626,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkGet.restype = LinkPtr
 
         self.dll.AUTDLinkNop.argtypes = []
-        self.dll.AUTDLinkNop.restype = LinkBuilderPtr
+        self.dll.AUTDLinkNop.restype = LinkPtr
 
         self.dll.AUTDModulationCache.argtypes = [ModulationPtr]
         self.dll.AUTDModulationCache.restype = ModulationCachePtr
@@ -717,10 +722,10 @@ class NativeMethods(metaclass=Singleton):
         pos: ctypes.Array[Point3],
         rot: ctypes.Array[Quaternion],
         len_: int,
-        link_builder: LinkBuilderPtr,
+        link: LinkPtr,
         option: SenderOption,
     ) -> ResultController:
-        return self.dll.AUTDControllerOpen(pos, rot, len_, link_builder, option)
+        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option)
 
     def controller_close(self, cnt: ControllerPtr) -> ResultStatus:
         return self.dll.AUTDControllerClose(cnt)
@@ -751,6 +756,12 @@ class NativeMethods(metaclass=Singleton):
 
     def sender_send(self, sender: SenderPtr, d: DatagramPtr) -> ResultStatus:
         return self.dll.AUTDSenderSend(sender, d)
+
+    def spin_sleep_default_accuracy(self) -> ctypes.c_uint32:
+        return self.dll.AUTDSpinSleepDefaultAccuracy()
+
+    def sender_option_is_default(self, option: SenderOption) -> ctypes.c_bool:
+        return self.dll.AUTDSenderOptionIsDefault(option)
 
     def datagram_clear(self) -> DatagramPtr:
         return self.dll.AUTDDatagramClear()
@@ -843,10 +854,10 @@ class NativeMethods(metaclass=Singleton):
     def stm_config_from_period(self, p: Duration, n: int) -> ResultSamplingConfig:
         return self.dll.AUTDSTMConfigFromPeriod(p, n)
 
-    def stm_config_from_freq_nearest(self, f: float, n: int) -> ResultSamplingConfig:
+    def stm_config_from_freq_nearest(self, f: float, n: int) -> SamplingConfig:
         return self.dll.AUTDSTMConfigFromFreqNearest(f, n)
 
-    def stm_config_from_period_nearest(self, p: Duration, n: int) -> ResultSamplingConfig:
+    def stm_config_from_period_nearest(self, p: Duration, n: int) -> SamplingConfig:
         return self.dll.AUTDSTMConfigFromPeriodNearest(p, n)
 
     def datagram_synchronize(self) -> DatagramPtr:
@@ -1083,7 +1094,7 @@ class NativeMethods(metaclass=Singleton):
     def tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDTracingInitWithFile(path)
 
-    def link_audit(self) -> LinkBuilderPtr:
+    def link_audit(self) -> LinkPtr:
         return self.dll.AUTDLinkAudit()
 
     def link_audit_is_open(self, audit: LinkPtr) -> ctypes.c_bool:
@@ -1182,7 +1193,7 @@ class NativeMethods(metaclass=Singleton):
     def link_get(self, cnt: ControllerPtr) -> LinkPtr:
         return self.dll.AUTDLinkGet(cnt)
 
-    def link_nop(self) -> LinkBuilderPtr:
+    def link_nop(self) -> LinkPtr:
         return self.dll.AUTDLinkNop()
 
     def modulation_cache(self, m: ModulationPtr) -> ModulationCachePtr:

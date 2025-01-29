@@ -51,7 +51,7 @@ class Square(Modulation, Generic[T]):
     freq: Freq[T]
     option: SquareOption
 
-    def __init__(self: Self, *, freq: Freq[T], option: SquareOption) -> None:
+    def __init__(self: Self, freq: Freq[T], option: SquareOption) -> None:
         super().__init__()
         match freq.hz:
             case int():

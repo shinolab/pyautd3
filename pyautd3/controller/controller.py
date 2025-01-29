@@ -12,7 +12,7 @@ from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.driver.geometry import Device, Geometry
-from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3 import ParallelMode
 from pyautd3.native_methods.autd3capi import ControllerPtr, SenderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -162,6 +162,7 @@ class Controller(Geometry, Generic[L]):
         super().__init__(geometry)
         self._ptr = ptr
         self._link = link
+        self._link._ptr = Base().link_get(self._ptr)
         self._disposed = False
 
     @property
@@ -190,25 +191,25 @@ class Controller(Geometry, Generic[L]):
         return self  # type: ignore[return-value]
 
     @staticmethod
-    def open(devices: Iterable[AUTD3], link_builder: LinkBuilder[L]) -> "Controller[L]":
-        return Controller.open_with_option(devices, link_builder, SenderOption())
+    def open(devices: Iterable[AUTD3], link: L) -> "Controller[L]":
+        return Controller.open_with_option(devices, link, SenderOption())
 
     @staticmethod
-    def open_with_option(devices: Iterable[AUTD3], link_builder: LinkBuilder[L], option: SenderOption) -> "Controller[L]":
+    def open_with_option(devices: Iterable[AUTD3], link: L, option: SenderOption) -> "Controller[L]":
         devices = list(devices)
         pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
         rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+
         ptr = _validate_ptr(
             Base().controller_open(
                 pos.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
                 rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
                 len(devices),
-                link_builder._link_builder_ptr(),
+                link._resolve(),
                 option._inner(),
             ),
         )
         geometry = Base().geometry(ptr)
-        link = link_builder._resolve_link(ptr)
         return Controller(geometry, ptr, link)
 
     def firmware_version(self: Self) -> list[FirmwareInfo]:

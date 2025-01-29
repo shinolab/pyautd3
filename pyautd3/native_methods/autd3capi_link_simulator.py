@@ -2,7 +2,7 @@ import ctypes
 import threading
 from pathlib import Path
 
-from pyautd3.native_methods.autd3capi_driver import ResultLinkBuilder, ResultStatus
+from pyautd3.native_methods.autd3capi_driver import ResultLink, ResultStatus
 
 
 class Singleton(type):
@@ -28,7 +28,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkSimulatorTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDLinkSimulator.argtypes = [ctypes.c_char_p]
-        self.dll.AUTDLinkSimulator.restype = ResultLinkBuilder
+        self.dll.AUTDLinkSimulator.restype = ResultLink
 
     def link_simulator_tracing_init(self) -> None:
         return self.dll.AUTDLinkSimulatorTracingInit()
@@ -36,5 +36,5 @@ class NativeMethods(metaclass=Singleton):
     def link_simulator_tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDLinkSimulatorTracingInitWithFile(path)
 
-    def link_simulator(self, addr: bytes) -> ResultLinkBuilder:
+    def link_simulator(self, addr: bytes) -> ResultLink:
         return self.dll.AUTDLinkSimulator(addr)

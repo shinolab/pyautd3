@@ -19,7 +19,7 @@ class Silencer(
     config: T
     target: SilencerTarget
 
-    def __init__(self: Self, *, config: T | None = None, target: SilencerTarget = SilencerTarget.Intensity) -> None:
+    def __init__(self: Self, config: T | None = None, target: SilencerTarget = SilencerTarget.Intensity) -> None:
         super().__init__()
         self.config = config or FixedCompletionSteps()  # type: ignore[assignment]
         self.target = target

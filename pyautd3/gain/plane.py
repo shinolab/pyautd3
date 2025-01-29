@@ -29,7 +29,7 @@ class Plane(Gain):
     direction: np.ndarray
     option: PlaneOption
 
-    def __init__(self: Self, *, direction: ArrayLike, option: PlaneOption) -> None:
+    def __init__(self: Self, direction: ArrayLike, option: PlaneOption) -> None:
         super().__init__()
         self.direction = np.array(direction)
         self.option = option

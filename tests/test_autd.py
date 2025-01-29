@@ -5,6 +5,7 @@ import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
+from pyautd3.controller.controller import SenderOption
 from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, StdSleeper, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.defined.freq import Hz
@@ -15,18 +16,18 @@ from pyautd3.gain import Null, Uniform
 from pyautd3.link.audit import Audit
 from pyautd3.modulation import Sine, Static
 from pyautd3.modulation.sine import SineOption
+from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 
 def create_controller() -> Controller[Audit]:
     return Controller.open(
         [AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0]), AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])],
-        Audit.builder(),
+        Audit(),
     )
 
 
 def test_sender_is_default():
-    # TODO: do sender check  # noqa: FIX002, TD002, TD003
-    pass
+    assert Base().sender_option_is_default(SenderOption()._inner())
 
 
 def test_sleeper():

@@ -22,7 +22,7 @@ class Csv(Modulation):
     config: SamplingConfig | Freq[int] | Freq[float] | Duration
     option: CsvOption
 
-    def __init__(self: Self, *, path: Path, sampling_config: SamplingConfig | Freq[int] | Freq[float] | Duration, option: CsvOption) -> None:
+    def __init__(self: Self, path: Path, sampling_config: SamplingConfig | Freq[int] | Freq[float] | Duration, option: CsvOption) -> None:
         super().__init__()
         self.path = path
         self.config = sampling_config
