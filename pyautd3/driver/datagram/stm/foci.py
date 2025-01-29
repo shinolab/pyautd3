@@ -98,7 +98,6 @@ class FociSTM(
 
     def __init__(
         self: "FociSTM",
-        *,
         foci: (
             Iterable[ArrayLike]
             | Iterable[ControlPoints1]

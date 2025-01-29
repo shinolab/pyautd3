@@ -19,7 +19,7 @@ class ControlPoint(ctypes.Structure):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, *, point: ArrayLike, phase_offset: Phase | None = None) -> None:
+    def __init__(self: Self, point: ArrayLike, phase_offset: Phase | None = None) -> None:
         super().__init__()
         self._point = Vector3(np.array(point))
         self._offset = (phase_offset or Phase(0)).value
@@ -47,7 +47,7 @@ class ControlPoints1(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, *, points: ArrayLike | ControlPoint, intensity: EmitIntensity | None = None) -> None:
+    def __init__(self: Self, points: ArrayLike | ControlPoint, intensity: EmitIntensity | None = None) -> None:
         super().__init__()
         match points:
             case ControlPoint():
@@ -79,7 +79,6 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,
     ) -> None:
@@ -115,7 +114,6 @@ class ControlPoints3(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,
     ) -> None:
@@ -152,7 +150,6 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,
     ) -> None:
@@ -195,7 +192,6 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,
@@ -241,7 +237,6 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,
@@ -298,7 +293,6 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,
@@ -366,7 +360,6 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
 
     def __init__(
         self: Self,
-        *,
         points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
         | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
         intensity: EmitIntensity | None = None,

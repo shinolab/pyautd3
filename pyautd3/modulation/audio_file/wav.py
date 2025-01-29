@@ -10,7 +10,7 @@ from pyautd3.native_methods.utils import _to_null_terminated_utf8, _validate_ptr
 class Wav(Modulation):
     path: Path
 
-    def __init__(self: Self, *, path: Path) -> None:
+    def __init__(self: Self, path: Path) -> None:
         super().__init__()
         self.path = path
 

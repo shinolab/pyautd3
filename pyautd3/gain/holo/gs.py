@@ -32,7 +32,7 @@ class GSOption:
 class GS(HoloWithBackend["GS"]):
     option: GSOption
 
-    def __init__(self: Self, *, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: GSOption) -> None:
+    def __init__(self: Self, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: GSOption) -> None:
         super().__init__(foci, backend)
         self.option = option
 

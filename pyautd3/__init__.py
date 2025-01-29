@@ -1,7 +1,7 @@
 import contextlib
 from collections.abc import Callable
 
-from .controller import Controller
+from .controller import Controller, SenderOption
 from .driver.autd3_device import AUTD3
 from .driver.datagram import (
     Clear,
@@ -109,6 +109,7 @@ __all__ = [
     "SamplingConfig",
     "SamplingMode",
     "Segment",
+    "SenderOption",
     "Silencer",
     "SilencerTarget",
     "Sine",
@@ -127,4 +128,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "29.0.0rc17"
+__version__ = "29.0.0rc18"

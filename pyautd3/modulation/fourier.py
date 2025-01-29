@@ -41,7 +41,7 @@ class Fourier(Modulation):
     components: list[Sine]
     option: FourierOption
 
-    def __init__(self: Self, *, components: Iterable[Sine], option: FourierOption) -> None:
+    def __init__(self: Self, components: Iterable[Sine], option: FourierOption) -> None:
         super().__init__()
         self.components = list(components)
         self.option = option

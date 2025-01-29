@@ -3,31 +3,21 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.driver.link import Link, LinkBuilder
+from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3 import Drive as Drive_
 from pyautd3.native_methods.autd3 import Segment, SilencerTarget
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import ControllerPtr, LinkBuilderPtr, LinkPtr, LoopBehavior
+from pyautd3.native_methods.autd3capi_driver import LinkPtr, LoopBehavior
 
 __all__ = []  # type: ignore[var-annotated]
 
 
 class Audit(Link):
-    _ptr: LinkPtr
+    def __init__(self: Self) -> None:
+        super().__init__()
 
-    class _Builder(LinkBuilder["Audit"]):
-        def _link_builder_ptr(self: Self) -> LinkBuilderPtr:
-            return LinkAudit().link_audit()
-
-        def _resolve_link(self: Self, ptr: ControllerPtr) -> "Audit":
-            return Audit(LinkAudit().link_get(ptr))
-
-    def __init__(self: Self, ptr: LinkPtr) -> None:
-        super().__init__(ptr)
-
-    @staticmethod
-    def builder() -> _Builder:
-        return Audit._Builder()
+    def _resolve(self: Self) -> LinkPtr:
+        return LinkAudit().link_audit()
 
     def down(self: Self) -> None:
         LinkAudit().link_audit_down(self._ptr)

@@ -32,7 +32,7 @@ class GSPATOption:
 class GSPAT(HoloWithBackend["GSPAT"]):
     option: GSPATOption
 
-    def __init__(self: Self, *, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: GSPATOption) -> None:
+    def __init__(self: Self, backend: Backend, foci: Iterable[tuple[np.ndarray, Amplitude]], option: GSPATOption) -> None:
         super().__init__(foci, backend)
         self.option = option
 

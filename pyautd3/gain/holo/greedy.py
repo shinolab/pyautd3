@@ -32,7 +32,7 @@ class GreedyOption:
 class Greedy(Holo["Greedy"]):
     option: GreedyOption
 
-    def __init__(self: Self, *, foci: Iterable[tuple[np.ndarray, Amplitude]], option: GreedyOption) -> None:
+    def __init__(self: Self, foci: Iterable[tuple[np.ndarray, Amplitude]], option: GreedyOption) -> None:
         super().__init__(foci)
         self.option = option
 

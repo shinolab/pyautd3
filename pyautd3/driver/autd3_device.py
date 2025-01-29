@@ -10,7 +10,7 @@ class AUTD3:
     pos: np.ndarray
     rot: np.ndarray
 
-    def __init__(self: Self, *, pos: ArrayLike, rot: ArrayLike) -> None:
+    def __init__(self: Self, pos: ArrayLike, rot: ArrayLike) -> None:
         self.pos = np.array(pos)
         self.rot = np.array(rot)
 

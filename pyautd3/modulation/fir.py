@@ -15,7 +15,7 @@ class Fir(Modulation, Generic[M]):
     target: M
     coef: np.ndarray
 
-    def __init__(self: Self, *, target: M, coef: Iterable[float]) -> None:
+    def __init__(self: Self, target: M, coef: Iterable[float]) -> None:
         self.target = target
         self.coef = np.fromiter(coef, dtype=ctypes.c_float)
 

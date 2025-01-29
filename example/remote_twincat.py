@@ -6,7 +6,7 @@ from pyautd3.link.twincat import RemoteTwinCAT, RemoteTwinCATOption
 if __name__ == "__main__":
     with Controller.open(
         [AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])],
-        RemoteTwinCAT.builder(
+        RemoteTwinCAT(
             server_ams_net_id="remote ams net id",
             option=RemoteTwinCATOption(
                 server_ip="server ip addr (optional)",

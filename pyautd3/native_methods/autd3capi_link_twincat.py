@@ -2,7 +2,7 @@ import ctypes
 import threading
 from pathlib import Path
 
-from pyautd3.native_methods.autd3capi_driver import LinkBuilderPtr, ResultLinkBuilder, ResultStatus
+from pyautd3.native_methods.autd3capi_driver import ResultLink, ResultStatus
 
 
 class Singleton(type):
@@ -28,10 +28,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkTwinCATTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDLinkTwinCAT.argtypes = []
-        self.dll.AUTDLinkTwinCAT.restype = LinkBuilderPtr
+        self.dll.AUTDLinkTwinCAT.restype = ResultLink
 
         self.dll.AUTDLinkRemoteTwinCAT.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
-        self.dll.AUTDLinkRemoteTwinCAT.restype = ResultLinkBuilder
+        self.dll.AUTDLinkRemoteTwinCAT.restype = ResultLink
 
     def link_twin_cat_tracing_init(self) -> None:
         return self.dll.AUTDLinkTwinCATTracingInit()
@@ -39,8 +39,8 @@ class NativeMethods(metaclass=Singleton):
     def link_twin_cat_tracing_init_with_file(self, path: bytes) -> ResultStatus:
         return self.dll.AUTDLinkTwinCATTracingInitWithFile(path)
 
-    def link_twin_cat(self) -> LinkBuilderPtr:
+    def link_twin_cat(self) -> ResultLink:
         return self.dll.AUTDLinkTwinCAT()
 
-    def link_remote_twin_cat(self, server_ams_net_id: bytes, server_ip: bytes, client_ams_net_id: bytes) -> ResultLinkBuilder:
+    def link_remote_twin_cat(self, server_ams_net_id: bytes, server_ip: bytes, client_ams_net_id: bytes) -> ResultLink:
         return self.dll.AUTDLinkRemoteTwinCAT(server_ams_net_id, server_ip, client_ams_net_id)
