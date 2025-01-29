@@ -383,15 +383,5 @@ fn main() -> Result<()> {
         .gen_capi(&home, &entry, &mut defined, &mut defined_enum)?;
     }
 
-    PythonWrapperGenerator {
-        ignore_items: vec![],
-    }
-    .gen_capi(
-        &home,
-        format!("{}/capi-emulator/Cargo.toml", home),
-        &mut defined,
-        &mut defined_enum,
-    )?;
-
     Ok(())
 }
