@@ -1,7 +1,7 @@
 import ctypes
 from collections.abc import Callable, Iterable
 from types import TracebackType
-from typing import TYPE_CHECKING, Generic, Self, TypeVar
+from typing import Generic, Self, TypeVar
 
 import numpy as np
 
@@ -22,9 +22,6 @@ from pyautd3.native_methods.structs import Point3, Quaternion
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
 from pyautd3.utils.duration import into_option_duration
-
-if TYPE_CHECKING:
-    from pyautd3.emulator import Recorder
 
 K = TypeVar("K")
 L = TypeVar("L", bound=Link)
@@ -259,6 +256,3 @@ class Controller(Geometry, Generic[L]):
 
     def group(self: Self, group_map: Callable[[Device], K | None]) -> _Group:
         return self.sender(SenderOption()).group(group_map)
-
-    def tick(self: "Controller[Recorder]", tick: Duration) -> None:
-        raise NotImplementedError  # pragma: no cover

@@ -6,7 +6,6 @@ import sys
 from pathlib import Path
 
 from .autd3capi import NativeMethods as Base
-from .autd3capi_emulator import NativeMethods as Emulator
 from .autd3capi_gain_holo import NativeMethods as GainHolo
 from .autd3capi_link_simulator import NativeMethods as LinkSimulator
 from .autd3capi_link_twincat import NativeMethods as LinkTwincAT
@@ -38,4 +37,3 @@ if sys.platform == "win32":
         os.add_dll_directory("C:\\TwinCAT\\Common64")
 with contextlib.suppress(Exception):
     LinkTwincAT().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
-Emulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)

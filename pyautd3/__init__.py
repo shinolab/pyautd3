@@ -39,7 +39,6 @@ from .link.nop import Nop
 from .modulation import Sine, SineOption, Square, SquareOption, Static
 from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, Segment, SilencerTarget
 from .native_methods.autd3capi import NativeMethods as Base
-from .native_methods.autd3capi_emulator import NativeMethods as Emulator
 from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
 from .native_methods.autd3capi_modulation_audio_file import NativeMethods as AudioFile
@@ -50,8 +49,6 @@ _ext_tracing_init: list[Callable[[], None]] = []
 
 def tracing_init() -> None:
     Base().tracing_init()
-    with contextlib.suppress(BaseException):
-        Emulator().emulator_tracing_init()
     with contextlib.suppress(BaseException):
         Simulator().link_simulator_tracing_init()
     with contextlib.suppress(BaseException):
