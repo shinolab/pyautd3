@@ -35,7 +35,6 @@ from pyautd3.native_methods.autd3capi_driver import (
     LoopBehavior,
     ModulationPtr,
     OptionDuration,
-    ResultGain,
     ResultSamplingConfig,
     ResultStatus,
     SenderPtr,
@@ -46,18 +45,11 @@ from pyautd3.native_methods.autd3capi_driver import (
 from pyautd3.native_methods.structs import Point3, Quaternion, Vector3
 
 
-class ModulationCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
+class FourierOption(ctypes.Structure):
+    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FPGAStateListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class FixedCompletionTime(ctypes.Structure):
@@ -74,20 +66,6 @@ class ResultController(ctypes.Structure):
         return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class FourierOption(ctypes.Structure):
-    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GainCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class SenderOption(ctypes.Structure):
     _fields_ = [
         ("send_interval", Duration),
@@ -101,11 +79,25 @@ class SenderOption(ctypes.Structure):
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultFPGAStateList(ctypes.Structure):
-    _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class FirmwareVersionListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FPGAStateListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GainCachePtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class GroupGainMapPtr(ctypes.Structure):
@@ -115,11 +107,18 @@ class GroupGainMapPtr(ctypes.Structure):
         return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class FirmwareVersionListPtr(ctypes.Structure):
+class ModulationCachePtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultFPGAStateList(ctypes.Structure):
+    _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ResultFirmwareVersionList(ctypes.Structure):
@@ -412,7 +411,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainGroupMapSet.restype = GroupGainMapPtr
 
         self.dll.AUTDGainGroup.argtypes = [GroupGainMapPtr, ctypes.POINTER(ctypes.c_int32), ctypes.POINTER(GainPtr), ctypes.c_uint32]
-        self.dll.AUTDGainGroup.restype = ResultGain
+        self.dll.AUTDGainGroup.restype = GainPtr
 
         self.dll.AUTDGainIntoDatagramWithSegment.argtypes = [GainPtr, ctypes.c_uint8, TransitionModeWrap]
         self.dll.AUTDGainIntoDatagramWithSegment.restype = DatagramPtr
@@ -992,7 +991,7 @@ class NativeMethods(metaclass=Singleton):
     def gain_group_map_set(self, map_: GroupGainMapPtr, dev_idx: int, map_data: ctypes.Array[ctypes.c_int32]) -> GroupGainMapPtr:
         return self.dll.AUTDGainGroupMapSet(map_, dev_idx, map_data)
 
-    def gain_group(self, map_: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32], values_ptr: ctypes.Array[GainPtr], kv_len: int) -> ResultGain:
+    def gain_group(self, map_: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32], values_ptr: ctypes.Array[GainPtr], kv_len: int) -> GainPtr:
         return self.dll.AUTDGainGroup(map_, keys_ptr, values_ptr, kv_len)
 
     def gain_into_datagram_with_segment(self, gain: GainPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:

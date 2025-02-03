@@ -64,18 +64,32 @@ class SilencerTarget(enum.IntEnum):
         return int(obj)  # pragma: no cover
 
 
-class Angle(ctypes.Structure):
-    _fields_ = [("radian", ctypes.c_float)]
+class FPGAState(ctypes.Structure):
+    _fields_ = [("state", ctypes.c_uint8)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, Angle) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, FPGAState) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class DcSysTime(ctypes.Structure):
-    _fields_ = [("dc_sys_time", ctypes.c_uint64)]
+class SamplingConfig(ctypes.Structure):
+    _fields_ = [("division", ctypes.c_uint16)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, DcSysTime) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, SamplingConfig) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FixedCompletionSteps(ctypes.Structure):
+    _fields_ = [("intensity", ctypes.c_uint16), ("phase", ctypes.c_uint16), ("strict_mode", ctypes.c_bool)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FixedCompletionSteps) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GainSTMOption(ctypes.Structure):
+    _fields_ = [("mode", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GainSTMOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class Phase(ctypes.Structure):
@@ -85,11 +99,11 @@ class Phase(ctypes.Structure):
         return isinstance(other, Phase) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class FixedCompletionSteps(ctypes.Structure):
-    _fields_ = [("intensity", ctypes.c_uint16), ("phase", ctypes.c_uint16), ("strict_mode", ctypes.c_bool)]
+class DcSysTime(ctypes.Structure):
+    _fields_ = [("dc_sys_time", ctypes.c_uint64)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, FixedCompletionSteps) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, DcSysTime) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class FixedUpdateRate(ctypes.Structure):
@@ -106,25 +120,11 @@ class EmitIntensity(ctypes.Structure):
         return isinstance(other, EmitIntensity) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class SamplingConfig(ctypes.Structure):
-    _fields_ = [("division", ctypes.c_uint16)]
+class Angle(ctypes.Structure):
+    _fields_ = [("radian", ctypes.c_float)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, SamplingConfig) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FPGAState(ctypes.Structure):
-    _fields_ = [("state", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FPGAState) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class SquareOption(ctypes.Structure):
-    _fields_ = [("low", ctypes.c_uint8), ("high", ctypes.c_uint8), ("duty", ctypes.c_float), ("sampling_config", SamplingConfig)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SquareOption) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, Angle) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ControlPoint(ctypes.Structure):
@@ -134,11 +134,11 @@ class ControlPoint(ctypes.Structure):
         return isinstance(other, ControlPoint) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class GainSTMOption(ctypes.Structure):
-    _fields_ = [("mode", ctypes.c_uint8)]
+class SquareOption(ctypes.Structure):
+    _fields_ = [("low", ctypes.c_uint8), ("high", ctypes.c_uint8), ("duty", ctypes.c_float), ("sampling_config", SamplingConfig)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, GainSTMOption) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, SquareOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class FocusOption(ctypes.Structure):
@@ -162,6 +162,13 @@ class BesselOption(ctypes.Structure):
         return isinstance(other, BesselOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
+class Drive(ctypes.Structure):
+    _fields_ = [("phase", Phase), ("intensity", EmitIntensity)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Drive) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class SineOption(ctypes.Structure):
     _fields_ = [
         ("intensity", ctypes.c_uint8),
@@ -173,10 +180,3 @@ class SineOption(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SineOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class Drive(ctypes.Structure):
-    _fields_ = [("phase", Phase), ("intensity", EmitIntensity)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, Drive) and self._fields_ == other._fields_  # pragma: no cover
