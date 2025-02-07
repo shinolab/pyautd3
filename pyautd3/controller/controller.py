@@ -5,7 +5,7 @@ from typing import Generic, Self, TypeVar
 
 import numpy as np
 
-from pyautd3.autd_error import InvalidDatagramTypeError, KeyAlreadyExistsError
+from pyautd3.autd_error import InvalidDatagramTypeError
 from pyautd3.controller.sleeper import SpinSleeper, StdSleeper, WaitableSleeper
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
@@ -59,70 +59,6 @@ class SenderOption:
         )
 
 
-class _Group(Generic[K]):
-    _sender: "Sender"
-    _keys: list[int]
-    _datagrams: list[DatagramPtr]
-    _keymap: dict[K, int]
-    _k: int
-
-    def __init__(self: Self, group_map: Callable[[Device], K | None], sender: "Sender") -> None:
-        def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> int:
-            dev = Device(dev_idx, geometry_ptr)
-            key = group_map(dev)
-            return self._keymap[key] if key is not None else -1
-
-        self._f_native = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
-        self._sender = sender
-        self._keys = []
-        self._datagrams = []
-        self._keymap = {}
-        self._k = 0
-
-    def set(
-        self: Self,
-        key: K,
-        d: Datagram | tuple[Datagram, Datagram],
-    ) -> "_Group[K]":
-        if key in self._keymap:
-            raise KeyAlreadyExistsError
-        match d:
-            case Datagram():
-                ptr = d._datagram_ptr(self._sender._geometry)
-                self._datagrams.append(ptr)
-            case (Datagram(), Datagram()):
-                (d1, d2) = d
-                ptr = Base().datagram_tuple(
-                    d1._datagram_ptr(self._sender._geometry),
-                    d2._datagram_ptr(self._sender._geometry),
-                )
-                self._datagrams.append(ptr)
-            case _:
-                raise InvalidDatagramTypeError
-        self._keys.append(self._k)
-        self._keymap[key] = self._k
-        self._k += 1
-
-        return self
-
-    def send(self: Self) -> None:
-        keys = np.array(self._keys, dtype=np.int32)
-        datagrams: np.ndarray = np.ndarray(len(self._datagrams), dtype=DatagramPtr)
-        for i, d in enumerate(self._datagrams):
-            datagrams[i]["value"] = d.value
-        _validate_status(
-            Base().controller_group(
-                self._sender._ptr,
-                self._f_native,  # type: ignore[arg-type]
-                ctypes.c_void_p(0),
-                self._sender._geometry._geometry_ptr,
-                keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
-                datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
-                len(self._keys),
-            ),
-        )
-
-
 class Sender:
     _ptr: SenderPtr
     _geometry: Geometry
@@ -146,11 +82,49 @@ class Sender:
                 raise InvalidDatagramTypeError
         _validate_status(result)
 
-    def group(
+    def group_send(
         self: Self,
-        group_map: Callable[[Device], K | None],
-    ) -> _Group[K]:
-        return _Group(group_map, self)
+        key_map: Callable[[Device], K | None],
+        data_map: dict[K, Datagram | tuple[Datagram, Datagram]],
+    ) -> None:
+        keymap: dict[K, int] = {}
+        datagrams: np.ndarray = np.ndarray(len(data_map), dtype=DatagramPtr)
+        keys = np.arange(len(data_map), dtype=np.int32)
+
+        def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> int:
+            dev = Device(dev_idx, geometry_ptr)
+            key = key_map(dev)
+            return keymap[key] if key is not None else -1
+
+        f_native_ = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
+
+        for k, (key, d) in enumerate(data_map.items()):
+            match d:
+                case Datagram():
+                    ptr = d._datagram_ptr(self._geometry)
+                    datagrams[k]["value"] = ptr.value
+                case (Datagram(), Datagram()):
+                    (d1, d2) = d
+                    ptr = Base().datagram_tuple(
+                        d1._datagram_ptr(self._geometry),
+                        d2._datagram_ptr(self._geometry),
+                    )
+                    datagrams[k]["value"] = ptr.value
+                case _:
+                    raise InvalidDatagramTypeError
+            keymap[key] = k
+
+        _validate_status(
+            Base().controller_group(
+                self._ptr,
+                f_native_,  # type: ignore[arg-type]
+                ctypes.c_void_p(0),
+                self._geometry._geometry_ptr,
+                keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
+                datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
+                len(keys),
+            ),
+        )
 
 
 class Controller(Geometry, Generic[L]):
@@ -253,5 +227,9 @@ class Controller(Geometry, Generic[L]):
     ) -> None:
         self.sender(SenderOption()).send(d)
 
-    def group(self: Self, group_map: Callable[[Device], K | None]) -> _Group:
-        return self.sender(SenderOption()).group(group_map)
+    def group_send(
+        self: Self,
+        key_map: Callable[[Device], K | None],
+        data_map: dict[K, Datagram | tuple[Datagram, Datagram]],
+    ) -> None:
+        self.sender(SenderOption()).group_send(key_map, data_map)

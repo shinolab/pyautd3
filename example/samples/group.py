@@ -7,7 +7,7 @@ def group_by_device(autd: Controller) -> None:
     config = Silencer()
     autd.send(config)
 
-    def grouping(dev: Device) -> str | None:
+    def key_map(dev: Device) -> str | None:
         match dev.idx:
             case 0:
                 return "null"
@@ -16,10 +16,13 @@ def group_by_device(autd: Controller) -> None:
             case _:
                 return None
 
-    autd.group(grouping).set("null", (Static(), Null())).set(
-        "focus",
-        (Sine(freq=150 * Hz, option=SineOption()), Focus(pos=autd.center() + np.array([0.0, 0.0, 150.0]), option=FocusOption())),
-    ).send()
+    autd.group_send(
+        key_map,
+        {
+            "null": (Static(), Null()),
+            "focus": (Sine(freq=150 * Hz, option=SineOption()), Focus(pos=autd.center() + np.array([0.0, 0.0, 150.0]), option=FocusOption())),
+        },
+    )
 
 
 def group_by_transducer(autd: Controller) -> None:
@@ -30,7 +33,7 @@ def group_by_transducer(autd: Controller) -> None:
     g1 = Focus(pos=autd.center() + np.array([0, 0, 150]), option=FocusOption())
     g2 = Null()
 
-    g = Group(lambda _: lambda tr: "focus" if tr.position()[0] < cx else "null").set("focus", g1).set("null", g2)
+    g = Group(key_map=lambda _: lambda tr: "focus" if tr.position()[0] < cx else "null", gain_map={"focus": g1, "null": g2})
 
     m = Sine(freq=150 * Hz, option=SineOption())
 

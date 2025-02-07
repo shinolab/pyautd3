@@ -19,11 +19,6 @@ class UnknownGroupKeyError(AUTDError):
         super().__init__("Unknown group key")
 
 
-class KeyAlreadyExistsError(AUTDError):
-    def __init__(self: Self) -> None:
-        super().__init__("Key already exists")
-
-
 class InvalidDatagramTypeError(AUTDError):
     def __init__(self: Self) -> None:
         super().__init__("Invalid datagram type")

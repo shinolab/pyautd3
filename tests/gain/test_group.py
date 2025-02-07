@@ -20,10 +20,9 @@ def test_group():
     with create_controller() as autd:
         cx = autd.center()[0]
 
-        g = (
-            Group(lambda _: lambda tr: "uniform" if tr.position()[0] < cx else "null")
-            .set("uniform", Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))
-            .set("null", Null())
+        g = Group(
+            key_map=lambda _: lambda tr: "uniform" if tr.position()[0] < cx else "null",
+            gain_map={"uniform": Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)), "null": Null()},
         )
         autd.send(g)
         for dev in autd.geometry():
@@ -37,9 +36,9 @@ def test_group():
                     assert np.all(phases[tr.idx()] == 0)
 
         autd.send(
-            Group(lambda _: lambda tr: "uniform" if tr.position()[0] < cx else None).set(
-                "uniform",
-                Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)),
+            Group(
+                key_map=lambda _: lambda tr: "uniform" if tr.position()[0] < cx else None,
+                gain_map={"uniform": Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))},
             ),
         )
         for dev in autd.geometry():
@@ -56,7 +55,7 @@ def test_group():
 def test_group_unknown_key():
     autd: Controller[Audit]
     with create_controller() as autd, pytest.raises(AUTDError, match="Unknown group key"):
-        autd.send(Group(lambda _: lambda _tr: "null").set("uniform", Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))).set("null", Null()))
+        autd.send(Group(lambda _: lambda _tr: "null", {"uniform": Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)), "null": Null()}))
 
 
 def test_group_check_only_for_enabled():
@@ -66,11 +65,11 @@ def test_group_check_only_for_enabled():
 
         autd.geometry()[0].enable = False
 
-        def f(dev: Device) -> Callable[[Transducer], int]:
+        def key_map(dev: Device) -> Callable[[Transducer], int]:
             check[dev.idx()] = True
             return lambda _: 0
 
-        autd.send(Group(f).set(0, Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))))
+        autd.send(Group(key_map, {0: Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))}))
 
         assert not check[0]
         assert check[1]
