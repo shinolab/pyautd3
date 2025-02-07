@@ -23,11 +23,11 @@ if TYPE_CHECKING:
 def test_silencer_from_completion_time():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-            assert autd.link.silencer_strict_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+            assert autd.link().silencer_strict_mode(dev.idx())
 
         autd.send(
             Silencer(
@@ -38,12 +38,12 @@ def test_silencer_from_completion_time():
             ),
         )
 
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-            assert autd.link.silencer_strict_mode(dev.idx)
-            assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 2
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 3
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+            assert autd.link().silencer_strict_mode(dev.idx())
+            assert autd.link().silencer_target(dev.idx()) == SilencerTarget.Intensity
 
         autd.send(
             Silencer(
@@ -56,21 +56,21 @@ def test_silencer_from_completion_time():
             ),
         )
 
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 2
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 3
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-            assert not autd.link.silencer_strict_mode(dev.idx)
-            assert autd.link.silencer_target(dev.idx) == SilencerTarget.PulseWidth
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 2
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 3
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+            assert not autd.link().silencer_strict_mode(dev.idx())
+            assert autd.link().silencer_target(dev.idx()) == SilencerTarget.PulseWidth
 
         autd.send(Silencer())
 
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-            assert autd.link.silencer_strict_mode(dev.idx)
-            assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+            assert autd.link().silencer_strict_mode(dev.idx())
+            assert autd.link().silencer_target(dev.idx()) == SilencerTarget.Intensity
             silencer = Silencer()
             assert bool(
                 Base().datagram_silencer_fixed_completion_steps_is_default(
@@ -83,11 +83,11 @@ def test_silencer_from_completion_time():
 def test_silencer_from_update_rate():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-            assert autd.link.silencer_target(dev.idx) == SilencerTarget.Intensity
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+            assert autd.link().silencer_target(dev.idx()) == SilencerTarget.Intensity
 
         autd.send(
             Silencer(
@@ -96,21 +96,21 @@ def test_silencer_from_update_rate():
             ),
         )
 
-        for dev in autd.geometry:
-            assert autd.link.silencer_update_rate_intensity(dev.idx) == 2
-            assert autd.link.silencer_update_rate_phase(dev.idx) == 3
-            assert not autd.link.silencer_fixed_completion_steps_mode(dev.idx)
-            assert autd.link.silencer_target(dev.idx) == SilencerTarget.PulseWidth
+        for dev in autd.geometry():
+            assert autd.link().silencer_update_rate_intensity(dev.idx()) == 2
+            assert autd.link().silencer_update_rate_phase(dev.idx()) == 3
+            assert not autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+            assert autd.link().silencer_target(dev.idx()) == SilencerTarget.PulseWidth
 
 
 def test_silencer_large_steps():
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.send(Silencer.disable())
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 1
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 1
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 1
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 1
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
         autd.send(Sine(freq=150 * Hz, option=SineOption(sampling_config=SamplingConfig(1))))
 
         with pytest.raises(AUTDError) as e:
@@ -131,10 +131,10 @@ def test_silencer_large_steps():
 def test_silencer_small_freq_div_mod():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
 
         with pytest.raises(AUTDError) as e:
             autd.send(Sine(freq=150 * Hz, option=SineOption(sampling_config=SamplingConfig(1))))
@@ -152,20 +152,20 @@ def test_silencer_small_freq_div_mod():
                 ),
             ),
         )
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
         autd.send(Sine(freq=150 * Hz, option=SineOption(sampling_config=SamplingConfig(1))))
 
 
 def test_silencer_small_freq_div_gain_stm():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
 
         with pytest.raises(AUTDError) as e:
             autd.send(GainSTM(gains=[Null(), Null()], config=SamplingConfig(1), option=GainSTMOption()))
@@ -183,20 +183,20 @@ def test_silencer_small_freq_div_gain_stm():
                 ),
             ),
         )
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
         autd.send(GainSTM(gains=[Null(), Null()], config=SamplingConfig(1), option=GainSTMOption()))
 
 
 def test_silencer_small_freq_div_foci_stm():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
 
         with pytest.raises(AUTDError) as e:
             autd.send(FociSTM(foci=[np.zeros(3), np.zeros(3)], config=SamplingConfig(1)))
@@ -214,9 +214,9 @@ def test_silencer_small_freq_div_foci_stm():
                 ),
             ),
         )
-        for dev in autd.geometry:
-            assert autd.link.silencer_completion_steps_intensity(dev.idx) == 10
-            assert autd.link.silencer_completion_steps_phase(dev.idx) == 40
-            assert autd.link.silencer_fixed_completion_steps_mode(dev.idx)
+        for dev in autd.geometry():
+            assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
+            assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
+            assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
 
         autd.send(FociSTM(foci=[np.zeros(3), np.zeros(3)], config=SamplingConfig(1)))

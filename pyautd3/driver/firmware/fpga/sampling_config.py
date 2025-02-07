@@ -21,11 +21,11 @@ class SamplingConfig:
             case SamplingConfig():
                 self._inner = value._inner
             case Freq():
-                match value.hz:
-                    case int():
-                        self._inner = _validate_sampling_config(Base().sampling_config_from_freq(value.hz))
-                    case float():
-                        self._inner = _validate_sampling_config(Base().sampling_config_from_freq_f(value.hz))
+                match value.hz():
+                    case int() as v:
+                        self._inner = _validate_sampling_config(Base().sampling_config_from_freq(v))
+                    case float() as v:
+                        self._inner = _validate_sampling_config(Base().sampling_config_from_freq_f(v))
                     case _:
                         raise TypeError
             case Duration():
@@ -37,9 +37,9 @@ class SamplingConfig:
     def nearest(value: Freq[float] | Duration) -> "SamplingConfig":
         match value:
             case Freq():
-                match value.hz:
-                    case float():
-                        return SamplingConfig(Base().sampling_config_from_freq_nearest(value.hz))
+                match value.hz():
+                    case float() as v:
+                        return SamplingConfig(Base().sampling_config_from_freq_nearest(v))
                     case _:
                         raise TypeError
             case Duration():
@@ -51,11 +51,9 @@ class SamplingConfig:
     def division(self: Self) -> int:
         return int(Base().sampling_config_division(self._inner))
 
-    @property
     def freq(self: Self) -> Freq[float]:
         return float(Base().sampling_config_freq(self._inner)) * Hz
 
-    @property
     def period(self: Self) -> Duration:
         return Duration.__private_new__(Base().sampling_config_period(self._inner))
 

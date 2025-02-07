@@ -24,8 +24,8 @@ def test_fourier_exact():
         )
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 128,
                 157,
@@ -109,7 +109,7 @@ def test_fourier_exact():
                 98,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
 
 def test_fourier_exact_float():
@@ -121,8 +121,8 @@ def test_fourier_exact_float():
         )
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 128,
                 157,
@@ -206,7 +206,7 @@ def test_fourier_exact_float():
                 98,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
 
 def test_fourier_nearest():
@@ -218,8 +218,8 @@ def test_fourier_nearest():
         )
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 128,
                 142,
@@ -303,7 +303,7 @@ def test_fourier_nearest():
                 113,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
 
 def test_fourier_clamp():
@@ -323,8 +323,8 @@ def test_fourier_clamp():
             option=FourierOption(clamp=True, scale_factor=None, offset=0x00),
         )
         autd.send(m)
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [0, 39, 74, 103, 121, 127, 121, 103, 74, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             assert np.array_equal(mod, mod_expect)
 

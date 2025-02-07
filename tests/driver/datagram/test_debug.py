@@ -20,9 +20,9 @@ if TYPE_CHECKING:
 def test_debug_output_idx():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert np.array_equal([0x00, 0x00, 0x00, 0x00], autd.link.debug_types(dev.idx))
-            assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link.debug_values(dev.idx))
+        for dev in autd.geometry():
+            assert np.array_equal([0x00, 0x00, 0x00, 0x00], autd.link().debug_types(dev.idx()))
+            assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link().debug_values(dev.idx()))
 
         def f0(_: Device, gpio: GPIOOut) -> DebugTypeWrap:
             match gpio:
@@ -36,9 +36,9 @@ def test_debug_output_idx():
                     return DebugType.ForceFan
 
         autd.send(DebugSettings(f0))
-        for dev in autd.geometry:
-            assert np.array_equal([0x00, 0x01, 0x02, 0x03], autd.link.debug_types(dev.idx))
-            assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link.debug_values(dev.idx))
+        for dev in autd.geometry():
+            assert np.array_equal([0x00, 0x01, 0x02, 0x03], autd.link().debug_types(dev.idx()))
+            assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link().debug_values(dev.idx()))
 
         def f1(_: Device, gpio: GPIOOut) -> DebugTypeWrap:
             match gpio:
@@ -52,9 +52,9 @@ def test_debug_output_idx():
                     return DebugType.StmSegment
 
         autd.send(DebugSettings(f1))
-        for dev in autd.geometry:
-            assert np.array_equal([0x10, 0x20, 0x21, 0x50], autd.link.debug_types(dev.idx))
-            assert np.array_equal([0x0000, 0x0000, 0x0001, 0x0000], autd.link.debug_values(dev.idx))
+        for dev in autd.geometry():
+            assert np.array_equal([0x10, 0x20, 0x21, 0x50], autd.link().debug_types(dev.idx()))
+            assert np.array_equal([0x0000, 0x0000, 0x0001, 0x0000], autd.link().debug_values(dev.idx()))
 
         def f2(dev: Device, gpio: GPIOOut) -> DebugTypeWrap:
             match gpio:
@@ -68,9 +68,9 @@ def test_debug_output_idx():
                     return DebugType.Direct(True)  # noqa: FBT003
 
         autd.send(DebugSettings(f2))
-        for dev in autd.geometry:
-            assert np.array_equal([0x51, 0x52, 0xE0, 0xF0], autd.link.debug_types(dev.idx))
-            assert np.array_equal([0x0002, 0x0000, 0x0003, 0x0001], autd.link.debug_values(dev.idx))
+        for dev in autd.geometry():
+            assert np.array_equal([0x51, 0x52, 0xE0, 0xF0], autd.link().debug_types(dev.idx()))
+            assert np.array_equal([0x0002, 0x0000, 0x0003, 0x0001], autd.link().debug_values(dev.idx()))
 
         sys_time = DcSysTime.now()
 
@@ -86,6 +86,6 @@ def test_debug_output_idx():
                     return DebugType.NONE
 
         autd.send(DebugSettings(f3))
-        for dev in autd.geometry:
-            assert np.array_equal([0x60, 0x00, 0x00, 0x00], autd.link.debug_types(dev.idx))
-            assert np.array_equal([(sys_time.sys_time // 3125) << 5, 0x00, 0x00, 0x00], autd.link.debug_values(dev.idx))
+        for dev in autd.geometry():
+            assert np.array_equal([0x60, 0x00, 0x00, 0x00], autd.link().debug_types(dev.idx()))
+            assert np.array_equal([(sys_time.sys_time() // 3125) << 5, 0x00, 0x00, 0x00], autd.link().debug_values(dev.idx()))

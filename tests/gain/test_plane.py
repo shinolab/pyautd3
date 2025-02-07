@@ -16,15 +16,15 @@ def test_plane():
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.send(Plane(direction=[0, 0, 1], option=PlaneOption()))
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
         g = Plane(direction=[0, 0, 1], option=PlaneOption(intensity=EmitIntensity(0x80), phase_offset=Phase(0x81)))
         autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0x81)
 

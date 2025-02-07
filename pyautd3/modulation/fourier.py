@@ -52,7 +52,7 @@ class Fourier(Modulation):
         sine_option = np.fromiter((np.void(m.option._inner()) for m in self.components), dtype=SineOption_)  # type: ignore[type-var,call-overload]
         match self.components[0]._mode:
             case SineMode.Exact:
-                sine_freq = np.fromiter((m.freq.hz for m in self.components), dtype=np.uint32)
+                sine_freq = np.fromiter((m.freq.hz() for m in self.components), dtype=np.uint32)
                 return Base().modulation_fourier_exact(
                     sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),  # type: ignore[arg-type]
                     sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
@@ -60,7 +60,7 @@ class Fourier(Modulation):
                     option,
                 )
             case SineMode.ExactFloat:
-                sine_freq = np.fromiter((m.freq.hz for m in self.components), dtype=np.float32)
+                sine_freq = np.fromiter((m.freq.hz() for m in self.components), dtype=np.float32)
                 return Base().modulation_fourier_exact_float(
                     sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
                     sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
@@ -68,7 +68,7 @@ class Fourier(Modulation):
                     option,
                 )
             case SineMode.Nearest:  # pragma: no cover
-                sine_freq = np.fromiter((m.freq.hz for m in self.components), dtype=np.float32)
+                sine_freq = np.fromiter((m.freq.hz() for m in self.components), dtype=np.float32)
                 return Base().modulation_fourier_nearest(
                     sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
                     sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]

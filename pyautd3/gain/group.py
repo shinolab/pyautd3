@@ -30,23 +30,23 @@ class Group(Gain, Generic[K]):
     def _gain_ptr(self: Self, geometry: Geometry) -> GainPtr:
         keymap: dict[K, int] = {}
 
-        device_indices = np.array([dev.idx for dev in geometry])
+        device_indices = np.array([dev.idx() for dev in geometry])
 
         gain_group_map = Base().gain_group_create_map(np.ctypeslib.as_ctypes(device_indices.astype(c_uint16)), len(device_indices))
         k: int = 0
-        for dev in geometry.devices:
+        for dev in geometry.devices():
             f = self._f(dev)
-            m = np.zeros(dev.num_transducers, dtype=np.int32)
+            m = np.zeros(dev.num_transducers(), dtype=np.int32)
             for tr in dev:
                 key = f(tr)
                 if key is not None:
                     if key not in keymap:
                         keymap[key] = k
                         k += 1
-                    m[tr.idx] = keymap[key]
+                    m[tr.idx()] = keymap[key]
                 else:
-                    m[tr.idx] = -1
-            gain_group_map = Base().gain_group_map_set(gain_group_map, dev.idx, np.ctypeslib.as_ctypes(m.astype(c_int32)))
+                    m[tr.idx()] = -1
+            gain_group_map = Base().gain_group_map_set(gain_group_map, dev.idx(), np.ctypeslib.as_ctypes(m.astype(c_int32)))
 
         keys: np.ndarray = np.ndarray(len(self._map), dtype=np.int32)
         values: np.ndarray = np.ndarray(len(self._map), dtype=GainPtr)

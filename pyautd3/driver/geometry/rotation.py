@@ -10,8 +10,8 @@ class EulerAngles:
 
     @staticmethod
     def XYZ(x: Angle, y: Angle, z: Angle) -> np.ndarray:  # noqa: N802
-        return Base().rotation_from_euler_xyz(x.radian, y.radian, z.radian).ndarray()
+        return Base().rotation_from_euler_xyz(x.radian(), y.radian(), z.radian()).ndarray()
 
     @staticmethod
     def ZYZ(z1: Angle, y: Angle, z2: Angle) -> np.ndarray:  # noqa: N802
-        return Base().rotation_from_euler_zyz(z1.radian, y.radian, z2.radian).ndarray()
+        return Base().rotation_from_euler_zyz(z1.radian(), y.radian(), z2.radian()).ndarray()

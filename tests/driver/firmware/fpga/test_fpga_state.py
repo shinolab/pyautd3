@@ -29,34 +29,34 @@ def test_fpga_state():
             assert info is None
 
         autd.send(ReadsFPGAState(lambda _dev: True))
-        autd.link.assert_thermal_sensor(0)
+        autd.link().assert_thermal_sensor(0)
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert infos[0].is_thermal_assert
-        assert infos[0].current_gain_segment == Segment.S0
-        assert infos[0].current_mod_segment == Segment.S0
-        assert infos[0].current_stm_segment is None
+        assert infos[0].is_thermal_assert()
+        assert infos[0].current_gain_segment() == Segment.S0
+        assert infos[0].current_mod_segment() == Segment.S0
+        assert infos[0].current_stm_segment() is None
         assert infos[1] is not None
-        assert not infos[1].is_thermal_assert
-        assert infos[1].current_gain_segment == Segment.S0
-        assert infos[1].current_mod_segment == Segment.S0
-        assert infos[1].current_stm_segment is None
+        assert not infos[1].is_thermal_assert()
+        assert infos[1].current_gain_segment() == Segment.S0
+        assert infos[1].current_mod_segment() == Segment.S0
+        assert infos[1].current_stm_segment() is None
 
-        autd.link.deassert_thermal_sensor(0)
-        autd.link.assert_thermal_sensor(1)
+        autd.link().deassert_thermal_sensor(0)
+        autd.link().assert_thermal_sensor(1)
         autd.send(SwapSegment.Modulation(Segment.S1, TransitionMode.Immediate))
         autd.send(SwapSegment.Gain(Segment.S1, TransitionMode.Immediate))
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert not infos[0].is_thermal_assert
-        assert infos[0].current_gain_segment == Segment.S1
-        assert infos[0].current_mod_segment == Segment.S1
-        assert infos[0].current_stm_segment is None
+        assert not infos[0].is_thermal_assert()
+        assert infos[0].current_gain_segment() == Segment.S1
+        assert infos[0].current_mod_segment() == Segment.S1
+        assert infos[0].current_stm_segment() is None
         assert infos[1] is not None
-        assert infos[1].is_thermal_assert
-        assert infos[1].current_gain_segment == Segment.S1
-        assert infos[1].current_mod_segment == Segment.S1
-        assert infos[1].current_stm_segment is None
+        assert infos[1].is_thermal_assert()
+        assert infos[1].current_gain_segment() == Segment.S1
+        assert infos[1].current_mod_segment() == Segment.S1
+        assert infos[1].current_stm_segment() is None
 
         autd.send(
             WithSegment(
@@ -67,11 +67,11 @@ def test_fpga_state():
         )
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert infos[0].current_gain_segment is None
-        assert infos[0].current_stm_segment == Segment.S0
+        assert infos[0].current_gain_segment() is None
+        assert infos[0].current_stm_segment() == Segment.S0
         assert infos[1] is not None
-        assert infos[1].current_gain_segment is None
-        assert infos[1].current_stm_segment == Segment.S0
+        assert infos[1].current_gain_segment() is None
+        assert infos[1].current_stm_segment() == Segment.S0
 
         autd.send(
             WithSegment(
@@ -82,14 +82,14 @@ def test_fpga_state():
         )
         infos = autd.fpga_state()
         assert infos[0] is not None
-        assert infos[0].current_gain_segment is None
-        assert infos[0].current_stm_segment == Segment.S1
+        assert infos[0].current_gain_segment() is None
+        assert infos[0].current_stm_segment() == Segment.S1
         assert infos[1] is not None
-        assert infos[1].current_gain_segment is None
-        assert infos[1].current_stm_segment == Segment.S1
+        assert infos[1].current_gain_segment() is None
+        assert infos[1].current_stm_segment() == Segment.S1
 
-        autd.link.break_down()
+        autd.link().break_down()
         with pytest.raises(AUTDError) as e:
             _ = autd.fpga_state()
         assert str(e.value) == "broken"
-        autd.link.repair()
+        autd.link().repair()

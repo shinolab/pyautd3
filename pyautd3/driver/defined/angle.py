@@ -17,7 +17,6 @@ class Angle:
         ins._value = value
         return ins
 
-    @property
     def radian(self: Self) -> float:
         return self._value
 

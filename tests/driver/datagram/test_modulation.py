@@ -32,11 +32,11 @@ def test_cache():
         autd2.send(m2)
         autd2.send(m2)
 
-        for dev in autd1.geometry:
-            mod_expect = autd1._link.modulation_buffer(dev.idx, Segment.S0)
-            mod = autd2._link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd1.geometry():
+            mod_expect = autd1._link.modulation_buffer(dev.idx(), Segment.S0)
+            mod = autd2._link.modulation_buffer(dev.idx(), Segment.S0)
             assert np.array_equal(mod, mod_expect)
-            assert autd2._link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd2._link.modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
         mod1 = autd1._link.modulation_buffer(0, Segment.S0)
         mod2 = autd2._link.modulation_buffer(0, Segment.S0)
@@ -52,8 +52,8 @@ def test_radiation_pressure():
 
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 181,
                 200,
@@ -137,7 +137,7 @@ def test_radiation_pressure():
                 158,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
 
 def test_fir():
@@ -250,8 +250,8 @@ def test_fir():
 
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 127,
                 131,
@@ -335,21 +335,21 @@ def test_fir():
                 122,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
 
 def test_mod_segment():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert autd.link.current_mod_segment(0) == Segment.S0
+        assert autd.link().current_mod_segment(0) == Segment.S0
 
         autd.send(Static(intensity=0x01))
-        assert autd.link.current_mod_segment(0) == Segment.S0
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        assert autd.link().current_mod_segment(0) == Segment.S0
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             assert np.all(mod == 0x01)
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S1)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S1)
             assert np.all(mod == 0xFF)
 
         autd.send(
@@ -359,12 +359,12 @@ def test_mod_segment():
                 transition_mode=TransitionMode.Immediate,
             ),
         )
-        assert autd.link.current_mod_segment(0) == Segment.S1
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        assert autd.link().current_mod_segment(0) == Segment.S1
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             assert np.all(mod == 0x01)
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S1)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S1)
             assert np.all(mod == 0x02)
 
         autd.send(
@@ -374,16 +374,16 @@ def test_mod_segment():
                 transition_mode=None,
             ),
         )
-        assert autd.link.current_mod_segment(0) == Segment.S1
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        assert autd.link().current_mod_segment(0) == Segment.S1
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             assert np.all(mod == 0x03)
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S1)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S1)
             assert np.all(mod == 0x02)
 
         autd.send(SwapSegment.Modulation(Segment.S0, TransitionMode.Immediate))
-        assert autd.link.current_mod_segment(0) == Segment.S0
+        assert autd.link().current_mod_segment(0) == Segment.S0
 
 
 def test_mod_loop_behavior():
@@ -397,4 +397,4 @@ def test_mod_loop_behavior():
                 loop_behavior=LoopBehavior.ONCE,
             ),
         )
-        assert autd.link.modulation_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE
+        assert autd.link().modulation_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE

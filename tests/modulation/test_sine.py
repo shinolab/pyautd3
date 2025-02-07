@@ -26,12 +26,12 @@ def test_sine():
                 phase=np.pi / 2 * rad,
             ),
         )
-        assert m.sampling_config == SamplingConfig(10)
+        assert m.sampling_config() == SamplingConfig(10)
         autd.send(m)
 
-        for dev in autd.geometry:
-            assert autd.link.modulation_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.ONCE
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            assert autd.link().modulation_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 128,
                 126,
@@ -115,13 +115,13 @@ def test_sine():
                 126,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
         m = Sine(freq=150 * Hz, option=SineOption(sampling_config=SamplingConfig(20)))
         autd.send(m)
-        assert m.sampling_config == SamplingConfig(20)
-        for dev in autd.geometry:
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 20
+        assert m.sampling_config() == SamplingConfig(20)
+        for dev in autd.geometry():
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 20
 
 
 def test_sine_clamp():
@@ -137,8 +137,8 @@ def test_sine_clamp():
         assert m.freq == 200 * Hz
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [0, 39, 74, 103, 121, 127, 121, 103, 74, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             assert np.array_equal(mod, mod_expect)
 
@@ -149,8 +149,8 @@ def test_sine_mode():
         m = Sine(freq=150.0 * Hz, option=SineOption()).into_nearest()
         assert m.freq == 150.0 * Hz
         autd.send(m)
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [128, 157, 185, 209, 230, 245, 253, 255, 250, 238, 220, 198, 171, 142, 113, 84, 57, 35, 17, 5, 0, 2, 10, 25, 46, 70, 98]
             assert np.array_equal(mod, mod_expect)
 

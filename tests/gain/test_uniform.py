@@ -17,7 +17,7 @@ def test_uniform():
         g = Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90))
         autd.send(g)
 
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0x90)

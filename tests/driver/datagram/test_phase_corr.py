@@ -12,10 +12,10 @@ if TYPE_CHECKING:
 def test_phase_corr():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send(PhaseCorrection(lambda dev: lambda tr: Phase(dev.idx + tr.idx)))
+        autd.send(PhaseCorrection(lambda dev: lambda tr: Phase(dev.idx() + tr.idx())))
 
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x00)
             for i, phase in enumerate(phases):
-                assert phase == dev.idx + i
+                assert phase == dev.idx() + i

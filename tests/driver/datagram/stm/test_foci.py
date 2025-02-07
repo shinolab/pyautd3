@@ -38,52 +38,52 @@ def test_foci_stm():
             foci=(center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
             config=1.0 * Hz,
         )
-        assert stm.sampling_config == SamplingConfig(20000)
+        assert stm.sampling_config() == SamplingConfig(20000)
         autd.send(stm)
-        for dev in autd.geometry:
-            assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
-            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Infinite
-            assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
-        for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
+        for dev in autd.geometry():
+            assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
+            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+        for dev in autd.geometry():
+            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=1.0 * Hz).into_nearest()
         autd.send(stm)
-        for dev in autd.geometry:
-            assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
-            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.Infinite
-            assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
-        for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
+        for dev in autd.geometry():
+            assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
+            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+        for dev in autd.geometry():
+            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=Duration.from_secs(1))
         autd.send(stm)
-        for dev in autd.geometry:
-            assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
-            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.ONCE
-            assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
-        for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
+        for dev in autd.geometry():
+            assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
+            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+        for dev in autd.geometry():
+            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=Duration.from_secs(1)).into_nearest()
         autd.send(stm)
-        for dev in autd.geometry:
-            assert not autd.link.is_stm_gain_mode(dev.idx, Segment.S0)
-            assert autd.link.stm_loop_behavior(dev.idx, Segment.S0) == LoopBehavior.ONCE
-            assert autd.link.sound_speed(dev.idx, Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
-        for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 20000
+        for dev in autd.geometry():
+            assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
+            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+        for dev in autd.geometry():
+            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=SamplingConfig(1))
         autd.send(stm)
-        for dev in autd.geometry:
-            assert autd.link.stm_freqency_division(dev.idx, Segment.S0) == 1
-        for dev in autd.geometry:
-            assert autd.link.stm_cycle(dev.idx, Segment.S0) == 2
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 1
+        for dev in autd.geometry():
+            assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 1)
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 1)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -91,7 +91,7 @@ def test_foci_stm():
 def test_foci_stm_segment():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert autd.link.current_stm_segment(0) == Segment.S0
+        assert autd.link().current_stm_segment(0) == Segment.S0
 
         autd.send(
             FociSTM(
@@ -99,9 +99,9 @@ def test_foci_stm_segment():
                 config=SamplingConfig(0x1234),
             ),
         )
-        assert autd.link.current_stm_segment(0) == Segment.S0
-        assert autd.link.stm_cycle(0, Segment.S0) == 2
-        assert autd.link.stm_freqency_division(0, Segment.S0) == 0x1234
+        assert autd.link().current_stm_segment(0) == Segment.S0
+        assert autd.link().stm_cycle(0, Segment.S0) == 2
+        assert autd.link().stm_freqency_division(0, Segment.S0) == 0x1234
 
         autd.send(
             WithSegment(
@@ -113,9 +113,9 @@ def test_foci_stm_segment():
                 transition_mode=TransitionMode.Immediate,
             ),
         )
-        assert autd.link.current_stm_segment(0) == Segment.S1
-        assert autd.link.stm_cycle(0, Segment.S1) == 2
-        assert autd.link.stm_freqency_division(0, Segment.S1) == 0xDEF0
+        assert autd.link().current_stm_segment(0) == Segment.S1
+        assert autd.link().stm_cycle(0, Segment.S1) == 2
+        assert autd.link().stm_freqency_division(0, Segment.S1) == 0xDEF0
 
         autd.send(
             WithSegment(
@@ -127,12 +127,12 @@ def test_foci_stm_segment():
                 transition_mode=None,
             ),
         )
-        assert autd.link.current_stm_segment(0) == Segment.S1
-        assert autd.link.stm_cycle(0, Segment.S0) == 3
-        assert autd.link.stm_freqency_division(0, Segment.S0) == 0x8765
+        assert autd.link().current_stm_segment(0) == Segment.S1
+        assert autd.link().stm_cycle(0, Segment.S0) == 3
+        assert autd.link().stm_freqency_division(0, Segment.S0) == 0x8765
 
         autd.send(SwapSegment.FociSTM(Segment.S0, TransitionMode.Immediate))
-        assert autd.link.current_stm_segment(0) == Segment.S0
+        assert autd.link().current_stm_segment(0) == Segment.S0
 
 
 def test_foci_stm_loop_behavior():
@@ -149,9 +149,9 @@ def test_foci_stm_loop_behavior():
                 loop_behavior=LoopBehavior.ONCE,
             ),
         )
-        assert autd.link.stm_cycle(0, Segment.S1) == 2
-        assert autd.link.stm_freqency_division(0, Segment.S1) == 0xDEF0
-        assert autd.link.stm_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE
+        assert autd.link().stm_cycle(0, Segment.S1) == 2
+        assert autd.link().stm_freqency_division(0, Segment.S1) == 0xDEF0
+        assert autd.link().stm_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE
 
 
 def foci_stm_n(foci):  # noqa: ANN001
@@ -165,16 +165,16 @@ def foci_stm_n(foci):  # noqa: ANN001
             config=1.0 * Hz,
         )
         autd.send(stm)
-        for dev in autd.geometry:
+        for dev in autd.geometry():
             for i in range(size):
-                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM(foci=foci, config=1.0 * Hz).into_nearest()
         autd.send(stm)
-        for dev in autd.geometry:
+        for dev in autd.geometry():
             for i in range(size):
-                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM(
@@ -182,9 +182,9 @@ def foci_stm_n(foci):  # noqa: ANN001
             config=Duration.from_secs(1),
         )
         autd.send(stm)
-        for dev in autd.geometry:
+        for dev in autd.geometry():
             for i in range(size):
-                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM(
@@ -192,16 +192,16 @@ def foci_stm_n(foci):  # noqa: ANN001
             config=Duration.from_secs(1),
         ).into_nearest()
         autd.send(stm)
-        for dev in autd.geometry:
+        for dev in autd.geometry():
             for i in range(size):
-                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
         stm = FociSTM(foci=foci, config=SamplingConfig(10))
         autd.send(stm)
-        for dev in autd.geometry:
+        for dev in autd.geometry():
             for i in range(size):
-                intensities, _ = autd.link.drives_at(dev.idx, Segment.S0, i)
+                intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
         with pytest.raises(TypeError):
@@ -214,7 +214,7 @@ def test_foci_stm_1():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints1(points=center, intensity=EmitIntensity(i)) for i in range(size)])
         foci_stm_n([ControlPoints1(points=ControlPoint(point=center), intensity=EmitIntensity(i)) for i in range(size)])
 
@@ -225,7 +225,7 @@ def test_foci_stm_2():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints2(points=(center, center), intensity=EmitIntensity(i)) for i in range(size)])
         foci_stm_n(
             [
@@ -244,7 +244,7 @@ def test_foci_stm_3():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints3(points=(center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
         foci_stm_n(
             [
@@ -263,7 +263,7 @@ def test_foci_stm_4():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints4(points=(center, center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
         foci_stm_n(
             [
@@ -282,7 +282,7 @@ def test_foci_stm_5():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints5(points=(center, center, center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
         foci_stm_n(
             [
@@ -307,7 +307,7 @@ def test_foci_stm_6():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n(
             [
                 ControlPoints6(
@@ -341,7 +341,7 @@ def test_foci_stm_7():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n([ControlPoints7(points=(center, center, center, center, center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
         foci_stm_n(
             [
@@ -368,7 +368,7 @@ def test_foci_stm_8():
         autd.send(Silencer.disable())
 
         size = 100
-        center = autd.center + np.array([0.0, 0.0, 150.0])
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
         foci_stm_n(
             [
                 ControlPoints8(points=(center, center, center, center, center, center, center, center), intensity=EmitIntensity(i))

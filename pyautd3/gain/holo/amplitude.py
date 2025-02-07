@@ -23,11 +23,9 @@ class Amplitude:
     def new_spl(value: float) -> "Amplitude":
         return Amplitude.__private_new__(float(GainHolo().gain_holo_spl_to_pascal(value)))
 
-    @property
     def pascal(self: Self) -> float:
         return self._value
 
-    @property
     def spl(self: Self) -> float:
         return float(GainHolo().gain_holo_pascal_to_spl(self._value))
 

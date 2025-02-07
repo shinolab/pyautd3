@@ -49,23 +49,23 @@ def test_firmware_info():
             assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
             assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
 
-        autd.link.down()
+        autd.link().down()
         with pytest.raises(AUTDError) as e:
             autd.firmware_version()
         assert str(e.value) == "Read firmware info failed: 0, 1"
-        autd.link.up()
+        autd.link().up()
 
 
 def test_close():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert autd.link.is_open()
+        assert autd.link().is_open()
 
         autd.close()
         autd.close()
 
     with create_controller() as autd:
-        autd.link.break_down()
+        autd.link().break_down()
         with pytest.raises(AUTDError) as e:
             autd.close()
         assert str(e.value) == "broken"
@@ -74,93 +74,93 @@ def test_close():
 def test_send_single():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
 
         autd.send(Static())
 
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
 
-        autd.link.down()
+        autd.link().down()
         with pytest.raises(AUTDError) as e:
             autd.send(Static())
         assert str(e.value) == "Failed to send data"
-        autd.link.up()
+        autd.link().up()
 
-        autd.link.break_down()
+        autd.link().break_down()
         with pytest.raises(AUTDError) as e:
             autd.send(Static())
         assert str(e.value) == "broken"
-        autd.link.repair()
+        autd.link().repair()
 
 
 def test_send_tuple():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
         autd.send((Static(), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))))
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert np.all(phases == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
             autd.send(0)  # type: ignore[arg-type]
 
-        autd.link.down()
+        autd.link().down()
         with pytest.raises(AUTDError) as e:
             autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
         assert str(e.value) == "Failed to send data"
-        autd.link.up()
+        autd.link().up()
 
-        autd.link.break_down()
+        autd.link().break_down()
         with pytest.raises(AUTDError) as e:
             autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
         assert str(e.value) == "broken"
-        autd.link.repair()
+        autd.link().repair()
 
 
 def test_group():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.group(lambda dev: dev.idx).set(1, Null()).set(
+        autd.group(lambda dev: dev.idx()).set(1, Null()).set(
             0,
             (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))),
         ).send()
 
-        mod = autd.link.modulation_buffer(0, Segment.S0)
+        mod = autd.link().modulation_buffer(0, Segment.S0)
         assert len(mod) == 80
-        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
+        intensities, phases = autd.link().drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0xFF)
         assert np.all(phases == 0)
 
-        mod = autd.link.modulation_buffer(1, Segment.S0)
-        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
+        mod = autd.link().modulation_buffer(1, Segment.S0)
+        intensities, phases = autd.link().drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            autd.group(lambda dev: dev.idx).set(0, 0).send()  # type: ignore[arg-type]
+            autd.group(lambda dev: dev.idx()).set(0, 0).send()  # type: ignore[arg-type]
 
         with pytest.raises(KeyAlreadyExistsError):
-            autd.group(lambda dev: dev.idx).set(0, Null()).set(0, Null()).send()
+            autd.group(lambda dev: dev.idx()).set(0, Null()).set(0, Null()).send()
 
 
 def test_group_check_only_for_enabled():
     autd: Controller[Audit]
     with create_controller() as autd:
-        check = np.zeros(autd.num_devices, dtype=bool)
+        check = np.zeros(autd.num_devices(), dtype=bool)
 
-        autd.geometry[0].enable = False
+        autd.geometry()[0].enable = False
 
         def f(dev: Device) -> int:
-            check[dev.idx] = True
+            check[dev.idx()] = True
             return 0
 
         autd.group(f).set(0, (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))).send()
@@ -168,14 +168,14 @@ def test_group_check_only_for_enabled():
         assert not check[0]
         assert check[1]
 
-        mod = autd.link.modulation_buffer(0, Segment.S0)
-        intensities, phases = autd.link.drives_at(0, Segment.S0, 0)
+        mod = autd.link().modulation_buffer(0, Segment.S0)
+        intensities, phases = autd.link().drives_at(0, Segment.S0, 0)
         assert np.all(intensities == 0)
         assert np.all(phases == 0)
 
-        mod = autd.link.modulation_buffer(1, Segment.S0)
+        mod = autd.link().modulation_buffer(1, Segment.S0)
         assert len(mod) == 80
-        intensities, phases = autd.link.drives_at(1, Segment.S0, 0)
+        intensities, phases = autd.link().drives_at(1, Segment.S0, 0)
         assert np.all(intensities == 0x80)
         assert np.all(phases == 0x90)
 
@@ -185,17 +185,17 @@ def test_clear():
     with create_controller() as autd:
         autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x90))))
 
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0x90)
 
         autd.send(Clear())
 
-        for dev in autd.geometry:
-            assert np.all(autd.link.modulation_buffer(dev.idx, Segment.S0) == 0xFF)
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
@@ -209,23 +209,23 @@ def test_synchronize():
 def test_force_fan():
     autd: Controller[Audit]
     with create_controller() as autd:
-        for dev in autd.geometry:
-            assert not autd.link.is_force_fan(dev.idx)
+        for dev in autd.geometry():
+            assert not autd.link().is_force_fan(dev.idx())
 
-        autd.send(ForceFan(lambda dev: dev.idx == 0))
-        assert autd.link.is_force_fan(0)
-        assert not autd.link.is_force_fan(1)
+        autd.send(ForceFan(lambda dev: dev.idx() == 0))
+        assert autd.link().is_force_fan(0)
+        assert not autd.link().is_force_fan(1)
 
-        autd.send(ForceFan(lambda dev: dev.idx == 1))
-        assert not autd.link.is_force_fan(0)
-        assert autd.link.is_force_fan(1)
+        autd.send(ForceFan(lambda dev: dev.idx() == 1))
+        assert not autd.link().is_force_fan(0)
+        assert autd.link().is_force_fan(1)
 
 
 def test_geometry():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert autd.num_transducers == 249 * 2
-        assert autd[0].num_transducers == 249
+        assert autd.num_transducers() == 249 * 2
+        assert autd[0].num_transducers() == 249
 
 
 def test_tracing():

@@ -165,7 +165,6 @@ class Controller(Geometry, Generic[L]):
         self._link._ptr = Base().link_get(self._ptr)
         self._disposed = False
 
-    @property
     def link(self: Self) -> L:
         return self._link
 
@@ -186,7 +185,6 @@ class Controller(Geometry, Generic[L]):
     ) -> None:
         self._dispose()
 
-    @property
     def geometry(self: Self) -> Geometry:
         return self  # type: ignore[return-value]
 
@@ -223,7 +221,7 @@ class Controller(Geometry, Generic[L]):
             info = sb.decode("utf-8").rstrip(" \t\r\n\0")
             return FirmwareInfo(info)
 
-        res = list(map(get_firmware_info, range(self.num_devices)))
+        res = list(map(get_firmware_info, range(self.num_devices())))
         Base().controller_firmware_version_list_pointer_delete(handle)
         return res
 
@@ -242,12 +240,12 @@ class Controller(Geometry, Generic[L]):
             state = int(Base().controller_fpga_state_get(handle, i))
             return None if state == -1 else FPGAState(state)
 
-        res = list(map(get_fpga_state, range(self.num_devices)))
+        res = list(map(get_fpga_state, range(self.num_devices())))
         Base().controller_fpga_state_delete(handle)
         return res
 
     def sender(self: Self, option: SenderOption) -> Sender:
-        return Sender(Base().sender(self._ptr, option._inner()), self.geometry)
+        return Sender(Base().sender(self._ptr, option._inner()), self.geometry())
 
     def send(
         self: Self,

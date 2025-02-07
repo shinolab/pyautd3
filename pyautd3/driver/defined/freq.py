@@ -15,7 +15,6 @@ class Freq(Generic[T]):
         ins._freq = freq
         return ins
 
-    @property
     def hz(self: Self) -> T:
         return self._freq
 
