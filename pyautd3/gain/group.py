@@ -14,18 +14,13 @@ K = TypeVar("K")
 
 
 class Group(Gain, Generic[K]):
-    _map: dict[K, Gain]
-    _f: Callable[[Device], Callable[[Transducer], K | None]]
+    key_map: Callable[[Device], Callable[[Transducer], K | None]]
+    gain_map: dict[K, Gain]
 
-    def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], K | None]]) -> None:
+    def __init__(self: Self, key_map: Callable[[Device], Callable[[Transducer], K | None]], gain_map: dict[K, Gain]) -> None:
         super().__init__()
-        self._map = {}
-        self._f = f
-        self._parallel = False
-
-    def set(self: Self, key: K, gain: Gain) -> "Group[K]":
-        self._map[key] = gain
-        return self
+        self.key_map = key_map
+        self.gain_map = gain_map
 
     def _gain_ptr(self: Self, geometry: Geometry) -> GainPtr:
         keymap: dict[K, int] = {}
@@ -35,7 +30,7 @@ class Group(Gain, Generic[K]):
         gain_group_map = Base().gain_group_create_map(np.ctypeslib.as_ctypes(device_indices.astype(c_uint16)), len(device_indices))
         k: int = 0
         for dev in geometry.devices():
-            f = self._f(dev)
+            f = self.key_map(dev)
             m = np.zeros(dev.num_transducers(), dtype=np.int32)
             for tr in dev:
                 key = f(tr)
@@ -48,9 +43,9 @@ class Group(Gain, Generic[K]):
                     m[tr.idx()] = -1
             gain_group_map = Base().gain_group_map_set(gain_group_map, dev.idx(), np.ctypeslib.as_ctypes(m.astype(c_int32)))
 
-        keys: np.ndarray = np.ndarray(len(self._map), dtype=np.int32)
-        values: np.ndarray = np.ndarray(len(self._map), dtype=GainPtr)
-        for i, (key, value) in enumerate(self._map.items()):
+        keys: np.ndarray = np.ndarray(len(self.gain_map), dtype=np.int32)
+        values: np.ndarray = np.ndarray(len(self.gain_map), dtype=GainPtr)
+        for i, (key, value) in enumerate(self.gain_map.items()):
             if key not in keymap:
                 raise UnknownGroupKeyError
             keys[i] = keymap[key]

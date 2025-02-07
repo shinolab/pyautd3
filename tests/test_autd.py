@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
-from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError, KeyAlreadyExistsError
+from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError
 from pyautd3.controller.controller import SenderOption
 from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, StdSleeper, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
@@ -130,10 +130,10 @@ def test_send_tuple():
 def test_group():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.group(lambda dev: dev.idx()).set(1, Null()).set(
-            0,
-            (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))),
-        ).send()
+        autd.group_send(
+            key_map=lambda dev: dev.idx(),
+            data_map={1: Null(), 0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)))},
+        )
 
         mod = autd.link().modulation_buffer(0, Segment.S0)
         assert len(mod) == 80
@@ -146,10 +146,7 @@ def test_group():
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            autd.group(lambda dev: dev.idx()).set(0, 0).send()  # type: ignore[arg-type]
-
-        with pytest.raises(KeyAlreadyExistsError):
-            autd.group(lambda dev: dev.idx()).set(0, Null()).set(0, Null()).send()
+            autd.group_send(lambda dev: dev.idx(), {0: 0})  # type: ignore[dict-item]
 
 
 def test_group_check_only_for_enabled():
@@ -159,11 +156,11 @@ def test_group_check_only_for_enabled():
 
         autd.geometry()[0].enable = False
 
-        def f(dev: Device) -> int:
+        def key_map(dev: Device) -> int:
             check[dev.idx()] = True
             return 0
 
-        autd.group(f).set(0, (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))).send()
+        autd.group_send(key_map, {0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))})
 
         assert not check[0]
         assert check[1]
