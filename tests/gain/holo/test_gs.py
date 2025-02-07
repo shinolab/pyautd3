@@ -13,12 +13,12 @@ def test_gs():
         autd.send(
             GS(
                 backend=NalgebraBackend(),
-                foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
+                foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
                 option=GSOption(constraint=EmissionConstraint.Uniform(EmitIntensity(0x80))),
             ),
         )
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 

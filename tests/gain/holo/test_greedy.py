@@ -12,12 +12,12 @@ def test_greedy():
     with Controller[Audit].open([AUTD3(pos=[0.0, 0.0, 0.0], rot=[1.0, 0.0, 0.0, 0.0])], Audit()) as autd:
         autd.send(
             Greedy(
-                foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
+                foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
                 option=GreedyOption(constraint=EmissionConstraint.Uniform(EmitIntensity(0x80))),
             ),
         )
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 

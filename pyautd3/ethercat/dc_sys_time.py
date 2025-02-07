@@ -17,7 +17,6 @@ class DcSysTime:
         ins._inner = inner
         return ins
 
-    @property
     def sys_time(self: Self) -> int:
         return int(self._inner.dc_sys_time)
 
@@ -26,13 +25,13 @@ class DcSysTime:
         return DcSysTime.__private_new__(Base().dc_sys_time_now())
 
     def __add__(self: Self, other: Duration) -> "DcSysTime":
-        sys_time = self.sys_time + other.as_nanos()
+        sys_time = self.sys_time() + other.as_nanos()
         inner = _DcSysTime()
         inner.dc_sys_time = sys_time
         return DcSysTime.__private_new__(inner)
 
     def __sub__(self: Self, other: Duration) -> "DcSysTime":
-        sys_time = self.sys_time - other.as_nanos()
+        sys_time = self.sys_time() - other.as_nanos()
         inner = _DcSysTime()
         inner.dc_sys_time = sys_time
         return DcSysTime.__private_new__(inner)

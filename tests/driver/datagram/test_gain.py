@@ -15,18 +15,18 @@ if TYPE_CHECKING:
 def test_gain_segment():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert autd.link.current_stm_segment(0) == Segment.S0
+        assert autd.link().current_stm_segment(0) == Segment.S0
 
         autd.send(Uniform(intensity=EmitIntensity(0x01), phase=Phase(0x02)))
-        assert autd.link.current_stm_segment(0) == Segment.S0
-        assert autd.link.stm_cycle(0, Segment.S0) == 1
-        assert autd.link.stm_freqency_division(0, Segment.S0) == 0xFFFF
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        assert autd.link().current_stm_segment(0) == Segment.S0
+        assert autd.link().stm_cycle(0, Segment.S0) == 1
+        assert autd.link().stm_freqency_division(0, Segment.S0) == 0xFFFF
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x01)
             assert np.all(phases == 0x02)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S1, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S1, 0)
             assert np.all(intensities == 0x00)
             assert np.all(phases == 0x00)
 
@@ -37,13 +37,13 @@ def test_gain_segment():
                 transition_mode=TransitionMode.Immediate,
             ),
         )
-        assert autd.link.current_stm_segment(0) == Segment.S1
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        assert autd.link().current_stm_segment(0) == Segment.S1
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x01)
             assert np.all(phases == 0x02)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S1, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S1, 0)
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
@@ -54,15 +54,15 @@ def test_gain_segment():
                 transition_mode=None,
             ),
         )
-        assert autd.link.current_stm_segment(0) == Segment.S1
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        assert autd.link().current_stm_segment(0) == Segment.S1
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x05)
             assert np.all(phases == 0x06)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S1, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S1, 0)
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
         autd.send(SwapSegment.Gain(Segment.S0, TransitionMode.Immediate))
-        assert autd.link.current_stm_segment(0) == Segment.S0
+        assert autd.link().current_stm_segment(0) == Segment.S0

@@ -16,7 +16,7 @@ def test_transition_mode_sys_time():
     sys_time = DcSysTime.now()
     mode = TransitionMode.SysTime(sys_time)
     assert mode.tag == TransitionModeTag.SysTime
-    assert mode.value.sys_time.dc_sys_time == sys_time.sys_time
+    assert mode.value.sys_time.dc_sys_time == sys_time.sys_time()
 
 
 def test_transition_mode_gpio():

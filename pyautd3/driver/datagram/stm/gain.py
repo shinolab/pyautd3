@@ -74,7 +74,7 @@ class GainSTM(DatagramS[GainSTMPtr], DatagramL[GainSTMPtr], Datagram):
         for i, g in enumerate(self.gains):
             gains[i]["value"] = g._gain_ptr(geometry).value
         return Base().stm_gain(
-            self.sampling_config._inner,
+            self.sampling_config()._inner,
             gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
             len(gains),
             self.option._inner(),
@@ -100,6 +100,5 @@ class GainSTM(DatagramS[GainSTMPtr], DatagramL[GainSTMPtr], Datagram):
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().stm_gain_into_datagram(self._raw_ptr(geometry))
 
-    @property
     def sampling_config(self: Self) -> SamplingConfig:
         return _sampling_config(self.config, len(self.gains))

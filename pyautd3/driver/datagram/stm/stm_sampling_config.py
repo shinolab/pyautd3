@@ -26,10 +26,10 @@ def _sampling_config(config: SamplingConfig | Freq[float] | Duration | FreqNeare
         case SamplingConfig() as value:
             return value
         case Freq() as value:
-            return SamplingConfig(_validate_sampling_config(Base().stm_config_from_freq(value.hz, n)))
+            return SamplingConfig(_validate_sampling_config(Base().stm_config_from_freq(value.hz(), n)))
         case Duration() as value:
             return SamplingConfig(_validate_sampling_config(Base().stm_config_from_period(value._inner, n)))
         case FreqNearest() as value:
-            return SamplingConfig(Base().stm_config_from_freq_nearest(value.freq.hz, n))
+            return SamplingConfig(Base().stm_config_from_freq_nearest(value.freq.hz(), n))
         case PeriodNearest() as value:  # pragma: no cover
             return SamplingConfig(Base().stm_config_from_period_nearest(value.period._inner, n))

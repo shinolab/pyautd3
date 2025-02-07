@@ -36,7 +36,7 @@ class Naive(HoloWithBackend["Naive"]):
     def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         size = len(self.foci)
         points = np.fromiter((np.void(Point3(d)) for d, _ in self.foci), dtype=Point3)  # type: ignore[type-var,call-overload]
-        amps = np.fromiter((d.pascal for _, d in self.foci), dtype=ctypes.c_float)  # type: ignore[type-var,call-overload]
+        amps = np.fromiter((d.pascal() for _, d in self.foci), dtype=ctypes.c_float)  # type: ignore[type-var,call-overload]
         return self.backend._naive(
             points.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
             amps.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]

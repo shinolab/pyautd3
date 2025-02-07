@@ -17,7 +17,7 @@ def run(autd: Controller) -> None:
         (group.group_by_transducer, "Group (by Transducer) test"),
     ]
 
-    if autd.num_devices >= 2:
+    if autd.num_devices() >= 2:
         samples.append((group.group_by_device, "Group (by Device) test"))
 
     print("======== AUTD3 firmware information ========")

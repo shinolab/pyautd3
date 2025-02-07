@@ -62,6 +62,5 @@ class Modulation(
     def _modulation_ptr(self: Self) -> ModulationPtr:
         pass
 
-    @property
     def sampling_config(self: Self) -> SamplingConfig:
         return SamplingConfig(_validate_sampling_config(Base().modulation_sampling_config(self._modulation_ptr())))

@@ -13,11 +13,10 @@ class Phase:
             case int():
                 self.value = phase
             case Angle():
-                self.value = int(Base().phase_from_rad(phase.radian))
+                self.value = int(Base().phase_from_rad(phase.radian()))
             case _:
                 raise TypeError
 
-    @property
     def radian(self: Self) -> float:
         return float(Base().phase_to_rad(self._inner()))
 

@@ -58,7 +58,7 @@ class Sine(Modulation, Generic[T]):
 
     def __init__(self: Self, freq: Freq[T], option: SineOption) -> None:
         super().__init__()
-        match freq.hz:
+        match freq.hz():
             case int():
                 self._mode = SineMode.Exact
             case _:
@@ -69,16 +69,17 @@ class Sine(Modulation, Generic[T]):
     def into_nearest(self: Self) -> "Sine":
         match self._mode:
             case SineMode.ExactFloat:
-                self._mode = SineMode.Nearest
-                return self
+                new = Sine(self.freq, self.option)
+                new._mode = SineMode.Nearest
+                return new
             case _:
                 raise TypeError
 
     def _modulation_ptr(self) -> ModulationPtr:
         match self._mode:
             case SineMode.Exact:
-                return Base().modulation_sine_exact(self.freq.hz, self.option._inner())  # type: ignore[arg-type]
+                return Base().modulation_sine_exact(self.freq.hz(), self.option._inner())  # type: ignore[arg-type]
             case SineMode.ExactFloat:
-                return Base().modulation_sine_exact_float(self.freq.hz, self.option._inner())
+                return Base().modulation_sine_exact_float(self.freq.hz(), self.option._inner())
             case SineMode.Nearest:  # pragma: no cover
-                return Base().modulation_sine_nearest(self.freq.hz, self.option._inner())
+                return Base().modulation_sine_nearest(self.freq.hz(), self.option._inner())

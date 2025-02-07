@@ -53,7 +53,7 @@ class Square(Modulation, Generic[T]):
 
     def __init__(self: Self, freq: Freq[T], option: SquareOption) -> None:
         super().__init__()
-        match freq.hz:
+        match freq.hz():
             case int():
                 self._mode = SquareMode.Exact
             case _:
@@ -64,16 +64,17 @@ class Square(Modulation, Generic[T]):
     def into_nearest(self: Self) -> "Square":
         match self._mode:
             case SquareMode.ExactFloat:
-                self._mode = SquareMode.Nearest
-                return self
+                new = Square(self.freq, self.option)
+                new._mode = SquareMode.Nearest
+                return new
             case _:
                 raise TypeError
 
     def _modulation_ptr(self) -> ModulationPtr:
         match self._mode:
             case SquareMode.Exact:
-                return Base().modulation_square_exact(self.freq.hz, self.option._inner())  # type: ignore[arg-type]
+                return Base().modulation_square_exact(self.freq.hz(), self.option._inner())  # type: ignore[arg-type]
             case SquareMode.ExactFloat:
-                return Base().modulation_square_exact_float(self.freq.hz, self.option._inner())
+                return Base().modulation_square_exact_float(self.freq.hz(), self.option._inner())
             case SquareMode.Nearest:  # pragma: no cover
-                return Base().modulation_square_nearest(self.freq.hz, self.option._inner())
+                return Base().modulation_square_nearest(self.freq.hz(), self.option._inner())

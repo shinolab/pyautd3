@@ -126,7 +126,7 @@ class FociSTM(
         n = self.foci[0]._value()
         foci = np.fromiter((np.void(p) for p in self.foci), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
         return Base().stm_foci(
-            self.sampling_config._inner,
+            self.sampling_config()._inner,
             foci.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
             len(self.foci),
             n,
@@ -153,6 +153,5 @@ class FociSTM(
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().stm_foci_into_datagram(self._raw_ptr(geometry), self.foci[0]._value())
 
-    @property
     def sampling_config(self: Self) -> SamplingConfig:
         return _sampling_config(self.config, len(self.foci))

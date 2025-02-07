@@ -28,15 +28,15 @@ def test_square():
         )
         autd.send(m)
 
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [85, 85, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 10
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
 
         autd.send(Square(freq=150 * Hz, option=SquareOption(sampling_config=SamplingConfig(20))))
-        for dev in autd.geometry:
-            assert autd.link.modulation_frequency_division(dev.idx, Segment.S0) == 20
+        for dev in autd.geometry():
+            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 20
 
 
 def test_square_nearest():
@@ -44,8 +44,8 @@ def test_square_nearest():
     with create_controller() as autd:
         m = Square(freq=150.0 * Hz, option=SquareOption()).into_nearest()
         autd.send(m)
-        for dev in autd.geometry:
-            mod = autd.link.modulation_buffer(dev.idx, Segment.S0)
+        for dev in autd.geometry():
+            mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             assert np.array_equal(mod, mod_expect)
 

@@ -15,17 +15,17 @@ if TYPE_CHECKING:
 def test_focus():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send(Focus(pos=autd.center, option=FocusOption()))
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        autd.send(Focus(pos=autd.center(), option=FocusOption()))
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
-        g = Focus(pos=autd.center, option=FocusOption(intensity=EmitIntensity(0x80), phase_offset=Phase(0x90)))
+        g = Focus(pos=autd.center(), option=FocusOption(intensity=EmitIntensity(0x80), phase_offset=Phase(0x90)))
         autd.send(g)
-        assert np.array_equal(g.pos, autd.center)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        assert np.array_equal(g.pos, autd.center())
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 

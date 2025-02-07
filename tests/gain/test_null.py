@@ -15,7 +15,7 @@ def test_null():
     with create_controller() as autd:
         autd.send(Null())
 
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0)
             assert np.all(phases == 0)

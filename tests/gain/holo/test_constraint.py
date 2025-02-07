@@ -19,12 +19,12 @@ def test_constraint_uniform():
         backend = NalgebraBackend()
         g = Naive(
             backend=backend,
-            foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
+            foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Uniform(EmitIntensity(0x80))),
         )
         autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x80)
             assert not np.all(phases == 0)
 
@@ -35,12 +35,12 @@ def test_constraint_normalize():
         backend = NalgebraBackend()
         g = Naive(
             backend=backend,
-            foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
+            foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Normalize),
         )
         autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
@@ -51,12 +51,12 @@ def test_constraint_clamp():
         backend = NalgebraBackend()
         g = Naive(
             backend=backend,
-            foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
+            foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Clamp(EmitIntensity(67), EmitIntensity(85))),
         )
         autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities >= 67)
             assert np.all(intensities <= 85)
             assert not np.all(phases == 0)
@@ -68,12 +68,12 @@ def test_constraint_multiply():
         backend = NalgebraBackend()
         g = Naive(
             backend=backend,
-            foci=((autd.center + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
+            foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Multiply(0)),
         )
         autd.send(g)
-        for dev in autd.geometry:
-            intensities, phases = autd.link.drives_at(dev.idx, Segment.S0, 0)
+        for dev in autd.geometry():
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0)
             assert not np.all(phases == 0)
 

@@ -26,7 +26,6 @@ class Device:
         self._ptr = Base().device(ptr, idx)
         self._transducers = [Transducer(i, idx, self._ptr) for i in range(int(Base().device_num_transducers(self._ptr)))]
 
-    @property
     def idx(self: Self) -> int:
         return self._idx
 
@@ -55,11 +54,9 @@ class Device:
     def enable(self: Self, value: bool) -> None:
         Base().device_enable_set(self._geo_ptr, self._idx, value)
 
-    @property
     def num_transducers(self: Self) -> int:
         return len(self._transducers)
 
-    @property
     def center(self: Self) -> np.ndarray:
         return Base().device_center(self._ptr).ndarray()
 
@@ -72,27 +69,21 @@ class Device:
     def affine(self: Self, t: ArrayLike, r: ArrayLike) -> None:
         Base().device_affine(self._geo_ptr, self._idx, Vector3(np.array(t)), Quaternion(np.array(r)))
 
-    @property
     def wavelength(self: Self) -> float:
         return float(Base().device_wavelength(self._ptr))
 
-    @property
     def wavenumber(self: Self) -> float:
         return float(Base().device_wavenumber(self._ptr))
 
-    @property
     def rotation(self: Self) -> np.ndarray:
         return Base().device_rotation(self._ptr).ndarray()
 
-    @property
     def x_direction(self: Self) -> np.ndarray:
         return Base().device_direction_x(self._ptr).ndarray()
 
-    @property
     def y_direction(self: Self) -> np.ndarray:
         return Base().device_direction_y(self._ptr).ndarray()
 
-    @property
     def axial_direction(self: Self) -> np.ndarray:
         return Base().device_direction_axial(self._ptr).ndarray()
 
