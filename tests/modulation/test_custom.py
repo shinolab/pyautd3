@@ -15,7 +15,7 @@ def test_modulation_custom():
     with create_controller() as autd:
         buf = np.array([0] * 10)
         buf[0] = 0xFF
-        m = Custom(buffer=buf, sampling_config=SamplingConfig(10))
+        m = Custom(buffer=buf, sampling_config=SamplingConfig.FREQ_4K)
 
         autd.send(m)
 

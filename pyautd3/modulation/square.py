@@ -29,7 +29,7 @@ class SquareOption:
         self.low = _validate_u8(low)
         self.high = _validate_u8(high)
         self.duty = duty
-        self.sampling_config = sampling_config or SamplingConfig(10)
+        self.sampling_config = sampling_config or SamplingConfig.FREQ_4K
 
     def _inner(self: Self) -> SquareOption_:
         return SquareOption_(

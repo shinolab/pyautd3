@@ -59,3 +59,10 @@ class SamplingConfig:
 
     def __eq__(self: Self, value: object) -> bool:
         return isinstance(value, SamplingConfig) and self._inner.division == self._inner.division
+
+    FREQ_40K: "SamplingConfig" = None  # type: ignore[assignment]
+    FREQ_4K: "SamplingConfig" = None  # type: ignore[assignment]
+
+
+SamplingConfig.FREQ_40K = SamplingConfig(1)
+SamplingConfig.FREQ_4K = SamplingConfig(10)

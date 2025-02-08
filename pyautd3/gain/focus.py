@@ -18,7 +18,7 @@ class FocusOption:
     phase_offset: Phase
 
     def __init__(self: Self, *, intensity: EmitIntensity | None = None, phase_offset: Phase | None = None) -> None:
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
         self.phase_offset = phase_offset or Phase(0)
 
     def _inner(self: Self) -> FocusOption_:

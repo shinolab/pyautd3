@@ -197,7 +197,7 @@ def foci_stm_n(foci):  # noqa: ANN001
                 intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM(foci=foci, config=SamplingConfig(10))
+        stm = FociSTM(foci=foci, config=SamplingConfig.FREQ_40K)
         autd.send(stm)
         for dev in autd.geometry():
             for i in range(size):
@@ -205,7 +205,7 @@ def foci_stm_n(foci):  # noqa: ANN001
                 assert np.all(intensities == i)
 
         with pytest.raises(TypeError):
-            _ = FociSTM(foci=foci, config=SamplingConfig(10)).into_nearest()
+            _ = FociSTM(foci=foci, config=SamplingConfig.FREQ_40K).into_nearest()
 
 
 def test_foci_stm_1():

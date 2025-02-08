@@ -12,6 +12,7 @@ class Drive:
         self.phase = phase
         self.intensity = intensity
 
-    @staticmethod
-    def NULL() -> "Drive":  # noqa: N802
-        return Drive(phase=Phase(0), intensity=EmitIntensity.minimum())
+    NULL: "Drive" = None  # type: ignore[assignment]
+
+
+Drive.NULL = Drive(phase=Phase.ZERO, intensity=EmitIntensity.MIN)
