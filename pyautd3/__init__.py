@@ -18,6 +18,8 @@ from .driver.datagram import (
     ReadsFPGAState,
     Silencer,
     SwapSegment,
+    WithLoopBehavior,
+    WithSegment,
 )
 from .driver.datagram.stm import (
     ControlPoint,
@@ -121,6 +123,8 @@ __all__ = [
     "Transducer",
     "TransitionMode",
     "Uniform",
+    "WithLoopBehavior",
+    "WithSegment",
     "deg",
     "kHz",
     "phase_rad",
