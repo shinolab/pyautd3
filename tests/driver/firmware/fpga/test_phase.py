@@ -13,8 +13,10 @@ def test_phase():
 
     phase = Phase(0.0 * rad)
     assert phase.radian() == 0
+    assert Phase.ZERO.radian() == 0
     phase = Phase(np.pi * rad)
     assert phase.radian() == 3.1415927410125732
+    assert Phase.PI.radian() == 3.1415927410125732
     phase = Phase(2 * np.pi * rad)
     assert phase.radian() == 0
 

@@ -203,7 +203,7 @@ wheels = [
 
 [[package]]
 name = "pyautd3"
-version = "29.0.0rc19.post1"
+version = "29.0.0rc19.post2"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },
