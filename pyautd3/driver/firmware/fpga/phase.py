@@ -31,3 +31,10 @@ class Phase:
 
     def _inner(self: Self) -> Phase_:
         return Phase_(self.value)
+
+    ZERO: "Phase" = None  # type: ignore[assignment]
+    PI: "Phase" = None  # type: ignore[assignment]
+
+
+Phase.ZERO = Phase(0x00)
+Phase.PI = Phase(0x80)

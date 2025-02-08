@@ -26,7 +26,7 @@ def test_sine():
                 phase=np.pi / 2 * rad,
             ),
         )
-        assert m.sampling_config() == SamplingConfig(10)
+        assert m.sampling_config() == SamplingConfig.FREQ_4K
         autd.send(m)
 
         for dev in autd.geometry():

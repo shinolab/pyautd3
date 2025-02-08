@@ -40,7 +40,7 @@ class LMOption:
         self.tau = tau
         self.k_max = _validate_nonzero_u32(k_max)
         self.initial = initial or np.array([])
-        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.minimum(), EmitIntensity.maximum())
+        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.MIN, EmitIntensity.MAX)
 
     def _inner(self: Self) -> LMOption_:
         initial_ = np.ctypeslib.as_ctypes(self.initial.astype(ctypes.c_float))

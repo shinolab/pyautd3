@@ -17,6 +17,6 @@ class AUTD3:
     TRANS_SPACING: float = consts.TRANS_SPACING_MM
     DEVICE_WIDTH: float = consts.DEVICE_WIDTH_MM
     DEVICE_HEIGHT: float = consts.DEVICE_HEIGHT_MM
-    NUM_TRANS_IN_X: int = consts.NUM_TRANS_IN_X
-    NUM_TRANS_IN_Y: int = consts.NUM_TRANS_IN_Y
+    NUM_TRANS_X: int = consts.NUM_TRANS_IN_X
+    NUM_TRANS_Y: int = consts.NUM_TRANS_IN_Y
     NUM_TRANS_IN_UNIT: int = consts.NUM_TRANS_IN_UNIT

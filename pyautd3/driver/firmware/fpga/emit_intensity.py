@@ -10,14 +10,6 @@ class EmitIntensity:
     def __init__(self: Self, intensity: int) -> None:
         self.value = _validate_u8(intensity)
 
-    @staticmethod
-    def maximum() -> "EmitIntensity":
-        return EmitIntensity(0xFF)
-
-    @staticmethod
-    def minimum() -> "EmitIntensity":
-        return EmitIntensity(0x00)
-
     def __floordiv__(self: Self, other: int) -> "EmitIntensity":
         return EmitIntensity(self.value // other)
 
@@ -32,3 +24,10 @@ class EmitIntensity:
 
     def _inner(self: Self) -> EmitIntensity_:
         return EmitIntensity_(self.value)
+
+    MIN: "EmitIntensity" = None  # type: ignore[assignment]
+    MAX: "EmitIntensity" = None  # type: ignore[assignment]
+
+
+EmitIntensity.MIN = EmitIntensity(0x00)
+EmitIntensity.MAX = EmitIntensity(0xFF)

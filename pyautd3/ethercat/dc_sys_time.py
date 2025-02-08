@@ -35,3 +35,8 @@ class DcSysTime:
         inner = _DcSysTime()
         inner.dc_sys_time = sys_time
         return DcSysTime.__private_new__(inner)
+
+    ZERO: "DcSysTime" = None  # type: ignore[assignment]
+
+
+DcSysTime.ZERO = DcSysTime.__private_new__(_DcSysTime(0x00))

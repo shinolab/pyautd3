@@ -58,7 +58,7 @@ class ControlPoints1(ctypes.Structure, IControlPoints):
     def __init__(self: Self, points: ArrayLike | ControlPoint, intensity: EmitIntensity | None = None) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -100,7 +100,7 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -146,7 +146,7 @@ class ControlPoints3(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -193,7 +193,7 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -247,7 +247,7 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -304,7 +304,7 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -372,7 +372,7 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:
@@ -451,7 +451,7 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
     ) -> None:
         super().__init__()
         self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.maximum()
+        self.intensity = intensity or EmitIntensity.MAX
 
     @property
     def points(self: Self) -> np.ndarray:

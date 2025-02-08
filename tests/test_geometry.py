@@ -218,13 +218,13 @@ def test_transducer_position():
         assert np.allclose(autd.geometry()[0][0].position(), [0.0, 0.0, 0.0])
         assert np.allclose(
             autd.geometry()[0][-1].position(),
-            [(AUTD3.NUM_TRANS_IN_X - 1) * AUTD3.TRANS_SPACING, (AUTD3.NUM_TRANS_IN_Y - 1) * AUTD3.TRANS_SPACING, 0.0],
+            [(AUTD3.NUM_TRANS_X - 1) * AUTD3.TRANS_SPACING, (AUTD3.NUM_TRANS_Y - 1) * AUTD3.TRANS_SPACING, 0.0],
         )
 
         assert np.allclose(autd.geometry()[1][0].position(), [0.0, 0.0, 0.0])
         assert np.allclose(
             autd.geometry()[1][-1].position(),
-            [(AUTD3.NUM_TRANS_IN_X - 1) * AUTD3.TRANS_SPACING, (AUTD3.NUM_TRANS_IN_Y - 1) * AUTD3.TRANS_SPACING, 0.0],
+            [(AUTD3.NUM_TRANS_X - 1) * AUTD3.TRANS_SPACING, (AUTD3.NUM_TRANS_Y - 1) * AUTD3.TRANS_SPACING, 0.0],
         )
 
 

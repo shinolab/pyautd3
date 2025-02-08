@@ -23,7 +23,7 @@ class GSPATOption:
 
     def __init__(self: Self, *, repeat: int = 100, constraint: EmissionConstraintWrap | None = None) -> None:
         self.repeat = _validate_nonzero_u32(repeat)
-        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.minimum(), EmitIntensity.maximum())
+        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.MIN, EmitIntensity.MAX)
 
     def _inner(self: Self) -> GSPATOption_:
         return GSPATOption_(self.constraint, self.repeat)

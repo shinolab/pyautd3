@@ -20,7 +20,7 @@ class NaiveOption:
     constraint: EmissionConstraintWrap
 
     def __init__(self: Self, *, constraint: EmissionConstraintWrap | None = None) -> None:
-        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.minimum(), EmitIntensity.maximum())
+        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.MIN, EmitIntensity.MAX)
 
     def _inner(self: Self) -> NaiveOption_:
         return NaiveOption_(self.constraint)

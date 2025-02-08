@@ -23,7 +23,7 @@ class GreedyOption:
 
     def __init__(self: Self, *, phase_div: int = 16, constraint: EmissionConstraintWrap | None = None) -> None:
         self.phase_div = _validate_nonzero_u16(phase_div)
-        self.constraint = constraint or EmissionConstraint.Uniform(EmitIntensity.maximum())
+        self.constraint = constraint or EmissionConstraint.Uniform(EmitIntensity.MAX)
 
     def _inner(self: Self) -> GreedyOption_:
         return GreedyOption_(self.constraint, self.phase_div)

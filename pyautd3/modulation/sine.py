@@ -33,7 +33,7 @@ class SineOption:
         self.offset = _validate_u8(offset)
         self.phase = phase or 0.0 * rad
         self.clamp = clamp
-        self.sampling_config = sampling_config or SamplingConfig(10)
+        self.sampling_config = sampling_config or SamplingConfig.FREQ_4K
 
     def _inner(self: Self) -> SineOption_:
         return SineOption_(
