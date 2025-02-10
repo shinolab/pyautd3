@@ -10,6 +10,8 @@ from .segment import SwapSegment
 from .silencer import FixedCompletionTime, FixedUpdateRate, Silencer
 from .stm import FociSTM, GainSTM, GainSTMMode, GainSTMOption
 from .synchronize import Synchronize
+from .with_loop_behavior import WithLoopBehavior
+from .with_segment import WithSegment
 
 __all__ = [
     "Clear",
@@ -29,4 +31,6 @@ __all__ = [
     "Silencer",
     "SwapSegment",
     "Synchronize",
+    "WithLoopBehavior",
+    "WithSegment",
 ]

@@ -2,6 +2,7 @@ import contextlib
 from collections.abc import Callable
 
 from .controller import Controller, SenderOption
+from .controller.sleeper import SpinSleeper
 from .driver.autd3_device import AUTD3
 from .driver.datagram import (
     Clear,
@@ -18,6 +19,8 @@ from .driver.datagram import (
     ReadsFPGAState,
     Silencer,
     SwapSegment,
+    WithLoopBehavior,
+    WithSegment,
 )
 from .driver.datagram.stm import (
     ControlPoint,
@@ -37,7 +40,7 @@ from .ethercat import DcSysTime
 from .gain import Bessel, BesselOption, Focus, FocusOption, Group, Null, Plane, PlaneOption, Uniform
 from .link.nop import Nop
 from .modulation import Sine, SineOption, Square, SquareOption, Static
-from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, Segment, SilencerTarget
+from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, ParallelMode, Segment, SilencerTarget
 from .native_methods.autd3capi import NativeMethods as Base
 from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
@@ -100,6 +103,7 @@ __all__ = [
     "LoopBehavior",
     "Nop",
     "Null",
+    "ParallelMode",
     "Phase",
     "PhaseCorrection",
     "Plane",
@@ -114,6 +118,7 @@ __all__ = [
     "SilencerTarget",
     "Sine",
     "SineOption",
+    "SpinSleeper",
     "Square",
     "SquareOption",
     "Static",
@@ -121,6 +126,8 @@ __all__ = [
     "Transducer",
     "TransitionMode",
     "Uniform",
+    "WithLoopBehavior",
+    "WithSegment",
     "deg",
     "kHz",
     "phase_rad",
@@ -128,4 +135,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "29.0.0rc20"
+__version__ = "29.0.0"
