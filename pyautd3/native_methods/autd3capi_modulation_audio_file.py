@@ -43,5 +43,5 @@ class NativeMethods(metaclass=Singleton):
     def modulation_audio_file_wav(self, path: bytes) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path)
 
-    def modulation_audio_file_csv(self, path: bytes, sampling_config: SamplingConfig, deliminator: int) -> ResultModulation:
-        return self.dll.AUTDModulationAudioFileCsv(path, sampling_config, deliminator)
+    def modulation_audio_file_csv(self, path: bytes, sampling_config: SamplingConfig, delimiter: int) -> ResultModulation:
+        return self.dll.AUTDModulationAudioFileCsv(path, sampling_config, delimiter)

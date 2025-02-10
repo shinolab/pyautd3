@@ -45,18 +45,25 @@ from pyautd3.native_methods.autd3capi_driver import (
 from pyautd3.native_methods.structs import Point3, Quaternion, Vector3
 
 
-class FourierOption(ctypes.Structure):
-    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
+class FPGAStateListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class FixedCompletionTime(ctypes.Structure):
-    _fields_ = [("intensity", Duration), ("phase", Duration), ("strict_mode", ctypes.c_bool)]
+class GroupGainMapPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FirmwareVersionListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ResultController(ctypes.Structure):
@@ -64,6 +71,20 @@ class ResultController(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FourierOption(ctypes.Structure):
+    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultFirmwareVersionList(ctypes.Structure):
+    _fields_ = [("result", FirmwareVersionListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class SenderOption(ctypes.Structure):
@@ -79,32 +100,11 @@ class SenderOption(ctypes.Structure):
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class FirmwareVersionListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FPGAStateListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class GainCachePtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GroupGainMapPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ModulationCachePtr(ctypes.Structure):
@@ -121,11 +121,11 @@ class ResultFPGAStateList(ctypes.Structure):
         return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultFirmwareVersionList(ctypes.Structure):
-    _fields_ = [("result", FirmwareVersionListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class FixedCompletionTime(ctypes.Structure):
+    _fields_ = [("intensity", Duration), ("phase", Duration), ("strict_mode", ctypes.c_bool)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class Singleton(type):

@@ -25,7 +25,6 @@ rm -rf htmlcov
 rm -rf .ruff_cache
 rm -rf .mypy_cache
 rm -rf .pytest_cache
-rm uv.lock
 '''
 
 [tasks.clean-pycache]
