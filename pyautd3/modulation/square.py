@@ -5,8 +5,8 @@ from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.utils import _validate_u8
-from pyautd3.native_methods.autd3 import SquareOption as SquareOption_
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.native_methods.autd3capi import SquareOption as SquareOption_
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 
 T = TypeVar("T", int, float)
@@ -36,7 +36,7 @@ class SquareOption:
             self.low,
             self.high,
             self.duty,
-            self.sampling_config._inner,
+            self.sampling_config.division,
         )
 
 

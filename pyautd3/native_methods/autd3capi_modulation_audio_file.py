@@ -2,8 +2,7 @@ import ctypes
 import threading
 from pathlib import Path
 
-from pyautd3.native_methods.autd3 import SamplingConfig
-from pyautd3.native_methods.autd3capi_driver import ResultModulation, ResultStatus
+from pyautd3.native_methods.autd3capi_driver import ResultModulation, ResultStatus, SamplingConfigWrap
 
 
 class Singleton(type):
@@ -31,7 +30,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationAudioFileWav.argtypes = [ctypes.c_char_p]
         self.dll.AUTDModulationAudioFileWav.restype = ResultModulation
 
-        self.dll.AUTDModulationAudioFileCsv.argtypes = [ctypes.c_char_p, SamplingConfig, ctypes.c_uint8]
+        self.dll.AUTDModulationAudioFileCsv.argtypes = [ctypes.c_char_p, SamplingConfigWrap, ctypes.c_uint8]
         self.dll.AUTDModulationAudioFileCsv.restype = ResultModulation
 
     def modulation_audio_file_tracing_init(self) -> None:
@@ -43,5 +42,5 @@ class NativeMethods(metaclass=Singleton):
     def modulation_audio_file_wav(self, path: bytes) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileWav(path)
 
-    def modulation_audio_file_csv(self, path: bytes, sampling_config: SamplingConfig, delimiter: int) -> ResultModulation:
+    def modulation_audio_file_csv(self, path: bytes, sampling_config: SamplingConfigWrap, delimiter: int) -> ResultModulation:
         return self.dll.AUTDModulationAudioFileCsv(path, sampling_config, delimiter)
