@@ -2,7 +2,7 @@ import pytest
 
 from pyautd3 import SamplingConfig
 from pyautd3.autd_error import AUTDError
-from pyautd3.driver.defined.freq import Freq, Hz
+from pyautd3.driver.defined.freq import Hz
 from pyautd3.utils import Duration
 
 
@@ -19,28 +19,6 @@ def test_sampl_config_from_freq_div():
 
 
 def test_sampl_config_from_freq():
-    config = SamplingConfig(40000 * Hz)
-    assert config.division == 1
-    assert config.freq() == 40000 * Hz
-    assert config.period() == Duration.from_micros(25)
-
-    with pytest.raises(AUTDError) as e:
-        _ = SamplingConfig(39999 * Hz).division
-    assert str(e.value) == "Sampling frequency (39999 Hz) must divide the ultrasound frequency"
-
-    with pytest.raises(AUTDError) as e:
-        _ = SamplingConfig(39999 * Hz).freq
-    assert str(e.value) == "Sampling frequency (39999 Hz) must divide the ultrasound frequency"
-
-    with pytest.raises(AUTDError) as e:
-        _ = SamplingConfig(39999 * Hz).period
-    assert str(e.value) == "Sampling frequency (39999 Hz) must divide the ultrasound frequency"
-
-    with pytest.raises(TypeError):
-        _ = SamplingConfig(Freq.__private_new__(1j))
-
-
-def test_sampl_config_from_freq_f():
     config = SamplingConfig(40000.0 * Hz)
     assert config.division == 1
     assert config.freq() == 40000.0 * Hz
@@ -60,16 +38,13 @@ def test_sampl_config_from_freq_f():
 
 
 def test_sampl_config_from_freq_nearest():
-    config = SamplingConfig.nearest(40000.0 * Hz)
+    config = SamplingConfig(40000.0 * Hz).into_nearest()
     assert config.division == 1
     assert config.freq() == 40000 * Hz
     assert config.period() == Duration.from_micros(25)
 
     with pytest.raises(TypeError):
-        _ = SamplingConfig.nearest(40000 * Hz)
-
-    with pytest.raises(TypeError):
-        _ = SamplingConfig.nearest(40000)  # type: ignore[arg-type]
+        _ = SamplingConfig(40000 * Hz).into_nearest()
 
 
 def test_sampl_config_from_period():
@@ -80,7 +55,7 @@ def test_sampl_config_from_period():
 
 
 def test_sampl_config_from_period_nearest():
-    config = SamplingConfig.nearest(Duration.from_micros(25))
+    config = SamplingConfig(Duration.from_micros(25)).into_nearest()
     assert config.division == 1
     assert config.freq() == 40000 * Hz
     assert config.period() == Duration.from_micros(25)

@@ -49,6 +49,7 @@ class Fourier(Modulation):
     def _modulation_ptr(self: Self) -> ModulationPtr:
         size = len(self.components)
         option = self.option._inner()
+
         sine_option = np.fromiter((np.void(m.option._inner()) for m in self.components), dtype=SineOption_)  # type: ignore[type-var,call-overload]
         match self.components[0]._mode:
             case SineMode.Exact:

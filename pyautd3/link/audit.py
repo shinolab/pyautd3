@@ -19,12 +19,6 @@ class Audit(Link):
     def _resolve(self: Self) -> LinkPtr:
         return LinkAudit().link_audit()
 
-    def down(self: Self) -> None:
-        LinkAudit().link_audit_down(self._ptr)
-
-    def up(self: Self) -> None:
-        LinkAudit().link_audit_up(self._ptr)
-
     def is_open(self: Self) -> bool:
         return bool(LinkAudit().link_audit_is_open(self._ptr))
 

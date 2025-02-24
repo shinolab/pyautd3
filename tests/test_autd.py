@@ -49,12 +49,6 @@ def test_firmware_info():
             assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
             assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
 
-        autd.link().down()
-        with pytest.raises(AUTDError) as e:
-            autd.firmware_version()
-        assert str(e.value) == "Read firmware info failed: 0, 1"
-        autd.link().up()
-
 
 def test_close():
     autd: Controller[Audit]
@@ -82,12 +76,6 @@ def test_send_single():
         for dev in autd.geometry():
             assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
 
-        autd.link().down()
-        with pytest.raises(AUTDError) as e:
-            autd.send(Static())
-        assert str(e.value) == "Failed to send data"
-        autd.link().up()
-
         autd.link().break_down()
         with pytest.raises(AUTDError) as e:
             autd.send(Static())
@@ -113,12 +101,6 @@ def test_send_tuple():
 
         with pytest.raises(InvalidDatagramTypeError):
             autd.send(0)  # type: ignore[arg-type]
-
-        autd.link().down()
-        with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
-        assert str(e.value) == "Failed to send data"
-        autd.link().up()
 
         autd.link().break_down()
         with pytest.raises(AUTDError) as e:
