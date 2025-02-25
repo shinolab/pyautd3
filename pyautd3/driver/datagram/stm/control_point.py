@@ -1,5 +1,4 @@
 import ctypes
-from abc import abstractmethod
 from typing import Self
 
 import numpy as np
@@ -41,51 +40,15 @@ class ControlPoint(ctypes.Structure):
         self._offset = value.value
 
 
-class IControlPoints:
-    @staticmethod
-    @abstractmethod
-    def _value() -> int:
-        pass
-
-
-class ControlPoints1(ctypes.Structure, IControlPoints):
+class ControlPoints1(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point", ControlPoint),
         ("_intensity", ctypes.c_uint8),
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(self: Self, points: ArrayLike | ControlPoint, intensity: EmitIntensity | None = None) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array([self._point.point])
-
-    @points.setter
-    def points(self: Self, value: ArrayLike | ControlPoint) -> None:
-        match value:
-            case ControlPoint():
-                self._point = value
-            case _:
-                self._point = ControlPoint(point=value)
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 1
-
-
-class ControlPoints2(ctypes.Structure, IControlPoints):
+class ControlPoints2(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -93,44 +56,8 @@ class ControlPoints2(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array([self._point1.point, self._point2.point])  # type: ignore[union-attr]
-
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint()):
-                self._point1, self._point2 = value  # type: ignore[var-annotated]
-            case _:
-                self._point1, self._point2 = ControlPoint(point=value[0]), ControlPoint(point=value[1])
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 2
-
-
-class ControlPoints3(ctypes.Structure, IControlPoints):
+class ControlPoints3(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -139,44 +66,8 @@ class ControlPoints3(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array([self._point1.point, self._point2.point, self._point3.point])  # type: ignore[union-attr]
-
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint(), ControlPoint()):
-                self._point1, self._point2, self._point3 = value  # type: ignore[var-annotated]
-            case _:
-                self._point1, self._point2, self._point3 = ControlPoint(point=value[0]), ControlPoint(point=value[1]), ControlPoint(point=value[2])
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 3
-
-
-class ControlPoints4(ctypes.Structure, IControlPoints):
+class ControlPoints4(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -186,49 +77,8 @@ class ControlPoints4(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array([self._point1.point, self._point2.point, self._point3.point, self._point4.point])  # type: ignore[union-attr]
-
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike] | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint()):
-                self._point1, self._point2, self._point3, self._point4 = value  # type: ignore[var-annotated]
-            case _:
-                self._point1, self._point2, self._point3, self._point4 = (
-                    ControlPoint(point=value[0]),
-                    ControlPoint(point=value[1]),
-                    ControlPoint(point=value[2]),
-                    ControlPoint(point=value[3]),
-                )
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 4
-
-
-class ControlPoints5(ctypes.Structure, IControlPoints):
+class ControlPoints5(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -239,52 +89,8 @@ class ControlPoints5(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array([self._point1.point, self._point2.point, self._point3.point, self._point4.point, self._point5.point])  # type: ignore[union-attr]
-
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint()):
-                self._point1, self._point2, self._point3, self._point4, self._point5 = value  # type: ignore[var-annotated]
-            case _:
-                self._point1, self._point2, self._point3, self._point4, self._point5 = (
-                    ControlPoint(point=value[0]),
-                    ControlPoint(point=value[1]),
-                    ControlPoint(point=value[2]),
-                    ControlPoint(point=value[3]),
-                    ControlPoint(point=value[4]),
-                )
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 5
-
-
-class ControlPoints6(ctypes.Structure, IControlPoints):
+class ControlPoints6(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -296,62 +102,8 @@ class ControlPoints6(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array(
-            [
-                self._point1.point,  # type: ignore[union-attr]
-                self._point2.point,  # type: ignore[union-attr]
-                self._point3.point,  # type: ignore[union-attr]
-                self._point4.point,  # type: ignore[union-attr]
-                self._point5.point,  # type: ignore[union-attr]
-                self._point6.point,  # type: ignore[union-attr]
-            ],
-        )
-
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint()):
-                self._point1, self._point2, self._point3, self._point4, self._point5, self._point6 = value  # type: ignore[var-annotated]
-            case _:
-                self._point1, self._point2, self._point3, self._point4, self._point5, self._point6 = (
-                    ControlPoint(point=value[0]),
-                    ControlPoint(point=value[1]),
-                    ControlPoint(point=value[2]),
-                    ControlPoint(point=value[3]),
-                    ControlPoint(point=value[4]),
-                    ControlPoint(point=value[5]),
-                )
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 6
-
-
-class ControlPoints7(ctypes.Structure, IControlPoints):
+class ControlPoints7(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -364,72 +116,8 @@ class ControlPoints7(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array(
-            [
-                self._point1.point,  # type: ignore[union-attr]
-                self._point2.point,  # type: ignore[union-attr]
-                self._point3.point,  # type: ignore[union-attr]
-                self._point4.point,  # type: ignore[union-attr]
-                self._point5.point,  # type: ignore[union-attr]
-                self._point6.point,  # type: ignore[union-attr]
-                self._point7.point,  # type: ignore[union-attr]
-            ],
-        )
-
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint()):
-                (
-                    self._point1,
-                    self._point2,
-                    self._point3,
-                    self._point4,
-                    self._point5,
-                    self._point6,
-                    self._point7,
-                ) = value  # type: ignore[var-annotated]
-            case _:
-                self._point1, self._point2, self._point3, self._point4, self._point5, self._point6, self._point7 = (
-                    ControlPoint(point=value[0]),
-                    ControlPoint(point=value[1]),
-                    ControlPoint(point=value[2]),
-                    ControlPoint(point=value[3]),
-                    ControlPoint(point=value[4]),
-                    ControlPoint(point=value[5]),
-                    ControlPoint(point=value[6]),
-                )
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 7
-
-
-class ControlPoints8(ctypes.Structure, IControlPoints):
+class ControlPoints8(ctypes.Structure):
     _fields_ = [  # noqa: RUF012
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
@@ -443,69 +131,15 @@ class ControlPoints8(ctypes.Structure, IControlPoints):
         ("_pad", ctypes.c_uint8 * 3),
     ]
 
-    def __init__(
-        self: Self,
-        points: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-        intensity: EmitIntensity | None = None,
-    ) -> None:
-        super().__init__()
-        self.points = points  # type: ignore[assignment]
-        self.intensity = intensity or EmitIntensity.MAX
 
-    @property
-    def points(self: Self) -> np.ndarray:
-        return np.array(
-            [
-                self._point1.point,  # type: ignore[union-attr]
-                self._point2.point,  # type: ignore[union-attr]
-                self._point3.point,  # type: ignore[union-attr]
-                self._point4.point,  # type: ignore[union-attr]
-                self._point5.point,  # type: ignore[union-attr]
-                self._point6.point,  # type: ignore[union-attr]
-                self._point7.point,  # type: ignore[union-attr]
-                self._point8.point,  # type: ignore[union-attr]
-            ],
-        )
+class ControlPoints:
+    points: list[ControlPoint]
+    intensity: EmitIntensity
 
-    @points.setter
-    def points(
-        self: Self,
-        value: tuple[ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike, ArrayLike]
-        | tuple[ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint, ControlPoint],
-    ) -> None:
-        match value:
-            case (ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint(), ControlPoint()):
-                (
-                    self._point1,
-                    self._point2,
-                    self._point3,
-                    self._point4,
-                    self._point5,
-                    self._point6,
-                    self._point7,
-                    self._point8,
-                ) = value  # type: ignore[var-annotated]
+    def __init__(self, points: list[ControlPoint] | list[ArrayLike], intensity: EmitIntensity | None = None) -> None:
+        match points[0]:
+            case ControlPoint():
+                self.points = points  # type: ignore[assignment]
             case _:
-                self._point1, self._point2, self._point3, self._point4, self._point5, self._point6, self._point7, self._point8 = (
-                    ControlPoint(point=value[0]),
-                    ControlPoint(point=value[1]),
-                    ControlPoint(point=value[2]),
-                    ControlPoint(point=value[3]),
-                    ControlPoint(point=value[4]),
-                    ControlPoint(point=value[5]),
-                    ControlPoint(point=value[6]),
-                    ControlPoint(point=value[7]),
-                )
-
-    @property
-    def intensity(self: Self) -> EmitIntensity:
-        return EmitIntensity(self._intensity)
-
-    @intensity.setter
-    def intensity(self: Self, value: EmitIntensity) -> None:
-        self._intensity = value.value
-
-    @staticmethod
-    def _value() -> int:
-        return 8
+                self.points = [ControlPoint(point=p) for p in points]
+        self.intensity = intensity or EmitIntensity.MAX

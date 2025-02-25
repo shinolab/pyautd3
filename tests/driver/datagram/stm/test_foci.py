@@ -3,18 +3,9 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, ControlPoint, FociSTM, Hz, LoopBehavior, SamplingConfig, Segment, Silencer
+from pyautd3 import Controller, FociSTM, Hz, LoopBehavior, SamplingConfig, Segment, Silencer
 from pyautd3.driver.datagram.segment import SwapSegment
-from pyautd3.driver.datagram.stm.control_point import (
-    ControlPoints1,
-    ControlPoints2,
-    ControlPoints3,
-    ControlPoints4,
-    ControlPoints5,
-    ControlPoints6,
-    ControlPoints7,
-    ControlPoints8,
-)
+from pyautd3.driver.datagram.stm.control_point import ControlPoint, ControlPoints
 from pyautd3.driver.datagram.with_loop_behavior import WithLoopBehavior
 from pyautd3.driver.datagram.with_segment import WithSegment
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
@@ -31,13 +22,8 @@ def test_foci_stm():
     with create_controller() as autd:
         autd.send(Silencer.disable())
 
-        radius = 30.0
-        size = 2
         center = np.array([0.0, 0.0, 150.0])
-        stm = FociSTM(
-            foci=(center + radius * np.array([np.cos(theta), np.sin(theta), 0]) for theta in (2.0 * np.pi * i / size for i in range(size))),
-            config=1.0 * Hz,
-        )
+        stm = FociSTM(foci=[center, center], config=1.0 * Hz)
         assert stm.sampling_config() == SamplingConfig(20000)
         autd.send(stm)
         for dev in autd.geometry():
@@ -75,6 +61,19 @@ def test_foci_stm():
             assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=SamplingConfig(1))
+        autd.send(stm)
+        for dev in autd.geometry():
+            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 1
+        for dev in autd.geometry():
+            assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
+            assert not np.all(intensities == 0)
+            assert not np.all(phases == 0)
+            intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 1)
+            assert not np.all(intensities == 0)
+            assert not np.all(phases == 0)
+
+        stm = FociSTM(foci=[ControlPoint(point=center), ControlPoint(point=center)], config=SamplingConfig(1))
         autd.send(stm)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 1
@@ -154,16 +153,16 @@ def test_foci_stm_loop_behavior():
         assert autd.link().stm_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE
 
 
-def foci_stm_n(foci):  # noqa: ANN001
+def foci_stm_n(n: int) -> None:
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.send(Silencer.disable())
 
-        size = len(foci)
-        stm = FociSTM(
-            foci=foci,
-            config=1.0 * Hz,
-        )
+        size = 100
+        center = autd.center() + np.array([0.0, 0.0, 150.0])
+        foci = [ControlPoints(points=[center] * n, intensity=EmitIntensity(i)) for i in range(size)]
+
+        stm = FociSTM(foci=foci, config=1.0 * Hz)
         autd.send(stm)
         for dev in autd.geometry():
             for i in range(size):
@@ -177,20 +176,14 @@ def foci_stm_n(foci):  # noqa: ANN001
                 intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM(
-            foci=foci,
-            config=Duration.from_secs(1),
-        )
+        stm = FociSTM(foci=foci, config=Duration.from_secs(1))
         autd.send(stm)
         for dev in autd.geometry():
             for i in range(size):
                 intensities, _ = autd.link().drives_at(dev.idx(), Segment.S0, i)
                 assert np.all(intensities == i)
 
-        stm = FociSTM(
-            foci=foci,
-            config=Duration.from_secs(1),
-        ).into_nearest()
+        stm = FociSTM(foci=foci, config=Duration.from_secs(1)).into_nearest()
         autd.send(stm)
         for dev in autd.geometry():
             for i in range(size):
@@ -209,187 +202,48 @@ def foci_stm_n(foci):  # noqa: ANN001
 
 
 def test_foci_stm_1():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n([ControlPoints1(points=center, intensity=EmitIntensity(i)) for i in range(size)])
-        foci_stm_n([ControlPoints1(points=ControlPoint(point=center), intensity=EmitIntensity(i)) for i in range(size)])
+    foci_stm_n(1)
 
 
 def test_foci_stm_2():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n([ControlPoints2(points=(center, center), intensity=EmitIntensity(i)) for i in range(size)])
-        foci_stm_n(
-            [
-                ControlPoints2(
-                    points=(ControlPoint(point=center), ControlPoint(point=center)),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+    foci_stm_n(2)
 
 
 def test_foci_stm_3():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n([ControlPoints3(points=(center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
-        foci_stm_n(
-            [
-                ControlPoints3(
-                    points=(ControlPoint(point=center), ControlPoint(point=center), ControlPoint(point=center)),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+    foci_stm_n(3)
 
 
 def test_foci_stm_4():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n([ControlPoints4(points=(center, center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
-        foci_stm_n(
-            [
-                ControlPoints4(
-                    points=(ControlPoint(point=center), ControlPoint(point=center), ControlPoint(point=center), ControlPoint(point=center)),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+    foci_stm_n(4)
 
 
 def test_foci_stm_5():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n([ControlPoints5(points=(center, center, center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
-        foci_stm_n(
-            [
-                ControlPoints5(
-                    points=(
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                    ),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+    foci_stm_n(5)
 
 
 def test_foci_stm_6():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n(
-            [
-                ControlPoints6(
-                    points=(center, center, center, center, center, center),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
-        foci_stm_n(
-            [
-                ControlPoints6(
-                    points=(
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                    ),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+    foci_stm_n(6)
 
 
 def test_foci_stm_7():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.send(Silencer.disable())
-
-        size = 100
-        center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n([ControlPoints7(points=(center, center, center, center, center, center, center), intensity=EmitIntensity(i)) for i in range(size)])
-        foci_stm_n(
-            [
-                ControlPoints7(
-                    points=(
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                    ),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+    foci_stm_n(7)
 
 
 def test_foci_stm_8():
+    foci_stm_n(8)
+
+
+def test_foci_stm_mix():
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.send(Silencer.disable())
 
-        size = 100
         center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci_stm_n(
-            [
-                ControlPoints8(points=(center, center, center, center, center, center, center, center), intensity=EmitIntensity(i))
-                for i in range(size)
-            ],
-        )
-        foci_stm_n(
-            [
-                ControlPoints8(
-                    points=(
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                        ControlPoint(point=center),
-                    ),
-                    intensity=EmitIntensity(i),
-                )
-                for i in range(size)
-            ],
-        )
+
+        stm = FociSTM(foci=[ControlPoints(points=[center]), ControlPoints(points=[center, center])], config=1.0 * Hz)
+        with pytest.raises(ValueError):  # noqa: PT011
+            autd.send(stm)
+
+        stm = FociSTM(foci=[ControlPoints(points=[center] * 9), ControlPoints(points=[center] * 9)], config=1.0 * Hz)
+        with pytest.raises(ValueError):  # noqa: PT011
+            autd.send(stm)

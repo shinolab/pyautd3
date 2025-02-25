@@ -22,17 +22,7 @@ from .driver.datagram import (
     WithLoopBehavior,
     WithSegment,
 )
-from .driver.datagram.stm import (
-    ControlPoint,
-    ControlPoints1,
-    ControlPoints2,
-    ControlPoints3,
-    ControlPoints4,
-    ControlPoints5,
-    ControlPoints6,
-    ControlPoints7,
-    ControlPoints8,
-)
+from .driver.datagram.stm import ControlPoint, ControlPoints
 from .driver.defined import Hz, deg, kHz, rad
 from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, SamplingConfig, TransitionMode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
@@ -68,14 +58,7 @@ __all__ = [
     "BesselOption",
     "Clear",
     "ControlPoint",
-    "ControlPoints1",
-    "ControlPoints2",
-    "ControlPoints3",
-    "ControlPoints4",
-    "ControlPoints5",
-    "ControlPoints6",
-    "ControlPoints7",
-    "ControlPoints8",
+    "ControlPoints",
     "Controller",
     "Custom",
     "DcSysTime",
@@ -135,4 +118,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "30.0.1.1"
+__version__ = "30.0.1.2"

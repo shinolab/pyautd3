@@ -1,7 +1,7 @@
 [project]
 name = "pyautd3"
 authors = [{ name = "Shun Suzuki", email = "suzuki@hapis.k.u-tokyo.ac.jp" }]
-version = "30.0.1.1"
+version = "30.0.1.2"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
 requires-python = ">=3.11"
