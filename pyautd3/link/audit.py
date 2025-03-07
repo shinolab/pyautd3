@@ -9,8 +9,6 @@ from pyautd3.native_methods.autd3 import Segment, SilencerTarget
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
 from pyautd3.native_methods.autd3capi_driver import LinkPtr, LoopBehavior
 
-__all__ = []  # type: ignore[var-annotated]
-
 
 class Audit(Link):
     def __init__(self: Self) -> None:

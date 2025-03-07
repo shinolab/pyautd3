@@ -10,8 +10,6 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, GeometryPtr
 from pyautd3.native_methods.utils import ConstantADT
 
-__all__ = ["DebugType"]
-
 
 class DebugType(metaclass=ConstantADT):
     def __new__(cls: type["DebugType"]) -> "DebugType":
@@ -49,7 +47,7 @@ class DebugType(metaclass=ConstantADT):
         return Base().debug_type_sys_time_eq(value._inner)
 
 
-class DebugSettings(Datagram):
+class GPIOOutputs(Datagram):
     def __init__(self: Self, f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
         super().__init__()
 
@@ -66,4 +64,4 @@ class DebugSettings(Datagram):
         )(f_native)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_debug_settings(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
+        return Base().datagram_gpio_outputs(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]

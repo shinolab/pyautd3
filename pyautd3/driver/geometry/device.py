@@ -2,14 +2,12 @@ from collections.abc import Iterator
 from typing import Self
 
 import numpy as np
-from numpy.typing import ArrayLike
 
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import (
     DevicePtr,
     GeometryPtr,
 )
-from pyautd3.native_methods.structs import Quaternion, Vector3
 
 from .transducer import Transducer
 
@@ -59,15 +57,6 @@ class Device:
 
     def center(self: Self) -> np.ndarray:
         return Base().device_center(self._ptr).ndarray()
-
-    def translate(self: Self, t: ArrayLike) -> None:
-        Base().device_translate(self._geo_ptr, self._idx, Vector3(np.array(t)))
-
-    def rotate(self: Self, r: ArrayLike) -> None:
-        Base().device_rotate(self._geo_ptr, self._idx, Quaternion(np.array(r)))
-
-    def affine(self: Self, t: ArrayLike, r: ArrayLike) -> None:
-        Base().device_affine(self._geo_ptr, self._idx, Vector3(np.array(t)), Quaternion(np.array(r)))
 
     def wavelength(self: Self) -> float:
         return float(Base().device_wavelength(self._ptr))
