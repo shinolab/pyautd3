@@ -350,8 +350,6 @@ fn main() -> Result<()> {
             "FociSTMControlFlags",
             "GainSTMControlFlags",
             "FirmwareVersionType",
-            "SineOption",
-            "SquareOption",
         ],
     }
     .gen(&home, &mut defined, &mut defined_enum)?;

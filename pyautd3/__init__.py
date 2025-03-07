@@ -6,7 +6,6 @@ from .controller.sleeper import SpinSleeper
 from .driver.autd3_device import AUTD3
 from .driver.datagram import (
     Clear,
-    DebugSettings,
     DebugType,
     FixedCompletionTime,
     FixedUpdateRate,
@@ -14,6 +13,7 @@ from .driver.datagram import (
     ForceFan,
     GainSTM,
     GainSTMOption,
+    GPIOOutputs,
     PhaseCorrection,
     PulseWidthEncoder,
     ReadsFPGAState,
@@ -62,7 +62,6 @@ __all__ = [
     "Controller",
     "Custom",
     "DcSysTime",
-    "DebugSettings",
     "DebugType",
     "Device",
     "Drive",
@@ -77,6 +76,7 @@ __all__ = [
     "ForceFan",
     "GPIOIn",
     "GPIOOut",
+    "GPIOOutputs",
     "GainSTM",
     "GainSTMMode",
     "GainSTMOption",
@@ -118,4 +118,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "30.0.1.2"
+__version__ = "31.0.1"

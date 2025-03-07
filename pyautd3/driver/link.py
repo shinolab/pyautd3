@@ -3,8 +3,6 @@ from typing import Self, TypeVar
 
 from pyautd3.native_methods.autd3capi_driver import LinkPtr
 
-__all__ = []  # type: ignore[var-annotated]
-
 L = TypeVar("L", bound="Link")
 
 

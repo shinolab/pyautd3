@@ -19,8 +19,6 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GainPtr, GainSTMPtr, LoopBehavior, TransitionModeWrap
 from pyautd3.utils import Duration
 
-__all__ = []  # type: ignore[var-annotated]
-
 
 class GainSTMOption:
     mode: GainSTMMode

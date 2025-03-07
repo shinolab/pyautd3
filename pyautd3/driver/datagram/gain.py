@@ -9,8 +9,6 @@ from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GainPtr, TransitionModeWrap
 
-__all__ = []  # type: ignore[var-annotated]
-
 
 class Gain(
     DatagramS[GainPtr],

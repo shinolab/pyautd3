@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import AUTD3, Controller, EulerAngles, deg, rad
+from pyautd3.driver.geometry.device import Device
 from pyautd3.driver.geometry.rotation import Angle
 from pyautd3.link.audit import Audit
 
@@ -101,6 +102,33 @@ def test_geometry_center():
         assert center[2] == 0.0
 
 
+def test_geometry_reconfigure():
+    with create_controller() as autd:
+
+        def f(dev: Device) -> AUTD3:
+            match dev.idx():
+                case 0:
+                    return AUTD3(
+                        pos=[1.0, 2.0, 3.0],
+                        rot=[0.18257418, 0.36514837, 0.54772252, 0.73029673],
+                    )
+                case _:
+                    return AUTD3(
+                        pos=[4.0, 5.0, 6.0],
+                        rot=[0.37904903, 0.45485884, 0.53066862, 0.60647845],
+                    )
+
+        assert np.allclose(autd.geometry()[0][0].position(), [0.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry()[0].rotation(), [1.0, 0.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry()[1][0].position(), [0.0, 0.0, 0.0])
+        assert np.allclose(autd.geometry()[1].rotation(), [1.0, 0.0, 0.0, 0.0])
+        autd.reconfigure(f)
+        assert np.allclose(autd.geometry()[0][0].position(), [1.0, 2.0, 3.0])
+        assert np.allclose(autd.geometry()[0].rotation(), [0.18257418, 0.36514837, 0.54772252, 0.73029673])
+        assert np.allclose(autd.geometry()[1][0].position(), [4.0, 5.0, 6.0])
+        assert np.allclose(autd.geometry()[1].rotation(), [0.37904903, 0.45485884, 0.53066862, 0.60647845])
+
+
 def test_device_idx():
     with create_controller() as autd:
         assert autd.geometry()[0].idx() == 0
@@ -153,38 +181,6 @@ def test_device_center():
             assert center[0] == 86.625267028808594
             assert center[1] == 66.71319580078125
             assert center[2] == 0.0
-
-
-def test_device_translate():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            original_pos = [tr.position() for tr in dev]
-            t = [1, 2, 3]
-            dev.translate(t)
-            for tr in dev:
-                assert np.allclose(tr.position(), original_pos[tr.idx()] + t)
-
-
-def test_device_rotate():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            r = [0.70710678, 0.0, 0.0, 0.70710678]
-            dev.rotate(r)
-            assert np.allclose(dev.rotation(), r)
-
-
-def test_device_affine():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            original_pos = [tr.position() for tr in dev]
-            t = [1, 2, 3]
-            r = [0.70710678, 0.0, 0.0, 0.70710678]
-            dev.affine(t, r)
-            for tr in dev:
-                op = original_pos[tr.idx()]
-                expected = np.array([-op[1], op[0], op[2]]) + t
-                assert np.allclose(tr.position(), expected, atol=1e-3)
-            assert np.allclose(dev.rotation(), r)
 
 
 def test_device_wavelength():
