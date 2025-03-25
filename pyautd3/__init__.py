@@ -6,7 +6,6 @@ from .controller.sleeper import SpinSleeper
 from .driver.autd3_device import AUTD3
 from .driver.datagram import (
     Clear,
-    DebugType,
     FixedCompletionTime,
     FixedUpdateRate,
     FociSTM,
@@ -14,6 +13,7 @@ from .driver.datagram import (
     GainSTM,
     GainSTMOption,
     GPIOOutputs,
+    GPIOOutputType,
     PhaseCorrection,
     PulseWidthEncoder,
     ReadsFPGAState,
@@ -24,13 +24,13 @@ from .driver.datagram import (
 )
 from .driver.datagram.stm import ControlPoint, ControlPoints
 from .driver.defined import Hz, deg, kHz, rad
-from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, SamplingConfig, TransitionMode
+from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, PulseWidth, SamplingConfig, TransitionMode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
 from .ethercat import DcSysTime
 from .gain import Bessel, BesselOption, Focus, FocusOption, Group, Null, Plane, PlaneOption, Uniform
 from .link.nop import Nop
 from .modulation import Sine, SineOption, Square, SquareOption, Static
-from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, ParallelMode, Segment, SilencerTarget
+from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, ParallelMode, Segment
 from .native_methods.autd3capi import NativeMethods as Base
 from .native_methods.autd3capi_link_simulator import NativeMethods as Simulator
 from .native_methods.autd3capi_link_twincat import NativeMethods as TwinCAT
@@ -62,7 +62,6 @@ __all__ = [
     "Controller",
     "Custom",
     "DcSysTime",
-    "DebugType",
     "Device",
     "Drive",
     "Duration",
@@ -76,6 +75,7 @@ __all__ = [
     "ForceFan",
     "GPIOIn",
     "GPIOOut",
+    "GPIOOutputType",
     "GPIOOutputs",
     "GainSTM",
     "GainSTMMode",
@@ -91,6 +91,7 @@ __all__ = [
     "PhaseCorrection",
     "Plane",
     "PlaneOption",
+    "PulseWidth",
     "PulseWidthEncoder",
     "ReadsFPGAState",
     "SamplingConfig",
@@ -98,7 +99,6 @@ __all__ = [
     "Segment",
     "SenderOption",
     "Silencer",
-    "SilencerTarget",
     "Sine",
     "SineOption",
     "SpinSleeper",
@@ -118,4 +118,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "31.0.1"
+__version__ = "32.0.0"

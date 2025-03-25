@@ -16,18 +16,17 @@ from pyautd3.native_methods.autd3 import (
     Phase,
     PlaneOption,
     Segment,
-    SilencerTarget,
 )
 from pyautd3.native_methods.autd3capi_driver import (
     ControllerPtr,
     DatagramPtr,
-    DebugTypeWrap,
     DevicePtr,
     Duration,
     FociSTMPtr,
     GainPtr,
     GainSTMPtr,
     GeometryPtr,
+    GPIOOutputTypeWrap,
     LinkPtr,
     LoopBehavior,
     ModulationPtr,
@@ -46,87 +45,11 @@ from pyautd3.native_methods.autd3capi_driver import (
 from pyautd3.native_methods.structs import Point3, Quaternion, Vector3
 
 
-class FirmwareVersionListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class ResultController(ctypes.Structure):
     _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GroupGainMapPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FPGAStateListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class SenderOption(ctypes.Structure):
-    _fields_ = [
-        ("send_interval", Duration),
-        ("receive_interval", Duration),
-        ("timeout", OptionDuration),
-        ("parallel", ctypes.c_uint8),
-        ("sleeper", SleeperWrap),
-    ]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FixedCompletionTime(ctypes.Structure):
-    _fields_ = [("intensity", Duration), ("phase", Duration), ("strict_mode", ctypes.c_bool)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ResultFPGAStateList(ctypes.Structure):
-    _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GainCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ResultFirmwareVersionList(ctypes.Structure):
-    _fields_ = [("result", FirmwareVersionListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ModulationCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FourierOption(ctypes.Structure):
-    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class SineOption(ctypes.Structure):
@@ -142,11 +65,87 @@ class SineOption(ctypes.Structure):
         return isinstance(other, SineOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
+class SenderOption(ctypes.Structure):
+    _fields_ = [
+        ("send_interval", Duration),
+        ("receive_interval", Duration),
+        ("timeout", OptionDuration),
+        ("parallel", ctypes.c_uint8),
+        ("sleeper", SleeperWrap),
+    ]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GroupGainMapPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FourierOption(ctypes.Structure):
+    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GainCachePtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FPGAStateListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FirmwareVersionListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FixedCompletionTime(ctypes.Structure):
+    _fields_ = [("intensity", Duration), ("phase", Duration), ("strict_mode", ctypes.c_bool)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ModulationCachePtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class SquareOption(ctypes.Structure):
     _fields_ = [("low", ctypes.c_uint8), ("high", ctypes.c_uint8), ("duty", ctypes.c_float), ("sampling_config_div", ctypes.c_uint16)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SquareOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultFirmwareVersionList(ctypes.Structure):
+    _fields_ = [("result", FirmwareVersionListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultFPGAStateList(ctypes.Structure):
+    _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class Singleton(type):
@@ -251,16 +250,16 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramSwapSegmentGain.argtypes = [ctypes.c_uint8, TransitionModeWrap]
         self.dll.AUTDDatagramSwapSegmentGain.restype = DatagramPtr
 
-        self.dll.AUTDDatagramSilencerFromUpdateRate.argtypes = [FixedUpdateRate, ctypes.c_uint8]
+        self.dll.AUTDDatagramSilencerFromUpdateRate.argtypes = [FixedUpdateRate]
         self.dll.AUTDDatagramSilencerFromUpdateRate.restype = DatagramPtr
 
-        self.dll.AUTDDatagramSilencerFromCompletionSteps.argtypes = [FixedCompletionSteps, ctypes.c_uint8]
+        self.dll.AUTDDatagramSilencerFromCompletionSteps.argtypes = [FixedCompletionSteps]
         self.dll.AUTDDatagramSilencerFromCompletionSteps.restype = DatagramPtr
 
-        self.dll.AUTDDatagramSilencerFromCompletionTime.argtypes = [FixedCompletionTime, ctypes.c_uint8]
+        self.dll.AUTDDatagramSilencerFromCompletionTime.argtypes = [FixedCompletionTime]
         self.dll.AUTDDatagramSilencerFromCompletionTime.restype = DatagramPtr
 
-        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.argtypes = [FixedCompletionSteps, ctypes.c_uint8]
+        self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.argtypes = [FixedCompletionSteps]
         self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault.restype = ctypes.c_bool
 
         self.dll.AUTDSTMFoci.argtypes = [SamplingConfigWrap, ctypes.c_void_p, ctypes.c_uint16, ctypes.c_uint8]
@@ -305,44 +304,44 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDcSysTimeNow.argtypes = []
         self.dll.AUTDDcSysTimeNow.restype = DcSysTime
 
-        self.dll.AUTDDebugTypeNone.argtypes = []
-        self.dll.AUTDDebugTypeNone.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeNone.argtypes = []
+        self.dll.AUTDGPIOOutputTypeNone.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeBaseSignal.argtypes = []
-        self.dll.AUTDDebugTypeBaseSignal.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeBaseSignal.argtypes = []
+        self.dll.AUTDGPIOOutputTypeBaseSignal.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeThermo.argtypes = []
-        self.dll.AUTDDebugTypeThermo.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeThermo.argtypes = []
+        self.dll.AUTDGPIOOutputTypeThermo.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeForceFan.argtypes = []
-        self.dll.AUTDDebugTypeForceFan.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeForceFan.argtypes = []
+        self.dll.AUTDGPIOOutputTypeForceFan.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeSync.argtypes = []
-        self.dll.AUTDDebugTypeSync.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeSync.argtypes = []
+        self.dll.AUTDGPIOOutputTypeSync.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeModSegment.argtypes = []
-        self.dll.AUTDDebugTypeModSegment.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeModSegment.argtypes = []
+        self.dll.AUTDGPIOOutputTypeModSegment.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeModIdx.argtypes = [ctypes.c_uint16]
-        self.dll.AUTDDebugTypeModIdx.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeModIdx.argtypes = [ctypes.c_uint16]
+        self.dll.AUTDGPIOOutputTypeModIdx.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeStmSegment.argtypes = []
-        self.dll.AUTDDebugTypeStmSegment.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeStmSegment.argtypes = []
+        self.dll.AUTDGPIOOutputTypeStmSegment.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeStmIdx.argtypes = [ctypes.c_uint16]
-        self.dll.AUTDDebugTypeStmIdx.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeStmIdx.argtypes = [ctypes.c_uint16]
+        self.dll.AUTDGPIOOutputTypeStmIdx.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeIsStmMode.argtypes = []
-        self.dll.AUTDDebugTypeIsStmMode.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeIsStmMode.argtypes = []
+        self.dll.AUTDGPIOOutputTypeIsStmMode.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypePwmOut.argtypes = [TransducerPtr]
-        self.dll.AUTDDebugTypePwmOut.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypePwmOut.argtypes = [TransducerPtr]
+        self.dll.AUTDGPIOOutputTypePwmOut.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeDirect.argtypes = [ctypes.c_bool]
-        self.dll.AUTDDebugTypeDirect.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeDirect.argtypes = [ctypes.c_bool]
+        self.dll.AUTDGPIOOutputTypeDirect.restype = GPIOOutputTypeWrap
 
-        self.dll.AUTDDebugTypeSysTimeEq.argtypes = [DcSysTime]
-        self.dll.AUTDDebugTypeSysTimeEq.restype = DebugTypeWrap
+        self.dll.AUTDGPIOOutputTypeSysTimeEq.argtypes = [DcSysTime]
+        self.dll.AUTDGPIOOutputTypeSysTimeEq.restype = GPIOOutputTypeWrap
 
         self.dll.AUTDLoopBehaviorInfinite.argtypes = []
         self.dll.AUTDLoopBehaviorInfinite.restype = LoopBehavior
@@ -582,11 +581,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.argtypes = [LinkPtr, ctypes.c_uint16]
         self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode.restype = ctypes.c_bool
 
-        self.dll.AUTDLinkAuditFpgaSilencerTarget.argtypes = [LinkPtr, ctypes.c_uint16]
-        self.dll.AUTDLinkAuditFpgaSilencerTarget.restype = SilencerTarget
-
-        self.dll.AUTDLinkAuditFpgaDebugTypes.argtypes = [LinkPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]
-        self.dll.AUTDLinkAuditFpgaDebugTypes.restype = None
+        self.dll.AUTDLinkAuditFpgaGPIOOutputTypes.argtypes = [LinkPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]
+        self.dll.AUTDLinkAuditFpgaGPIOOutputTypes.restype = None
 
         self.dll.AUTDLinkAuditFpgaDebugValues.argtypes = [LinkPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint64)]
         self.dll.AUTDLinkAuditFpgaDebugValues.restype = None
@@ -624,7 +620,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaDrivesAt.argtypes = [LinkPtr, ctypes.c_uint8, ctypes.c_uint16, ctypes.c_uint16, ctypes.POINTER(Drive)]
         self.dll.AUTDLinkAuditFpgaDrivesAt.restype = None
 
-        self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable.argtypes = [LinkPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]
+        self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable.argtypes = [LinkPtr, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint16)]
         self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable.restype = None
 
         self.dll.AUTDLinkGet.argtypes = [ControllerPtr]
@@ -804,17 +800,17 @@ class NativeMethods(metaclass=Singleton):
     def datagram_swap_segment_gain(self, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
         return self.dll.AUTDDatagramSwapSegmentGain(segment, transition_mode)
 
-    def datagram_silencer_from_update_rate(self, config: FixedUpdateRate, target: SilencerTarget) -> DatagramPtr:
-        return self.dll.AUTDDatagramSilencerFromUpdateRate(config, target)
+    def datagram_silencer_from_update_rate(self, config: FixedUpdateRate) -> DatagramPtr:
+        return self.dll.AUTDDatagramSilencerFromUpdateRate(config)
 
-    def datagram_silencer_from_completion_steps(self, config: FixedCompletionSteps, target: SilencerTarget) -> DatagramPtr:
-        return self.dll.AUTDDatagramSilencerFromCompletionSteps(config, target)
+    def datagram_silencer_from_completion_steps(self, config: FixedCompletionSteps) -> DatagramPtr:
+        return self.dll.AUTDDatagramSilencerFromCompletionSteps(config)
 
-    def datagram_silencer_from_completion_time(self, config: FixedCompletionTime, target: SilencerTarget) -> DatagramPtr:
-        return self.dll.AUTDDatagramSilencerFromCompletionTime(config, target)
+    def datagram_silencer_from_completion_time(self, config: FixedCompletionTime) -> DatagramPtr:
+        return self.dll.AUTDDatagramSilencerFromCompletionTime(config)
 
-    def datagram_silencer_fixed_completion_steps_is_default(self, config: FixedCompletionSteps, target: SilencerTarget) -> ctypes.c_bool:
-        return self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault(config, target)
+    def datagram_silencer_fixed_completion_steps_is_default(self, config: FixedCompletionSteps) -> ctypes.c_bool:
+        return self.dll.AUTDDatagramSilencerFixedCompletionStepsIsDefault(config)
 
     def stm_foci(self, config: SamplingConfigWrap, points: ctypes.c_void_p, size: int, n: int) -> FociSTMPtr:
         return self.dll.AUTDSTMFoci(config, points, size, n)
@@ -871,44 +867,44 @@ class NativeMethods(metaclass=Singleton):
     def dc_sys_time_now(self) -> DcSysTime:
         return self.dll.AUTDDcSysTimeNow()
 
-    def debug_type_none(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeNone()
+    def gpio_output_type_none(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeNone()
 
-    def debug_type_base_signal(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeBaseSignal()
+    def gpio_output_type_base_signal(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeBaseSignal()
 
-    def debug_type_thermo(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeThermo()
+    def gpio_output_type_thermo(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeThermo()
 
-    def debug_type_force_fan(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeForceFan()
+    def gpio_output_type_force_fan(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeForceFan()
 
-    def debug_type_sync(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeSync()
+    def gpio_output_type_sync(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeSync()
 
-    def debug_type_mod_segment(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeModSegment()
+    def gpio_output_type_mod_segment(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeModSegment()
 
-    def debug_type_mod_idx(self, value: int) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeModIdx(value)
+    def gpio_output_type_mod_idx(self, value: int) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeModIdx(value)
 
-    def debug_type_stm_segment(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeStmSegment()
+    def gpio_output_type_stm_segment(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeStmSegment()
 
-    def debug_type_stm_idx(self, value: int) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeStmIdx(value)
+    def gpio_output_type_stm_idx(self, value: int) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeStmIdx(value)
 
-    def debug_type_is_stm_mode(self) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeIsStmMode()
+    def gpio_output_type_is_stm_mode(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeIsStmMode()
 
-    def debug_type_pwm_out(self, value: TransducerPtr) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypePwmOut(value)
+    def gpio_output_type_pwm_out(self, value: TransducerPtr) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypePwmOut(value)
 
-    def debug_type_direct(self, value: bool) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeDirect(value)
+    def gpio_output_type_direct(self, value: bool) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeDirect(value)
 
-    def debug_type_sys_time_eq(self, sys_time: DcSysTime) -> DebugTypeWrap:
-        return self.dll.AUTDDebugTypeSysTimeEq(sys_time)
+    def gpio_output_type_sys_time_eq(self, sys_time: DcSysTime) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeSysTimeEq(sys_time)
 
     def loop_behavior_infinite(self) -> LoopBehavior:
         return self.dll.AUTDLoopBehaviorInfinite()
@@ -1141,11 +1137,8 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_silencer_fixed_completion_steps_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
         return self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode(audit, idx)
 
-    def link_audit_fpga_silencer_target(self, audit: LinkPtr, idx: int) -> SilencerTarget:
-        return self.dll.AUTDLinkAuditFpgaSilencerTarget(audit, idx)
-
-    def link_audit_fpga_debug_types(self, audit: LinkPtr, idx: int, ty: ctypes.Array[ctypes.c_uint8]) -> None:
-        return self.dll.AUTDLinkAuditFpgaDebugTypes(audit, idx, ty)
+    def link_audit_fpga_gpio_output_types(self, audit: LinkPtr, idx: int, ty: ctypes.Array[ctypes.c_uint8]) -> None:
+        return self.dll.AUTDLinkAuditFpgaGPIOOutputTypes(audit, idx, ty)
 
     def link_audit_fpga_debug_values(self, audit: LinkPtr, idx: int, value: ctypes.Array[ctypes.c_uint64]) -> None:
         return self.dll.AUTDLinkAuditFpgaDebugValues(audit, idx, value)
@@ -1177,7 +1170,7 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_drives_at(self, audit: LinkPtr, segment: Segment, idx: int, stm_idx: int, drive: ctypes.Array[Drive]) -> None:
         return self.dll.AUTDLinkAuditFpgaDrivesAt(audit, segment, idx, stm_idx, drive)
 
-    def link_audit_fpga_pulse_width_encoder_table(self, audit: LinkPtr, idx: int, dst: ctypes.Array[ctypes.c_uint8]) -> None:
+    def link_audit_fpga_pulse_width_encoder_table(self, audit: LinkPtr, idx: int, dst: ctypes.Array[ctypes.c_uint16]) -> None:
         return self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable(audit, idx, dst)
 
     def link_get(self, cnt: ControllerPtr) -> LinkPtr:

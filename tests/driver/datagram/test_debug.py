@@ -5,12 +5,12 @@ import numpy as np
 from pyautd3 import (
     Controller,
     DcSysTime,
-    DebugType,
     GPIOOutputs,
+    GPIOOutputType,
 )
 from pyautd3.driver.geometry.device import Device
 from pyautd3.native_methods.autd3 import GPIOOut
-from pyautd3.native_methods.autd3capi_driver import DebugTypeWrap
+from pyautd3.native_methods.autd3capi_driver import GPIOOutputTypeWrap
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -24,48 +24,48 @@ def test_debug_output_idx():
             assert np.array_equal([0x00, 0x00, 0x00, 0x00], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link().debug_values(dev.idx()))
 
-        def f0(_: Device, gpio: GPIOOut) -> DebugTypeWrap:
+        def f0(_: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
             match gpio:
                 case GPIOOut.O0:
-                    return DebugType.NONE
+                    return GPIOOutputType.NONE
                 case GPIOOut.O1:
-                    return DebugType.BaseSignal
+                    return GPIOOutputType.BaseSignal
                 case GPIOOut.O2:
-                    return DebugType.Thermo
+                    return GPIOOutputType.Thermo
                 case GPIOOut.O3:
-                    return DebugType.ForceFan
+                    return GPIOOutputType.ForceFan
 
         autd.send(GPIOOutputs(f0))
         for dev in autd.geometry():
             assert np.array_equal([0x00, 0x01, 0x02, 0x03], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link().debug_values(dev.idx()))
 
-        def f1(_: Device, gpio: GPIOOut) -> DebugTypeWrap:
+        def f1(_: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
             match gpio:
                 case GPIOOut.O0:
-                    return DebugType.Sync
+                    return GPIOOutputType.Sync
                 case GPIOOut.O1:
-                    return DebugType.ModSegment
+                    return GPIOOutputType.ModSegment
                 case GPIOOut.O2:
-                    return DebugType.ModIdx(0x01)
+                    return GPIOOutputType.ModIdx(0x01)
                 case GPIOOut.O3:
-                    return DebugType.StmSegment
+                    return GPIOOutputType.StmSegment
 
         autd.send(GPIOOutputs(f1))
         for dev in autd.geometry():
             assert np.array_equal([0x10, 0x20, 0x21, 0x50], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0000, 0x0000, 0x0001, 0x0000], autd.link().debug_values(dev.idx()))
 
-        def f2(dev: Device, gpio: GPIOOut) -> DebugTypeWrap:
+        def f2(dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
             match gpio:
                 case GPIOOut.O0:
-                    return DebugType.StmIdx(0x02)
+                    return GPIOOutputType.StmIdx(0x02)
                 case GPIOOut.O1:
-                    return DebugType.IsStmMode
+                    return GPIOOutputType.IsStmMode
                 case GPIOOut.O2:
-                    return DebugType.PwmOut(dev[3])
+                    return GPIOOutputType.PwmOut(dev[3])
                 case GPIOOut.O3:
-                    return DebugType.Direct(True)  # noqa: FBT003
+                    return GPIOOutputType.Direct(True)  # noqa: FBT003
 
         autd.send(GPIOOutputs(f2))
         for dev in autd.geometry():
@@ -74,18 +74,18 @@ def test_debug_output_idx():
 
         sys_time = DcSysTime.now()
 
-        def f3(_dev: Device, gpio: GPIOOut) -> DebugTypeWrap:
+        def f3(_dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
             match gpio:
                 case GPIOOut.O0:
-                    return DebugType.SysTimeEq(sys_time)
+                    return GPIOOutputType.SysTimeEq(sys_time)
                 case GPIOOut.O1:
-                    return DebugType.NONE
+                    return GPIOOutputType.NONE
                 case GPIOOut.O2:
-                    return DebugType.NONE
+                    return GPIOOutputType.NONE
                 case GPIOOut.O3:
-                    return DebugType.NONE
+                    return GPIOOutputType.NONE
 
         autd.send(GPIOOutputs(f3))
         for dev in autd.geometry():
             assert np.array_equal([0x60, 0x00, 0x00, 0x00], autd.link().debug_types(dev.idx()))
-            assert np.array_equal([(sys_time.sys_time() // 3125) << 5, 0x00, 0x00, 0x00], autd.link().debug_values(dev.idx()))
+            assert np.array_equal([(sys_time.sys_time() // 3125) >> 3, 0x00, 0x00, 0x00], autd.link().debug_values(dev.idx()))

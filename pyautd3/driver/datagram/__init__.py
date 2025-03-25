@@ -1,7 +1,7 @@
 from pyautd3.driver.datagram.datagram import Datagram
 
 from .clear import Clear
-from .debug import DebugType, GPIOOutputs
+from .debug import GPIOOutputs, GPIOOutputType
 from .force_fan import ForceFan
 from .phase_corr import PhaseCorrection
 from .pulse_width_encoder import PulseWidthEncoder
@@ -16,11 +16,11 @@ from .with_segment import WithSegment
 __all__ = [
     "Clear",
     "Datagram",
-    "DebugType",
     "FixedCompletionTime",
     "FixedUpdateRate",
     "FociSTM",
     "ForceFan",
+    "GPIOOutputType",
     "GPIOOutputs",
     "GainSTM",
     "GainSTMMode",
