@@ -5,7 +5,7 @@ import numpy as np
 
 from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3 import Drive as Drive_
-from pyautd3.native_methods.autd3 import Segment, SilencerTarget
+from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
 from pyautd3.native_methods.autd3capi_driver import LinkPtr, LoopBehavior
 
@@ -47,12 +47,9 @@ class Audit(Link):
     def silencer_fixed_completion_steps_mode(self: Self, idx: int) -> bool:
         return bool(LinkAudit().link_audit_fpga_silencer_fixed_completion_steps_mode(self._ptr, idx))
 
-    def silencer_target(self: Self, idx: int) -> SilencerTarget:
-        return LinkAudit().link_audit_fpga_silencer_target(self._ptr, idx)
-
     def debug_types(self: Self, idx: int) -> np.ndarray:
         buf = np.zeros([4]).astype(ctypes.c_uint8)
-        LinkAudit().link_audit_fpga_debug_types(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
+        LinkAudit().link_audit_fpga_gpio_output_types(self._ptr, idx, np.ctypeslib.as_ctypes(buf))
         return buf
 
     def debug_values(self: Self, idx: int) -> np.ndarray:
@@ -116,7 +113,7 @@ class Audit(Link):
         return LinkAudit().link_audit_fpga_current_mod_segment(self._ptr, idx)
 
     def pulse_width_encoder_table(self: Self, idx: int) -> np.ndarray:
-        p = np.zeros([256]).astype(ctypes.c_uint8)
+        p = np.zeros([256]).astype(ctypes.c_uint16)
         LinkAudit().link_audit_fpga_pulse_width_encoder_table(
             self._ptr,
             idx,

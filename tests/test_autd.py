@@ -43,11 +43,11 @@ def test_sleeper():
 def test_firmware_info():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert FirmwareInfo.latest_version() == "v10.0.1"
+        assert FirmwareInfo.latest_version() == "v11.0.0"
 
         for i, firm in enumerate(autd.firmware_version()):
-            assert firm.info == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v10.0.1, FPGA = v10.0.1 [Emulator]"
+            assert firm.info == f"{i}: CPU = v11.0.0, FPGA = v11.0.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v11.0.0, FPGA = v11.0.0 [Emulator]"
 
 
 def test_close():

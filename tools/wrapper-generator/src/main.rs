@@ -227,7 +227,10 @@ impl PythonWrapperGenerator {
         for u in unions {
             let mut content = u.to_python_def()?;
             for e in defined_enum.iter() {
-                content = content.replace(&e.name, &CtypesType::try_from(e.ty.clone())?.0);
+                content = content.replace(
+                    &format!(", {}", e.name),
+                    &format!(", {}", CtypesType::try_from(e.ty.clone())?.0),
+                );
             }
             writeln!(w, "\n\n{}", content)?;
         }
@@ -236,7 +239,10 @@ impl PythonWrapperGenerator {
         for s in sort_structs(structs, defined.iter().map(|(n, _)| n.clone()).collect())? {
             let mut content = s.to_python_def()?;
             for e in defined_enum.iter() {
-                content = content.replace(&e.name, &CtypesType::try_from(e.ty.clone())?.0);
+                content = content.replace(
+                    &format!(", {})", e.name),
+                    &format!(", {})", CtypesType::try_from(e.ty.clone())?.0),
+                );
             }
             writeln!(w, "\n\n{}", content)?;
         }

@@ -7,48 +7,48 @@ from pyautd3.driver.geometry import Device, Geometry, Transducer
 from pyautd3.ethercat.dc_sys_time import DcSysTime
 from pyautd3.native_methods.autd3 import GPIOOut
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, DebugTypeWrap, GeometryPtr
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, GPIOOutputTypeWrap
 from pyautd3.native_methods.utils import ConstantADT
 
 
-class DebugType(metaclass=ConstantADT):
-    def __new__(cls: type["DebugType"]) -> "DebugType":
+class GPIOOutputType(metaclass=ConstantADT):
+    def __new__(cls: type["GPIOOutputType"]) -> "GPIOOutputType":
         raise NotImplementedError
 
-    NONE: DebugTypeWrap = Base().debug_type_none()
-    BaseSignal: DebugTypeWrap = Base().debug_type_base_signal()
-    Thermo: DebugTypeWrap = Base().debug_type_thermo()
-    ForceFan: DebugTypeWrap = Base().debug_type_force_fan()
-    Sync: DebugTypeWrap = Base().debug_type_sync()
-    ModSegment: DebugTypeWrap = Base().debug_type_mod_segment()
+    NONE: GPIOOutputTypeWrap = Base().gpio_output_type_none()
+    BaseSignal: GPIOOutputTypeWrap = Base().gpio_output_type_base_signal()
+    Thermo: GPIOOutputTypeWrap = Base().gpio_output_type_thermo()
+    ForceFan: GPIOOutputTypeWrap = Base().gpio_output_type_force_fan()
+    Sync: GPIOOutputTypeWrap = Base().gpio_output_type_sync()
+    ModSegment: GPIOOutputTypeWrap = Base().gpio_output_type_mod_segment()
 
     @staticmethod
-    def ModIdx(idx: int) -> DebugTypeWrap:  # noqa: N802
-        return Base().debug_type_mod_idx(idx)
+    def ModIdx(idx: int) -> GPIOOutputTypeWrap:  # noqa: N802
+        return Base().gpio_output_type_mod_idx(idx)
 
-    StmSegment: DebugTypeWrap = Base().debug_type_stm_segment()
-
-    @staticmethod
-    def StmIdx(idx: int) -> DebugTypeWrap:  # noqa: N802
-        return Base().debug_type_stm_idx(idx)
-
-    IsStmMode: DebugTypeWrap = Base().debug_type_is_stm_mode()
+    StmSegment: GPIOOutputTypeWrap = Base().gpio_output_type_stm_segment()
 
     @staticmethod
-    def PwmOut(tr: Transducer) -> DebugTypeWrap:  # noqa: N802
-        return Base().debug_type_pwm_out(tr._ptr)
+    def StmIdx(idx: int) -> GPIOOutputTypeWrap:  # noqa: N802
+        return Base().gpio_output_type_stm_idx(idx)
+
+    IsStmMode: GPIOOutputTypeWrap = Base().gpio_output_type_is_stm_mode()
 
     @staticmethod
-    def Direct(value: bool) -> DebugTypeWrap:  # noqa: N802, FBT001
-        return Base().debug_type_direct(value)
+    def PwmOut(tr: Transducer) -> GPIOOutputTypeWrap:  # noqa: N802
+        return Base().gpio_output_type_pwm_out(tr._ptr)
 
     @staticmethod
-    def SysTimeEq(value: DcSysTime) -> DebugTypeWrap:  # noqa: N802
-        return Base().debug_type_sys_time_eq(value._inner)
+    def Direct(value: bool) -> GPIOOutputTypeWrap:  # noqa: N802, FBT001
+        return Base().gpio_output_type_direct(value)
+
+    @staticmethod
+    def SysTimeEq(value: DcSysTime) -> GPIOOutputTypeWrap:  # noqa: N802
+        return Base().gpio_output_type_sys_time_eq(value._inner)
 
 
 class GPIOOutputs(Datagram):
-    def __init__(self: Self, f: Callable[[Device, GPIOOut], DebugTypeWrap]) -> None:
+    def __init__(self: Self, f: Callable[[Device, GPIOOut], GPIOOutputTypeWrap]) -> None:
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, gpio: GPIOOut, res) -> None:  # noqa: ANN001
@@ -60,7 +60,7 @@ class GPIOOutputs(Datagram):
             GeometryPtr,
             ctypes.c_uint32,
             ctypes.c_uint8,
-            ctypes.POINTER(DebugTypeWrap),
+            ctypes.POINTER(GPIOOutputTypeWrap),
         )(f_native)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
