@@ -45,24 +45,18 @@ from pyautd3.native_methods.autd3capi_driver import (
 from pyautd3.native_methods.structs import Point3, Quaternion, Vector3
 
 
+class GainCachePtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class ResultController(ctypes.Structure):
     _fields_ = [("result", ControllerPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class SineOption(ctypes.Structure):
-    _fields_ = [
-        ("intensity", ctypes.c_uint8),
-        ("offset", ctypes.c_uint8),
-        ("phase", Angle),
-        ("clamp", ctypes.c_bool),
-        ("sampling_config_div", ctypes.c_uint16),
-    ]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SineOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class SenderOption(ctypes.Structure):
@@ -78,32 +72,17 @@ class SenderOption(ctypes.Structure):
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class GroupGainMapPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
+class SineOption(ctypes.Structure):
+    _fields_ = [
+        ("intensity", ctypes.c_uint8),
+        ("offset", ctypes.c_uint8),
+        ("phase", Angle),
+        ("clamp", ctypes.c_bool),
+        ("sampling_config_div", ctypes.c_uint16),
+    ]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FourierOption(ctypes.Structure):
-    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GainCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FPGAStateListPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, SineOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class FirmwareVersionListPtr(ctypes.Structure):
@@ -120,6 +99,20 @@ class FixedCompletionTime(ctypes.Structure):
         return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
 
 
+class FPGAStateListPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GroupGainMapPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class ModulationCachePtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
@@ -127,18 +120,25 @@ class ModulationCachePtr(ctypes.Structure):
         return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class SquareOption(ctypes.Structure):
-    _fields_ = [("low", ctypes.c_uint8), ("high", ctypes.c_uint8), ("duty", ctypes.c_float), ("sampling_config_div", ctypes.c_uint16)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SquareOption) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class ResultFirmwareVersionList(ctypes.Structure):
     _fields_ = [("result", FirmwareVersionListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FourierOption(ctypes.Structure):
+    _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class SquareOption(ctypes.Structure):
+    _fields_ = [("low", ctypes.c_uint8), ("high", ctypes.c_uint8), ("duty", ctypes.c_float), ("sampling_config_div", ctypes.c_uint16)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SquareOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class ResultFPGAStateList(ctypes.Structure):
@@ -354,6 +354,12 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDPhaseToRad.argtypes = [Phase]
         self.dll.AUTDPhaseToRad.restype = ctypes.c_float
+
+        self.dll.AUTDPulseWidth.argtypes = [ctypes.c_uint16]
+        self.dll.AUTDPulseWidth.restype = ResultU16
+
+        self.dll.AUTDPulseWidthFromDuty.argtypes = [ctypes.c_float]
+        self.dll.AUTDPulseWidthFromDuty.restype = ResultU16
 
         self.dll.AUTDSamplingConfigFromDivision.argtypes = [ctypes.c_uint16]
         self.dll.AUTDSamplingConfigFromDivision.restype = ResultSamplingConfig
@@ -661,6 +667,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]
         self.dll.AUTDModulationSamplingConfig.restype = SamplingConfigWrap
 
+        self.dll.AUTDModulationExpectedRadiationPressure.argtypes = [ModulationPtr]
+        self.dll.AUTDModulationExpectedRadiationPressure.restype = ResultF32
+
         self.dll.AUTDModulationIntoDatagramWithSegment.argtypes = [ModulationPtr, ctypes.c_uint8, TransitionModeWrap]
         self.dll.AUTDModulationIntoDatagramWithSegment.restype = DatagramPtr
 
@@ -917,6 +926,12 @@ class NativeMethods(metaclass=Singleton):
 
     def phase_to_rad(self, value: Phase) -> ctypes.c_float:
         return self.dll.AUTDPhaseToRad(value)
+
+    def pulse_width(self, value: int) -> ResultU16:
+        return self.dll.AUTDPulseWidth(value)
+
+    def pulse_width_from_duty(self, duty: float) -> ResultU16:
+        return self.dll.AUTDPulseWidthFromDuty(duty)
 
     def sampling_config_from_division(self, div: int) -> ResultSamplingConfig:
         return self.dll.AUTDSamplingConfigFromDivision(div)
@@ -1223,6 +1238,9 @@ class NativeMethods(metaclass=Singleton):
 
     def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfigWrap:
         return self.dll.AUTDModulationSamplingConfig(m)
+
+    def modulation_expected_radiation_pressure(self, m: ModulationPtr) -> ResultF32:
+        return self.dll.AUTDModulationExpectedRadiationPressure(m)
 
     def modulation_into_datagram_with_segment(self, m: ModulationPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
         return self.dll.AUTDModulationIntoDatagramWithSegment(m, segment, transition_mode)

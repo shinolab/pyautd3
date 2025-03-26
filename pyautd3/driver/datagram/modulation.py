@@ -10,6 +10,7 @@ from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi_driver import DatagramPtr, LoopBehavior, ModulationPtr, TransitionModeWrap
+from pyautd3.native_methods.utils import _validate_f32
 
 M = TypeVar("M", bound="Modulation")
 
@@ -61,3 +62,6 @@ class Modulation(
 
     def sampling_config(self: Self) -> SamplingConfig:
         return SamplingConfig(Base().modulation_sampling_config(self._modulation_ptr()))
+
+    def expected_radiation_pressure(self: Self) -> float:
+        return _validate_f32(Base().modulation_expected_radiation_pressure(self._modulation_ptr()))
