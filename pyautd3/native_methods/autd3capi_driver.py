@@ -107,60 +107,11 @@ class TransitionModeValue(ctypes.Union):
     _fields_ = [("null", ctypes.c_uint64), ("sys_time", DcSysTime), ("gpio_in", ctypes.c_uint8)]
 
 
-class GainPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
+class ResultF32(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_float), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, GainPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ResultStatus(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_uint8), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultStatus) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ModulationPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ModulationPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class SamplingConfigWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", SamplingConfigValue)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SamplingConfigWrap) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GPIOOutputTypeWrap(ctypes.Structure):
-    _fields_ = [("ty", ctypes.c_uint8), ("value", GPIOOutputTypeValue)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GPIOOutputTypeWrap) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class FociSTMPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, FociSTMPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class GeometryPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GeometryPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class SleeperWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", ctypes.c_uint32), ("spin_strategy", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SleeperWrap) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, ResultF32) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class Duration(ctypes.Structure):
@@ -170,20 +121,6 @@ class Duration(ctypes.Structure):
         return isinstance(other, Duration) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultGain(ctypes.Structure):
-    _fields_ = [("result", GainPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultGain) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ControllerPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ControllerPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class ConstPtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
@@ -191,11 +128,60 @@ class ConstPtr(ctypes.Structure):
         return isinstance(other, ConstPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
+class DevicePtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DevicePtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ModulationPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ModulationPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class TransitionModeWrap(ctypes.Structure):
+    _fields_ = [("tag", ctypes.c_uint8), ("value", TransitionModeValue)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, TransitionModeWrap) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class FociSTMPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, FociSTMPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultDuration(ctypes.Structure):
+    _fields_ = [("result", Duration), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultDuration) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class SenderPtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SenderPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class SleeperWrap(ctypes.Structure):
+    _fields_ = [("tag", ctypes.c_uint8), ("value", ctypes.c_uint32), ("spin_strategy", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SleeperWrap) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class SamplingConfigWrap(ctypes.Structure):
+    _fields_ = [("tag", ctypes.c_uint8), ("value", SamplingConfigValue)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, SamplingConfigWrap) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class LinkPtr(ctypes.Structure):
@@ -212,13 +198,6 @@ class ResultModulation(ctypes.Structure):
         return isinstance(other, ResultModulation) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultU16(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_uint16), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultU16) and self._fields_ == other._fields_  # pragma: no cover
-
-
 class LoopBehavior(ctypes.Structure):
     _fields_ = [("rep", ctypes.c_uint16)]
 
@@ -226,32 +205,25 @@ class LoopBehavior(ctypes.Structure):
         return isinstance(other, LoopBehavior) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultF32(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_float), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+class ResultU16(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_uint16), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultF32) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, ResultU16) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class ResultDuration(ctypes.Structure):
-    _fields_ = [("result", Duration), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultDuration) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class DatagramPtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
+class GPIOOutputTypeWrap(ctypes.Structure):
+    _fields_ = [("ty", ctypes.c_uint8), ("value", GPIOOutputTypeValue)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, DatagramPtr) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, GPIOOutputTypeWrap) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class DevicePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
+class ResultStatus(ctypes.Structure):
+    _fields_ = [("result", ctypes.c_uint8), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, DevicePtr) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, ResultStatus) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class TransducerPtr(ctypes.Structure):
@@ -261,11 +233,46 @@ class TransducerPtr(ctypes.Structure):
         return isinstance(other, TransducerPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class TransitionModeWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", TransitionModeValue)]
+class OptionDuration(ctypes.Structure):
+    _fields_ = [("has_value", ctypes.c_bool), ("value", Duration)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, TransitionModeWrap) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, OptionDuration) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GeometryPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GeometryPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ResultLink(ctypes.Structure):
+    _fields_ = [("result", LinkPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultLink) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class GainPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, GainPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class ControllerPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ControllerPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+
+class DatagramPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DatagramPtr) and self._fields_ == other._fields_  # pragma: no cover
 
 
 class GainSTMPtr(ctypes.Structure):
@@ -282,15 +289,8 @@ class ResultSamplingConfig(ctypes.Structure):
         return isinstance(other, ResultSamplingConfig) and self._fields_ == other._fields_  # pragma: no cover
 
 
-class OptionDuration(ctypes.Structure):
-    _fields_ = [("has_value", ctypes.c_bool), ("value", Duration)]
+class ResultGain(ctypes.Structure):
+    _fields_ = [("result", GainPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, OptionDuration) and self._fields_ == other._fields_  # pragma: no cover
-
-
-class ResultLink(ctypes.Structure):
-    _fields_ = [("result", LinkPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultLink) and self._fields_ == other._fields_  # pragma: no cover
+        return isinstance(other, ResultGain) and self._fields_ == other._fields_  # pragma: no cover
