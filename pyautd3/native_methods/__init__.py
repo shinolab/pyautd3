@@ -35,5 +35,7 @@ LinkSimulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 if sys.platform == "win32":
     with contextlib.suppress(FileNotFoundError):
         os.add_dll_directory("C:\\TwinCAT\\Common64")
+    with contextlib.suppress(FileNotFoundError):
+        os.add_dll_directory("C:\\Program Files (x86)\\Beckhoff\\TwinCAT\\Common64")
 with contextlib.suppress(Exception):
     LinkTwincAT().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
