@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use itertools::Itertools;
 
@@ -49,7 +49,7 @@ pub fn sort_structs(structs: &[Struct], defined: Vec<String>) -> anyhow::Result<
                 .collect::<Vec<_>>();
             anyhow::Ok((s.name.clone(), fields))
         })
-        .collect::<Result<HashMap<_, _>, _>>()?;
+        .collect::<Result<BTreeMap<_, _>, _>>()?;
 
     let mut sorted: Vec<Struct> = vec![];
     loop {
