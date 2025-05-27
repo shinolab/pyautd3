@@ -5,6 +5,7 @@ from typing import Self
 import numpy as np
 from numpy.typing import ArrayLike
 
+from pyautd3.driver.common.freq import Freq
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.stm.control_point import (
     ControlPoint,
@@ -21,7 +22,6 @@ from pyautd3.driver.datagram.stm.control_point import (
 from pyautd3.driver.datagram.stm.stm_sampling_config import FreqNearest, PeriodNearest, _sampling_config
 from pyautd3.driver.datagram.with_loop_behavior import DatagramL
 from pyautd3.driver.datagram.with_segment import DatagramS
-from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry

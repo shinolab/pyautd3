@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyautd3 import Controller, Segment
-from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.common.freq import Hz
 from pyautd3.modulation.audio_file import Csv
 from pyautd3.modulation.audio_file.csv_ import CsvOption
 from tests.test_autd import create_controller
@@ -103,8 +103,8 @@ def test_csv():
                 128,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
         autd.send(Csv(path=Path(__file__).parent / "sin150.csv", sampling_config=2000.0 * Hz, option=CsvOption()))
         for dev in autd.geometry():
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 20
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 20

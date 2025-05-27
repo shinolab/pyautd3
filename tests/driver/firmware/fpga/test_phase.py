@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyautd3.driver.defined import rad
+from pyautd3.driver.common import rad
 from pyautd3.driver.firmware.fpga import Phase
 
 

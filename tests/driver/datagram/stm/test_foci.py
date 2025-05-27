@@ -31,7 +31,7 @@ def test_foci_stm():
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=1.0 * Hz).into_nearest()
         autd.send(stm)
@@ -40,7 +40,7 @@ def test_foci_stm():
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=Duration.from_secs(1))
         autd.send(stm)
@@ -49,7 +49,7 @@ def test_foci_stm():
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=Duration.from_secs(1)).into_nearest()
         autd.send(stm)
@@ -58,12 +58,12 @@ def test_foci_stm():
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=SamplingConfig(1))
         autd.send(stm)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 1
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 1
         for dev in autd.geometry():
             assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
@@ -76,7 +76,7 @@ def test_foci_stm():
         stm = FociSTM(foci=[ControlPoint(point=center), ControlPoint(point=center)], config=SamplingConfig(1))
         autd.send(stm)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 1
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 1
         for dev in autd.geometry():
             assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
@@ -100,7 +100,7 @@ def test_foci_stm_segment():
         )
         assert autd.link().current_stm_segment(0) == Segment.S0
         assert autd.link().stm_cycle(0, Segment.S0) == 2
-        assert autd.link().stm_freqency_division(0, Segment.S0) == 0x1234
+        assert autd.link().stm_freqency_divide(0, Segment.S0) == 0x1234
 
         autd.send(
             WithSegment(
@@ -114,7 +114,7 @@ def test_foci_stm_segment():
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
         assert autd.link().stm_cycle(0, Segment.S1) == 2
-        assert autd.link().stm_freqency_division(0, Segment.S1) == 0xDEF0
+        assert autd.link().stm_freqency_divide(0, Segment.S1) == 0xDEF0
 
         autd.send(
             WithSegment(
@@ -128,7 +128,7 @@ def test_foci_stm_segment():
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
         assert autd.link().stm_cycle(0, Segment.S0) == 3
-        assert autd.link().stm_freqency_division(0, Segment.S0) == 0x8765
+        assert autd.link().stm_freqency_divide(0, Segment.S0) == 0x8765
 
         autd.send(SwapSegment.FociSTM(Segment.S0, TransitionMode.Immediate))
         assert autd.link().current_stm_segment(0) == Segment.S0
@@ -149,7 +149,7 @@ def test_foci_stm_loop_behavior():
             ),
         )
         assert autd.link().stm_cycle(0, Segment.S1) == 2
-        assert autd.link().stm_freqency_division(0, Segment.S1) == 0xDEF0
+        assert autd.link().stm_freqency_divide(0, Segment.S1) == 0xDEF0
         assert autd.link().stm_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE
 
 

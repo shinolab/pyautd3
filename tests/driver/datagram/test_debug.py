@@ -24,10 +24,10 @@ def test_debug_output_idx():
             assert np.array_equal([0x00, 0x00, 0x00, 0x00], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link().debug_values(dev.idx()))
 
-        def f0(_: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
+        def f0(_: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap | None:
             match gpio:
                 case GPIOOut.O0:
-                    return GPIOOutputType.NONE
+                    return None
                 case GPIOOut.O1:
                     return GPIOOutputType.BaseSignal
                 case GPIOOut.O2:
@@ -40,7 +40,7 @@ def test_debug_output_idx():
             assert np.array_equal([0x00, 0x01, 0x02, 0x03], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0000, 0x0000, 0x0000, 0x0000], autd.link().debug_values(dev.idx()))
 
-        def f1(_: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
+        def f1(_: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap | None:
             match gpio:
                 case GPIOOut.O0:
                     return GPIOOutputType.Sync
@@ -56,7 +56,7 @@ def test_debug_output_idx():
             assert np.array_equal([0x10, 0x20, 0x21, 0x50], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0000, 0x0000, 0x0001, 0x0000], autd.link().debug_values(dev.idx()))
 
-        def f2(dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
+        def f2(dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap | None:
             match gpio:
                 case GPIOOut.O0:
                     return GPIOOutputType.StmIdx(0x02)
@@ -74,16 +74,16 @@ def test_debug_output_idx():
 
         sys_time = DcSysTime.now()
 
-        def f3(_dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap:
+        def f3(_dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap | None:
             match gpio:
                 case GPIOOut.O0:
                     return GPIOOutputType.SysTimeEq(sys_time)
                 case GPIOOut.O1:
-                    return GPIOOutputType.NONE
+                    return None
                 case GPIOOut.O2:
-                    return GPIOOutputType.NONE
+                    return None
                 case GPIOOut.O3:
-                    return GPIOOutputType.NONE
+                    return None
 
         autd.send(GPIOOutputs(f3))
         for dev in autd.geometry():

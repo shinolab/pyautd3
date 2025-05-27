@@ -15,7 +15,6 @@ class GPIOOutputType(metaclass=ConstantADT):
     def __new__(cls: type["GPIOOutputType"]) -> "GPIOOutputType":
         raise NotImplementedError
 
-    NONE: GPIOOutputTypeWrap = Base().gpio_output_type_none()
     BaseSignal: GPIOOutputTypeWrap = Base().gpio_output_type_base_signal()
     Thermo: GPIOOutputTypeWrap = Base().gpio_output_type_thermo()
     ForceFan: GPIOOutputTypeWrap = Base().gpio_output_type_force_fan()
@@ -48,11 +47,11 @@ class GPIOOutputType(metaclass=ConstantADT):
 
 
 class GPIOOutputs(Datagram):
-    def __init__(self: Self, f: Callable[[Device, GPIOOut], GPIOOutputTypeWrap]) -> None:
+    def __init__(self: Self, f: Callable[[Device, GPIOOut], GPIOOutputTypeWrap | None]) -> None:
         super().__init__()
 
         def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, gpio: GPIOOut, res) -> None:  # noqa: ANN001
-            res[0] = f(Device(dev_idx, geometry_ptr), gpio)
+            res[0] = f(Device(dev_idx, geometry_ptr), gpio) or Base().gpio_output_type_none()
 
         self._f_native = ctypes.CFUNCTYPE(
             None,

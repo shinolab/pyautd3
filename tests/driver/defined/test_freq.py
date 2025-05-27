@@ -1,7 +1,7 @@
 import pytest
 
-from pyautd3.driver.defined import Freq, Hz, kHz
-from pyautd3.driver.defined.freq import _UnitHz, _UnitkHz
+from pyautd3.driver.common import Freq, Hz, kHz
+from pyautd3.driver.common.freq import _UnitHz, _UnitkHz
 
 
 def test_freq_int():

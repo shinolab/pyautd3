@@ -9,10 +9,10 @@ from pyautd3 import (
     ReadsFPGAState,
 )
 from pyautd3.autd_error import AUTDError
+from pyautd3.driver.common.freq import Hz
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.datagram.stm.gain import GainSTMOption
 from pyautd3.driver.datagram.with_segment import WithSegment
-from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.native_methods.autd3 import Segment
 from tests.test_autd import create_controller

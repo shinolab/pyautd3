@@ -5,9 +5,9 @@ import pytest
 
 from pyautd3 import Controller, FixedCompletionTime, FixedUpdateRate, GainSTM, SamplingConfig, Silencer
 from pyautd3.autd_error import AUTDError
+from pyautd3.driver.common.freq import Hz
 from pyautd3.driver.datagram.stm.foci import FociSTM
 from pyautd3.driver.datagram.stm.gain import GainSTMOption
-from pyautd3.driver.defined.freq import Hz
 from pyautd3.gain import Null
 from pyautd3.modulation import Sine
 from pyautd3.modulation.sine import SineOption
@@ -115,7 +115,7 @@ def test_silencer_large_steps():
             )
         assert (
             str(e.value)
-            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+            == "Silencer cannot complete phase/intensity interpolation in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period of the AM/STM."  # noqa: E501
         )
 
 
@@ -131,7 +131,7 @@ def test_silencer_small_freq_div_mod():
             autd.send(Sine(freq=150 * Hz, option=SineOption(sampling_config=SamplingConfig(1))))
         assert (
             str(e.value)
-            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+            == "Silencer cannot complete phase/intensity interpolation in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period of the AM/STM."  # noqa: E501
         )
 
         autd.send(
@@ -162,7 +162,7 @@ def test_silencer_small_freq_div_gain_stm():
             autd.send(GainSTM(gains=[Null(), Null()], config=SamplingConfig(1), option=GainSTMOption()))
         assert (
             str(e.value)
-            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+            == "Silencer cannot complete phase/intensity interpolation in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period of the AM/STM."  # noqa: E501
         )
 
         autd.send(
@@ -193,7 +193,7 @@ def test_silencer_small_freq_div_foci_stm():
             autd.send(FociSTM(foci=[np.zeros(3), np.zeros(3)], config=SamplingConfig(1)))
         assert (
             str(e.value)
-            == "Silencer cannot complete phase/intensity completion in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period."  # noqa: E501
+            == "Silencer cannot complete phase/intensity interpolation in the specified sampling period. Please lower the sampling frequency or make the completion time of Silencer longer than the sampling period of the AM/STM."  # noqa: E501
         )
 
         autd.send(

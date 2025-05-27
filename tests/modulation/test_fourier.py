@@ -5,7 +5,7 @@ import pytest
 
 from pyautd3 import Controller, Segment
 from pyautd3.autd_error import AUTDError
-from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.common.freq import Hz
 from pyautd3.modulation import Fourier, Sine
 from pyautd3.modulation.fourier import FourierOption
 from pyautd3.modulation.sine import SineOption
@@ -109,7 +109,7 @@ def test_fourier_exact():
                 98,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
 
 def test_fourier_exact_float():
@@ -206,7 +206,7 @@ def test_fourier_exact_float():
                 98,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
 
 def test_fourier_nearest():
@@ -303,7 +303,7 @@ def test_fourier_nearest():
                 113,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
 
 def test_fourier_clamp():

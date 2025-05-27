@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyautd3 import Controller, Segment
-from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.common.freq import Hz
 from pyautd3.modulation import Sine
 from pyautd3.modulation.radiation_pressure import RadiationPressure
 from pyautd3.modulation.sine import SineOption
@@ -106,7 +106,7 @@ def test_radiation_pressure():
                 158,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
 
 def test_expected_radiation_pressure():

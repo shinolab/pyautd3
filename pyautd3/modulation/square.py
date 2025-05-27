@@ -1,8 +1,8 @@
 from enum import Enum
 from typing import Generic, Self, TypeVar
 
+from pyautd3.driver.common.freq import Freq
 from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.driver.utils import _validate_u8
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -36,7 +36,7 @@ class SquareOption:
             self.low,
             self.high,
             self.duty,
-            self.sampling_config.division,
+            self.sampling_config.divide,
         )
 
 
