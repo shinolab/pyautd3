@@ -5,7 +5,7 @@ import pytest
 
 from pyautd3 import Controller, LoopBehavior, SamplingConfig, Segment, rad
 from pyautd3.autd_error import AUTDError
-from pyautd3.driver.defined.freq import Hz
+from pyautd3.driver.common.freq import Hz
 from pyautd3.modulation import Sine
 from pyautd3.modulation.sine import SineOption
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -115,13 +115,13 @@ def test_sine():
                 126,
             ]
             assert np.array_equal(mod, mod_expect)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
         m = Sine(freq=150 * Hz, option=SineOption(sampling_config=SamplingConfig(20)))
         autd.send(m)
         assert m.sampling_config() == SamplingConfig(20)
         for dev in autd.geometry():
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 20
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 20
 
 
 def test_sine_clamp():

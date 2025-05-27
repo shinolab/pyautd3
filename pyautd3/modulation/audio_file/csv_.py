@@ -1,8 +1,8 @@
 from pathlib import Path
 from typing import Self
 
+from pyautd3.driver.common.freq import Freq
 from pyautd3.driver.datagram.modulation import Modulation
-from pyautd3.driver.defined.freq import Freq
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
 from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 from pyautd3.native_methods.autd3capi_modulation_audio_file import NativeMethods as ModulationAudioFile

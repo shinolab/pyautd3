@@ -1,4 +1,4 @@
-from pyautd3.driver.defined import rad
+from pyautd3.driver.common import rad
 
 
 def test_angle():

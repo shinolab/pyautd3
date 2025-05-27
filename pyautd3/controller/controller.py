@@ -1,5 +1,5 @@
 import ctypes
-from collections.abc import Callable, Iterable
+from collections.abc import Iterable
 from types import TracebackType
 from typing import Generic, Self, TypeVar
 
@@ -11,20 +11,21 @@ from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
-from pyautd3.driver.geometry import Device, Geometry
+from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3 import ParallelMode
 from pyautd3.native_methods.autd3capi import ControllerPtr, SenderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SenderOption as SenderOption_
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr
 from pyautd3.native_methods.structs import Point3, Quaternion
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
 from pyautd3.utils.duration import into_option_duration
 
-K = TypeVar("K")
 L = TypeVar("L", bound=Link)
+
+DEFAULT_TIMEOUT = Duration.from_millis(200)
 
 
 class SenderOption:
@@ -32,22 +33,19 @@ class SenderOption:
     receive_interval: Duration
     timeout: Duration | None
     parallel: ParallelMode
-    sleeper: StdSleeper | SpinSleeper | WaitableSleeper
 
     def __init__(
         self: Self,
         *,
         send_interval: Duration | None = None,
         receive_interval: Duration | None = None,
-        timeout: Duration | None = None,
+        timeout: Duration | None = DEFAULT_TIMEOUT,
         parallel: ParallelMode = ParallelMode.Auto,
-        sleeper: StdSleeper | SpinSleeper | WaitableSleeper | None = None,
     ) -> None:
         self.send_interval = send_interval or Duration.from_millis(1)
         self.receive_interval = receive_interval or Duration.from_millis(1)
         self.timeout = timeout
         self.parallel = parallel
-        self.sleeper = sleeper or SpinSleeper()
 
     def _inner(self: Self) -> SenderOption_:
         return SenderOption_(
@@ -55,7 +53,6 @@ class SenderOption:
             self.receive_interval._inner,
             into_option_duration(self.timeout),
             self.parallel,
-            self.sleeper._inner(),
         )
 
 
@@ -82,62 +79,20 @@ class Sender:
                 raise InvalidDatagramTypeError
         _validate_status(result)
 
-    def group_send(
-        self: Self,
-        key_map: Callable[[Device], K | None],
-        data_map: dict[K, Datagram | tuple[Datagram, Datagram]],
-    ) -> None:
-        keymap: dict[K, int] = {}
-        datagrams: np.ndarray = np.ndarray(len(data_map), dtype=DatagramPtr)
-        keys = np.arange(len(data_map), dtype=np.int32)
-
-        def f_native(_context: ctypes.c_void_p, geometry_ptr: GeometryPtr, dev_idx: int) -> int:
-            dev = Device(dev_idx, geometry_ptr)
-            key = key_map(dev)
-            return keymap[key] if key is not None else -1
-
-        f_native_ = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
-
-        for k, (key, d) in enumerate(data_map.items()):
-            match d:
-                case Datagram():
-                    ptr = d._datagram_ptr(self._geometry)
-                    datagrams[k]["value"] = ptr.value
-                case (Datagram(), Datagram()):
-                    (d1, d2) = d
-                    ptr = Base().datagram_tuple(
-                        d1._datagram_ptr(self._geometry),
-                        d2._datagram_ptr(self._geometry),
-                    )
-                    datagrams[k]["value"] = ptr.value
-                case _:
-                    raise InvalidDatagramTypeError
-            keymap[key] = k
-
-        _validate_status(
-            Base().controller_group(
-                self._ptr,
-                f_native_,  # type: ignore[arg-type]
-                ctypes.c_void_p(0),
-                self._geometry._geometry_ptr,
-                keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
-                datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
-                len(keys),
-            ),
-        )
-
 
 class Controller(Geometry, Generic[L]):
     _ptr: ControllerPtr
     _link: L
     _disposed: bool
+    _default_sender_option: SenderOption
 
-    def __init__(self: Self, geometry: GeometryPtr, ptr: ControllerPtr, link: L) -> None:
+    def __init__(self: Self, geometry: GeometryPtr, ptr: ControllerPtr, link: L, default_sender_option: SenderOption) -> None:
         super().__init__(geometry)
         self._ptr = ptr
         self._link = link
         self._link._ptr = Base().link_get(self._ptr)
         self._disposed = False
+        self._default_sender_option = default_sender_option
 
     def link(self: Self) -> L:
         return self._link
@@ -164,10 +119,15 @@ class Controller(Geometry, Generic[L]):
 
     @staticmethod
     def open(devices: Iterable[AUTD3], link: L) -> "Controller[L]":
-        return Controller.open_with_option(devices, link, SenderOption())
+        return Controller.open_with_option(devices, link, SenderOption(), SpinSleeper())
 
     @staticmethod
-    def open_with_option(devices: Iterable[AUTD3], link: L, option: SenderOption) -> "Controller[L]":
+    def open_with_option(
+        devices: Iterable[AUTD3],
+        link: L,
+        option: SenderOption,
+        sleeper: StdSleeper | SpinSleeper | WaitableSleeper,
+    ) -> "Controller[L]":
         devices = list(devices)
         pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
         rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
@@ -179,10 +139,11 @@ class Controller(Geometry, Generic[L]):
                 len(devices),
                 link._resolve(),
                 option._inner(),
+                sleeper._inner(),
             ),
         )
         geometry = Base().geometry(ptr)
-        return Controller(geometry, ptr, link)
+        return Controller(geometry, ptr, link, option)
 
     def firmware_version(self: Self) -> list[FirmwareInfo]:
         handle = _validate_ptr(
@@ -218,18 +179,20 @@ class Controller(Geometry, Generic[L]):
         Base().controller_fpga_state_delete(handle)
         return res
 
-    def sender(self: Self, option: SenderOption) -> Sender:
-        return Sender(Base().sender(self._ptr, option._inner()), self.geometry())
+    def sender(self: Self, option: SenderOption, sleeper: SpinSleeper | StdSleeper | WaitableSleeper) -> Sender:
+        return Sender(Base().sender(self._ptr, option._inner(), sleeper._inner()), self.geometry())
 
     def send(
         self: Self,
         d: Datagram | tuple[Datagram, Datagram],
     ) -> None:
-        self.sender(SenderOption()).send(d)
+        self.sender(self._default_sender_option, SpinSleeper()).send(d)
 
-    def group_send(
-        self: Self,
-        key_map: Callable[[Device], K | None],
-        data_map: dict[K, Datagram | tuple[Datagram, Datagram]],
-    ) -> None:
-        self.sender(SenderOption()).group_send(key_map, data_map)
+    @property
+    def default_sender_option(self: Self) -> SenderOption:
+        return self._default_sender_option
+
+    @default_sender_option.setter
+    def default_sender_option(self: Self, option: SenderOption) -> None:
+        self._default_sender_option = option
+        Base().set_default_sender_option(self._ptr, option._inner())

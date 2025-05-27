@@ -1,6 +1,6 @@
 import numpy as np
 
-from pyautd3.driver.defined.angle import Angle
+from pyautd3.driver.common.angle import Angle
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 

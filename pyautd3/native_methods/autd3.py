@@ -104,6 +104,13 @@ class GainSTMOption(ctypes.Structure):
         return isinstance(other, GainSTMOption) and self._fields_ == other._fields_  # pragma: no cover
 
 
+class MsgId(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, MsgId) and self._fields_ == other._fields_  # pragma: no cover
+
+
 class Phase(ctypes.Structure):
     _fields_ = [("value", ctypes.c_uint8)]
 

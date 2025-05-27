@@ -73,8 +73,8 @@ class Audit(Link):
         LinkAudit().link_audit_fpga_modulation_buffer(self._ptr, segment, idx, np.ctypeslib.as_ctypes(buf), n)
         return buf
 
-    def modulation_frequency_division(self: Self, idx: int, segment: Segment) -> int:
-        return int(LinkAudit().link_audit_fpga_modulation_freq_division(self._ptr, segment, idx))
+    def modulation_frequency_divide(self: Self, idx: int, segment: Segment) -> int:
+        return int(LinkAudit().link_audit_fpga_modulation_freq_divide(self._ptr, segment, idx))
 
     def modulation_loop_behavior(self: Self, idx: int, segment: Segment) -> LoopBehavior:
         return LinkAudit().link_audit_fpga_modulation_loop_behavior(self._ptr, segment, idx)
@@ -100,8 +100,8 @@ class Audit(Link):
     def is_stm_gain_mode(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_is_stm_gain_mode(self._ptr, segment, idx))
 
-    def stm_freqency_division(self: Self, idx: int, segment: Segment) -> int:
-        return int(LinkAudit().link_audit_fpga_stm_freq_division(self._ptr, segment, idx))
+    def stm_freqency_divide(self: Self, idx: int, segment: Segment) -> int:
+        return int(LinkAudit().link_audit_fpga_stm_freq_divide(self._ptr, segment, idx))
 
     def stm_loop_behavior(self: Self, idx: int, segment: Segment) -> LoopBehavior:
         return LinkAudit().link_audit_fpga_stm_loop_behavior(self._ptr, segment, idx)

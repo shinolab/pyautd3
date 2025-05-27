@@ -3,8 +3,8 @@ from typing import Self
 import numpy as np
 from numpy.typing import ArrayLike
 
+from pyautd3.driver.common.angle import Angle
 from pyautd3.driver.datagram.gain import Gain
-from pyautd3.driver.defined.angle import Angle
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.geometry import Geometry

@@ -42,7 +42,7 @@ class GPIOOutputTypeTag(enum.IntEnum):
 
 
 class SamplingConfigTag(enum.IntEnum):
-    Division = 0
+    Divide = 0
     Frequency = 1
     Period = 2
     FrequencyNearest = 3
@@ -100,7 +100,7 @@ class GPIOOutputTypeValue(ctypes.Union):
 
 
 class SamplingConfigValue(ctypes.Union):
-    _fields_ = [("division", ctypes.c_uint16), ("freq", ctypes.c_float), ("period_ns", ctypes.c_uint64)]
+    _fields_ = [("divide", ctypes.c_uint16), ("freq", ctypes.c_float), ("period_ns", ctypes.c_uint64)]
 
 
 class TransitionModeValue(ctypes.Union):

@@ -1,6 +1,6 @@
 from typing import Self
 
-from pyautd3.driver.defined import Angle
+from pyautd3.driver.common import Angle
 from pyautd3.native_methods.autd3 import Phase as Phase_
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 

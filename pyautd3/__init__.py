@@ -4,6 +4,7 @@ from collections.abc import Callable
 from .controller import Controller, SenderOption
 from .controller.sleeper import SpinSleeper
 from .driver.autd3_device import AUTD3
+from .driver.common import Hz, deg, kHz, rad
 from .driver.datagram import (
     Clear,
     FixedCompletionTime,
@@ -14,6 +15,7 @@ from .driver.datagram import (
     GainSTMOption,
     GPIOOutputs,
     GPIOOutputType,
+    Group,
     PhaseCorrection,
     PulseWidthEncoder,
     ReadsFPGAState,
@@ -23,11 +25,10 @@ from .driver.datagram import (
     WithSegment,
 )
 from .driver.datagram.stm import ControlPoint, ControlPoints
-from .driver.defined import Hz, deg, kHz, rad
 from .driver.firmware.fpga import Drive, EmitIntensity, LoopBehavior, Phase, PulseWidth, SamplingConfig, TransitionMode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
 from .ethercat import DcSysTime
-from .gain import Bessel, BesselOption, Focus, FocusOption, Group, Null, Plane, PlaneOption, Uniform
+from .gain import Bessel, BesselOption, Focus, FocusOption, Null, Plane, PlaneOption, Uniform
 from .link.nop import Nop
 from .modulation import Sine, SineOption, Square, SquareOption, Static
 from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, ParallelMode, Segment
@@ -118,4 +119,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "32.1.1.1"
+__version__ = "33.0.0"

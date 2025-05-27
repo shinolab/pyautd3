@@ -20,7 +20,7 @@ def test_gain_segment():
         autd.send(Uniform(intensity=EmitIntensity(0x01), phase=Phase(0x02)))
         assert autd.link().current_stm_segment(0) == Segment.S0
         assert autd.link().stm_cycle(0, Segment.S0) == 1
-        assert autd.link().stm_freqency_division(0, Segment.S0) == 0xFFFF
+        assert autd.link().stm_freqency_divide(0, Segment.S0) == 0xFFFF
         for dev in autd.geometry():
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0x01)

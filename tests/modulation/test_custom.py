@@ -24,4 +24,4 @@ def test_modulation_custom():
             assert len(mod) == 10
             assert mod[0] == 0xFF
             assert np.all(mod[1:] == 0)
-            assert autd.link().modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10

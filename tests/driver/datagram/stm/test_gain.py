@@ -35,7 +35,7 @@ def test_gain_stm():
             assert autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
             gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
@@ -47,7 +47,7 @@ def test_gain_stm():
             assert autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
             gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
@@ -59,7 +59,7 @@ def test_gain_stm():
             assert autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
             gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
@@ -71,7 +71,7 @@ def test_gain_stm():
             assert autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 20000
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
             gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
@@ -80,7 +80,7 @@ def test_gain_stm():
         )
         autd.send(stm)
         for dev in autd.geometry():
-            assert autd.link().stm_freqency_division(dev.idx(), Segment.S0) == 1
+            assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 1
         for dev in autd.geometry():
             assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
@@ -142,7 +142,7 @@ def test_gain_stm_segment():
         )
         assert autd.link().current_stm_segment(0) == Segment.S0
         assert autd.link().stm_cycle(0, Segment.S0) == 2
-        assert autd.link().stm_freqency_division(0, Segment.S0) == 0x1234
+        assert autd.link().stm_freqency_divide(0, Segment.S0) == 0x1234
         for dev in autd.geometry():
             assert np.all(autd.link().drives_at(dev.idx(), Segment.S0, 0)[0] == 0x01)
             assert np.all(autd.link().drives_at(dev.idx(), Segment.S0, 1)[0] == 0x02)
@@ -161,7 +161,7 @@ def test_gain_stm_segment():
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
         assert autd.link().stm_cycle(0, Segment.S1) == 2
-        assert autd.link().stm_freqency_division(0, Segment.S1) == 0x9ABC
+        assert autd.link().stm_freqency_divide(0, Segment.S1) == 0x9ABC
         for dev in autd.geometry():
             assert np.all(autd.link().drives_at(dev.idx(), Segment.S0, 0)[0] == 0x01)
             assert np.all(autd.link().drives_at(dev.idx(), Segment.S0, 1)[0] == 0x02)
@@ -185,7 +185,7 @@ def test_gain_stm_segment():
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
         assert autd.link().stm_cycle(0, Segment.S0) == 3
-        assert autd.link().stm_freqency_division(0, Segment.S0) == 0x4321
+        assert autd.link().stm_freqency_divide(0, Segment.S0) == 0x4321
         for dev in autd.geometry():
             assert np.all(autd.link().drives_at(dev.idx(), Segment.S0, 0)[0] == 0x05)
             assert np.all(autd.link().drives_at(dev.idx(), Segment.S0, 1)[0] == 0x06)
@@ -213,5 +213,5 @@ def test_foci_stm_loop_behavior():
             ),
         )
         assert autd.link().stm_cycle(0, Segment.S1) == 2
-        assert autd.link().stm_freqency_division(0, Segment.S1) == 0xDEF0
+        assert autd.link().stm_freqency_divide(0, Segment.S1) == 0xDEF0
         assert autd.link().stm_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE

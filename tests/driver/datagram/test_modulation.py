@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyautd3 import Controller, Segment, Static
+from pyautd3.driver.common.freq import Hz
 from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.datagram.with_loop_behavior import WithLoopBehavior
 from pyautd3.driver.datagram.with_segment import WithSegment
-from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.loop_behavior import LoopBehavior
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.modulation import Sine
@@ -33,7 +33,7 @@ def test_cache():
             mod_expect = autd1._link.modulation_buffer(dev.idx(), Segment.S0)
             mod = autd2._link.modulation_buffer(dev.idx(), Segment.S0)
             assert np.array_equal(mod, mod_expect)
-            assert autd2._link.modulation_frequency_division(dev.idx(), Segment.S0) == 10
+            assert autd2._link.modulation_frequency_divide(dev.idx(), Segment.S0) == 10
 
         mod1 = autd1._link.modulation_buffer(0, Segment.S0)
         mod2 = autd2._link.modulation_buffer(0, Segment.S0)

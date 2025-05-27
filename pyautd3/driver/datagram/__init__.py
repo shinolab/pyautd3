@@ -3,6 +3,7 @@ from pyautd3.driver.datagram.datagram import Datagram
 from .clear import Clear
 from .debug import GPIOOutputs, GPIOOutputType
 from .force_fan import ForceFan
+from .group import Group
 from .phase_corr import PhaseCorrection
 from .pulse_width_encoder import PulseWidthEncoder
 from .reads_fpga_state import ReadsFPGAState
@@ -25,6 +26,7 @@ __all__ = [
     "GainSTM",
     "GainSTMMode",
     "GainSTMOption",
+    "Group",
     "PhaseCorrection",
     "PulseWidthEncoder",
     "ReadsFPGAState",

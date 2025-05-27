@@ -52,7 +52,7 @@ class GSPATOption(ctypes.Structure):
 
 
 class GreedyOption(ctypes.Structure):
-    _fields_ = [("constraint", EmissionConstraintWrap), ("phase_div", ctypes.c_uint8)]
+    _fields_ = [("constraint", EmissionConstraintWrap), ("phase_quantization_levels", ctypes.c_uint8)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, GreedyOption) and self._fields_ == other._fields_  # pragma: no cover
@@ -169,7 +169,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainGreedyIsDefault(option)
 
     def gain_holo_gs_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GSOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: GSOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloGSSphere(backend, points, amps, size, option)
 
@@ -177,7 +182,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainGSIsDefault(option)
 
     def gain_holo_gspat_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GSPATOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: GSPATOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloGSPATSphere(backend, points, amps, size, option)
 
@@ -191,7 +201,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainHoloPascalToSPL(value)
 
     def gain_holo_lm_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: LMOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: LMOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloLMSphere(backend, points, amps, size, option)
 
@@ -199,7 +214,12 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDGainLMIsDefault(option)
 
     def gain_holo_naive_sphere(
-        self, backend: BackendPtr, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: NaiveOption,
+        self,
+        backend: BackendPtr,
+        points: ctypes.Array[Point3],
+        amps: ctypes.Array[ctypes.c_float],
+        size: int,
+        option: NaiveOption,
     ) -> GainPtr:
         return self.dll.AUTDGainHoloNaiveSphere(backend, points, amps, size, option)
 

@@ -18,15 +18,15 @@ from pyautd3.native_methods.structs import Point3
 
 
 class GreedyOption:
-    phase_div: int
+    phase_quantization_levels: int
     constraint: EmissionConstraintWrap
 
-    def __init__(self: Self, *, phase_div: int = 16, constraint: EmissionConstraintWrap | None = None) -> None:
-        self.phase_div = _validate_nonzero_u16(phase_div)
+    def __init__(self: Self, *, phase_quantization_levels: int = 16, constraint: EmissionConstraintWrap | None = None) -> None:
+        self.phase_quantization_levels = _validate_nonzero_u16(phase_quantization_levels)
         self.constraint = constraint or EmissionConstraint.Uniform(EmitIntensity.MAX)
 
     def _inner(self: Self) -> GreedyOption_:
-        return GreedyOption_(self.constraint, self.phase_div)
+        return GreedyOption_(self.constraint, self.phase_quantization_levels)
 
 
 class Greedy(Holo["Greedy"]):

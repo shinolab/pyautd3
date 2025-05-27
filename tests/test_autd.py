@@ -3,20 +3,20 @@ import platform
 import numpy as np
 import pytest
 
-from pyautd3 import AUTD3, Clear, Controller, Device, ForceFan, Segment, tracing_init
+from pyautd3 import AUTD3, Clear, Controller, ForceFan, Segment, tracing_init
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError
 from pyautd3.controller.controller import SenderOption
 from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, StdSleeper, WaitableSleeper
 from pyautd3.driver.datagram import Synchronize
-from pyautd3.driver.defined.freq import Hz
 from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.firmware_version import FirmwareInfo
-from pyautd3.gain import Null, Uniform
+from pyautd3.gain import Uniform
 from pyautd3.link.audit import Audit
-from pyautd3.modulation import Sine, Static
-from pyautd3.modulation.sine import SineOption
+from pyautd3.modulation import Static
+from pyautd3.native_methods.autd3 import ParallelMode
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
+from pyautd3.utils.duration import Duration
 
 
 def create_controller() -> Controller[Audit]:
@@ -109,56 +109,6 @@ def test_send_tuple():
         autd.link().repair()
 
 
-def test_group():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.group_send(
-            key_map=lambda dev: dev.idx(),
-            data_map={1: Null(), 0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)))},
-        )
-
-        mod = autd.link().modulation_buffer(0, Segment.S0)
-        assert len(mod) == 80
-        intensities, phases = autd.link().drives_at(0, Segment.S0, 0)
-        assert np.all(intensities == 0xFF)
-        assert np.all(phases == 0)
-
-        mod = autd.link().modulation_buffer(1, Segment.S0)
-        intensities, phases = autd.link().drives_at(1, Segment.S0, 0)
-        assert np.all(intensities == 0)
-
-        with pytest.raises(InvalidDatagramTypeError):
-            autd.group_send(lambda dev: dev.idx(), {0: 0})  # type: ignore[dict-item]
-
-
-def test_group_check_only_for_enabled():
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        check = np.zeros(autd.num_devices(), dtype=bool)
-
-        autd.geometry()[0].enable = False
-
-        def key_map(dev: Device) -> int:
-            check[dev.idx()] = True
-            return 0
-
-        autd.group_send(key_map, {0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))})
-
-        assert not check[0]
-        assert check[1]
-
-        mod = autd.link().modulation_buffer(0, Segment.S0)
-        intensities, phases = autd.link().drives_at(0, Segment.S0, 0)
-        assert np.all(intensities == 0)
-        assert np.all(phases == 0)
-
-        mod = autd.link().modulation_buffer(1, Segment.S0)
-        assert len(mod) == 80
-        intensities, phases = autd.link().drives_at(1, Segment.S0, 0)
-        assert np.all(intensities == 0x80)
-        assert np.all(phases == 0x90)
-
-
 def test_clear():
     autd: Controller[Audit]
     with create_controller() as autd:
@@ -205,6 +155,19 @@ def test_geometry():
     with create_controller() as autd:
         assert autd.num_transducers() == 249 * 2
         assert autd[0].num_transducers() == 249
+
+
+def test_sender_option():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        option = SenderOption(
+            send_interval=Duration.from_millis(1),
+            receive_interval=Duration.from_millis(1),
+            timeout=Duration.from_millis(100),
+            parallel=ParallelMode.Off,
+        )
+        autd.default_sender_option = option
+        assert option == autd.default_sender_option
 
 
 def test_tracing():
