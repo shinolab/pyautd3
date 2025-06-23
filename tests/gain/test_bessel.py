@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, EmitIntensity, Phase, Segment, rad
+from pyautd3 import Controller, Intensity, Phase, Segment, rad
 from pyautd3.gain import Bessel
 from pyautd3.gain.bessel import BesselOption
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -26,7 +26,7 @@ def test_bessel():
             direction=[0, 0, 1],
             theta=np.pi / 4 * rad,
             option=BesselOption(
-                intensity=EmitIntensity(0x80),
+                intensity=Intensity(0x80),
                 phase_offset=Phase(0x90),
             ),
         )

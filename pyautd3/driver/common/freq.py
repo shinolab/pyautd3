@@ -21,6 +21,9 @@ class Freq(Generic[T]):
     def __eq__(self: Self, value: object) -> bool:
         return isinstance(value, Freq) and self._freq == value._freq
 
+    def __hash__(self: Self) -> int:
+        return self._freq.__hash__()  # pragma: no cover
+
 
 class _UnitHz:
     def __new__(cls: type["_UnitHz"]) -> "_UnitHz":

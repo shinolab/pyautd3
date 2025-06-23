@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, EmitIntensity, Phase, Segment
+from pyautd3 import Controller, Intensity, Phase, Segment
 from pyautd3.gain import Plane
 from pyautd3.gain.plane import PlaneOption
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -21,7 +21,7 @@ def test_plane():
             assert np.all(intensities == 0xFF)
             assert np.all(phases == 0)
 
-        g = Plane(direction=[0, 0, 1], option=PlaneOption(intensity=EmitIntensity(0x80), phase_offset=Phase(0x81)))
+        g = Plane(direction=[0, 0, 1], option=PlaneOption(intensity=Intensity(0x80), phase_offset=Phase(0x81)))
         autd.send(g)
         for dev in autd.geometry():
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)

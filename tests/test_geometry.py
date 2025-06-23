@@ -158,14 +158,6 @@ def test_device_set_sound_speed_from_temp():
             assert dev.sound_speed == 340.29525e3
 
 
-def test_device_enable():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            assert dev.enable
-            dev.enable = False
-            assert not dev.enable
-
-
 def test_device_num_transducers():
     with create_controller() as autd:
         assert autd.num_transducers() == 249 * autd.num_devices()

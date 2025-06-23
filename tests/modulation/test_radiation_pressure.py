@@ -7,7 +7,6 @@ from pyautd3.driver.common.freq import Hz
 from pyautd3.modulation import Sine
 from pyautd3.modulation.radiation_pressure import RadiationPressure
 from pyautd3.modulation.sine import SineOption
-from pyautd3.modulation.static import Static
 from tests.test_autd import create_controller
 
 if TYPE_CHECKING:
@@ -107,9 +106,3 @@ def test_radiation_pressure():
             ]
             assert np.array_equal(mod, mod_expect)
             assert autd.link().modulation_frequency_divide(dev.idx(), Segment.S0) == 10
-
-
-def test_expected_radiation_pressure():
-    assert Static(intensity=0xFF).expected_radiation_pressure() == 1.0
-    assert Static(intensity=0x80).expected_radiation_pressure() == 0.25196465849876404
-    assert RadiationPressure(Static(intensity=0x80)).expected_radiation_pressure() == 0.503821611404419

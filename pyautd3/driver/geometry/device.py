@@ -44,14 +44,6 @@ class Device:
     ) -> None:
         Base().device_set_sound_speed_from_temp(self._geo_ptr, self._idx, temp, k, r, m)
 
-    @property
-    def enable(self: Self) -> bool:
-        return bool(Base().device_enable_get(self._ptr))
-
-    @enable.setter
-    def enable(self: Self, value: bool) -> None:
-        Base().device_enable_set(self._geo_ptr, self._idx, value)
-
     def num_transducers(self: Self) -> int:
         return len(self._transducers)
 

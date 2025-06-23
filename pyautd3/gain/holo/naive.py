@@ -4,7 +4,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.gain.holo.amplitude import Amplitude
 from pyautd3.gain.holo.backend import Backend
@@ -20,7 +20,7 @@ class NaiveOption:
     constraint: EmissionConstraintWrap
 
     def __init__(self: Self, *, constraint: EmissionConstraintWrap | None = None) -> None:
-        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.MIN, EmitIntensity.MAX)
+        self.constraint = constraint or EmissionConstraint.Clamp(Intensity.MIN, Intensity.MAX)
 
     def _inner(self: Self) -> NaiveOption_:
         return NaiveOption_(self.constraint)

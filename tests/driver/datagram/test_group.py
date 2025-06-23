@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, EmitIntensity, Hz, Phase, Segment
+from pyautd3 import Controller, Hz, Intensity, Phase, Segment
 from pyautd3.autd_error import InvalidDatagramTypeError
 from pyautd3.driver.datagram.group import Group
 from pyautd3.driver.geometry.device import Device
@@ -22,7 +22,7 @@ def test_group():
         autd.send(
             Group(
                 key_map=lambda dev: dev.idx(),
-                data_map={1: Null(), 0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)))},
+                data_map={1: Null(), 0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=Intensity(0xFF), phase=Phase(0)))},
             ),
         )
 
@@ -43,23 +43,18 @@ def test_group():
 def test_group_check_only_for_enabled():
     autd: Controller[Audit]
     with create_controller() as autd:
-        check = np.zeros(autd.num_devices(), dtype=bool)
 
-        autd.geometry()[0].enable = False
-
-        def key_map(dev: Device) -> int:
-            check[dev.idx()] = True
+        def key_map(dev: Device) -> int | None:
+            if dev.idx() == 0:
+                return None
             return 0
 
         autd.send(
             Group(
                 key_map,
-                {0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0x90)))},
+                {0: (Sine(freq=150 * Hz, option=SineOption()), Uniform(intensity=Intensity(0x80), phase=Phase(0x90)))},
             ),
         )
-
-        assert not check[0]
-        assert check[1]
 
         mod = autd.link().modulation_buffer(0, Segment.S0)
         intensities, phases = autd.link().drives_at(0, Segment.S0, 0)

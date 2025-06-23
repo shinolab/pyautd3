@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, EmitIntensity, Phase, Segment
+from pyautd3 import Controller, Intensity, Phase, Segment
 from pyautd3.gain import Focus
 from pyautd3.gain.focus import FocusOption
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -21,7 +21,7 @@ def test_focus():
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
-        g = Focus(pos=autd.center(), option=FocusOption(intensity=EmitIntensity(0x80), phase_offset=Phase(0x90)))
+        g = Focus(pos=autd.center(), option=FocusOption(intensity=Intensity(0x80), phase_offset=Phase(0x90)))
         autd.send(g)
         assert np.array_equal(g.pos, autd.center())
         for dev in autd.geometry():

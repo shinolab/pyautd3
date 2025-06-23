@@ -8,7 +8,7 @@ from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.datagram.stm.control_point import ControlPoint, ControlPoints
 from pyautd3.driver.datagram.with_loop_behavior import WithLoopBehavior
 from pyautd3.driver.datagram.with_segment import WithSegment
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.utils import Duration
 from tests.test_autd import create_controller
@@ -160,7 +160,7 @@ def foci_stm_n(n: int) -> None:
 
         size = 100
         center = autd.center() + np.array([0.0, 0.0, 150.0])
-        foci = [ControlPoints(points=[center] * n, intensity=EmitIntensity(i)) for i in range(size)]
+        foci = [ControlPoints(points=[center] * n, intensity=Intensity(i)) for i in range(size)]
 
         stm = FociSTM(foci=foci, config=1.0 * Hz)
         autd.send(stm)

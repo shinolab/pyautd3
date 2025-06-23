@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import Controller, Segment
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, Pa
 from pyautd3.gain.holo.naive import NaiveOption
 from tests.test_autd import create_controller
@@ -20,7 +20,7 @@ def test_constraint_uniform():
         g = Naive(
             backend=backend,
             foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
-            option=NaiveOption(constraint=EmissionConstraint.Uniform(EmitIntensity(0x80))),
+            option=NaiveOption(constraint=EmissionConstraint.Uniform(Intensity(0x80))),
         )
         autd.send(g)
         for dev in autd.geometry():
@@ -52,7 +52,7 @@ def test_constraint_clamp():
         g = Naive(
             backend=backend,
             foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
-            option=NaiveOption(constraint=EmissionConstraint.Clamp(EmitIntensity(67), EmitIntensity(85))),
+            option=NaiveOption(constraint=EmissionConstraint.Clamp(Intensity(67), Intensity(85))),
         )
         autd.send(g)
         for dev in autd.geometry():

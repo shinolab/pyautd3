@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, EmitIntensity, Phase, Segment, SwapSegment
+from pyautd3 import Controller, Intensity, Phase, Segment, SwapSegment
 from pyautd3.driver.datagram.with_segment import WithSegment
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.gain import Uniform
@@ -17,7 +17,7 @@ def test_gain_segment():
     with create_controller() as autd:
         assert autd.link().current_stm_segment(0) == Segment.S0
 
-        autd.send(Uniform(intensity=EmitIntensity(0x01), phase=Phase(0x02)))
+        autd.send(Uniform(intensity=Intensity(0x01), phase=Phase(0x02)))
         assert autd.link().current_stm_segment(0) == Segment.S0
         assert autd.link().stm_cycle(0, Segment.S0) == 1
         assert autd.link().stm_freqency_divide(0, Segment.S0) == 0xFFFF
@@ -32,7 +32,7 @@ def test_gain_segment():
 
         autd.send(
             WithSegment(
-                inner=Uniform(intensity=EmitIntensity(0x03), phase=Phase(0x04)),
+                inner=Uniform(intensity=Intensity(0x03), phase=Phase(0x04)),
                 segment=Segment.S1,
                 transition_mode=TransitionMode.Immediate,
             ),
@@ -49,7 +49,7 @@ def test_gain_segment():
 
         autd.send(
             WithSegment(
-                inner=Uniform(intensity=EmitIntensity(0x05), phase=Phase(0x06)),
+                inner=Uniform(intensity=Intensity(0x05), phase=Phase(0x06)),
                 segment=Segment.S0,
                 transition_mode=None,
             ),

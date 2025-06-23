@@ -7,12 +7,12 @@ from pyautd3.native_methods.autd3 import (
     BesselOption,
     DcSysTime,
     Drive,
-    EmitIntensity,
     FixedCompletionSteps,
     FixedUpdateRate,
     FocusOption,
     GainSTMOption,
     GPIOIn,
+    Intensity,
     Phase,
     PlaneOption,
     Segment,
@@ -35,10 +35,11 @@ from pyautd3.native_methods.autd3capi_driver import (
     ResultF32,
     ResultSamplingConfig,
     ResultStatus,
+    ResultU8,
     ResultU16,
     SamplingConfigWrap,
     SenderPtr,
-    SleeperWrap,
+    TimerStrategyWrap,
     TransducerPtr,
     TransitionModeWrap,
 )
@@ -51,12 +52,18 @@ class FPGAStateListPtr(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FPGAStateListPtr) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class FirmwareVersionListPtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FirmwareVersionListPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class FixedCompletionTime(ctypes.Structure):
@@ -65,6 +72,9 @@ class FixedCompletionTime(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class FourierOption(ctypes.Structure):
     _fields_ = [("has_scale_factor", ctypes.c_bool), ("scale_factor", ctypes.c_float), ("clamp", ctypes.c_bool), ("offset", ctypes.c_uint8)]
@@ -72,12 +82,8 @@ class FourierOption(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FourierOption) and self._fields_ == other._fields_  # pragma: no cover
 
-
-class GainCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, GainCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class GroupGainMapPtr(ctypes.Structure):
@@ -86,12 +92,8 @@ class GroupGainMapPtr(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, GroupGainMapPtr) and self._fields_ == other._fields_  # pragma: no cover
 
-
-class ModulationCachePtr(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ModulationCachePtr) and self._fields_ == other._fields_  # pragma: no cover
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class ResultController(ctypes.Structure):
@@ -100,12 +102,18 @@ class ResultController(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultController) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class ResultFPGAStateList(ctypes.Structure):
     _fields_ = [("result", FPGAStateListPtr), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultFPGAStateList) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class ResultFirmwareVersionList(ctypes.Structure):
@@ -114,12 +122,24 @@ class ResultFirmwareVersionList(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultFirmwareVersionList) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class SenderOption(ctypes.Structure):
-    _fields_ = [("send_interval", Duration), ("receive_interval", Duration), ("timeout", OptionDuration), ("parallel", ctypes.c_uint8)]
+    _fields_ = [
+        ("send_interval", Duration),
+        ("receive_interval", Duration),
+        ("timeout", OptionDuration),
+        ("parallel", ctypes.c_uint8),
+        ("strict", ctypes.c_bool),
+    ]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class SineOption(ctypes.Structure):
@@ -134,12 +154,18 @@ class SineOption(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SineOption) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class SquareOption(ctypes.Structure):
     _fields_ = [("low", ctypes.c_uint8), ("high", ctypes.c_uint8), ("duty", ctypes.c_float), ("sampling_config_div", ctypes.c_uint16)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SquareOption) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class Singleton(type):
@@ -164,7 +190,7 @@ class NativeMethods(metaclass=Singleton):
             ctypes.c_uint16,
             LinkPtr,
             SenderOption,
-            SleeperWrap,
+            TimerStrategyWrap,
         ]
         self.dll.AUTDControllerOpen.restype = ResultController
 
@@ -195,7 +221,10 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSetDefaultSenderOption.argtypes = [ControllerPtr, SenderOption]
         self.dll.AUTDSetDefaultSenderOption.restype = None
 
-        self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption, SleeperWrap]
+        self.dll.AUTDGetDefaultSenderOption.argtypes = [ControllerPtr]
+        self.dll.AUTDGetDefaultSenderOption.restype = SenderOption
+
+        self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption, TimerStrategyWrap]
         self.dll.AUTDSender.restype = SenderPtr
 
         self.dll.AUTDSenderSend.argtypes = [SenderPtr, DatagramPtr]
@@ -210,11 +239,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramClear.argtypes = []
         self.dll.AUTDDatagramClear.restype = DatagramPtr
 
-        self.dll.AUTDDatagramGPIOOutputs.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
-        self.dll.AUTDDatagramGPIOOutputs.restype = DatagramPtr
-
         self.dll.AUTDDatagramForceFan.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramForceFan.restype = DatagramPtr
+
+        self.dll.AUTDDatagramGPIOOutputs.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
+        self.dll.AUTDDatagramGPIOOutputs.restype = DatagramPtr
 
         self.dll.AUTDDatagramGroup.argtypes = [
             ctypes.c_void_p,
@@ -229,11 +258,17 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramPhaseCorr.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramPhaseCorr.restype = DatagramPtr
 
-        self.dll.AUTDDatagramPulseWidthEncoder.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
-        self.dll.AUTDDatagramPulseWidthEncoder.restype = DatagramPtr
+        self.dll.AUTDDatagramPulseWidthEncoder256.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
+        self.dll.AUTDDatagramPulseWidthEncoder256.restype = DatagramPtr
 
-        self.dll.AUTDDatagramPulseWidthEncoderDefault.argtypes = []
-        self.dll.AUTDDatagramPulseWidthEncoderDefault.restype = DatagramPtr
+        self.dll.AUTDDatagramPulseWidthEncoder256Default.argtypes = []
+        self.dll.AUTDDatagramPulseWidthEncoder256Default.restype = DatagramPtr
+
+        self.dll.AUTDDatagramPulseWidthEncoder512.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
+        self.dll.AUTDDatagramPulseWidthEncoder512.restype = DatagramPtr
+
+        self.dll.AUTDDatagramPulseWidthEncoder512Default.argtypes = []
+        self.dll.AUTDDatagramPulseWidthEncoder512Default.restype = DatagramPtr
 
         self.dll.AUTDDatagramReadsFPGAState.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramReadsFPGAState.restype = DatagramPtr
@@ -346,6 +381,9 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGPIOOutputTypeSysTimeEq.argtypes = [DcSysTime]
         self.dll.AUTDGPIOOutputTypeSysTimeEq.restype = GPIOOutputTypeWrap
 
+        self.dll.AUTDGPIOOutputTypeSyncDiff.argtypes = []
+        self.dll.AUTDGPIOOutputTypeSyncDiff.restype = GPIOOutputTypeWrap
+
         self.dll.AUTDLoopBehaviorInfinite.argtypes = []
         self.dll.AUTDLoopBehaviorInfinite.restype = LoopBehavior
 
@@ -358,11 +396,17 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDPhaseToRad.argtypes = [Phase]
         self.dll.AUTDPhaseToRad.restype = ctypes.c_float
 
-        self.dll.AUTDPulseWidth.argtypes = [ctypes.c_uint16]
-        self.dll.AUTDPulseWidth.restype = ResultU16
+        self.dll.AUTDPulseWidth256.argtypes = [ctypes.c_uint8]
+        self.dll.AUTDPulseWidth256.restype = ResultU8
 
-        self.dll.AUTDPulseWidthFromDuty.argtypes = [ctypes.c_float]
-        self.dll.AUTDPulseWidthFromDuty.restype = ResultU16
+        self.dll.AUTDPulseWidth512.argtypes = [ctypes.c_uint16]
+        self.dll.AUTDPulseWidth512.restype = ResultU16
+
+        self.dll.AUTDPulseWidth256FromDuty.argtypes = [ctypes.c_float]
+        self.dll.AUTDPulseWidth256FromDuty.restype = ResultU8
+
+        self.dll.AUTDPulseWidth512FromDuty.argtypes = [ctypes.c_float]
+        self.dll.AUTDPulseWidth512FromDuty.restype = ResultU16
 
         self.dll.AUTDSamplingConfigFromDivide.argtypes = [ctypes.c_uint16]
         self.dll.AUTDSamplingConfigFromDivide.restype = ResultSamplingConfig
@@ -412,15 +456,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainBesselIsDefault.argtypes = [BesselOption]
         self.dll.AUTDGainBesselIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainCache.argtypes = [GainPtr]
-        self.dll.AUTDGainCache.restype = GainCachePtr
-
-        self.dll.AUTDGainCacheClone.argtypes = [GainCachePtr]
-        self.dll.AUTDGainCacheClone.restype = GainPtr
-
-        self.dll.AUTDGainCacheFree.argtypes = [GainCachePtr]
-        self.dll.AUTDGainCacheFree.restype = None
-
         self.dll.AUTDGainCustom.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDGainCustom.restype = GainPtr
 
@@ -454,7 +489,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainPlanelIsDefault.argtypes = [PlaneOption]
         self.dll.AUTDGainPlanelIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDGainUniform.argtypes = [EmitIntensity, Phase]
+        self.dll.AUTDGainUniform.argtypes = [Intensity, Phase]
         self.dll.AUTDGainUniform.restype = GainPtr
 
         self.dll.AUTDDevice.argtypes = [GeometryPtr, ctypes.c_uint16]
@@ -481,12 +516,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDDeviceCenter.argtypes = [DevicePtr]
         self.dll.AUTDDeviceCenter.restype = Point3
-
-        self.dll.AUTDDeviceEnableSet.argtypes = [GeometryPtr, ctypes.c_uint16, ctypes.c_bool]
-        self.dll.AUTDDeviceEnableSet.restype = None
-
-        self.dll.AUTDDeviceEnableGet.argtypes = [DevicePtr]
-        self.dll.AUTDDeviceEnableGet.restype = ctypes.c_bool
 
         self.dll.AUTDDeviceWavelength.argtypes = [DevicePtr]
         self.dll.AUTDDeviceWavelength.restype = ctypes.c_float
@@ -532,12 +561,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDTransducerPosition.argtypes = [TransducerPtr]
         self.dll.AUTDTransducerPosition.restype = Point3
-
-        self.dll.AUTDTracingInit.argtypes = []
-        self.dll.AUTDTracingInit.restype = None
-
-        self.dll.AUTDTracingInitWithFile.argtypes = [ctypes.c_char_p]
-        self.dll.AUTDTracingInitWithFile.restype = ResultStatus
 
         self.dll.AUTDLinkAudit.argtypes = []
         self.dll.AUTDLinkAudit.restype = LinkPtr
@@ -638,15 +661,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkNop.argtypes = []
         self.dll.AUTDLinkNop.restype = LinkPtr
 
-        self.dll.AUTDModulationCache.argtypes = [ModulationPtr]
-        self.dll.AUTDModulationCache.restype = ModulationCachePtr
-
-        self.dll.AUTDModulationCacheClone.argtypes = [ModulationCachePtr]
-        self.dll.AUTDModulationCacheClone.restype = ModulationPtr
-
-        self.dll.AUTDModulationCacheFree.argtypes = [ModulationCachePtr]
-        self.dll.AUTDModulationCacheFree.restype = None
-
         self.dll.AUTDModulationCustom.argtypes = [ctypes.POINTER(ctypes.c_uint8), ctypes.c_uint16, SamplingConfigWrap]
         self.dll.AUTDModulationCustom.restype = ModulationPtr
 
@@ -669,9 +683,6 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDModulationSamplingConfig.argtypes = [ModulationPtr]
         self.dll.AUTDModulationSamplingConfig.restype = SamplingConfigWrap
-
-        self.dll.AUTDModulationExpectedRadiationPressure.argtypes = [ModulationPtr]
-        self.dll.AUTDModulationExpectedRadiationPressure.restype = ResultF32
 
         self.dll.AUTDModulationIntoDatagramWithSegment.argtypes = [ModulationPtr, ctypes.c_uint8, TransitionModeWrap]
         self.dll.AUTDModulationIntoDatagramWithSegment.restype = DatagramPtr
@@ -725,9 +736,9 @@ class NativeMethods(metaclass=Singleton):
         len_: int,
         link: LinkPtr,
         option: SenderOption,
-        sleeper: SleeperWrap,
+        timer_strategy: TimerStrategyWrap,
     ) -> ResultController:
-        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option, sleeper)
+        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option, timer_strategy)
 
     def controller_close(self, cnt: ControllerPtr) -> ResultStatus:
         return self.dll.AUTDControllerClose(cnt)
@@ -756,8 +767,11 @@ class NativeMethods(metaclass=Singleton):
     def set_default_sender_option(self, cnt: ControllerPtr, option: SenderOption) -> None:
         return self.dll.AUTDSetDefaultSenderOption(cnt, option)
 
-    def sender(self, cnt: ControllerPtr, option: SenderOption, sleeper: SleeperWrap) -> SenderPtr:
-        return self.dll.AUTDSender(cnt, option, sleeper)
+    def get_default_sender_option(self, cnt: ControllerPtr) -> SenderOption:
+        return self.dll.AUTDGetDefaultSenderOption(cnt)
+
+    def sender(self, cnt: ControllerPtr, option: SenderOption, timer_strategy: TimerStrategyWrap) -> SenderPtr:
+        return self.dll.AUTDSender(cnt, option, timer_strategy)
 
     def sender_send(self, sender: SenderPtr, d: DatagramPtr) -> ResultStatus:
         return self.dll.AUTDSenderSend(sender, d)
@@ -771,11 +785,11 @@ class NativeMethods(metaclass=Singleton):
     def datagram_clear(self) -> DatagramPtr:
         return self.dll.AUTDDatagramClear()
 
-    def datagram_gpio_outputs(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramGPIOOutputs(f, context, geometry)
-
     def datagram_force_fan(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramForceFan(f, context, geometry)
+
+    def datagram_gpio_outputs(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramGPIOOutputs(f, context, geometry)
 
     def datagram_group(
         self,
@@ -791,11 +805,17 @@ class NativeMethods(metaclass=Singleton):
     def datagram_phase_corr(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramPhaseCorr(f, context, geometry)
 
-    def datagram_pulse_width_encoder(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramPulseWidthEncoder(f, context, geometry)
+    def datagram_pulse_width_encoder_256(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramPulseWidthEncoder256(f, context, geometry)
 
-    def datagram_pulse_width_encoder_default(self) -> DatagramPtr:
-        return self.dll.AUTDDatagramPulseWidthEncoderDefault()
+    def datagram_pulse_width_encoder_256_default(self) -> DatagramPtr:
+        return self.dll.AUTDDatagramPulseWidthEncoder256Default()
+
+    def datagram_pulse_width_encoder_512(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramPulseWidthEncoder512(f, context, geometry)
+
+    def datagram_pulse_width_encoder_512_default(self) -> DatagramPtr:
+        return self.dll.AUTDDatagramPulseWidthEncoder512Default()
 
     def datagram_reads_fpga_state(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramReadsFPGAState(f, context, geometry)
@@ -921,6 +941,9 @@ class NativeMethods(metaclass=Singleton):
     def gpio_output_type_sys_time_eq(self, sys_time: DcSysTime) -> GPIOOutputTypeWrap:
         return self.dll.AUTDGPIOOutputTypeSysTimeEq(sys_time)
 
+    def gpio_output_type_sync_diff(self) -> GPIOOutputTypeWrap:
+        return self.dll.AUTDGPIOOutputTypeSyncDiff()
+
     def loop_behavior_infinite(self) -> LoopBehavior:
         return self.dll.AUTDLoopBehaviorInfinite()
 
@@ -933,11 +956,17 @@ class NativeMethods(metaclass=Singleton):
     def phase_to_rad(self, value: Phase) -> ctypes.c_float:
         return self.dll.AUTDPhaseToRad(value)
 
-    def pulse_width(self, value: int) -> ResultU16:
-        return self.dll.AUTDPulseWidth(value)
+    def pulse_width_256(self, value: int) -> ResultU8:
+        return self.dll.AUTDPulseWidth256(value)
 
-    def pulse_width_from_duty(self, duty: float) -> ResultU16:
-        return self.dll.AUTDPulseWidthFromDuty(duty)
+    def pulse_width_512(self, value: int) -> ResultU16:
+        return self.dll.AUTDPulseWidth512(value)
+
+    def pulse_width_256_from_duty(self, duty: float) -> ResultU8:
+        return self.dll.AUTDPulseWidth256FromDuty(duty)
+
+    def pulse_width_512_from_duty(self, duty: float) -> ResultU16:
+        return self.dll.AUTDPulseWidth512FromDuty(duty)
 
     def sampling_config_from_divide(self, div: int) -> ResultSamplingConfig:
         return self.dll.AUTDSamplingConfigFromDivide(div)
@@ -987,15 +1016,6 @@ class NativeMethods(metaclass=Singleton):
     def gain_bessel_is_default(self, option: BesselOption) -> ctypes.c_bool:
         return self.dll.AUTDGainBesselIsDefault(option)
 
-    def gain_cache(self, g: GainPtr) -> GainCachePtr:
-        return self.dll.AUTDGainCache(g)
-
-    def gain_cache_clone(self, g: GainCachePtr) -> GainPtr:
-        return self.dll.AUTDGainCacheClone(g)
-
-    def gain_cache_free(self, g: GainCachePtr) -> None:
-        return self.dll.AUTDGainCacheFree(g)
-
     def gain_custom(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> GainPtr:
         return self.dll.AUTDGainCustom(f, context, geometry)
 
@@ -1029,7 +1049,7 @@ class NativeMethods(metaclass=Singleton):
     def gain_planel_is_default(self, option: PlaneOption) -> ctypes.c_bool:
         return self.dll.AUTDGainPlanelIsDefault(option)
 
-    def gain_uniform(self, intensity: EmitIntensity, phase: Phase) -> GainPtr:
+    def gain_uniform(self, intensity: Intensity, phase: Phase) -> GainPtr:
         return self.dll.AUTDGainUniform(intensity, phase)
 
     def device(self, geo: GeometryPtr, dev_idx: int) -> DevicePtr:
@@ -1049,12 +1069,6 @@ class NativeMethods(metaclass=Singleton):
 
     def device_center(self, dev: DevicePtr) -> Point3:
         return self.dll.AUTDDeviceCenter(dev)
-
-    def device_enable_set(self, geo: GeometryPtr, dev_idx: int, value: bool) -> None:
-        return self.dll.AUTDDeviceEnableSet(geo, dev_idx, value)
-
-    def device_enable_get(self, dev: DevicePtr) -> ctypes.c_bool:
-        return self.dll.AUTDDeviceEnableGet(dev)
 
     def device_wavelength(self, dev: DevicePtr) -> ctypes.c_float:
         return self.dll.AUTDDeviceWavelength(dev)
@@ -1100,12 +1114,6 @@ class NativeMethods(metaclass=Singleton):
 
     def transducer_position(self, tr: TransducerPtr) -> Point3:
         return self.dll.AUTDTransducerPosition(tr)
-
-    def tracing_init(self) -> None:
-        return self.dll.AUTDTracingInit()
-
-    def tracing_init_with_file(self, path: bytes) -> ResultStatus:
-        return self.dll.AUTDTracingInitWithFile(path)
 
     def link_audit(self) -> LinkPtr:
         return self.dll.AUTDLinkAudit()
@@ -1200,15 +1208,6 @@ class NativeMethods(metaclass=Singleton):
     def link_nop(self) -> LinkPtr:
         return self.dll.AUTDLinkNop()
 
-    def modulation_cache(self, m: ModulationPtr) -> ModulationCachePtr:
-        return self.dll.AUTDModulationCache(m)
-
-    def modulation_cache_clone(self, m: ModulationCachePtr) -> ModulationPtr:
-        return self.dll.AUTDModulationCacheClone(m)
-
-    def modulation_cache_free(self, m: ModulationCachePtr) -> None:
-        return self.dll.AUTDModulationCacheFree(m)
-
     def modulation_custom(self, ptr: ctypes.Array[ctypes.c_uint8], len_: int, sampling_config: SamplingConfigWrap) -> ModulationPtr:
         return self.dll.AUTDModulationCustom(ptr, len_, sampling_config)
 
@@ -1244,9 +1243,6 @@ class NativeMethods(metaclass=Singleton):
 
     def modulation_sampling_config(self, m: ModulationPtr) -> SamplingConfigWrap:
         return self.dll.AUTDModulationSamplingConfig(m)
-
-    def modulation_expected_radiation_pressure(self, m: ModulationPtr) -> ResultF32:
-        return self.dll.AUTDModulationExpectedRadiationPressure(m)
 
     def modulation_into_datagram_with_segment(self, m: ModulationPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
         return self.dll.AUTDModulationIntoDatagramWithSegment(m, segment, transition_mode)

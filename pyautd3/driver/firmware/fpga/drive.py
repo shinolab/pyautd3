@@ -1,18 +1,18 @@
 from typing import Self
 
-from .emit_intensity import EmitIntensity
+from .emit_intensity import Intensity
 from .phase import Phase
 
 
 class Drive:
     phase: Phase
-    intensity: EmitIntensity
+    intensity: Intensity
 
-    def __init__(self: Self, *, intensity: EmitIntensity, phase: Phase) -> None:
+    def __init__(self: Self, *, intensity: Intensity, phase: Phase) -> None:
         self.phase = phase
         self.intensity = intensity
 
     NULL: "Drive" = None  # type: ignore[assignment]
 
 
-Drive.NULL = Drive(phase=Phase.ZERO, intensity=EmitIntensity.MIN)
+Drive.NULL = Drive(phase=Phase.ZERO, intensity=Intensity.MIN)

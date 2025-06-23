@@ -48,6 +48,9 @@ class SamplingConfig:
     def __eq__(self: Self, value: object) -> bool:
         return isinstance(value, SamplingConfig) and bool(Base().sampling_config_eq(self._inner, value._inner))
 
+    def __hash__(self: Self) -> int:
+        return self._inner.__hash__()  # pragma: no cover
+
     FREQ_40K: "SamplingConfig" = None  # type: ignore[assignment]
     FREQ_4K: "SamplingConfig" = None  # type: ignore[assignment]
 

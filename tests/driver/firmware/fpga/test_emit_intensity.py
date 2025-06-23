@@ -1,28 +1,28 @@
 import pytest
 
-from pyautd3 import EmitIntensity
+from pyautd3 import Intensity
 
 
 def test_emit_intensity():
     for i in range(256):
-        intensity = EmitIntensity(i)
+        intensity = Intensity(i)
         assert intensity.value == i
-        assert str(intensity) == f"EmitIntensity({i})"
+        assert str(intensity) == f"Intensity({i})"
 
     with pytest.raises(TypeError):
-        _ = EmitIntensity(0.0)  # type: ignore[arg-type]
+        _ = Intensity(0.0)  # type: ignore[arg-type]
 
     with pytest.raises(ValueError):  # noqa: PT011
-        _ = EmitIntensity(-1)
+        _ = Intensity(-1)
 
     with pytest.raises(ValueError):  # noqa: PT011
-        _ = EmitIntensity(256)
+        _ = Intensity(256)
 
 
 def test_emit_intensity_min_max():
-    assert EmitIntensity.MIN.value == 0x00
-    assert EmitIntensity.MAX.value == 0xFF
+    assert Intensity.MIN.value == 0x00
+    assert Intensity.MAX.value == 0xFF
 
 
 def test_emit_intensity_floordiv():
-    assert EmitIntensity(0xFF) // 2 == EmitIntensity(0x7F)
+    assert Intensity(0xFF) // 2 == Intensity(0x7F)

@@ -4,16 +4,6 @@ import enum
 from pyautd3.native_methods.structs import Point3
 
 
-class ParallelMode(enum.IntEnum):
-    Auto = 0
-    On = 1
-    Off = 2
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
 class GPIOOut(enum.IntEnum):
     O0 = 0
     O1 = 1
@@ -55,11 +45,24 @@ class GainSTMMode(enum.IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class ParallelMode(enum.IntEnum):
+    Auto = 0
+    On = 1
+    Off = 2
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class Angle(ctypes.Structure):
     _fields_ = [("radian", ctypes.c_float)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Angle) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class DcSysTime(ctypes.Structure):
@@ -68,12 +71,8 @@ class DcSysTime(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, DcSysTime) and self._fields_ == other._fields_  # pragma: no cover
 
-
-class EmitIntensity(ctypes.Structure):
-    _fields_ = [("value", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, EmitIntensity) and self._fields_ == other._fields_  # pragma: no cover
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class FPGAState(ctypes.Structure):
@@ -82,12 +81,18 @@ class FPGAState(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FPGAState) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class FixedCompletionSteps(ctypes.Structure):
     _fields_ = [("intensity", ctypes.c_uint16), ("phase", ctypes.c_uint16), ("strict_mode", ctypes.c_bool)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FixedCompletionSteps) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class FixedUpdateRate(ctypes.Structure):
@@ -96,12 +101,28 @@ class FixedUpdateRate(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FixedUpdateRate) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class GainSTMOption(ctypes.Structure):
     _fields_ = [("mode", ctypes.c_uint8)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, GainSTMOption) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
+
+class Intensity(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_uint8)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Intensity) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class MsgId(ctypes.Structure):
@@ -110,6 +131,9 @@ class MsgId(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, MsgId) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class Phase(ctypes.Structure):
     _fields_ = [("value", ctypes.c_uint8)]
@@ -117,19 +141,28 @@ class Phase(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Phase) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class PlaneOption(ctypes.Structure):
-    _fields_ = [("intensity", EmitIntensity), ("phase_offset", Phase)]
+    _fields_ = [("intensity", Intensity), ("phase_offset", Phase)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, PlaneOption) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class BesselOption(ctypes.Structure):
-    _fields_ = [("intensity", EmitIntensity), ("phase_offset", Phase)]
+    _fields_ = [("intensity", Intensity), ("phase_offset", Phase)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, BesselOption) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
 
 
 class ControlPoint(ctypes.Structure):
@@ -138,16 +171,25 @@ class ControlPoint(ctypes.Structure):
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ControlPoint) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class Drive(ctypes.Structure):
-    _fields_ = [("phase", Phase), ("intensity", EmitIntensity)]
+    _fields_ = [("phase", Phase), ("intensity", Intensity)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, Drive) and self._fields_ == other._fields_  # pragma: no cover
 
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
 
 class FocusOption(ctypes.Structure):
-    _fields_ = [("intensity", EmitIntensity), ("phase_offset", Phase)]
+    _fields_ = [("intensity", Intensity), ("phase_offset", Phase)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FocusOption) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
