@@ -79,7 +79,7 @@ def test_debug_output_idx():
                 case GPIOOut.O0:
                     return GPIOOutputType.SysTimeEq(sys_time)
                 case GPIOOut.O1:
-                    return None
+                    return GPIOOutputType.SyncDiff
                 case GPIOOut.O2:
                     return None
                 case GPIOOut.O3:
@@ -87,5 +87,5 @@ def test_debug_output_idx():
 
         autd.send(GPIOOutputs(f3))
         for dev in autd.geometry():
-            assert np.array_equal([0x60, 0x00, 0x00, 0x00], autd.link().debug_types(dev.idx()))
+            assert np.array_equal([0x60, 0x70, 0x00, 0x00], autd.link().debug_types(dev.idx()))
             assert np.array_equal([(sys_time.sys_time() // 3125) >> 3, 0x00, 0x00, 0x00], autd.link().debug_values(dev.idx()))

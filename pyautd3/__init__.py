@@ -1,6 +1,6 @@
 from collections.abc import Callable
 
-from .controller import Controller, SenderOption
+from .controller import Controller, FixedSchedule, SenderOption
 from .controller.sleeper import SpinSleeper
 from .driver.autd3_device import AUTD3
 from .driver.common import Hz, deg, kHz, rad
@@ -51,6 +51,7 @@ __all__ = [
     "Duration",
     "EulerAngles",
     "FixedCompletionTime",
+    "FixedSchedule",
     "FixedUpdateRate",
     "FociSTM",
     "Focus",
@@ -103,4 +104,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "34.0.0rc1"
+__version__ = "34.0.0"
