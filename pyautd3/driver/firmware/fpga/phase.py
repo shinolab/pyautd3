@@ -1,5 +1,7 @@
 from typing import Self
 
+import numpy as np
+
 from pyautd3.driver.common import Angle
 from pyautd3.native_methods.autd3 import Phase as Phase_
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -10,8 +12,8 @@ class Phase:
 
     def __init__(self: Self, phase: "int | Angle") -> None:
         match phase:
-            case int():
-                self.value = phase
+            case int() | np.integer():
+                self.value = int(phase)
             case Angle():
                 self.value = int(Base().phase_from_rad(phase.radian()))
             case _:
