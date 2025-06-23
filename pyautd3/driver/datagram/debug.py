@@ -20,6 +20,7 @@ class GPIOOutputType(metaclass=ConstantADT):
     ForceFan: GPIOOutputTypeWrap = Base().gpio_output_type_force_fan()
     Sync: GPIOOutputTypeWrap = Base().gpio_output_type_sync()
     ModSegment: GPIOOutputTypeWrap = Base().gpio_output_type_mod_segment()
+    SyncDiff: GPIOOutputTypeWrap = Base().gpio_output_type_sync_diff()
 
     @staticmethod
     def ModIdx(idx: int) -> GPIOOutputTypeWrap:  # noqa: N802

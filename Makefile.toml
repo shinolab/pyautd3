@@ -153,6 +153,7 @@ import shutil
 import sys
 import tarfile
 import urllib.request
+import contextlib
 from pathlib import Path
 
 
@@ -185,7 +186,8 @@ def download_and_extract(repo: str, name: str, version: str) -> None:
     for so in Path("bin").glob("*.so"):
         shutil.copy(so, dst_dir)
     shutil.rmtree("bin")
-    shutil.rmtree("lib")
+    with contextlib.suppress(FileNotFoundError):
+        shutil.rmtree("lib")
 
 
 def should_update_dll(version: str) -> bool:

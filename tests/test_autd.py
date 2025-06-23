@@ -3,6 +3,7 @@ import pytest
 
 from pyautd3 import AUTD3, Clear, Controller, ForceFan, Segment
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError
+from pyautd3.controller import FixedDelay, FixedSchedule
 from pyautd3.controller.controller import SenderOption
 from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, SpinWaitSleeper, StdSleeper
 from pyautd3.driver.datagram import Synchronize
@@ -57,6 +58,21 @@ def test_close():
         with pytest.raises(AUTDError) as e:
             autd.close()
         assert str(e.value) == "broken"
+
+
+def test_sender():
+    autd: Controller[Audit]
+    with create_controller() as autd:
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
+
+        autd.sender(SenderOption(), FixedSchedule(StdSleeper())).send(Static(intensity=0x80))
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0x80)
+
+        autd.sender(SenderOption(), FixedDelay(SpinWaitSleeper())).send(Static(intensity=0x81))
+        for dev in autd.geometry():
+            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0x81)
 
 
 def test_send_single():

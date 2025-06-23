@@ -221,9 +221,6 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSetDefaultSenderOption.argtypes = [ControllerPtr, SenderOption]
         self.dll.AUTDSetDefaultSenderOption.restype = None
 
-        self.dll.AUTDGetDefaultSenderOption.argtypes = [ControllerPtr]
-        self.dll.AUTDGetDefaultSenderOption.restype = SenderOption
-
         self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption, TimerStrategyWrap]
         self.dll.AUTDSender.restype = SenderPtr
 
@@ -766,9 +763,6 @@ class NativeMethods(metaclass=Singleton):
 
     def set_default_sender_option(self, cnt: ControllerPtr, option: SenderOption) -> None:
         return self.dll.AUTDSetDefaultSenderOption(cnt, option)
-
-    def get_default_sender_option(self, cnt: ControllerPtr) -> SenderOption:
-        return self.dll.AUTDGetDefaultSenderOption(cnt)
 
     def sender(self, cnt: ControllerPtr, option: SenderOption, timer_strategy: TimerStrategyWrap) -> SenderPtr:
         return self.dll.AUTDSender(cnt, option, timer_strategy)
