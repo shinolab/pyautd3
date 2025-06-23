@@ -1,5 +1,7 @@
 from typing import Self
 
+import numpy as np
+
 from pyautd3.driver.common import Freq
 from pyautd3.driver.common.freq import Hz
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
@@ -13,7 +15,8 @@ class SamplingConfig:
 
     def __init__(self: Self, value: "SamplingConfigWrap | SamplingConfig | int | Freq[int] | Freq[float] | Duration") -> None:
         match value:
-            case int():
+            case int() | np.integer():
+                value = int(value)
                 if value > 0xFFFF:  # noqa: PLR2004
                     raise ValueError
                 self._inner = _validate_sampling_config(Base().sampling_config_from_divide(value))

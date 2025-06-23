@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Generic, Self, TypeVar
 
+import numpy as np
+
 from pyautd3.driver.common.angle import Angle, rad
 from pyautd3.driver.common.freq import Freq
 from pyautd3.driver.datagram.modulation import Modulation
@@ -59,7 +61,7 @@ class Sine(Modulation, Generic[T]):
     def __init__(self: Self, freq: Freq[T], option: SineOption) -> None:
         super().__init__()
         match freq.hz():
-            case int():
+            case int() | np.integer():
                 self._mode = SineMode.Exact
             case _:
                 self._mode = SineMode.ExactFloat
@@ -78,8 +80,8 @@ class Sine(Modulation, Generic[T]):
     def _modulation_ptr(self) -> ModulationPtr:
         match self._mode:
             case SineMode.Exact:
-                return Base().modulation_sine_exact(self.freq.hz(), self.option._inner())  # type: ignore[arg-type]
+                return Base().modulation_sine_exact(int(self.freq.hz()), self.option._inner())  # type: ignore[arg-type]
             case SineMode.ExactFloat:
-                return Base().modulation_sine_exact_float(self.freq.hz(), self.option._inner())
+                return Base().modulation_sine_exact_float(float(self.freq.hz()), self.option._inner())
             case SineMode.Nearest:  # pragma: no cover
-                return Base().modulation_sine_nearest(self.freq.hz(), self.option._inner())
+                return Base().modulation_sine_nearest(float(self.freq.hz()), self.option._inner())

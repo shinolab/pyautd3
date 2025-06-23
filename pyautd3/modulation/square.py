@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Generic, Self, TypeVar
 
+import numpy as np
+
 from pyautd3.driver.common.freq import Freq
 from pyautd3.driver.datagram.modulation import Modulation
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
@@ -54,7 +56,7 @@ class Square(Modulation, Generic[T]):
     def __init__(self: Self, freq: Freq[T], option: SquareOption) -> None:
         super().__init__()
         match freq.hz():
-            case int():
+            case int() | np.integer():
                 self._mode = SquareMode.Exact
             case _:
                 self._mode = SquareMode.ExactFloat
@@ -73,8 +75,8 @@ class Square(Modulation, Generic[T]):
     def _modulation_ptr(self) -> ModulationPtr:
         match self._mode:
             case SquareMode.Exact:
-                return Base().modulation_square_exact(self.freq.hz(), self.option._inner())  # type: ignore[arg-type]
+                return Base().modulation_square_exact(int(self.freq.hz()), self.option._inner())  # type: ignore[arg-type]
             case SquareMode.ExactFloat:
-                return Base().modulation_square_exact_float(self.freq.hz(), self.option._inner())
+                return Base().modulation_square_exact_float(float(self.freq.hz()), self.option._inner())
             case SquareMode.Nearest:  # pragma: no cover
-                return Base().modulation_square_nearest(self.freq.hz(), self.option._inner())
+                return Base().modulation_square_nearest(float(self.freq.hz()), self.option._inner())
