@@ -23,6 +23,9 @@ class Phase:
     def __eq__(self: Self, other: object) -> bool:
         return isinstance(other, Phase) and self.value == other.value
 
+    def __hash__(self: Self) -> int:
+        return self.value.__hash__()  # pragma: no cover
+
     def __str__(self: Self) -> str:
         return f"Phase({self.value})"
 

@@ -4,7 +4,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.utils import _validate_nonzero_u32
 from pyautd3.gain.holo.amplitude import Amplitude
@@ -23,7 +23,7 @@ class GSOption:
 
     def __init__(self: Self, *, repeat: int = 100, constraint: EmissionConstraintWrap | None = None) -> None:
         self.repeat = _validate_nonzero_u32(repeat)
-        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.MIN, EmitIntensity.MAX)
+        self.constraint = constraint or EmissionConstraint.Clamp(Intensity.MIN, Intensity.MAX)
 
     def _inner(self: Self) -> GSOption_:
         return GSOption_(self.constraint, self.repeat)

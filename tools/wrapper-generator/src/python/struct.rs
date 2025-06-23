@@ -13,7 +13,10 @@ impl Struct {
     _fields_ = [{}]
 
     def __eq__(self, other: object) -> bool:
-        return isinstance(other, {0}) and self._fields_ == other._fields_  # pragma: no cover",
+        return isinstance(other, {0}) and self._fields_ == other._fields_  # pragma: no cover
+        
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover",
             self.name,
             self.fields
                 .iter()

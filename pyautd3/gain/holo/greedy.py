@@ -4,7 +4,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.utils import _validate_nonzero_u16
 from pyautd3.gain.holo.amplitude import Amplitude
@@ -23,7 +23,7 @@ class GreedyOption:
 
     def __init__(self: Self, *, phase_quantization_levels: int = 16, constraint: EmissionConstraintWrap | None = None) -> None:
         self.phase_quantization_levels = _validate_nonzero_u16(phase_quantization_levels)
-        self.constraint = constraint or EmissionConstraint.Uniform(EmitIntensity.MAX)
+        self.constraint = constraint or EmissionConstraint.Uniform(Intensity.MAX)
 
     def _inner(self: Self) -> GreedyOption_:
         return GreedyOption_(self.constraint, self.phase_quantization_levels)

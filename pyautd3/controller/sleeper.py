@@ -8,13 +8,11 @@ from pyautd3.utils import Duration
 
 
 class StdSleeper:
-    timer_resolution: int | None
-
-    def __init__(self: Self, *, timer_resolution: int | None = 1) -> None:
-        self.timer_resolution = timer_resolution
+    def __init__(self: Self) -> None:
+        pass
 
     def _inner(self: Self) -> SleeperWrap:
-        return SleeperWrap(SleeperTag.Std, self.timer_resolution or 0)
+        return SleeperWrap(SleeperTag.Std)
 
 
 class SpinSleeper:
@@ -36,12 +34,9 @@ class SpinSleeper:
         return SleeperWrap(SleeperTag.Spin, self.native_accuracy.as_nanos(), self.spin_strategy)
 
 
-class WaitableSleeper:
+class SpinWaitSleeper:
     def __init__(self: Self) -> None:
         pass
 
     def _inner(self: Self) -> SleeperWrap:
-        if platform.system() != "Windows":  # pragma: no cover
-            err = "WaitableSleeper is only supported on Windows"  # pragma: no cover
-            raise RuntimeError(err)  # pragma: no cover
-        return SleeperWrap(SleeperTag.Waitable, 0)  # pragma: no cover
+        return SleeperWrap(SleeperTag.SpinWait)

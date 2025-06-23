@@ -8,7 +8,7 @@ from pyautd3.driver.datagram.segment import SwapSegment
 from pyautd3.driver.datagram.stm.gain import GainSTMOption
 from pyautd3.driver.datagram.with_loop_behavior import WithLoopBehavior
 from pyautd3.driver.datagram.with_segment import WithSegment
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.utils import Duration
@@ -25,7 +25,7 @@ def test_gain_stm():
 
         size = 2
         stm = GainSTM(
-            gains=(Uniform(intensity=EmitIntensity(0xFF // (i + 1)), phase=Phase(0)) for i in range(size)),
+            gains=(Uniform(intensity=Intensity(0xFF // (i + 1)), phase=Phase(0)) for i in range(size)),
             config=1.0 * Hz,
             option=GainSTMOption(),
         )
@@ -38,7 +38,7 @@ def test_gain_stm():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
-            gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+            gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
             config=1.0 * Hz,
             option=GainSTMOption(),
         ).into_nearest()
@@ -50,7 +50,7 @@ def test_gain_stm():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
-            gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+            gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
             config=Duration.from_secs(1),
             option=GainSTMOption(),
         )
@@ -62,7 +62,7 @@ def test_gain_stm():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
-            gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+            gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
             config=Duration.from_secs(1),
             option=GainSTMOption(),
         ).into_nearest()
@@ -74,7 +74,7 @@ def test_gain_stm():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = GainSTM(
-            gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+            gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
             config=SamplingConfig(1),
             option=GainSTMOption(),
         )
@@ -91,7 +91,7 @@ def test_gain_stm():
             assert np.all(phases == 0)
 
         stm = GainSTM(
-            gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+            gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
             config=SamplingConfig(1),
             option=GainSTMOption(mode=GainSTMMode.PhaseFull),
         )
@@ -106,7 +106,7 @@ def test_gain_stm():
             assert np.all(phases == 0)
 
         stm = GainSTM(
-            gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+            gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
             config=SamplingConfig(1),
             option=GainSTMOption(mode=GainSTMMode.PhaseHalf),
         )
@@ -122,7 +122,7 @@ def test_gain_stm():
 
         with pytest.raises(TypeError):
             _ = GainSTM(
-                gains=[Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))],
+                gains=[Uniform(intensity=Intensity(0xFF), phase=Phase(0)), Uniform(intensity=Intensity(0x80), phase=Phase(0))],
                 config=SamplingConfig(1),
                 option=GainSTMOption(mode=GainSTMMode.PhaseHalf),
             ).into_nearest()
@@ -135,7 +135,7 @@ def test_gain_stm_segment():
 
         autd.send(
             GainSTM(
-                gains=[Uniform(intensity=EmitIntensity(0x01), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x02), phase=Phase(0))],
+                gains=[Uniform(intensity=Intensity(0x01), phase=Phase(0)), Uniform(intensity=Intensity(0x02), phase=Phase(0))],
                 config=SamplingConfig(0x1234),
                 option=GainSTMOption(),
             ),
@@ -151,7 +151,7 @@ def test_gain_stm_segment():
         autd.send(
             WithSegment(
                 inner=GainSTM(
-                    gains=[Uniform(intensity=EmitIntensity(0x03), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x04), phase=Phase(0))],
+                    gains=[Uniform(intensity=Intensity(0x03), phase=Phase(0)), Uniform(intensity=Intensity(0x04), phase=Phase(0))],
                     config=SamplingConfig(0x9ABC),
                     option=GainSTMOption(),
                 ),
@@ -172,9 +172,9 @@ def test_gain_stm_segment():
             WithSegment(
                 inner=GainSTM(
                     gains=[
-                        Uniform(intensity=EmitIntensity(0x05), phase=Phase(0)),
-                        Uniform(intensity=EmitIntensity(0x06), phase=Phase(0)),
-                        Uniform(intensity=EmitIntensity(0x07), phase=Phase(0)),
+                        Uniform(intensity=Intensity(0x05), phase=Phase(0)),
+                        Uniform(intensity=Intensity(0x06), phase=Phase(0)),
+                        Uniform(intensity=Intensity(0x07), phase=Phase(0)),
                     ],
                     config=SamplingConfig(0x4321),
                     option=GainSTMOption(),
@@ -203,7 +203,7 @@ def test_foci_stm_loop_behavior():
         autd.send(
             WithLoopBehavior(
                 inner=GainSTM(
-                    gains=[Uniform(intensity=EmitIntensity(0x01), phase=Phase(0)), Uniform(intensity=EmitIntensity(0x02), phase=Phase(0))],
+                    gains=[Uniform(intensity=Intensity(0x01), phase=Phase(0)), Uniform(intensity=Intensity(0x02), phase=Phase(0))],
                     config=SamplingConfig(0xDEF0),
                     option=GainSTMOption(),
                 ),

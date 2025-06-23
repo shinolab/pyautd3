@@ -1,4 +1,3 @@
-from .cache import Cache
 from .custom import Custom
 from .fir import Fir
 from .fourier import Fourier, FourierOption
@@ -8,7 +7,6 @@ from .square import Square, SquareOption
 from .static import Static
 
 __all__ = [
-    "Cache",
     "Custom",
     "Fir",
     "Fourier",

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 
 from pyautd3 import Controller, Segment
-from pyautd3.driver.firmware.fpga import Drive, EmitIntensity, Phase
+from pyautd3.driver.firmware.fpga import Drive, Intensity, Phase
 from pyautd3.driver.geometry import Device, Transducer
 from pyautd3.gain import Custom
 from tests.test_autd import create_controller
@@ -19,9 +19,9 @@ def test_custom():
 
         def f(dev: Device) -> Callable[[Transducer], Drive]:
             if dev.idx() == 0:
-                return lambda tr: Drive(phase=Phase(0x90), intensity=EmitIntensity(0x80)) if tr.idx() == 0 else Drive.NULL
+                return lambda tr: Drive(phase=Phase(0x90), intensity=Intensity(0x80)) if tr.idx() == 0 else Drive.NULL
             if dev.idx() == 1:
-                return lambda tr: Drive(phase=Phase(0x91), intensity=EmitIntensity(0x81)) if tr.idx() == 248 else Drive.NULL
+                return lambda tr: Drive(phase=Phase(0x91), intensity=Intensity(0x81)) if tr.idx() == 248 else Drive.NULL
             return lambda _: Drive.NULL
 
         autd.send(Custom(f))

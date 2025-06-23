@@ -1,14 +1,12 @@
-import platform
-
 import numpy as np
 import pytest
 
-from pyautd3 import AUTD3, Clear, Controller, ForceFan, Segment, tracing_init
+from pyautd3 import AUTD3, Clear, Controller, ForceFan, Segment
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError
 from pyautd3.controller.controller import SenderOption
-from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, StdSleeper, WaitableSleeper
+from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, SpinWaitSleeper, StdSleeper
 from pyautd3.driver.datagram import Synchronize
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.gain import Uniform
@@ -31,23 +29,19 @@ def test_sender_is_default():
 
 
 def test_sleeper():
-    _ = StdSleeper(timer_resolution=1)._inner()
+    _ = StdSleeper()._inner()
     _ = SpinSleeper().with_spin_strategy(SpinStrategy.SpinLoopHint)._inner()
-    if platform.system() == "Windows":
-        _ = WaitableSleeper()._inner()
-    else:
-        with pytest.raises(RuntimeError):
-            _ = WaitableSleeper()._inner()
+    _ = SpinWaitSleeper()._inner()
 
 
 def test_firmware_info():
     autd: Controller[Audit]
     with create_controller() as autd:
-        assert FirmwareInfo.latest_version() == "v11.0.0"
+        assert FirmwareInfo.latest_version() == "v12.0.0"
 
         for i, firm in enumerate(autd.firmware_version()):
-            assert firm.info == f"{i}: CPU = v11.0.0, FPGA = v11.0.0 [Emulator]"
-            assert str(firm) == f"{i}: CPU = v11.0.0, FPGA = v11.0.0 [Emulator]"
+            assert firm.info == f"{i}: CPU = v12.0.0, FPGA = v12.0.0 [Emulator]"
+            assert str(firm) == f"{i}: CPU = v12.0.0, FPGA = v12.0.0 [Emulator]"
 
 
 def test_close():
@@ -92,7 +86,7 @@ def test_send_tuple():
             assert np.all(intensities == 0)
             assert np.all(phases == 0)
 
-        autd.send((Static(), Uniform(intensity=EmitIntensity(0x80), phase=Phase(0))))
+        autd.send((Static(), Uniform(intensity=Intensity(0x80), phase=Phase(0))))
         for dev in autd.geometry():
             assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
@@ -104,7 +98,7 @@ def test_send_tuple():
 
         autd.link().break_down()
         with pytest.raises(AUTDError) as e:
-            autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0))))
+            autd.send((Static(), Uniform(intensity=Intensity(0xFF), phase=Phase(0))))
         assert str(e.value) == "broken"
         autd.link().repair()
 
@@ -112,7 +106,7 @@ def test_send_tuple():
 def test_clear():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send((Static(), Uniform(intensity=EmitIntensity(0xFF), phase=Phase(0x90))))
+        autd.send((Static(), Uniform(intensity=Intensity(0xFF), phase=Phase(0x90))))
 
         for dev in autd.geometry():
             assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
@@ -168,10 +162,3 @@ def test_sender_option():
         )
         autd.default_sender_option = option
         assert option == autd.default_sender_option
-
-
-def test_tracing():
-    tracing_init()
-    autd: Controller[Audit]
-    with create_controller() as autd:
-        autd.close()

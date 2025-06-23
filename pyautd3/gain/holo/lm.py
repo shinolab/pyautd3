@@ -4,7 +4,7 @@ from typing import Self
 
 import numpy as np
 
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.utils import _validate_nonzero_u32
 from pyautd3.gain.holo.amplitude import Amplitude
@@ -40,7 +40,7 @@ class LMOption:
         self.tau = tau
         self.k_max = _validate_nonzero_u32(k_max)
         self.initial = initial or np.array([])
-        self.constraint = constraint or EmissionConstraint.Clamp(EmitIntensity.MIN, EmitIntensity.MAX)
+        self.constraint = constraint or EmissionConstraint.Clamp(Intensity.MIN, Intensity.MAX)
 
     def _inner(self: Self) -> LMOption_:
         initial_ = np.ctypeslib.as_ctypes(self.initial.astype(ctypes.c_float))

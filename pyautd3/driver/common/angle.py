@@ -26,6 +26,9 @@ class Angle:
     def __eq__(self: Self, other: object) -> bool:
         return isinstance(other, Angle) and self._value == other._value
 
+    def __hash__(self: Self) -> int:
+        return self._value.__hash__()  # pragma: no cover
+
     class _UnitRad:
         def __new__(cls: type["Angle._UnitRad"]) -> "Angle._UnitRad":
             raise NotImplementedError

@@ -6,7 +6,7 @@ from typing import Generic, Self, TypeVar
 import numpy as np
 
 from pyautd3.autd_error import InvalidDatagramTypeError
-from pyautd3.controller.sleeper import SpinSleeper, StdSleeper, WaitableSleeper
+from pyautd3.controller.strategy import FixedDelay, FixedSchedule
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.firmware.fpga import FPGAState
@@ -33,19 +33,22 @@ class SenderOption:
     receive_interval: Duration
     timeout: Duration | None
     parallel: ParallelMode
+    strict: bool
 
     def __init__(
         self: Self,
         *,
         send_interval: Duration | None = None,
         receive_interval: Duration | None = None,
-        timeout: Duration | None = DEFAULT_TIMEOUT,
+        timeout: Duration | None = None,
         parallel: ParallelMode = ParallelMode.Auto,
+        strict: bool = True,
     ) -> None:
         self.send_interval = send_interval or Duration.from_millis(1)
         self.receive_interval = receive_interval or Duration.from_millis(1)
         self.timeout = timeout
         self.parallel = parallel
+        self.strict = strict
 
     def _inner(self: Self) -> SenderOption_:
         return SenderOption_(
@@ -53,6 +56,7 @@ class SenderOption:
             self.receive_interval._inner,
             into_option_duration(self.timeout),
             self.parallel,
+            self.strict,
         )
 
 
@@ -119,14 +123,14 @@ class Controller(Geometry, Generic[L]):
 
     @staticmethod
     def open(devices: Iterable[AUTD3], link: L) -> "Controller[L]":
-        return Controller.open_with_option(devices, link, SenderOption(), SpinSleeper())
+        return Controller.open_with_option(devices, link, SenderOption(), FixedSchedule())
 
     @staticmethod
     def open_with_option(
         devices: Iterable[AUTD3],
         link: L,
         option: SenderOption,
-        sleeper: StdSleeper | SpinSleeper | WaitableSleeper,
+        timer_strategy: FixedSchedule | FixedDelay,
     ) -> "Controller[L]":
         devices = list(devices)
         pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
@@ -139,7 +143,7 @@ class Controller(Geometry, Generic[L]):
                 len(devices),
                 link._resolve(),
                 option._inner(),
-                sleeper._inner(),
+                timer_strategy._inner(),
             ),
         )
         geometry = Base().geometry(ptr)
@@ -179,14 +183,14 @@ class Controller(Geometry, Generic[L]):
         Base().controller_fpga_state_delete(handle)
         return res
 
-    def sender(self: Self, option: SenderOption, sleeper: SpinSleeper | StdSleeper | WaitableSleeper) -> Sender:
-        return Sender(Base().sender(self._ptr, option._inner(), sleeper._inner()), self.geometry())
+    def sender(self: Self, option: SenderOption, timer_strategy: FixedSchedule | FixedDelay) -> Sender:
+        return Sender(Base().sender(self._ptr, option._inner(), timer_strategy._inner()), self.geometry())
 
     def send(
         self: Self,
         d: Datagram | tuple[Datagram, Datagram],
     ) -> None:
-        self.sender(self._default_sender_option, SpinSleeper()).send(d)
+        self.sender(self._default_sender_option, FixedSchedule()).send(d)
 
     @property
     def default_sender_option(self: Self) -> SenderOption:

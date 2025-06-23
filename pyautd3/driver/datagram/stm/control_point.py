@@ -4,7 +4,7 @@ from typing import Self
 import numpy as np
 from numpy.typing import ArrayLike
 
-from pyautd3.driver.firmware.fpga.emit_intensity import EmitIntensity
+from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.firmware.fpga.phase import Phase
 from pyautd3.native_methods.structs import Point3
 
@@ -134,12 +134,12 @@ class ControlPoints8(ctypes.Structure):
 
 class ControlPoints:
     points: list[ControlPoint]
-    intensity: EmitIntensity
+    intensity: Intensity
 
-    def __init__(self, points: list[ControlPoint] | list[ArrayLike], intensity: EmitIntensity | None = None) -> None:
+    def __init__(self, points: list[ControlPoint] | list[ArrayLike], intensity: Intensity | None = None) -> None:
         match points[0]:
             case ControlPoint():
                 self.points = points  # type: ignore[assignment]
             case _:
                 self.points = [ControlPoint(point=p) for p in points]
-        self.intensity = intensity or EmitIntensity.MAX
+        self.intensity = intensity or Intensity.MAX

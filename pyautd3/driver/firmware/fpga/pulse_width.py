@@ -14,11 +14,11 @@ class PulseWidth:
         return ins
 
     def __init__(self: Self, pulse_width: int) -> None:
-        self._pulse_width = _validate_u16(Base().pulse_width(pulse_width))
+        self._pulse_width = _validate_u16(Base().pulse_width_512(pulse_width))
 
     @staticmethod
     def from_duty(duty: float) -> "PulseWidth":
-        return PulseWidth.__private_new__(_validate_u16(Base().pulse_width_from_duty(duty)))
+        return PulseWidth.__private_new__(_validate_u16(Base().pulse_width_512_from_duty(duty)))
 
     @property
     def pulse_width(self: Self) -> int:
