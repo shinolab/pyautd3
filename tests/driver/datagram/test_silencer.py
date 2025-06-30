@@ -26,7 +26,7 @@ def test_silencer_from_completion_time():
             assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
             assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
             assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
-            assert autd.link().silencer_strict_mode(dev.idx())
+            assert autd.link().silencer_strict(dev.idx())
 
         autd.send(
             Silencer(
@@ -41,14 +41,14 @@ def test_silencer_from_completion_time():
             assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 2
             assert autd.link().silencer_completion_steps_phase(dev.idx()) == 3
             assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
-            assert autd.link().silencer_strict_mode(dev.idx())
+            assert autd.link().silencer_strict(dev.idx())
 
         autd.send(
             Silencer(
                 config=FixedCompletionTime(
                     intensity=Duration.from_micros(25 * 2),
                     phase=Duration.from_micros(25 * 3),
-                    strict_mode=False,
+                    strict=False,
                 ),
             ),
         )
@@ -57,7 +57,7 @@ def test_silencer_from_completion_time():
             assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 2
             assert autd.link().silencer_completion_steps_phase(dev.idx()) == 3
             assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
-            assert not autd.link().silencer_strict_mode(dev.idx())
+            assert not autd.link().silencer_strict(dev.idx())
 
         autd.send(Silencer())
 
@@ -65,7 +65,7 @@ def test_silencer_from_completion_time():
             assert autd.link().silencer_completion_steps_intensity(dev.idx()) == 10
             assert autd.link().silencer_completion_steps_phase(dev.idx()) == 40
             assert autd.link().silencer_fixed_completion_steps_mode(dev.idx())
-            assert autd.link().silencer_strict_mode(dev.idx())
+            assert autd.link().silencer_strict(dev.idx())
             silencer = Silencer()
             assert bool(
                 Base().datagram_silencer_fixed_completion_steps_is_default(
@@ -139,7 +139,7 @@ def test_silencer_small_freq_div_mod():
                 config=FixedCompletionTime(
                     intensity=Duration.from_micros(25 * 10),
                     phase=Duration.from_micros(25 * 40),
-                    strict_mode=False,
+                    strict=False,
                 ),
             ),
         )
@@ -170,7 +170,7 @@ def test_silencer_small_freq_div_gain_stm():
                 config=FixedCompletionTime(
                     intensity=Duration.from_micros(25 * 10),
                     phase=Duration.from_micros(25 * 40),
-                    strict_mode=False,
+                    strict=False,
                 ),
             ),
         )
@@ -201,7 +201,7 @@ def test_silencer_small_freq_div_foci_stm():
                 config=FixedCompletionTime(
                     intensity=Duration.from_micros(25 * 10),
                     phase=Duration.from_micros(25 * 40),
-                    strict_mode=False,
+                    strict=False,
                 ),
             ),
         )

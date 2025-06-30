@@ -27,34 +27,11 @@ class Device:
     def idx(self: Self) -> int:
         return self._idx
 
-    @property
-    def sound_speed(self: Self) -> float:
-        return float(Base().device_get_sound_speed(self._ptr))
-
-    @sound_speed.setter
-    def sound_speed(self: Self, sound_speed: float) -> None:
-        Base().device_set_sound_speed(self._geo_ptr, self._idx, sound_speed)
-
-    def set_sound_speed_from_temp(
-        self: Self,
-        temp: float,
-        k: float = 1.4,
-        r: float = 8.31446261815324,
-        m: float = 28.9647e-3,
-    ) -> None:
-        Base().device_set_sound_speed_from_temp(self._geo_ptr, self._idx, temp, k, r, m)
-
     def num_transducers(self: Self) -> int:
         return len(self._transducers)
 
     def center(self: Self) -> np.ndarray:
         return Base().device_center(self._ptr).ndarray()
-
-    def wavelength(self: Self) -> float:
-        return float(Base().device_wavelength(self._ptr))
-
-    def wavenumber(self: Self) -> float:
-        return float(Base().device_wavenumber(self._ptr))
 
     def rotation(self: Self) -> np.ndarray:
         return Base().device_rotation(self._ptr).ndarray()

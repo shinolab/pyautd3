@@ -167,6 +167,16 @@ class Duration(ctypes.Structure):
         return super().__hash__()  # pragma: no cover
 
 
+class EnvironmentPtr(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, EnvironmentPtr) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
+
 class FociSTMPtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 

@@ -35,23 +35,6 @@ class Geometry:
     def __iter__(self: Self) -> Iterator[Device]:
         return iter(self._devices)
 
-    def set_sound_speed_from_temp(
-        self: Self,
-        temp: float,
-        k: float = 1.4,
-        r: float = 8.31446261815324,
-        m: float = 28.9647e-3,
-    ) -> None:
-        for d in self:
-            d.set_sound_speed_from_temp(temp, k, r, m)
-
-    def set_sound_speed(
-        self: Self,
-        c: float,
-    ) -> None:
-        for d in self:
-            d.sound_speed = c
-
     def reconfigure(self: Self, f: Callable[[Device], AUTD3]) -> None:
         devices = [f(d) for d in self._devices]
         pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]

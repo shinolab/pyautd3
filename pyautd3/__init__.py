@@ -15,6 +15,7 @@ from .driver.datagram import (
     GPIOOutputs,
     GPIOOutputType,
     Group,
+    OutputMask,
     PhaseCorrection,
     PulseWidthEncoder,
     ReadsFPGAState,
@@ -72,6 +73,7 @@ __all__ = [
     "LoopBehavior",
     "Nop",
     "Null",
+    "OutputMask",
     "ParallelMode",
     "Phase",
     "PhaseCorrection",
@@ -104,4 +106,4 @@ __all__ = [
     "tracing_init",
 ]
 
-__version__ = "34.0.0"
+__version__ = "35.0.0"

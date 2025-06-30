@@ -345,6 +345,7 @@ fn main() -> Result<()> {
 
     PythonWrapperGenerator {
         ignore_items: vec![
+            "Environment",
             "RxMessage",
             "TxMessage",
             "ClkControlFlags",
