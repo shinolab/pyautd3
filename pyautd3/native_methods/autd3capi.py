@@ -253,11 +253,14 @@ class NativeMethods(metaclass=Singleton):
         ]
         self.dll.AUTDDatagramGroup.restype = DatagramPtr
 
-        self.dll.AUTDDatagramPhaseCorr.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
-        self.dll.AUTDDatagramPhaseCorr.restype = DatagramPtr
-
         self.dll.AUTDDatagramOutputMask.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramOutputMask.restype = DatagramPtr
+
+        self.dll.AUTDDatagramOutputMaskWithSegment.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr, ctypes.c_uint8]
+        self.dll.AUTDDatagramOutputMaskWithSegment.restype = DatagramPtr
+
+        self.dll.AUTDDatagramPhaseCorr.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
+        self.dll.AUTDDatagramPhaseCorr.restype = DatagramPtr
 
         self.dll.AUTDDatagramPulseWidthEncoder256.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramPulseWidthEncoder256.restype = DatagramPtr
@@ -796,11 +799,14 @@ class NativeMethods(metaclass=Singleton):
     ) -> DatagramPtr:
         return self.dll.AUTDDatagramGroup(f, context, geometry, keys, d, n)
 
-    def datagram_phase_corr(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
-        return self.dll.AUTDDatagramPhaseCorr(f, context, geometry)
-
     def datagram_output_mask(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramOutputMask(f, context, geometry)
+
+    def datagram_output_mask_with_segment(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr, segment: Segment) -> DatagramPtr:
+        return self.dll.AUTDDatagramOutputMaskWithSegment(f, context, geometry, segment)
+
+    def datagram_phase_corr(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramPhaseCorr(f, context, geometry)
 
     def datagram_pulse_width_encoder_256(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramPulseWidthEncoder256(f, context, geometry)
