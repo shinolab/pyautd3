@@ -4,6 +4,7 @@ from .clear import Clear
 from .debug import GPIOOutputs, GPIOOutputType
 from .force_fan import ForceFan
 from .group import Group
+from .output_mask import OutputMask
 from .phase_corr import PhaseCorrection
 from .pulse_width_encoder import PulseWidthEncoder
 from .reads_fpga_state import ReadsFPGAState
@@ -27,6 +28,7 @@ __all__ = [
     "GainSTMMode",
     "GainSTMOption",
     "Group",
+    "OutputMask",
     "PhaseCorrection",
     "PulseWidthEncoder",
     "ReadsFPGAState",

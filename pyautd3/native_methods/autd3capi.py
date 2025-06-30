@@ -22,6 +22,7 @@ from pyautd3.native_methods.autd3capi_driver import (
     DatagramPtr,
     DevicePtr,
     Duration,
+    EnvironmentPtr,
     FociSTMPtr,
     GainPtr,
     GainSTMPtr,
@@ -67,7 +68,7 @@ class FirmwareVersionListPtr(ctypes.Structure):
 
 
 class FixedCompletionTime(ctypes.Structure):
-    _fields_ = [("intensity", Duration), ("phase", Duration), ("strict_mode", ctypes.c_bool)]
+    _fields_ = [("intensity", Duration), ("phase", Duration), ("strict", ctypes.c_bool)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FixedCompletionTime) and self._fields_ == other._fields_  # pragma: no cover
@@ -254,6 +255,9 @@ class NativeMethods(metaclass=Singleton):
 
         self.dll.AUTDDatagramPhaseCorr.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramPhaseCorr.restype = DatagramPtr
+
+        self.dll.AUTDDatagramOutputMask.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
+        self.dll.AUTDDatagramOutputMask.restype = DatagramPtr
 
         self.dll.AUTDDatagramPulseWidthEncoder256.argtypes = [ctypes.c_void_p, ctypes.c_void_p, GeometryPtr]
         self.dll.AUTDDatagramPulseWidthEncoder256.restype = DatagramPtr
@@ -447,6 +451,24 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDTransitionModeNone.argtypes = []
         self.dll.AUTDTransitionModeNone.restype = TransitionModeWrap
 
+        self.dll.AUTDEnvironment.argtypes = [ControllerPtr]
+        self.dll.AUTDEnvironment.restype = EnvironmentPtr
+
+        self.dll.AUTDEnvironmentGetSoundSpeed.argtypes = [EnvironmentPtr]
+        self.dll.AUTDEnvironmentGetSoundSpeed.restype = ctypes.c_float
+
+        self.dll.AUTDEnvironmentSetSoundSpeed.argtypes = [EnvironmentPtr, ctypes.c_float]
+        self.dll.AUTDEnvironmentSetSoundSpeed.restype = None
+
+        self.dll.AUTDEnvironmentSetSoundSpeedFromTemp.argtypes = [EnvironmentPtr, ctypes.c_float, ctypes.c_float, ctypes.c_float, ctypes.c_float]
+        self.dll.AUTDEnvironmentSetSoundSpeedFromTemp.restype = None
+
+        self.dll.AUTDEnvironmentWavelength.argtypes = [EnvironmentPtr]
+        self.dll.AUTDEnvironmentWavelength.restype = ctypes.c_float
+
+        self.dll.AUTDEnvironmentWavenumber.argtypes = [EnvironmentPtr]
+        self.dll.AUTDEnvironmentWavenumber.restype = ctypes.c_float
+
         self.dll.AUTDGainBessel.argtypes = [Point3, Vector3, Angle, BesselOption]
         self.dll.AUTDGainBessel.restype = GainPtr
 
@@ -495,30 +517,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDeviceNumTransducers.argtypes = [DevicePtr]
         self.dll.AUTDDeviceNumTransducers.restype = ctypes.c_uint32
 
-        self.dll.AUTDDeviceGetSoundSpeed.argtypes = [DevicePtr]
-        self.dll.AUTDDeviceGetSoundSpeed.restype = ctypes.c_float
-
-        self.dll.AUTDDeviceSetSoundSpeed.argtypes = [GeometryPtr, ctypes.c_uint16, ctypes.c_float]
-        self.dll.AUTDDeviceSetSoundSpeed.restype = None
-
-        self.dll.AUTDDeviceSetSoundSpeedFromTemp.argtypes = [
-            GeometryPtr,
-            ctypes.c_uint16,
-            ctypes.c_float,
-            ctypes.c_float,
-            ctypes.c_float,
-            ctypes.c_float,
-        ]
-        self.dll.AUTDDeviceSetSoundSpeedFromTemp.restype = None
-
         self.dll.AUTDDeviceCenter.argtypes = [DevicePtr]
         self.dll.AUTDDeviceCenter.restype = Point3
-
-        self.dll.AUTDDeviceWavelength.argtypes = [DevicePtr]
-        self.dll.AUTDDeviceWavelength.restype = ctypes.c_float
-
-        self.dll.AUTDDeviceWavenumber.argtypes = [DevicePtr]
-        self.dll.AUTDDeviceWavenumber.restype = ctypes.c_float
 
         self.dll.AUTDDeviceRotation.argtypes = [DevicePtr]
         self.dll.AUTDDeviceRotation.restype = Quaternion
@@ -592,8 +592,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaIsStmGainMode.argtypes = [LinkPtr, ctypes.c_uint8, ctypes.c_uint16]
         self.dll.AUTDLinkAuditFpgaIsStmGainMode.restype = ctypes.c_bool
 
-        self.dll.AUTDLinkAuditCpuSilencerStrictMode.argtypes = [LinkPtr, ctypes.c_uint16]
-        self.dll.AUTDLinkAuditCpuSilencerStrictMode.restype = ctypes.c_bool
+        self.dll.AUTDLinkAuditCpuSilencerStrict.argtypes = [LinkPtr, ctypes.c_uint16]
+        self.dll.AUTDLinkAuditCpuSilencerStrict.restype = ctypes.c_bool
 
         self.dll.AUTDLinkAuditFpgaSilencerUpdateRateIntensity.argtypes = [LinkPtr, ctypes.c_uint16]
         self.dll.AUTDLinkAuditFpgaSilencerUpdateRateIntensity.restype = ctypes.c_uint16
@@ -798,6 +798,9 @@ class NativeMethods(metaclass=Singleton):
 
     def datagram_phase_corr(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramPhaseCorr(f, context, geometry)
+
+    def datagram_output_mask(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
+        return self.dll.AUTDDatagramOutputMask(f, context, geometry)
 
     def datagram_pulse_width_encoder_256(self, f: ctypes.c_void_p, context: ctypes.c_void_p, geometry: GeometryPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramPulseWidthEncoder256(f, context, geometry)
@@ -1004,6 +1007,24 @@ class NativeMethods(metaclass=Singleton):
     def transition_mode_none(self) -> TransitionModeWrap:
         return self.dll.AUTDTransitionModeNone()
 
+    def environment(self, cnt: ControllerPtr) -> EnvironmentPtr:
+        return self.dll.AUTDEnvironment(cnt)
+
+    def environment_get_sound_speed(self, env: EnvironmentPtr) -> ctypes.c_float:
+        return self.dll.AUTDEnvironmentGetSoundSpeed(env)
+
+    def environment_set_sound_speed(self, env: EnvironmentPtr, value: float) -> None:
+        return self.dll.AUTDEnvironmentSetSoundSpeed(env, value)
+
+    def environment_set_sound_speed_from_temp(self, env: EnvironmentPtr, temp: float, k: float, r: float, m: float) -> None:
+        return self.dll.AUTDEnvironmentSetSoundSpeedFromTemp(env, temp, k, r, m)
+
+    def environment_wavelength(self, env: EnvironmentPtr) -> ctypes.c_float:
+        return self.dll.AUTDEnvironmentWavelength(env)
+
+    def environment_wavenumber(self, env: EnvironmentPtr) -> ctypes.c_float:
+        return self.dll.AUTDEnvironmentWavenumber(env)
+
     def gain_bessel(self, pos: Point3, dir_: Vector3, theta: Angle, option: BesselOption) -> GainPtr:
         return self.dll.AUTDGainBessel(pos, dir_, theta, option)
 
@@ -1052,23 +1073,8 @@ class NativeMethods(metaclass=Singleton):
     def device_num_transducers(self, dev: DevicePtr) -> ctypes.c_uint32:
         return self.dll.AUTDDeviceNumTransducers(dev)
 
-    def device_get_sound_speed(self, dev: DevicePtr) -> ctypes.c_float:
-        return self.dll.AUTDDeviceGetSoundSpeed(dev)
-
-    def device_set_sound_speed(self, geo: GeometryPtr, dev_idx: int, value: float) -> None:
-        return self.dll.AUTDDeviceSetSoundSpeed(geo, dev_idx, value)
-
-    def device_set_sound_speed_from_temp(self, geo: GeometryPtr, dev_idx: int, temp: float, k: float, r: float, m: float) -> None:
-        return self.dll.AUTDDeviceSetSoundSpeedFromTemp(geo, dev_idx, temp, k, r, m)
-
     def device_center(self, dev: DevicePtr) -> Point3:
         return self.dll.AUTDDeviceCenter(dev)
-
-    def device_wavelength(self, dev: DevicePtr) -> ctypes.c_float:
-        return self.dll.AUTDDeviceWavelength(dev)
-
-    def device_wavenumber(self, dev: DevicePtr) -> ctypes.c_float:
-        return self.dll.AUTDDeviceWavenumber(dev)
 
     def device_rotation(self, dev: DevicePtr) -> Quaternion:
         return self.dll.AUTDDeviceRotation(dev)
@@ -1142,8 +1148,8 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_is_stm_gain_mode(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_bool:
         return self.dll.AUTDLinkAuditFpgaIsStmGainMode(audit, segment, idx)
 
-    def link_audit_cpu_silencer_strict_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
-        return self.dll.AUTDLinkAuditCpuSilencerStrictMode(audit, idx)
+    def link_audit_cpu_silencer_strict(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
+        return self.dll.AUTDLinkAuditCpuSilencerStrict(audit, idx)
 
     def link_audit_fpga_silencer_update_rate_intensity(self, audit: LinkPtr, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaSilencerUpdateRateIntensity(audit, idx)

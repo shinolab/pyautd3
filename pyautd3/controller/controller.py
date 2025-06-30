@@ -6,6 +6,7 @@ from typing import Generic, Self, TypeVar
 import numpy as np
 
 from pyautd3.autd_error import InvalidDatagramTypeError
+from pyautd3.controller.environment import Environment
 from pyautd3.controller.strategy import FixedDelay, FixedSchedule
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
@@ -89,6 +90,7 @@ class Controller(Geometry, Generic[L]):
     _link: L
     _disposed: bool
     _default_sender_option: SenderOption
+    _environment: Environment
 
     def __init__(self: Self, geometry: GeometryPtr, ptr: ControllerPtr, link: L, default_sender_option: SenderOption) -> None:
         super().__init__(geometry)
@@ -97,6 +99,7 @@ class Controller(Geometry, Generic[L]):
         self._link._ptr = Base().link_get(self._ptr)
         self._disposed = False
         self._default_sender_option = default_sender_option
+        self._environment = Environment(Base().environment(self._ptr))
 
     def link(self: Self) -> L:
         return self._link
@@ -120,6 +123,10 @@ class Controller(Geometry, Generic[L]):
 
     def geometry(self: Self) -> Geometry:
         return self  # type: ignore[return-value]
+
+    @property
+    def environment(self: Self) -> Environment:
+        return self._environment
 
     @staticmethod
     def open(devices: Iterable[AUTD3], link: L) -> "Controller[L]":

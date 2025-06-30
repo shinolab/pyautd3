@@ -29,8 +29,8 @@ class Audit(Link):
     def repair(self: Self) -> None:
         LinkAudit().link_audit_repair(self._ptr)
 
-    def silencer_strict_mode(self: Self, idx: int) -> bool:
-        return bool(LinkAudit().link_audit_cpu_silencer_strict_mode(self._ptr, idx))
+    def silencer_strict(self: Self, idx: int) -> bool:
+        return bool(LinkAudit().link_audit_cpu_silencer_strict(self._ptr, idx))
 
     def silencer_update_rate_intensity(self: Self, idx: int) -> int:
         return int(LinkAudit().link_audit_fpga_silencer_update_rate_intensity(self._ptr, idx))

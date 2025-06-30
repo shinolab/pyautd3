@@ -29,7 +29,7 @@ def test_foci_stm():
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
-            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
@@ -38,7 +38,7 @@ def test_foci_stm():
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
-            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
@@ -47,7 +47,7 @@ def test_foci_stm():
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
-            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
@@ -56,7 +56,7 @@ def test_foci_stm():
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
             assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
-            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(dev.sound_speed / 1000.0 * 64.0)
+            assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 

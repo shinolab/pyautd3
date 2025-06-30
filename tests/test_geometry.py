@@ -135,29 +135,6 @@ def test_device_idx():
         assert autd.geometry()[1].idx() == 1
 
 
-def test_device_sound_speed():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            assert dev.sound_speed == 340e3
-            dev.sound_speed = 350e3
-            assert dev.sound_speed == 350e3
-
-
-def test_device_set_sound_speed_from_temp():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            dev.set_sound_speed_from_temp(15)
-            assert dev.sound_speed == 340.29525e3
-
-        autd.set_sound_speed(350e3)
-        for dev in autd.geometry():
-            assert dev.sound_speed == 350e3
-
-        autd.set_sound_speed_from_temp(15)
-        for dev in autd.geometry():
-            assert dev.sound_speed == 340.29525e3
-
-
 def test_device_num_transducers():
     with create_controller() as autd:
         assert autd.num_transducers() == 249 * autd.num_devices()
@@ -173,18 +150,6 @@ def test_device_center():
             assert center[0] == 86.625267028808594
             assert center[1] == 66.71319580078125
             assert center[2] == 0.0
-
-
-def test_device_wavelength():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            assert dev.wavelength() == 340e3 / 40e3
-
-
-def test_device_wavenum():
-    with create_controller() as autd:
-        for dev in autd.geometry():
-            assert dev.wavenumber() == 0.7391983270645142
 
 
 def test_transducer_idx():

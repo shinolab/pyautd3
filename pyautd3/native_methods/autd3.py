@@ -86,7 +86,7 @@ class FPGAState(ctypes.Structure):
 
 
 class FixedCompletionSteps(ctypes.Structure):
-    _fields_ = [("intensity", ctypes.c_uint16), ("phase", ctypes.c_uint16), ("strict_mode", ctypes.c_bool)]
+    _fields_ = [("intensity", ctypes.c_uint16), ("phase", ctypes.c_uint16), ("strict", ctypes.c_bool)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FixedCompletionSteps) and self._fields_ == other._fields_  # pragma: no cover
