@@ -1,5 +1,3 @@
-from collections.abc import Callable
-
 from .controller import Controller, FixedSchedule, SenderOption
 from .controller.sleeper import SpinSleeper
 from .driver.autd3_device import AUTD3
@@ -34,9 +32,6 @@ from .modulation import Sine, SineOption, Square, SquareOption, Static
 from .native_methods.autd3 import GainSTMMode, GPIOIn, GPIOOut, ParallelMode, Segment
 from .utils import Duration
 
-_ext_tracing_init: list[Callable[[], None]] = []
-
-
 __all__ = [
     "AUTD3",
     "Bessel",
@@ -45,7 +40,6 @@ __all__ = [
     "ControlPoint",
     "ControlPoints",
     "Controller",
-    "Custom",
     "DcSysTime",
     "Device",
     "Drive",
@@ -83,7 +77,6 @@ __all__ = [
     "PulseWidthEncoder",
     "ReadsFPGAState",
     "SamplingConfig",
-    "SamplingMode",
     "Segment",
     "SenderOption",
     "Silencer",
@@ -101,9 +94,7 @@ __all__ = [
     "WithSegment",
     "deg",
     "kHz",
-    "phase_rad",
     "rad",
-    "tracing_init",
 ]
 
 __version__ = "35.0.1"
