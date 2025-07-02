@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+from pyautd3 import *  # noqa: F403
 from pyautd3 import AUTD3, Clear, Controller, ForceFan, Segment
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError
 from pyautd3.controller import FixedDelay, FixedSchedule
