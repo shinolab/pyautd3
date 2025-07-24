@@ -2,6 +2,7 @@ import ctypes
 import enum
 
 from pyautd3.native_methods.autd3 import DcSysTime
+from pyautd3.native_methods.structs import PulseWidth
 
 NUM_TRANS_IN_UNIT: int = 249
 
@@ -55,12 +56,12 @@ class SamplingConfigTag(enum.IntEnum):
 
 
 class TransitionModeTag(enum.IntEnum):
-    SyncIdx = 0
-    SysTime = 1
-    Gpio = 2
-    Ext = 3
-    Immediate = 4
-    None_ = 0xFF
+    Immediate = 0
+    Ext = 1
+    SyncIdx = 2
+    SysTime = 3
+    Gpio = 4
+    Later = 0xFF
 
     @classmethod
     def from_param(cls, obj):
@@ -237,16 +238,6 @@ class LinkPtr(ctypes.Structure):
         return super().__hash__()  # pragma: no cover
 
 
-class LoopBehavior(ctypes.Structure):
-    _fields_ = [("rep", ctypes.c_uint16)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, LoopBehavior) and self._fields_ == other._fields_  # pragma: no cover
-
-    def __hash__(self) -> int:
-        return super().__hash__()  # pragma: no cover
-
-
 class ModulationPtr(ctypes.Structure):
     _fields_ = [("value", ctypes.c_void_p)]
 
@@ -317,6 +308,16 @@ class ResultModulation(ctypes.Structure):
         return super().__hash__()  # pragma: no cover
 
 
+class ResultPulseWidth(ctypes.Structure):
+    _fields_ = [("result", PulseWidth), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, ResultPulseWidth) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
+
 class ResultStatus(ctypes.Structure):
     _fields_ = [("result", ctypes.c_uint8), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
 
@@ -332,16 +333,6 @@ class ResultU16(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultU16) and self._fields_ == other._fields_  # pragma: no cover
-
-    def __hash__(self) -> int:
-        return super().__hash__()  # pragma: no cover
-
-
-class ResultU8(ctypes.Structure):
-    _fields_ = [("result", ctypes.c_uint8), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultU8) and self._fields_ == other._fields_  # pragma: no cover
 
     def __hash__(self) -> int:
         return super().__hash__()  # pragma: no cover

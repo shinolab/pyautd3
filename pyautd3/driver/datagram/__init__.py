@@ -8,11 +8,11 @@ from .output_mask import OutputMask
 from .phase_corr import PhaseCorrection
 from .pulse_width_encoder import PulseWidthEncoder
 from .reads_fpga_state import ReadsFPGAState
-from .segment import SwapSegment
+from .segment import SwapSegmentFociSTM, SwapSegmentGain, SwapSegmentGainSTM, SwapSegmentModulation
 from .silencer import FixedCompletionTime, FixedUpdateRate, Silencer
 from .stm import FociSTM, GainSTM, GainSTMMode, GainSTMOption
 from .synchronize import Synchronize
-from .with_loop_behavior import WithLoopBehavior
+from .with_finite_loop import WithFiniteLoop
 from .with_segment import WithSegment
 
 __all__ = [
@@ -33,8 +33,11 @@ __all__ = [
     "PulseWidthEncoder",
     "ReadsFPGAState",
     "Silencer",
-    "SwapSegment",
+    "SwapSegmentFociSTM",
+    "SwapSegmentGain",
+    "SwapSegmentGainSTM",
+    "SwapSegmentModulation",
     "Synchronize",
-    "WithLoopBehavior",
+    "WithFiniteLoop",
     "WithSegment",
 ]

@@ -3,13 +3,12 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, FociSTM, Hz, LoopBehavior, SamplingConfig, Segment, Silencer
-from pyautd3.driver.datagram.segment import SwapSegment
+from pyautd3 import Controller, FociSTM, Hz, SamplingConfig, Segment, Silencer, transition_mode
+from pyautd3.driver.datagram.segment import SwapSegmentFociSTM
 from pyautd3.driver.datagram.stm.control_point import ControlPoint, ControlPoints
-from pyautd3.driver.datagram.with_loop_behavior import WithLoopBehavior
+from pyautd3.driver.datagram.with_finite_loop import WithFiniteLoop
 from pyautd3.driver.datagram.with_segment import WithSegment
 from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
-from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.utils import Duration
 from tests.test_autd import create_controller
 
@@ -28,7 +27,7 @@ def test_foci_stm():
         autd.send(stm)
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
-            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
+            assert autd.link().stm_loop_count(dev.idx(), Segment.S0) == 0xFFFF
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
@@ -37,7 +36,7 @@ def test_foci_stm():
         autd.send(stm)
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
-            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.Infinite
+            assert autd.link().stm_loop_count(dev.idx(), Segment.S0) == 0xFFFF
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
@@ -46,25 +45,22 @@ def test_foci_stm():
         autd.send(stm)
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
-            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
+            assert autd.link().stm_loop_count(dev.idx(), Segment.S0) == 0xFFFF
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
-        for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=Duration.from_secs(1)).into_nearest()
         autd.send(stm)
         for dev in autd.geometry():
             assert not autd.link().is_stm_gain_mode(dev.idx(), Segment.S0)
-            assert autd.link().stm_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
+            assert autd.link().stm_loop_count(dev.idx(), Segment.S0) == 0xFFFF
             assert autd.link().sound_speed(dev.idx(), Segment.S0) == int(autd.environment.sound_speed / 1000.0 * 64.0)
-        for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 20000
 
         stm = FociSTM(foci=[center, center], config=SamplingConfig(1))
         autd.send(stm)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 1
-        for dev in autd.geometry():
             assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert not np.all(intensities == 0)
@@ -77,7 +73,6 @@ def test_foci_stm():
         autd.send(stm)
         for dev in autd.geometry():
             assert autd.link().stm_freqency_divide(dev.idx(), Segment.S0) == 1
-        for dev in autd.geometry():
             assert autd.link().stm_cycle(dev.idx(), Segment.S0) == 2
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert not np.all(intensities == 0)
@@ -109,7 +104,7 @@ def test_foci_stm_segment():
                     config=SamplingConfig(0xDEF0),
                 ),
                 segment=Segment.S1,
-                transition_mode=TransitionMode.Immediate,
+                transition_mode=transition_mode.Immediate(),
             ),
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
@@ -123,34 +118,34 @@ def test_foci_stm_segment():
                     config=SamplingConfig(0x8765),
                 ),
                 segment=Segment.S0,
-                transition_mode=None,
+                transition_mode=transition_mode.Later(),
             ),
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
         assert autd.link().stm_cycle(0, Segment.S0) == 3
         assert autd.link().stm_freqency_divide(0, Segment.S0) == 0x8765
 
-        autd.send(SwapSegment.FociSTM(Segment.S0, TransitionMode.Immediate))
+        autd.send(SwapSegmentFociSTM(Segment.S0, transition_mode.Immediate()))
         assert autd.link().current_stm_segment(0) == Segment.S0
 
 
-def test_foci_stm_loop_behavior():
+def test_foci_stm_loop_count():
     autd: Controller[Audit]
     with create_controller() as autd:
         autd.send(
-            WithLoopBehavior(
+            WithFiniteLoop(
                 inner=FociSTM(
                     foci=[np.zeros(3), np.zeros(3)],
                     config=SamplingConfig(0xDEF0),
                 ),
                 segment=Segment.S1,
-                transition_mode=TransitionMode.SyncIdx,
-                loop_behavior=LoopBehavior.ONCE,
+                transition_mode=transition_mode.SyncIdx(),
+                loop_count=1,
             ),
         )
         assert autd.link().stm_cycle(0, Segment.S1) == 2
         assert autd.link().stm_freqency_divide(0, Segment.S1) == 0xDEF0
-        assert autd.link().stm_loop_behavior(0, Segment.S1) == LoopBehavior.ONCE
+        assert autd.link().stm_loop_count(0, Segment.S1) == 0
 
 
 def foci_stm_n(n: int) -> None:

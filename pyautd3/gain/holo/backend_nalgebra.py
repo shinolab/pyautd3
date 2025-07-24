@@ -10,11 +10,11 @@ from pyautd3.native_methods.structs import Point3
 
 class NalgebraBackend(Backend):
     def __init__(self: Self) -> None:
-        super().__init__(GainHolo().nalgebra_backend_sphere())
+        super().__init__(GainHolo().nalgebra_backend())
 
     def __del__(self: Self) -> None:
         if self._ptr.value is not None:
-            GainHolo().delete_nalgebra_backend_sphere(self._ptr)
+            GainHolo().delete_nalgebra_backend(self._ptr)
             self._ptr.value = None
 
     def _gs(self: Self, foci: Array[Point3], amps: Array[c_float], size: int, option: GSOption) -> GainPtr:

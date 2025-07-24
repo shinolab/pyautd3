@@ -1,5 +1,5 @@
 from collections.abc import Callable
-from ctypes import CFUNCTYPE, c_uint8, c_uint16, c_void_p
+from ctypes import CFUNCTYPE, c_uint8, c_uint16, c_uint64, c_void_p
 from threading import Lock
 from typing import Self
 
@@ -25,17 +25,17 @@ class PulseWidthEncoder(Datagram):
             self._f_native = None
         else:
 
-            def f_native(_context: c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, idx: int) -> int:
+            def f_native(_context: c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, idx: int) -> c_uint64:
                 if dev_idx not in self._cache:
                     with self._lock:
                         self._cache[dev_idx] = f(Device(dev_idx, geometry_ptr))
-                return self._cache[dev_idx](Intensity(idx)).pulse_width
+                return self._cache[dev_idx](Intensity(idx))._inner.value
 
-            self._f_native = CFUNCTYPE(c_uint16, c_void_p, GeometryPtr, c_uint16, c_uint8)(f_native)
+            self._f_native = CFUNCTYPE(c_uint64, c_void_p, GeometryPtr, c_uint16, c_uint8)(f_native)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return (
-            Base().datagram_pulse_width_encoder_512_default()
+            Base().datagram_pulse_width_encoder_default()
             if self._f_native is None
-            else Base().datagram_pulse_width_encoder_512(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
+            else Base().datagram_pulse_width_encoder(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
         )

@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
-from pyautd3 import Controller, LoopBehavior, SamplingConfig, Segment, rad
+from pyautd3 import Controller, SamplingConfig, Segment, rad
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.common.freq import Hz
 from pyautd3.modulation import Sine
@@ -30,7 +30,7 @@ def test_sine():
         autd.send(m)
 
         for dev in autd.geometry():
-            assert autd.link().modulation_loop_behavior(dev.idx(), Segment.S0) == LoopBehavior.ONCE
+            assert autd.link().modulation_loop_count(dev.idx(), Segment.S0) == 0xFFFF
             mod = autd.link().modulation_buffer(dev.idx(), Segment.S0)
             mod_expect = [
                 128,

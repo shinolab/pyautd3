@@ -165,11 +165,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGainNaiveIsDefault.argtypes = [NaiveOption]
         self.dll.AUTDGainNaiveIsDefault.restype = ctypes.c_bool
 
-        self.dll.AUTDNalgebraBackendSphere.argtypes = []
-        self.dll.AUTDNalgebraBackendSphere.restype = BackendPtr
+        self.dll.AUTDNalgebraBackend.argtypes = []
+        self.dll.AUTDNalgebraBackend.restype = BackendPtr
 
-        self.dll.AUTDDeleteNalgebraBackendSphere.argtypes = [BackendPtr]
-        self.dll.AUTDDeleteNalgebraBackendSphere.restype = None
+        self.dll.AUTDDeleteNalgebraBackend.argtypes = [BackendPtr]
+        self.dll.AUTDDeleteNalgebraBackend.restype = None
 
     def gain_holo_constraint_normalize(self) -> EmissionConstraintWrap:
         return self.dll.AUTDGainHoloConstraintNormalize()
@@ -247,8 +247,8 @@ class NativeMethods(metaclass=Singleton):
     def gain_naive_is_default(self, option: NaiveOption) -> ctypes.c_bool:
         return self.dll.AUTDGainNaiveIsDefault(option)
 
-    def nalgebra_backend_sphere(self) -> BackendPtr:
-        return self.dll.AUTDNalgebraBackendSphere()
+    def nalgebra_backend(self) -> BackendPtr:
+        return self.dll.AUTDNalgebraBackend()
 
-    def delete_nalgebra_backend_sphere(self, backend: BackendPtr) -> None:
-        return self.dll.AUTDDeleteNalgebraBackendSphere(backend)
+    def delete_nalgebra_backend(self, backend: BackendPtr) -> None:
+        return self.dll.AUTDDeleteNalgebraBackend(backend)

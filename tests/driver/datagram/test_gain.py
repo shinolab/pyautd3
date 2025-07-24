@@ -2,9 +2,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from pyautd3 import Controller, Intensity, Phase, Segment, SwapSegment
+from pyautd3 import Controller, Intensity, Phase, Segment, SwapSegmentGain, transition_mode
 from pyautd3.driver.datagram.with_segment import WithSegment
-from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.gain import Uniform
 from tests.test_autd import create_controller
 
@@ -34,7 +33,7 @@ def test_gain_segment():
             WithSegment(
                 inner=Uniform(intensity=Intensity(0x03), phase=Phase(0x04)),
                 segment=Segment.S1,
-                transition_mode=TransitionMode.Immediate,
+                transition_mode=transition_mode.Immediate(),
             ),
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
@@ -51,7 +50,7 @@ def test_gain_segment():
             WithSegment(
                 inner=Uniform(intensity=Intensity(0x05), phase=Phase(0x06)),
                 segment=Segment.S0,
-                transition_mode=None,
+                transition_mode=transition_mode.Later(),
             ),
         )
         assert autd.link().current_stm_segment(0) == Segment.S1
@@ -64,5 +63,5 @@ def test_gain_segment():
             assert np.all(intensities == 0x03)
             assert np.all(phases == 0x04)
 
-        autd.send(SwapSegment.Gain(Segment.S0, TransitionMode.Immediate))
+        autd.send(SwapSegmentGain(Segment.S0))
         assert autd.link().current_stm_segment(0) == Segment.S0

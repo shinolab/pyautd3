@@ -340,6 +340,10 @@ fn main() -> Result<()> {
             "Quaternion".to_string(),
             "pyautd3.native_methods.structs".to_string(),
         ),
+        (
+            "PulseWidth".to_string(),
+            "pyautd3.native_methods.structs".to_string(),
+        ),
     ];
     let mut defined_enum = vec![];
 
@@ -357,6 +361,7 @@ fn main() -> Result<()> {
             "FociSTMControlFlags",
             "GainSTMControlFlags",
             "FirmwareVersionType",
+            "PulseWidth",
         ],
     }
     .gen(&home, &mut defined, &mut defined_enum)?;
@@ -383,8 +388,6 @@ fn main() -> Result<()> {
                 "AUTDGainHoloGSPATT4010A1",
                 "AUTDGainHoloLMT4010A1",
                 "AUTDGainHoloNaiveT4010A1",
-                "AUTDNalgebraBackendT4010A1",
-                "AUTDDeleteNalgebraBackendT4010A1",
             ],
         }
         .gen_capi(&home, &entry, &mut defined, &mut defined_enum)?;
