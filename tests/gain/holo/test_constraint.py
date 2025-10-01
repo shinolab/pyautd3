@@ -5,7 +5,7 @@ import pytest
 
 from pyautd3 import Controller, Segment
 from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
-from pyautd3.gain.holo import EmissionConstraint, Naive, NalgebraBackend, Pa
+from pyautd3.gain.holo import EmissionConstraint, Naive, Pa
 from pyautd3.gain.holo.naive import NaiveOption
 from tests.test_autd import create_controller
 
@@ -16,9 +16,7 @@ if TYPE_CHECKING:
 def test_constraint_uniform():
     autd: Controller[Audit]
     with create_controller() as autd:
-        backend = NalgebraBackend()
         g = Naive(
-            backend=backend,
             foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Uniform(Intensity(0x80))),
         )
@@ -32,9 +30,7 @@ def test_constraint_uniform():
 def test_constraint_normalize():
     autd: Controller[Audit]
     with create_controller() as autd:
-        backend = NalgebraBackend()
         g = Naive(
-            backend=backend,
             foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Normalize),
         )
@@ -48,9 +44,7 @@ def test_constraint_normalize():
 def test_constraint_clamp():
     autd: Controller[Audit]
     with create_controller() as autd:
-        backend = NalgebraBackend()
         g = Naive(
-            backend=backend,
             foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Clamp(Intensity(67), Intensity(85))),
         )
@@ -65,9 +59,7 @@ def test_constraint_clamp():
 def test_constraint_multiply():
     autd: Controller[Audit]
     with create_controller() as autd:
-        backend = NalgebraBackend()
         g = Naive(
-            backend=backend,
             foci=((autd.center() + np.array([0, x, 150]), 5e3 * Pa) for x in [-30, 30]),
             option=NaiveOption(constraint=EmissionConstraint.Multiply(0)),
         )

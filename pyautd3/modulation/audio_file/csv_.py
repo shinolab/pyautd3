@@ -12,9 +12,11 @@ from pyautd3.utils import Duration
 
 class CsvOption:
     delimiter: str
+    has_headers: bool
 
-    def __init__(self: Self, *, delimiter: str = ",") -> None:
+    def __init__(self: Self, *, delimiter: str = ",", has_headers: bool = False) -> None:
         self.delimiter = delimiter
+        self.has_headers = has_headers
 
 
 class Csv(Modulation):
@@ -31,4 +33,6 @@ class Csv(Modulation):
     def _modulation_ptr(self: Self) -> ModulationPtr:
         delim = self.option.delimiter.encode("utf-8")
         path = _to_null_terminated_utf8(str(self.path))
-        return _validate_ptr(ModulationAudioFile().modulation_audio_file_csv(path, SamplingConfig(self.config)._inner, delim[0]))
+        return _validate_ptr(
+            ModulationAudioFile().modulation_audio_file_csv(path, SamplingConfig(self.config)._inner, delim[0], self.option.has_headers),
+        )
