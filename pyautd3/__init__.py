@@ -18,12 +18,15 @@ from .driver.datagram import (
     PulseWidthEncoder,
     ReadsFPGAState,
     Silencer,
-    SwapSegment,
-    WithLoopBehavior,
+    SwapSegmentFociSTM,
+    SwapSegmentGain,
+    SwapSegmentGainSTM,
+    SwapSegmentModulation,
+    WithFiniteLoop,
     WithSegment,
 )
 from .driver.datagram.stm import ControlPoint, ControlPoints
-from .driver.firmware.fpga import Drive, Intensity, LoopBehavior, Phase, PulseWidth, SamplingConfig, TransitionMode
+from .driver.firmware.fpga import Drive, Intensity, Phase, PulseWidth, SamplingConfig, transition_mode
 from .driver.geometry import Device, EulerAngles, Geometry, Transducer
 from .ethercat import DcSysTime
 from .gain import Bessel, BesselOption, Focus, FocusOption, GainGroup, Null, Plane, PlaneOption, Uniform
@@ -64,7 +67,6 @@ __all__ = [
     "Group",
     "Hz",
     "Intensity",
-    "LoopBehavior",
     "Nop",
     "Null",
     "OutputMask",
@@ -86,15 +88,18 @@ __all__ = [
     "Square",
     "SquareOption",
     "Static",
-    "SwapSegment",
+    "SwapSegmentFociSTM",
+    "SwapSegmentGain",
+    "SwapSegmentGainSTM",
+    "SwapSegmentModulation",
     "Transducer",
-    "TransitionMode",
     "Uniform",
-    "WithLoopBehavior",
+    "WithFiniteLoop",
     "WithSegment",
     "deg",
     "kHz",
     "rad",
+    "transition_mode",
 ]
 
-__version__ = "35.0.1"
+__version__ = "36.0.2"

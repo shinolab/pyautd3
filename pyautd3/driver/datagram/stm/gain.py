@@ -8,15 +8,14 @@ from pyautd3.driver.common.freq import Freq
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.gain import Gain
 from pyautd3.driver.datagram.stm.stm_sampling_config import FreqNearest, PeriodNearest, _sampling_config
-from pyautd3.driver.datagram.with_loop_behavior import DatagramL
+from pyautd3.driver.datagram.with_finite_loop import DatagramL
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3 import GainSTMMode, Segment
 from pyautd3.native_methods.autd3 import GainSTMOption as GainSTMOption_
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GainPtr, GainSTMPtr, LoopBehavior, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GainPtr, GainSTMPtr, TransitionModeWrap
 from pyautd3.utils import Duration
 
 
@@ -82,18 +81,18 @@ class GainSTM(DatagramS[GainSTMPtr], DatagramL[GainSTMPtr], Datagram):
         self: Self,
         ptr: GainSTMPtr,
         segment: Segment,
-        transition_mode: TransitionModeWrap | None,
+        transition_mode: TransitionModeWrap,
     ) -> DatagramPtr:
-        return Base().stm_gain_into_datagram_with_segment(ptr, segment, transition_mode or TransitionMode.NONE)
+        return Base().stm_gain_into_datagram_with_segment(ptr, segment, transition_mode)
 
     def _into_loop_behavior(
         self: Self,
         ptr: GainSTMPtr,
         segment: Segment,
-        transition_mode: TransitionModeWrap | None,
-        loop_behavior: LoopBehavior,
+        transition_mode: TransitionModeWrap,
+        loop_count: int,
     ) -> DatagramPtr:
-        return Base().stm_gain_into_datagram_with_loop_behavior(ptr, segment, transition_mode or TransitionMode.NONE, loop_behavior)
+        return Base().stm_gain_into_datagram_with_finite_loop(ptr, segment, transition_mode, loop_count)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
         return Base().stm_gain_into_datagram(self._raw_ptr(geometry))

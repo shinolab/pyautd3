@@ -55,6 +55,17 @@ class ParallelMode(enum.IntEnum):
         return int(obj)  # pragma: no cover
 
 
+class Status(enum.IntEnum):
+    Error = 0
+    Lost = 1
+    StateChanged = 2
+    Resumed = 4
+
+    @classmethod
+    def from_param(cls, obj):
+        return int(obj)  # pragma: no cover
+
+
 class Angle(ctypes.Structure):
     _fields_ = [("radian", ctypes.c_float)]
 
@@ -76,7 +87,7 @@ class DcSysTime(ctypes.Structure):
 
 
 class FPGAState(ctypes.Structure):
-    _fields_ = [("state", ctypes.c_uint8)]
+    _fields_ = [("value", ctypes.c_uint8)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, FPGAState) and self._fields_ == other._fields_  # pragma: no cover

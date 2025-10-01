@@ -4,21 +4,22 @@ from threading import Lock
 from typing import Self
 
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.geometry.device import Device
 from pyautd3.driver.geometry.transducer import Transducer
 from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
 
 
-class OutputMask(DatagramS[GeometryPtr], Datagram):
+class OutputMask(Datagram):
+    _segment: Segment
     _cache: dict[int, Callable[[Transducer], bool]]
     _lock: Lock
 
-    def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], bool]]) -> None:
+    def __init__(self: Self, f: Callable[[Device], Callable[[Transducer], bool]], segment: Segment = Segment.S0) -> None:
         super().__init__()
+        self._segment = segment
         self._cache = {}
         self._lock = Lock()
 
@@ -30,11 +31,9 @@ class OutputMask(DatagramS[GeometryPtr], Datagram):
 
         self._f_native = CFUNCTYPE(c_bool, c_void_p, GeometryPtr, c_uint16, c_uint8)(f_native)
 
+    @staticmethod
+    def with_segment(f: Callable[[Device], Callable[[Transducer], bool]], segment: Segment) -> "OutputMask":
+        return OutputMask(f, segment)
+
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_output_mask(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
-
-    def _raw_ptr(self: Self, geometry: Geometry) -> GeometryPtr:
-        return geometry._geometry_ptr
-
-    def _into_segment(self: Self, ptr: GeometryPtr, segment: Segment, _transition_mode: TransitionModeWrap | None) -> DatagramPtr:
-        return Base().datagram_output_mask_with_segment(self._f_native, None, ptr, segment)  # type: ignore[arg-type]
+        return Base().datagram_output_mask_with_segment(self._f_native, None, geometry._geometry_ptr, self._segment)  # type: ignore[arg-type]

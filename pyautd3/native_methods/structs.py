@@ -39,3 +39,7 @@ class Quaternion(ctypes.Structure):
 
     def ndarray(self) -> np.ndarray:
         return np.array([self.w, self.x, self.y, self.z])
+
+
+class PulseWidth(ctypes.Structure):
+    _fields_ = [("value", ctypes.c_uint64)]

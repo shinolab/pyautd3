@@ -21,7 +21,7 @@ class Geometry:
         self._devices = [Device(i, ptr) for i in range(int(Base().geometry_num_devices(self._geometry_ptr)))]
 
     def center(self: Self) -> np.ndarray:
-        return Base().geometr_center(self._geometry_ptr).ndarray()
+        return Base().geometry_center(self._geometry_ptr).ndarray()
 
     def num_devices(self: Self) -> int:
         return int(Base().geometry_num_devices(self._geometry_ptr))

@@ -2,18 +2,12 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from pyautd3 import (
-    Controller,
-    GainSTM,
-    Null,
-    ReadsFPGAState,
-)
+from pyautd3 import Controller, GainSTM, Null, ReadsFPGAState, transition_mode
 from pyautd3.autd_error import AUTDError
 from pyautd3.driver.common.freq import Hz
-from pyautd3.driver.datagram.segment import SwapSegment
+from pyautd3.driver.datagram.segment import SwapSegmentGain, SwapSegmentModulation
 from pyautd3.driver.datagram.stm.gain import GainSTMOption
 from pyautd3.driver.datagram.with_segment import WithSegment
-from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.native_methods.autd3 import Segment
 from tests.test_autd import create_controller
 
@@ -44,8 +38,8 @@ def test_fpga_state():
 
         autd.link().deassert_thermal_sensor(0)
         autd.link().assert_thermal_sensor(1)
-        autd.send(SwapSegment.Modulation(Segment.S1, TransitionMode.Immediate))
-        autd.send(SwapSegment.Gain(Segment.S1, TransitionMode.Immediate))
+        autd.send(SwapSegmentModulation(Segment.S1, transition_mode.Immediate()))
+        autd.send(SwapSegmentGain(Segment.S1))
         infos = autd.fpga_state()
         assert infos[0] is not None
         assert not infos[0].is_thermal_assert()
@@ -62,7 +56,7 @@ def test_fpga_state():
             WithSegment(
                 inner=GainSTM(gains=[Null(), Null()], config=1.0 * Hz, option=GainSTMOption()),
                 segment=Segment.S0,
-                transition_mode=TransitionMode.Immediate,
+                transition_mode=transition_mode.Immediate(),
             ),
         )
         infos = autd.fpga_state()
@@ -77,7 +71,7 @@ def test_fpga_state():
             WithSegment(
                 inner=GainSTM(gains=[Null(), Null()], config=1.0 * Hz, option=GainSTMOption()),
                 segment=Segment.S1,
-                transition_mode=TransitionMode.Immediate,
+                transition_mode=transition_mode.Immediate(),
             ),
         )
         infos = autd.fpga_state()

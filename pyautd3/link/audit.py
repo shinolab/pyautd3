@@ -3,11 +3,13 @@ from typing import Self
 
 import numpy as np
 
+from pyautd3.driver.firmware.fpga.pulse_width import PulseWidth
 from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3 import Drive as Drive_
 from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as LinkAudit
-from pyautd3.native_methods.autd3capi_driver import LinkPtr, LoopBehavior
+from pyautd3.native_methods.autd3capi_driver import LinkPtr
+from pyautd3.native_methods.structs import PulseWidth as _PulseWidth
 
 
 class Audit(Link):
@@ -76,8 +78,8 @@ class Audit(Link):
     def modulation_frequency_divide(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_modulation_freq_divide(self._ptr, segment, idx))
 
-    def modulation_loop_behavior(self: Self, idx: int, segment: Segment) -> LoopBehavior:
-        return LinkAudit().link_audit_fpga_modulation_loop_behavior(self._ptr, segment, idx)
+    def modulation_loop_count(self: Self, idx: int, segment: Segment) -> int:
+        return int(LinkAudit().link_audit_fpga_modulation_loop_count(self._ptr, segment, idx))
 
     def drives_at(self: Self, idx: int, segment: Segment, stm_idx: int) -> tuple[np.ndarray, np.ndarray]:
         n = int(LinkAudit().link_audit_cpu_num_transducers(self._ptr, idx))
@@ -103,8 +105,8 @@ class Audit(Link):
     def stm_freqency_divide(self: Self, idx: int, segment: Segment) -> int:
         return int(LinkAudit().link_audit_fpga_stm_freq_divide(self._ptr, segment, idx))
 
-    def stm_loop_behavior(self: Self, idx: int, segment: Segment) -> LoopBehavior:
-        return LinkAudit().link_audit_fpga_stm_loop_behavior(self._ptr, segment, idx)
+    def stm_loop_count(self: Self, idx: int, segment: Segment) -> int:
+        return int(LinkAudit().link_audit_fpga_stm_loop_count(self._ptr, segment, idx))
 
     def current_stm_segment(self: Self, idx: int) -> Segment:
         return LinkAudit().link_audit_fpga_current_stm_segment(self._ptr, idx)
@@ -113,10 +115,10 @@ class Audit(Link):
         return LinkAudit().link_audit_fpga_current_mod_segment(self._ptr, idx)
 
     def pulse_width_encoder_table(self: Self, idx: int) -> np.ndarray:
-        p = np.zeros([256]).astype(ctypes.c_uint16)
+        raw = np.zeros([256], dtype=_PulseWidth)
         LinkAudit().link_audit_fpga_pulse_width_encoder_table(
             self._ptr,
             idx,
-            np.ctypeslib.as_ctypes(p),
+            raw.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
         )
-        return p
+        return np.array([PulseWidth.__private_new__(_PulseWidth.from_buffer_copy(p)) for p in raw], dtype=PulseWidth)

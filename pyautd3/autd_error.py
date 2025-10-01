@@ -22,8 +22,3 @@ class UnknownGroupKeyError(AUTDError):
 class InvalidDatagramTypeError(AUTDError):
     def __init__(self: Self) -> None:
         super().__init__("Invalid datagram type")
-
-
-class CantBeZeroError(AUTDError):
-    def __init__(self: Self, v: int) -> None:
-        super().__init__(f"Value must be greater than 0: {v}")

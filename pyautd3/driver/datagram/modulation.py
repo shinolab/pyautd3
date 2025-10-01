@@ -2,14 +2,13 @@ from abc import ABCMeta, abstractmethod
 from typing import Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
-from pyautd3.driver.datagram.with_loop_behavior import DatagramL
+from pyautd3.driver.datagram.with_finite_loop import DatagramL
 from pyautd3.driver.datagram.with_segment import DatagramS
 from pyautd3.driver.firmware.fpga.sampling_config import SamplingConfig
-from pyautd3.driver.firmware.fpga.transition_mode import TransitionMode
 from pyautd3.driver.geometry import Geometry
 from pyautd3.native_methods.autd3 import Segment
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
-from pyautd3.native_methods.autd3capi_driver import DatagramPtr, LoopBehavior, ModulationPtr, TransitionModeWrap
+from pyautd3.native_methods.autd3capi_driver import DatagramPtr, ModulationPtr, TransitionModeWrap
 
 M = TypeVar("M", bound="Modulation")
 
@@ -33,26 +32,26 @@ class Modulation(
         self: Self,
         ptr: ModulationPtr,
         segment: Segment,
-        transition_mode: TransitionModeWrap | None,
+        transition_mode: TransitionModeWrap,
     ) -> DatagramPtr:
         return Base().modulation_into_datagram_with_segment(
             ptr,
             segment,
-            transition_mode or TransitionMode.NONE,
+            transition_mode,
         )
 
     def _into_loop_behavior(
         self: Self,
         ptr: ModulationPtr,
         segment: Segment,
-        transition_mode: TransitionModeWrap | None,
-        loop_behavior: LoopBehavior,
+        transition_mode: TransitionModeWrap,
+        loop_count: int,
     ) -> DatagramPtr:
-        return Base().modulation_into_datagram_with_loop_behavior(
+        return Base().modulation_into_datagram_with_finite_loop(
             ptr,
             segment,
-            transition_mode or TransitionMode.NONE,
-            loop_behavior,
+            transition_mode,
+            loop_count,
         )
 
     @abstractmethod
