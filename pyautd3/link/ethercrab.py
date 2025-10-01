@@ -70,6 +70,10 @@ class Status(metaclass=ConstantADT):
     def Error() -> "Status":  # noqa: N802
         return Status.__private_new__(Status_.Error, "")
 
+    @staticmethod
+    def Resumed() -> "Status":  # noqa: N802
+        return Status.__private_new__(Status_.Resumed, "")
+
 
 def tracing_init() -> None:
     LinkEtherCrab().link_ether_crab_tracing_init()
