@@ -58,7 +58,7 @@ dependencies = ["sync", "format", "mypy", "ruff", "test", "build"]
 [tasks.test]
 dependencies = ["update-bin"]
 command = "uv"
-args = ["run", "pytest", "-n", "auto"]
+args = ["run", "pytest", "-n", "auto", "${@}"]
 
 [tasks.build]
 dependencies = ["sync", "build-setup", "update-bin", "build-wheel"]
