@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING
 
 import numpy as np
+import pytest
 
 from pyautd3 import Controller, Segment, Static, transition_mode
 from pyautd3.driver.datagram.segment import SwapSegmentModulation
@@ -68,3 +69,11 @@ def test_mod_loop_behavior():
             ),
         )
         assert autd.link().modulation_loop_count(0, Segment.S1) == 0
+
+        with pytest.raises(ValueError):  # noqa: PT011
+            _ = WithFiniteLoop(
+                inner=Static(intensity=0x02),
+                segment=Segment.S1,
+                transition_mode=transition_mode.SyncIdx(),
+                loop_count=0,
+            )

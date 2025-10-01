@@ -525,8 +525,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGeometryNumTransducers.argtypes = [GeometryPtr]
         self.dll.AUTDGeometryNumTransducers.restype = ctypes.c_uint32
 
-        self.dll.AUTDGeometrCenter.argtypes = [GeometryPtr]
-        self.dll.AUTDGeometrCenter.restype = Point3
+        self.dll.AUTDGeometryCenter.argtypes = [GeometryPtr]
+        self.dll.AUTDGeometryCenter.restype = Point3
 
         self.dll.AUTDGeometryReconfigure.argtypes = [GeometryPtr, ctypes.POINTER(Point3), ctypes.POINTER(Quaternion)]
         self.dll.AUTDGeometryReconfigure.restype = None
@@ -1066,8 +1066,8 @@ class NativeMethods(metaclass=Singleton):
     def geometry_num_transducers(self, geo: GeometryPtr) -> ctypes.c_uint32:
         return self.dll.AUTDGeometryNumTransducers(geo)
 
-    def geometr_center(self, geo: GeometryPtr) -> Point3:
-        return self.dll.AUTDGeometrCenter(geo)
+    def geometry_center(self, geo: GeometryPtr) -> Point3:
+        return self.dll.AUTDGeometryCenter(geo)
 
     def geometry_reconfigure(self, geo: GeometryPtr, pos: ctypes.Array[Point3], rot: ctypes.Array[Quaternion]) -> None:
         return self.dll.AUTDGeometryReconfigure(geo, pos, rot)

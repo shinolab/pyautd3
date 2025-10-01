@@ -54,83 +54,83 @@ atomic_enum 0.3.0 (MIT)
 https://github.com/brain0/atomic_enum
 ---------------------------------------------------------
 
-autd3 36.0.1 (MIT)
+autd3 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-core 36.0.1 (MIT)
+autd3-core 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-derive 36.0.1 (MIT)
+autd3-derive 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-driver 36.0.1 (MIT)
+autd3-driver 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-firmware-emulator 36.0.1 (MIT)
+autd3-firmware-emulator 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-gain-holo 36.0.1 (MIT)
+autd3-gain-holo 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-link-ethercrab 36.0.1 (MIT)
+autd3-link-ethercrab 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-link-remote 36.0.1 (MIT)
+autd3-link-remote 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-link-simulator 36.0.1 (MIT)
+autd3-link-simulator 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-link-twincat 36.0.1 (MIT)
+autd3-link-twincat 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-modulation-audio-file 36.0.1 (MIT)
+autd3-modulation-audio-file 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3-protobuf 36.0.1 (MIT)
+autd3-protobuf 36.0.2 (MIT)
 https://github.com/shinolab/autd3-rs
 ---------------------------------------------------------
 
-autd3capi 36.0.1 (MIT)
+autd3capi 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-driver 36.0.1 (MIT)
+autd3capi-driver 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-gain-holo 36.0.1 (MIT)
+autd3capi-gain-holo 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-link-ethercrab 36.0.1 (MIT)
+autd3capi-link-ethercrab 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-link-remote 36.0.1 (MIT)
+autd3capi-link-remote 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-link-simulator 36.0.1 (MIT)
+autd3capi-link-simulator 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-link-twincat 36.0.1 (MIT)
+autd3capi-link-twincat 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 
-autd3capi-modulation-audio-file 36.0.1 (MIT)
+autd3capi-modulation-audio-file 36.0.2 (MIT)
 https://github.com/shinolab/autd3-capi
 ---------------------------------------------------------
 

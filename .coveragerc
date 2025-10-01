@@ -7,13 +7,13 @@ exclude_lines =
     if TYPE_CHECKING:
 
     pragma: no cover
-
-    PulseWidth256
-    PulseWidthEncoder256
+    
+    TracingInitWithFile
 
 [run]
 omit =
-    pyautd3/derive/*.py
     pyautd3/native_methods/autd3capi_link_simulator.py
     pyautd3/native_methods/autd3capi_link_twincat.py
+    pyautd3/native_methods/autd3capi_link_ethercrab.py
+    pyautd3/native_methods/autd3capi_link_remote.py
     pyautd3/native_methods/__init__.py
