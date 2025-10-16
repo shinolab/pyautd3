@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
@@ -53,7 +53,7 @@ class SineMode(Enum):
     Nearest = 2
 
 
-class Sine(Modulation, Generic[T]):
+class Sine[T: (int, float)](Modulation):
     _mode: SineMode
     freq: Freq[T]
     option: SineOption

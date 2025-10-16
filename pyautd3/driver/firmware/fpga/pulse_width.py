@@ -21,11 +21,11 @@ class PulseWidth:
     def from_duty(duty: float) -> "PulseWidth":
         return PulseWidth.__private_new__(_validate_pulse_width(Base().pulse_width_from_duty(duty)))
 
-    def pulse_width(self: Self, period: int) -> int:
-        return _validate_u16(Base().pulse_width_pulse_width(self._inner, period))
+    def pulse_width(self: Self) -> int:
+        return _validate_u16(Base().pulse_width_pulse_width(self._inner))
 
     def __eq__(self: Self, other: object) -> bool:
-        return isinstance(other, PulseWidth) and self.pulse_width(512) == other.pulse_width(512)
+        return isinstance(other, PulseWidth) and self.pulse_width() == other.pulse_width()
 
     def __hash__(self: Self) -> int:
-        return self.pulse_width(512).__hash__()  # pragma: no cover
+        return self.pulse_width().__hash__()  # pragma: no cover

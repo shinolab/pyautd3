@@ -24,11 +24,5 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkTwinCAT.argtypes = []
         self.dll.AUTDLinkTwinCAT.restype = ResultLink
 
-        self.dll.AUTDLinkRemoteTwinCAT.argtypes = [ctypes.c_char_p, ctypes.c_char_p, ctypes.c_char_p]
-        self.dll.AUTDLinkRemoteTwinCAT.restype = ResultLink
-
     def link_twin_cat(self) -> ResultLink:
         return self.dll.AUTDLinkTwinCAT()
-
-    def link_remote_twin_cat(self, server_ams_net_id: bytes, server_ip: bytes, client_ams_net_id: bytes) -> ResultLink:
-        return self.dll.AUTDLinkRemoteTwinCAT(server_ams_net_id, server_ip, client_ams_net_id)

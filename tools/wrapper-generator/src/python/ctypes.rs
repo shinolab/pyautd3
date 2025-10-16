@@ -21,7 +21,7 @@ impl TryFrom<syn::Type> for CtypesType {
                 Ok(CtypesType(
                     match path.into_token_stream().to_string().as_str() {
                         "bool" => "ctypes.c_bool",
-                        "char" | "c_char" => "ctypes.c_char",
+                        "char" | "c_char" | "std :: ffi :: c_char" => "ctypes.c_char",
                         "f32" => "ctypes.c_float",
                         "f64" => "ctypes.c_double",
                         "i8" => "ctypes.c_int8",
@@ -39,7 +39,7 @@ impl TryFrom<syn::Type> for CtypesType {
                         "NonZeroU16" => "ctypes.c_uint16",
                         "NonZeroU32" => "ctypes.c_uint32",
                         "NonZeroU64" => "ctypes.c_uint64",
-                        "libc :: c_void" => "void",
+                        "std :: ffi :: c_void" => "void",
                         "ConstPtr" => "ctypes.c_void_p",
                         v => v,
                     }

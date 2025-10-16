@@ -72,7 +72,7 @@ def test_debug_output_idx():
             assert np.array_equal([0x51, 0x52, 0xE0, 0xF0], autd.link().debug_types(dev.idx()))
             assert np.array_equal([0x0002, 0x0000, 0x0003, 0x0001], autd.link().debug_values(dev.idx()))
 
-        sys_time = DcSysTime.now()
+        sys_time = DcSysTime(100000)
 
         def f3(_dev: Device, gpio: GPIOOut) -> GPIOOutputTypeWrap | None:
             match gpio:

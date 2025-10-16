@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.firmware.fpga.transition_mode import InfiniteTransitionMode
@@ -11,7 +11,7 @@ DS = TypeVar("DS", bound="DatagramS")
 P = TypeVar("P")
 
 
-class DatagramS(Generic[P], metaclass=ABCMeta):
+class DatagramS[P](metaclass=ABCMeta):
     @abstractmethod
     def _into_segment(self: Self, ptr: P, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
         pass
@@ -21,7 +21,7 @@ class DatagramS(Generic[P], metaclass=ABCMeta):
         pass
 
 
-class WithSegment(Datagram, Generic[DS]):
+class WithSegment[DS: "DatagramS"](Datagram):
     inner: DS
     segment: Segment
     transitiom_mode: TransitionModeWrap

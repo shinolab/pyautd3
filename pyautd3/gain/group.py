@@ -1,6 +1,6 @@
 from collections.abc import Callable
 from ctypes import POINTER, c_int32, c_uint16
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
@@ -13,7 +13,7 @@ from pyautd3.native_methods.autd3capi_driver import GainPtr
 K = TypeVar("K")
 
 
-class Group(Gain, Generic[K]):
+class Group[K](Gain):
     key_map: Callable[[Device], Callable[[Transducer], K | None]]
     gain_map: dict[K, Gain]
 

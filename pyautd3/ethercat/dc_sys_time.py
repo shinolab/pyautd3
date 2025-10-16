@@ -8,8 +8,8 @@ from pyautd3.utils import Duration
 class DcSysTime:
     _inner: _DcSysTime
 
-    def __new__(cls: type["DcSysTime"]) -> "DcSysTime":
-        raise NotImplementedError
+    def __init__(self: Self, sys_time: int) -> None:
+        self._inner = Base().dc_sys_time_new(sys_time)
 
     @classmethod
     def __private_new__(cls: type["DcSysTime"], inner: _DcSysTime) -> "DcSysTime":
@@ -19,10 +19,6 @@ class DcSysTime:
 
     def sys_time(self: Self) -> int:
         return int(self._inner.dc_sys_time)
-
-    @staticmethod
-    def now() -> "DcSysTime":
-        return DcSysTime.__private_new__(Base().dc_sys_time_now())
 
     def __add__(self: Self, other: Duration) -> "DcSysTime":
         sys_time = self.sys_time() + other.as_nanos()

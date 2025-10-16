@@ -362,6 +362,10 @@ fn main() -> Result<()> {
             "GainSTMControlFlags",
             "FirmwareVersionType",
             "PulseWidth",
+            "Point3",
+            "Vector3",
+            "Quaternion",
+            "UnitQuaternion",
         ],
     }
     .gen(&home, &mut defined, &mut defined_enum)?;

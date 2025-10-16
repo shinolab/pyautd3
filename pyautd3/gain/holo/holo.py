@@ -1,5 +1,5 @@
 from collections.abc import Iterable
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
@@ -10,7 +10,7 @@ from .amplitude import Amplitude
 H = TypeVar("H", bound="Holo")
 
 
-class Holo(Gain, Generic[H]):
+class Holo[H: "Holo"](Gain):
     foci: list[tuple[np.ndarray, Amplitude]]
 
     def __init__(self: Self, foci: Iterable[tuple[np.ndarray, Amplitude]]) -> None:

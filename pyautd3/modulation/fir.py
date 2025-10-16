@@ -1,6 +1,6 @@
 import ctypes
 from collections.abc import Iterable
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
@@ -11,7 +11,7 @@ from pyautd3.native_methods.autd3capi_driver import ModulationPtr
 M = TypeVar("M", bound=Modulation)
 
 
-class Fir(Modulation, Generic[M]):
+class Fir[M: Modulation](Modulation):
     target: M
     coef: np.ndarray
 
