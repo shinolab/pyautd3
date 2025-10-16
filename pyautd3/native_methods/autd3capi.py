@@ -39,7 +39,7 @@ from pyautd3.native_methods.autd3capi_driver import (
     ResultU16,
     SamplingConfigWrap,
     SenderPtr,
-    TimerStrategyWrap,
+    SleeperTag,
     TransducerPtr,
     TransitionModeWrap,
 )
@@ -127,13 +127,7 @@ class ResultFirmwareVersionList(ctypes.Structure):
 
 
 class SenderOption(ctypes.Structure):
-    _fields_ = [
-        ("send_interval", Duration),
-        ("receive_interval", Duration),
-        ("timeout", OptionDuration),
-        ("parallel", ctypes.c_uint8),
-        ("strict", ctypes.c_bool),
-    ]
+    _fields_ = [("send_interval", Duration), ("receive_interval", Duration), ("timeout", OptionDuration)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
@@ -190,7 +184,7 @@ class NativeMethods(metaclass=Singleton):
             ctypes.c_uint16,
             LinkPtr,
             SenderOption,
-            TimerStrategyWrap,
+            ctypes.c_uint8,
         ]
         self.dll.AUTDControllerOpen.restype = ResultController
 
@@ -221,14 +215,11 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSetDefaultSenderOption.argtypes = [ControllerPtr, SenderOption]
         self.dll.AUTDSetDefaultSenderOption.restype = None
 
-        self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption, TimerStrategyWrap]
+        self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption, ctypes.c_uint8]
         self.dll.AUTDSender.restype = SenderPtr
 
         self.dll.AUTDSenderSend.argtypes = [SenderPtr, DatagramPtr]
         self.dll.AUTDSenderSend.restype = ResultStatus
-
-        self.dll.AUTDSpinSleepDefaultAccuracy.argtypes = []
-        self.dll.AUTDSpinSleepDefaultAccuracy.restype = ctypes.c_uint32
 
         self.dll.AUTDSenderOptionIsDefault.argtypes = [SenderOption]
         self.dll.AUTDSenderOptionIsDefault.restype = ctypes.c_bool
@@ -333,8 +324,8 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDDatagramTuple.argtypes = [DatagramPtr, DatagramPtr]
         self.dll.AUTDDatagramTuple.restype = DatagramPtr
 
-        self.dll.AUTDDcSysTimeNow.argtypes = []
-        self.dll.AUTDDcSysTimeNow.restype = DcSysTime
+        self.dll.AUTDDcSysTimeNew.argtypes = [ctypes.c_uint64]
+        self.dll.AUTDDcSysTimeNew.restype = DcSysTime
 
         self.dll.AUTDGPIOOutputTypeNone.argtypes = []
         self.dll.AUTDGPIOOutputTypeNone.restype = GPIOOutputTypeWrap
@@ -390,7 +381,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDPulseWidthFromDuty.argtypes = [ctypes.c_float]
         self.dll.AUTDPulseWidthFromDuty.restype = ResultPulseWidth
 
-        self.dll.AUTDPulseWidthPulseWidth.argtypes = [PulseWidth, ctypes.c_uint32]
+        self.dll.AUTDPulseWidthPulseWidth.argtypes = [PulseWidth]
         self.dll.AUTDPulseWidthPulseWidth.restype = ResultU16
 
         self.dll.AUTDSamplingConfigFromDivide.argtypes = [ctypes.c_uint16]
@@ -717,9 +708,9 @@ class NativeMethods(metaclass=Singleton):
         len_: int,
         link: LinkPtr,
         option: SenderOption,
-        timer_strategy: TimerStrategyWrap,
+        sleeper: SleeperTag,
     ) -> ResultController:
-        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option, timer_strategy)
+        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option, sleeper)
 
     def controller_close(self, cnt: ControllerPtr) -> ResultStatus:
         return self.dll.AUTDControllerClose(cnt)
@@ -748,14 +739,11 @@ class NativeMethods(metaclass=Singleton):
     def set_default_sender_option(self, cnt: ControllerPtr, option: SenderOption) -> None:
         return self.dll.AUTDSetDefaultSenderOption(cnt, option)
 
-    def sender(self, cnt: ControllerPtr, option: SenderOption, timer_strategy: TimerStrategyWrap) -> SenderPtr:
-        return self.dll.AUTDSender(cnt, option, timer_strategy)
+    def sender(self, cnt: ControllerPtr, option: SenderOption, sleeper: SleeperTag) -> SenderPtr:
+        return self.dll.AUTDSender(cnt, option, sleeper)
 
     def sender_send(self, sender: SenderPtr, d: DatagramPtr) -> ResultStatus:
         return self.dll.AUTDSenderSend(sender, d)
-
-    def spin_sleep_default_accuracy(self) -> ctypes.c_uint32:
-        return self.dll.AUTDSpinSleepDefaultAccuracy()
 
     def sender_option_is_default(self, option: SenderOption) -> ctypes.c_bool:
         return self.dll.AUTDSenderOptionIsDefault(option)
@@ -874,8 +862,8 @@ class NativeMethods(metaclass=Singleton):
     def datagram_tuple(self, d1: DatagramPtr, d2: DatagramPtr) -> DatagramPtr:
         return self.dll.AUTDDatagramTuple(d1, d2)
 
-    def dc_sys_time_now(self) -> DcSysTime:
-        return self.dll.AUTDDcSysTimeNow()
+    def dc_sys_time_new(self, sys_time: int) -> DcSysTime:
+        return self.dll.AUTDDcSysTimeNew(sys_time)
 
     def gpio_output_type_none(self) -> GPIOOutputTypeWrap:
         return self.dll.AUTDGPIOOutputTypeNone()
@@ -931,8 +919,8 @@ class NativeMethods(metaclass=Singleton):
     def pulse_width_from_duty(self, duty: float) -> ResultPulseWidth:
         return self.dll.AUTDPulseWidthFromDuty(duty)
 
-    def pulse_width_pulse_width(self, pulse_width: PulseWidth, period: int) -> ResultU16:
-        return self.dll.AUTDPulseWidthPulseWidth(pulse_width, period)
+    def pulse_width_pulse_width(self, pulse_width: PulseWidth) -> ResultU16:
+        return self.dll.AUTDPulseWidthPulseWidth(pulse_width)
 
     def sampling_config_from_divide(self, div: int) -> ResultSamplingConfig:
         return self.dll.AUTDSamplingConfigFromDivide(div)

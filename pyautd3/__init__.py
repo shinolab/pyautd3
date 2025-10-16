@@ -1,5 +1,4 @@
-from .controller import Controller, FixedSchedule, SenderOption
-from .controller.sleeper import SpinSleeper
+from .controller import Controller, SenderOption
 from .driver.autd3_device import AUTD3
 from .driver.common import Hz, deg, kHz, rad
 from .driver.datagram import (
@@ -49,7 +48,6 @@ __all__ = [
     "Duration",
     "EulerAngles",
     "FixedCompletionTime",
-    "FixedSchedule",
     "FixedUpdateRate",
     "FociSTM",
     "Focus",
@@ -84,7 +82,6 @@ __all__ = [
     "Silencer",
     "Sine",
     "SineOption",
-    "SpinSleeper",
     "Square",
     "SquareOption",
     "Static",
@@ -102,4 +99,4 @@ __all__ = [
     "transition_mode",
 ]
 
-__version__ = "36.0.2"
+__version__ = "37.0.0alpha3"

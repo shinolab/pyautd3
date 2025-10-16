@@ -80,26 +80,7 @@ class AUTDStatus(enum.IntEnum):
 
 class SleeperTag(enum.IntEnum):
     Std = 0
-    Spin = 1
     SpinWait = 4
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
-class SpinStrategyTag(enum.IntEnum):
-    YieldThread = 0
-    SpinLoopHint = 1
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
-class TimerStrategyTag(enum.IntEnum):
-    FixedSchedule = 0
-    FixedDelay = 1
 
     @classmethod
     def from_param(cls, obj):
@@ -353,26 +334,6 @@ class SenderPtr(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SenderPtr) and self._fields_ == other._fields_  # pragma: no cover
-
-    def __hash__(self) -> int:
-        return super().__hash__()  # pragma: no cover
-
-
-class SleeperWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("value", ctypes.c_uint32), ("spin_strategy", ctypes.c_uint8)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, SleeperWrap) and self._fields_ == other._fields_  # pragma: no cover
-
-    def __hash__(self) -> int:
-        return super().__hash__()  # pragma: no cover
-
-
-class TimerStrategyWrap(ctypes.Structure):
-    _fields_ = [("tag", ctypes.c_uint8), ("sleep", SleeperWrap)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, TimerStrategyWrap) and self._fields_ == other._fields_  # pragma: no cover
 
     def __hash__(self) -> int:
         return super().__hash__()  # pragma: no cover

@@ -362,12 +362,16 @@ fn main() -> Result<()> {
             "GainSTMControlFlags",
             "FirmwareVersionType",
             "PulseWidth",
+            "Point3",
+            "Vector3",
+            "Quaternion",
+            "UnitQuaternion",
         ],
     }
     .gen(&home, &mut defined, &mut defined_enum)?;
 
     PythonWrapperGenerator {
-        ignore_items: vec![],
+        ignore_items: vec!["strcpy"],
     }
     .gen_capi(
         &home,

@@ -1,4 +1,4 @@
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.datagram.silencer.fixed_completion_steps import FixedCompletionSteps
@@ -11,9 +11,8 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr
 T = TypeVar("T", FixedCompletionSteps, FixedCompletionTime, FixedUpdateRate)
 
 
-class Silencer(
+class Silencer[T: (FixedCompletionSteps, FixedCompletionTime, FixedUpdateRate)](
     Datagram,
-    Generic[T],
 ):
     config: T
 

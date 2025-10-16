@@ -4,9 +4,7 @@ import pytest
 from pyautd3 import *  # noqa: F403
 from pyautd3 import AUTD3, Clear, Controller, ForceFan, Segment
 from pyautd3.autd_error import AUTDError, InvalidDatagramTypeError
-from pyautd3.controller import FixedDelay, FixedSchedule
 from pyautd3.controller.controller import SenderOption
-from pyautd3.controller.sleeper import SpinSleeper, SpinStrategy, SpinWaitSleeper, StdSleeper
 from pyautd3.driver.datagram import Synchronize
 from pyautd3.driver.firmware.fpga.emit_intensity import Intensity
 from pyautd3.driver.firmware.fpga.phase import Phase
@@ -14,7 +12,6 @@ from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.gain import Uniform
 from pyautd3.link.audit import Audit
 from pyautd3.modulation import Static
-from pyautd3.native_methods.autd3 import ParallelMode
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.utils.duration import Duration
 
@@ -28,12 +25,6 @@ def create_controller() -> Controller[Audit]:
 
 def test_sender_is_default():
     assert Base().sender_option_is_default(SenderOption()._inner())
-
-
-def test_sleeper():
-    _ = StdSleeper()._inner()
-    _ = SpinSleeper().with_spin_strategy(SpinStrategy.SpinLoopHint)._inner()
-    _ = SpinWaitSleeper()._inner()
 
 
 def test_firmware_info():
@@ -67,13 +58,9 @@ def test_sender():
         for dev in autd.geometry():
             assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0xFF)
 
-        autd.sender(SenderOption(), FixedSchedule(StdSleeper())).send(Static(intensity=0x80))
+        autd.sender(SenderOption()).send(Static(intensity=0x80))
         for dev in autd.geometry():
             assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0x80)
-
-        autd.sender(SenderOption(), FixedDelay(SpinWaitSleeper())).send(Static(intensity=0x81))
-        for dev in autd.geometry():
-            assert np.all(autd.link().modulation_buffer(dev.idx(), Segment.S0) == 0x81)
 
 
 def test_send_single():
@@ -175,7 +162,6 @@ def test_sender_option():
             send_interval=Duration.from_millis(1),
             receive_interval=Duration.from_millis(1),
             timeout=Duration.from_millis(100),
-            parallel=ParallelMode.Off,
         )
         autd.default_sender_option = option
         assert option == autd.default_sender_option

@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 from pyautd3.driver.datagram.datagram import Datagram
 from pyautd3.driver.firmware.fpga.transition_mode import FiniteTransitionMode
@@ -11,7 +11,7 @@ DL = TypeVar("DL", bound="DatagramL")
 P = TypeVar("P")
 
 
-class DatagramL(Generic[P], metaclass=ABCMeta):
+class DatagramL[P](metaclass=ABCMeta):
     @abstractmethod
     def _into_loop_behavior(
         self: Self,
@@ -27,7 +27,7 @@ class DatagramL(Generic[P], metaclass=ABCMeta):
         pass
 
 
-class WithFiniteLoop(Datagram, Generic[DL]):
+class WithFiniteLoop[DL: "DatagramL"](Datagram):
     inner: DL
     segment: Segment
     transition_mode: TransitionModeWrap

@@ -29,16 +29,16 @@ class Point3(ctypes.Structure):
 
 
 class Quaternion(ctypes.Structure):
-    _fields_ = [("x", ctypes.c_float), ("y", ctypes.c_float), ("z", ctypes.c_float), ("w", ctypes.c_float)]
+    _fields_ = [("w", ctypes.c_float), ("i", ctypes.c_float), ("j", ctypes.c_float), ("k", ctypes.c_float)]
 
     def __init__(self: Self, v: np.ndarray) -> None:
         self.w = v[0]
-        self.x = v[1]
-        self.y = v[2]
-        self.z = v[3]
+        self.i = v[1]
+        self.j = v[2]
+        self.k = v[3]
 
     def ndarray(self) -> np.ndarray:
-        return np.array([self.w, self.x, self.y, self.z])
+        return np.array([self.w, self.i, self.j, self.k])
 
 
 class PulseWidth(ctypes.Structure):

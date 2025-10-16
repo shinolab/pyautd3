@@ -76,6 +76,16 @@ class Angle(ctypes.Structure):
         return super().__hash__()  # pragma: no cover
 
 
+class Complex(ctypes.Structure):
+    _fields_ = [("re", ctypes.c_float), ("im", ctypes.c_float)]
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, Complex) and self._fields_ == other._fields_  # pragma: no cover
+
+    def __hash__(self) -> int:
+        return super().__hash__()  # pragma: no cover
+
+
 class DcSysTime(ctypes.Structure):
     _fields_ = [("dc_sys_time", ctypes.c_uint64)]
 

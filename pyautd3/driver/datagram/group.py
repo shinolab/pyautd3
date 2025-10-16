@@ -1,6 +1,6 @@
 import ctypes
 from collections.abc import Callable
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
@@ -13,7 +13,7 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
 K = TypeVar("K")
 
 
-class Group(Datagram, Generic[K]):
+class Group[K](Datagram):
     def __init__(
         self: Self,
         key_map: Callable[[Device], K | None],

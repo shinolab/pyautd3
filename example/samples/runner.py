@@ -1,6 +1,6 @@
 from pyautd3 import Controller, Null, Silencer
 
-from . import bessel, custom, flag, focus, group, holo, plane, stm, wav
+from . import bessel, custom, flag, focus, group, holo, plane, stm
 
 
 def run(autd: Controller) -> None:
@@ -8,7 +8,6 @@ def run(autd: Controller) -> None:
         (focus.simple, "Single focus test"),
         (bessel.bessel, "Bessel beam test"),
         (plane.plane, "Plane wave test"),
-        (wav.wav, "Wav modulation test"),
         (stm.stm_focus, "FociSTM test"),
         (stm.stm_gain, "GainSTM test"),
         (holo.holo, "Multiple foci test"),

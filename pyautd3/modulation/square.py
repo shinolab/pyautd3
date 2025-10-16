@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
@@ -48,7 +48,7 @@ class SquareMode(Enum):
     Nearest = 2
 
 
-class Square(Modulation, Generic[T]):
+class Square[T: (int, float)](Modulation):
     _mode: SquareMode
     freq: Freq[T]
     option: SquareOption

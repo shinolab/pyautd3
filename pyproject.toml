@@ -1,15 +1,15 @@
 [project]
 name = "pyautd3"
 authors = [{ name = "Shun Suzuki", email = "suzuki@hapis.k.u-tokyo.ac.jp" }]
-version = "36.0.2"
+version = "37.0.0a3"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = ["numpy>=2"]
 classifiers = [
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: POSIX",
@@ -25,7 +25,7 @@ build-backend = "setuptools.build_meta"
 pyautd3 = ["py.typed"]
 
 [tool.ruff]
-target-version = "py311"
+target-version = "py312"
 line-length = 150
 exclude = [".venv", "venv"]
 

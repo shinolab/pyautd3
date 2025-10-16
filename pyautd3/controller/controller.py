@@ -1,24 +1,22 @@
 import ctypes
 from collections.abc import Iterable
 from types import TracebackType
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 import numpy as np
 
 from pyautd3.autd_error import InvalidDatagramTypeError
 from pyautd3.controller.environment import Environment
-from pyautd3.controller.strategy import FixedDelay, FixedSchedule
 from pyautd3.driver.autd3_device import AUTD3
 from pyautd3.driver.datagram import Datagram
 from pyautd3.driver.firmware.fpga import FPGAState
 from pyautd3.driver.firmware_version import FirmwareInfo
 from pyautd3.driver.geometry import Geometry
 from pyautd3.driver.link import Link
-from pyautd3.native_methods.autd3 import ParallelMode
 from pyautd3.native_methods.autd3capi import ControllerPtr, SenderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SenderOption as SenderOption_
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr, SleeperTag
 from pyautd3.native_methods.structs import Point3, Quaternion
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
@@ -33,8 +31,6 @@ class SenderOption:
     send_interval: Duration
     receive_interval: Duration
     timeout: Duration | None
-    parallel: ParallelMode
-    strict: bool
 
     def __init__(
         self: Self,
@@ -42,22 +38,16 @@ class SenderOption:
         send_interval: Duration | None = None,
         receive_interval: Duration | None = None,
         timeout: Duration | None = None,
-        parallel: ParallelMode = ParallelMode.Auto,
-        strict: bool = True,
     ) -> None:
         self.send_interval = send_interval or Duration.from_millis(1)
         self.receive_interval = receive_interval or Duration.from_millis(1)
         self.timeout = timeout
-        self.parallel = parallel
-        self.strict = strict
 
     def _inner(self: Self) -> SenderOption_:
         return SenderOption_(
             self.send_interval._inner,
             self.receive_interval._inner,
             into_option_duration(self.timeout),
-            self.parallel,
-            self.strict,
         )
 
 
@@ -85,7 +75,7 @@ class Sender:
         _validate_status(result)
 
 
-class Controller(Geometry, Generic[L]):
+class Controller[L: Link](Geometry):
     _ptr: ControllerPtr
     _link: L
     _disposed: bool
@@ -130,14 +120,13 @@ class Controller(Geometry, Generic[L]):
 
     @staticmethod
     def open(devices: Iterable[AUTD3], link: L) -> "Controller[L]":
-        return Controller.open_with_option(devices, link, SenderOption(), FixedSchedule())
+        return Controller.open_with_option(devices, link, SenderOption())
 
     @staticmethod
     def open_with_option(
         devices: Iterable[AUTD3],
         link: L,
         option: SenderOption,
-        timer_strategy: FixedSchedule | FixedDelay,
     ) -> "Controller[L]":
         devices = list(devices)
         pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
@@ -150,7 +139,7 @@ class Controller(Geometry, Generic[L]):
                 len(devices),
                 link._resolve(),
                 option._inner(),
-                timer_strategy._inner(),
+                SleeperTag.Std,
             ),
         )
         geometry = Base().geometry(ptr)
@@ -190,14 +179,14 @@ class Controller(Geometry, Generic[L]):
         Base().controller_fpga_state_delete(handle)
         return res
 
-    def sender(self: Self, option: SenderOption, timer_strategy: FixedSchedule | FixedDelay) -> Sender:
-        return Sender(Base().sender(self._ptr, option._inner(), timer_strategy._inner()), self.geometry())
+    def sender(self: Self, option: SenderOption) -> Sender:
+        return Sender(Base().sender(self._ptr, option._inner(), SleeperTag.Std), self.geometry())
 
     def send(
         self: Self,
         d: Datagram | tuple[Datagram, Datagram],
     ) -> None:
-        self.sender(self._default_sender_option, FixedSchedule()).send(d)
+        self.sender(self._default_sender_option).send(d)
 
     @property
     def default_sender_option(self: Self) -> SenderOption:

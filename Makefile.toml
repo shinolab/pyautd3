@@ -223,9 +223,8 @@ with Path("pyautd3/__init__.py").open() as f:
 if not should_update_dll(version):
     sys.exit(0)
 
-download_and_extract("autd3-capi", "autd3", version)
+download_and_extract("autd3-capi", "autd3-capi", version)
 shutil.copyfile("LICENSE", "pyautd3/LICENSE.txt")
-shutil.copyfile("ThirdPartyNotice.txt", "pyautd3/ThirdPartyNotice.txt")
 
 Path("VERSION").write_text(version)
 '''

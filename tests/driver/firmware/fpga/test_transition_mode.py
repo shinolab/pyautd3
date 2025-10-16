@@ -11,7 +11,7 @@ def test_transition_mode_sync_idx():
 
 
 def test_transition_mode_sys_time():
-    sys_time = DcSysTime.now()
+    sys_time = DcSysTime(10)
     mode = transition_mode.SysTime(sys_time)._inner()
     assert mode.tag == TransitionModeTag.SysTime
     assert mode.value.sys_time.dc_sys_time == sys_time.sys_time()

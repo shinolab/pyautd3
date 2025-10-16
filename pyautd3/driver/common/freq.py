@@ -1,9 +1,9 @@
-from typing import Generic, Self, TypeVar
+from typing import Self, TypeVar
 
 T = TypeVar("T", int, float)
 
 
-class Freq(Generic[T]):
+class Freq[T: (int, float)]:
     _freq: T
 
     def __new__(cls: type["Freq"]) -> "Freq":
