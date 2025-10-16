@@ -15,7 +15,7 @@ from pyautd3.native_methods.structs import PulseWidth
 
 
 def _to_null_terminated_utf8(s: str) -> bytes:
-    return s.encode("utf-8") + b"\0"
+    return s.encode("utf-8") + b"\0"  # pragma: no cover
 
 
 def _validate_status(res: ResultStatus) -> int:

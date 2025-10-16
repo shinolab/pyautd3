@@ -1,7 +1,5 @@
 import ctypes
 import enum
-import threading
-from pathlib import Path
 
 from pyautd3.native_methods.autd3 import DcSysTime
 from pyautd3.native_methods.structs import PulseWidth
@@ -369,26 +367,3 @@ class ResultSamplingConfig(ctypes.Structure):
 
     def __hash__(self) -> int:
         return super().__hash__()  # pragma: no cover
-
-
-class Singleton(type):
-    _instances = {}  # type: ignore[var-annotated]
-    _lock = threading.Lock()
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            with cls._lock:
-                if cls not in cls._instances:  # pragma: no cover
-                    cls._instances[cls] = super().__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-class NativeMethods(metaclass=Singleton):
-    def init_dll(self, bin_location: Path, bin_prefix: str, bin_ext: str) -> None:
-        self.dll = ctypes.CDLL(str(bin_location / f"{bin_prefix}autd3capi_driver{bin_ext}"))
-
-        self.dll.strcpy.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
-        self.dll.strcpy.restype = None
-
-    def py(self, dst: bytes, src: bytes) -> None:
-        return self.dll.strcpy(dst, src)

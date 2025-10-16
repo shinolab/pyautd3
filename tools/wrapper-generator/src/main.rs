@@ -371,7 +371,7 @@ fn main() -> Result<()> {
     .gen(&home, &mut defined, &mut defined_enum)?;
 
     PythonWrapperGenerator {
-        ignore_items: vec![],
+        ignore_items: vec!["strcpy"],
     }
     .gen_capi(
         &home,
