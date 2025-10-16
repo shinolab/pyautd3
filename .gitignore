@@ -138,8 +138,6 @@ dmypy.json
 
 pyautd3/bin/
 pyautd3/LICENSE.txt
-pyautd3/ThirdPartyNotice.txt
-ThirdPartyNotice-orig.txt
 setup.cfg
 VERSION
 *.zip

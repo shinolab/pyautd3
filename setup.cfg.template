@@ -1,7 +1,6 @@
 [metadata]
 license_files =
     LICENSE
-    ThirdPartyNotice.txt
 
 [bdist_wheel]
 plat_name = PLATNAME
