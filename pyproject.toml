@@ -4,6 +4,8 @@ authors = [{ name = "Shun Suzuki", email = "suzuki@hapis.k.u-tokyo.ac.jp" }]
 version = "37.0.0a3"
 description = "AUTD3 library wrapper for python"
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.12"
 dependencies = ["numpy>=2"]
 classifiers = [
