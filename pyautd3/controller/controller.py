@@ -16,7 +16,7 @@ from pyautd3.driver.link import Link
 from pyautd3.native_methods.autd3capi import ControllerPtr, SenderPtr
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.autd3capi import SenderOption as SenderOption_
-from pyautd3.native_methods.autd3capi_driver import GeometryPtr, SleeperTag
+from pyautd3.native_methods.autd3capi_driver import GeometryPtr
 from pyautd3.native_methods.structs import Point3, Quaternion
 from pyautd3.native_methods.utils import _validate_ptr, _validate_status
 from pyautd3.utils import Duration
@@ -139,7 +139,6 @@ class Controller[L: Link](Geometry):
                 len(devices),
                 link._resolve(),
                 option._inner(),
-                SleeperTag.Std,
             ),
         )
         geometry = Base().geometry(ptr)
@@ -180,7 +179,7 @@ class Controller[L: Link](Geometry):
         return res
 
     def sender(self: Self, option: SenderOption) -> Sender:
-        return Sender(Base().sender(self._ptr, option._inner(), SleeperTag.Std), self.geometry())
+        return Sender(Base().sender(self._ptr, option._inner()), self.geometry())
 
     def send(
         self: Self,

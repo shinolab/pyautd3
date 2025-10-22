@@ -99,4 +99,4 @@ __all__ = [
     "transition_mode",
 ]
 
-__version__ = "37.0.0alpha3"
+__version__ = "37.0.0"

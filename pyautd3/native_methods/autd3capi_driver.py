@@ -78,15 +78,6 @@ class AUTDStatus(enum.IntEnum):
         return int(obj)  # pragma: no cover
 
 
-class SleeperTag(enum.IntEnum):
-    Std = 0
-    SpinWait = 4
-
-    @classmethod
-    def from_param(cls, obj):
-        return int(obj)  # pragma: no cover
-
-
 class GPIOOutputTypeValue(ctypes.Union):
     _fields_ = [("null", ctypes.c_uint64), ("sys_time", DcSysTime), ("idx", ctypes.c_uint16), ("direct", ctypes.c_bool)]
 

@@ -12,7 +12,6 @@ exclude_lines =
 
 [run]
 omit =
-    pyautd3/native_methods/autd3capi_link_simulator.py
     pyautd3/native_methods/autd3capi_link_twincat.py
     pyautd3/native_methods/autd3capi_link_ethercrab.py
     pyautd3/native_methods/autd3capi_link_remote.py
