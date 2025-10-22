@@ -7,7 +7,6 @@ from pathlib import Path
 from .autd3capi import NativeMethods as Base
 from .autd3capi_gain_holo import NativeMethods as GainHolo
 from .autd3capi_link_remote import NativeMethods as LinkRemote
-from .autd3capi_link_simulator import NativeMethods as LinkSimulator
 from .autd3capi_link_twincat import NativeMethods as LinkTwinCAT
 
 _PLATFORM = platform.system()
@@ -29,7 +28,6 @@ _LIB_PATH = Path(__file__).parent.parent / "bin"
 
 Base().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 GainHolo().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
-LinkSimulator().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 LinkRemote().init_dll(_LIB_PATH, _PREFIX, _BIN_EXT)
 if sys.platform == "win32":
     with contextlib.suppress(FileNotFoundError):

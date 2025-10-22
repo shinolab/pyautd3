@@ -1,6 +1,2 @@
-[metadata]
-license_files =
-    LICENSE
-
 [bdist_wheel]
 plat_name = PLATNAME

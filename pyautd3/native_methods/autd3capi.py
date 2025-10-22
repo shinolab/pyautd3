@@ -39,7 +39,6 @@ from pyautd3.native_methods.autd3capi_driver import (
     ResultU16,
     SamplingConfigWrap,
     SenderPtr,
-    SleeperTag,
     TransducerPtr,
     TransitionModeWrap,
 )
@@ -178,14 +177,7 @@ class NativeMethods(metaclass=Singleton):
     def init_dll(self, bin_location: Path, bin_prefix: str, bin_ext: str) -> None:
         self.dll = ctypes.CDLL(str(bin_location / f"{bin_prefix}autd3capi{bin_ext}"))
 
-        self.dll.AUTDControllerOpen.argtypes = [
-            ctypes.POINTER(Point3),
-            ctypes.POINTER(Quaternion),
-            ctypes.c_uint16,
-            LinkPtr,
-            SenderOption,
-            ctypes.c_uint8,
-        ]
+        self.dll.AUTDControllerOpen.argtypes = [ctypes.POINTER(Point3), ctypes.POINTER(Quaternion), ctypes.c_uint16, LinkPtr, SenderOption]
         self.dll.AUTDControllerOpen.restype = ResultController
 
         self.dll.AUTDControllerClose.argtypes = [ControllerPtr]
@@ -215,7 +207,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDSetDefaultSenderOption.argtypes = [ControllerPtr, SenderOption]
         self.dll.AUTDSetDefaultSenderOption.restype = None
 
-        self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption, ctypes.c_uint8]
+        self.dll.AUTDSender.argtypes = [ControllerPtr, SenderOption]
         self.dll.AUTDSender.restype = SenderPtr
 
         self.dll.AUTDSenderSend.argtypes = [SenderPtr, DatagramPtr]
@@ -708,9 +700,8 @@ class NativeMethods(metaclass=Singleton):
         len_: int,
         link: LinkPtr,
         option: SenderOption,
-        sleeper: SleeperTag,
     ) -> ResultController:
-        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option, sleeper)
+        return self.dll.AUTDControllerOpen(pos, rot, len_, link, option)
 
     def controller_close(self, cnt: ControllerPtr) -> ResultStatus:
         return self.dll.AUTDControllerClose(cnt)
@@ -739,8 +730,8 @@ class NativeMethods(metaclass=Singleton):
     def set_default_sender_option(self, cnt: ControllerPtr, option: SenderOption) -> None:
         return self.dll.AUTDSetDefaultSenderOption(cnt, option)
 
-    def sender(self, cnt: ControllerPtr, option: SenderOption, sleeper: SleeperTag) -> SenderPtr:
-        return self.dll.AUTDSender(cnt, option, sleeper)
+    def sender(self, cnt: ControllerPtr, option: SenderOption) -> SenderPtr:
+        return self.dll.AUTDSender(cnt, option)
 
     def sender_send(self, sender: SenderPtr, d: DatagramPtr) -> ResultStatus:
         return self.dll.AUTDSenderSend(sender, d)
