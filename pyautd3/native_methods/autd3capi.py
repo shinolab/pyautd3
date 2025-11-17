@@ -376,7 +376,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDPulseWidthPulseWidth.restype = ResultU16
 
         self.dll.AUTDSamplingConfigFromDivide.argtypes = [ctypes.c_uint16]
-        self.dll.AUTDSamplingConfigFromDivide.restype = ResultSamplingConfig
+        self.dll.AUTDSamplingConfigFromDivide.restype = SamplingConfigWrap
 
         self.dll.AUTDSamplingConfigFromFreq.argtypes = [ctypes.c_float]
         self.dll.AUTDSamplingConfigFromFreq.restype = SamplingConfigWrap
@@ -906,7 +906,7 @@ class NativeMethods(metaclass=Singleton):
     def pulse_width_pulse_width(self, pulse_width: PulseWidth) -> ResultU16:
         return self.dll.AUTDPulseWidthPulseWidth(pulse_width)
 
-    def sampling_config_from_divide(self, div: int) -> ResultSamplingConfig:
+    def sampling_config_from_divide(self, div: int) -> SamplingConfigWrap:
         return self.dll.AUTDSamplingConfigFromDivide(div)
 
     def sampling_config_from_freq(self, f: float) -> SamplingConfigWrap:
