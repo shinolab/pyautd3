@@ -17,7 +17,7 @@ class SamplingConfig:
         match value:
             case int() | np.integer():
                 value = int(value)
-                if value > 0xFFFF:  # noqa: PLR2004
+                if value == 0 or value > 0xFFFF:  # noqa: PLR2004
                     raise ValueError
                 self._inner = _validate_sampling_config(Base().sampling_config_from_divide(value))
             case SamplingConfigWrap():

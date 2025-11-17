@@ -72,7 +72,7 @@ class Audit(Link):
     ) -> np.ndarray:
         n = int(LinkAudit().link_audit_fpga_modulation_cycle(self._ptr, segment, idx))
         buf = np.zeros([n]).astype(ctypes.c_uint8)
-        LinkAudit().link_audit_fpga_modulation_buffer(self._ptr, segment, idx, np.ctypeslib.as_ctypes(buf), n)
+        LinkAudit().link_audit_fpga_modulation_buffer(self._ptr, segment, idx, np.ctypeslib.as_ctypes(buf))
         return buf
 
     def modulation_frequency_divide(self: Self, idx: int, segment: Segment) -> int:

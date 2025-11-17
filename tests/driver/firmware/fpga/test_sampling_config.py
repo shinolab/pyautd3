@@ -12,7 +12,7 @@ def test_sampl_config_from_freq_div():
     assert config.freq() == 40000 * Hz
     assert config.period() == Duration.from_micros(25)
 
-    with pytest.raises(AUTDError):
+    with pytest.raises(ValueError):  # noqa: PT011
         _ = SamplingConfig(0)
     with pytest.raises(ValueError):  # noqa: PT011
         _ = SamplingConfig(0xFFFF + 1)

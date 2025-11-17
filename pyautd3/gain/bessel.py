@@ -27,21 +27,21 @@ class BesselOption:
 
 
 class Bessel(Gain):
-    pos: np.ndarray
+    apex: np.ndarray
     direction: np.ndarray
     theta: Angle
     option: BesselOption
 
-    def __init__(self: Self, pos: ArrayLike, direction: ArrayLike, theta: Angle, option: BesselOption) -> None:
+    def __init__(self: Self, apex: ArrayLike, direction: ArrayLike, theta: Angle, option: BesselOption) -> None:
         super().__init__()
-        self.pos = np.array(pos)
+        self.apex = np.array(apex)
         self.direction = np.array(direction)
         self.theta = theta
         self.option = option
 
     def _gain_ptr(self: Self, _: Geometry) -> GainPtr:
         return Base().gain_bessel(
-            Point3(self.pos),
+            Point3(self.apex),
             Vector3(self.direction),
             self.theta._inner(),
             self.option._inner(),

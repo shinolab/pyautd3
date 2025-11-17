@@ -2,7 +2,7 @@ from typing import Self
 
 from pyautd3.native_methods.autd3capi import NativeMethods as Base
 from pyautd3.native_methods.structs import PulseWidth as _PulseWidth
-from pyautd3.native_methods.utils import _validate_pulse_width, _validate_u16
+from pyautd3.native_methods.utils import _validate_u16
 
 
 class PulseWidth:
@@ -19,7 +19,7 @@ class PulseWidth:
 
     @staticmethod
     def from_duty(duty: float) -> "PulseWidth":
-        return PulseWidth.__private_new__(_validate_pulse_width(Base().pulse_width_from_duty(duty)))
+        return PulseWidth.__private_new__(Base().pulse_width_from_duty(duty))
 
     def pulse_width(self: Self) -> int:
         return _validate_u16(Base().pulse_width_pulse_width(self._inner))

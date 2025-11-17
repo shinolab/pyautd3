@@ -26,27 +26,29 @@ L = TypeVar("L", bound=Link)
 
 DEFAULT_TIMEOUT = Duration.from_millis(200)
 
+DEFAULT_SEND_INTERVAL = Duration.from_millis(1)
+
 
 class SenderOption:
-    send_interval: Duration
-    receive_interval: Duration
+    send_interval: Duration | None
+    receive_interval: Duration | None
     timeout: Duration | None
 
     def __init__(
         self: Self,
         *,
-        send_interval: Duration | None = None,
-        receive_interval: Duration | None = None,
+        send_interval: Duration | None = DEFAULT_SEND_INTERVAL,
+        receive_interval: Duration | None = DEFAULT_SEND_INTERVAL,
         timeout: Duration | None = None,
     ) -> None:
-        self.send_interval = send_interval or Duration.from_millis(1)
-        self.receive_interval = receive_interval or Duration.from_millis(1)
+        self.send_interval = send_interval
+        self.receive_interval = receive_interval
         self.timeout = timeout
 
     def _inner(self: Self) -> SenderOption_:
         return SenderOption_(
-            self.send_interval._inner,
-            self.receive_interval._inner,
+            into_option_duration(self.send_interval),
+            into_option_duration(self.receive_interval),
             into_option_duration(self.timeout),
         )
 

@@ -2,7 +2,6 @@ import ctypes
 import enum
 
 from pyautd3.native_methods.autd3 import DcSysTime
-from pyautd3.native_methods.structs import PulseWidth
 
 NUM_TRANS_IN_UNIT: int = 249
 
@@ -275,16 +274,6 @@ class ResultModulation(ctypes.Structure):
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, ResultModulation) and self._fields_ == other._fields_  # pragma: no cover
-
-    def __hash__(self) -> int:
-        return super().__hash__()  # pragma: no cover
-
-
-class ResultPulseWidth(ctypes.Structure):
-    _fields_ = [("result", PulseWidth), ("err_len", ctypes.c_uint32), ("err", ctypes.c_void_p)]
-
-    def __eq__(self, other: object) -> bool:
-        return isinstance(other, ResultPulseWidth) and self._fields_ == other._fields_  # pragma: no cover
 
     def __hash__(self) -> int:
         return super().__hash__()  # pragma: no cover

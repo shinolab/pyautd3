@@ -15,14 +15,14 @@ if TYPE_CHECKING:
 def test_bessel():
     autd: Controller[Audit]
     with create_controller() as autd:
-        autd.send(Bessel(pos=autd.center(), direction=[0, 0, 1], theta=np.pi / 4 * rad, option=BesselOption()))
+        autd.send(Bessel(apex=autd.center(), direction=[0, 0, 1], theta=np.pi / 4 * rad, option=BesselOption()))
         for dev in autd.geometry():
             intensities, phases = autd.link().drives_at(dev.idx(), Segment.S0, 0)
             assert np.all(intensities == 0xFF)
             assert not np.all(phases == 0)
 
         g = Bessel(
-            pos=autd.center(),
+            apex=autd.center(),
             direction=[0, 0, 1],
             theta=np.pi / 4 * rad,
             option=BesselOption(
