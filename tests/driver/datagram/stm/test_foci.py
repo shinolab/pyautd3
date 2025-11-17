@@ -4,6 +4,7 @@ import numpy as np
 import pytest
 
 from pyautd3 import Controller, FociSTM, Hz, SamplingConfig, Segment, Silencer, transition_mode
+from pyautd3.autd_error import AUTDError
 from pyautd3.driver.datagram.segment import SwapSegmentFociSTM
 from pyautd3.driver.datagram.stm.control_point import ControlPoint, ControlPoints
 from pyautd3.driver.datagram.with_finite_loop import WithFiniteLoop
@@ -242,3 +243,11 @@ def test_foci_stm_mix():
         stm = FociSTM(foci=[ControlPoints(points=[center] * 9), ControlPoints(points=[center] * 9)], config=1.0 * Hz)
         with pytest.raises(ValueError):  # noqa: PT011
             autd.send(stm)
+
+
+def test_foci_stm_invalid_sampling_config():
+    center = np.array([0.0, 0.0, 150.0])
+    stm = FociSTM(foci=[center, center], config=Duration.from_nanos(1))
+    with pytest.raises(AUTDError) as e:
+        _ = stm.sampling_config()
+    assert str(e.value) == "STM sampling period (1ns/2) must be integer"

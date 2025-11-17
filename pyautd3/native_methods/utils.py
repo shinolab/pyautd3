@@ -6,12 +6,10 @@ from pyautd3.native_methods.autd3capi_driver import (
     Duration,
     ResultDuration,
     ResultF32,
-    ResultPulseWidth,
     ResultSamplingConfig,
     ResultStatus,
     ResultU16,
 )
-from pyautd3.native_methods.structs import PulseWidth
 
 
 def _to_null_terminated_utf8(s: str) -> bytes:
@@ -27,14 +25,6 @@ def _validate_status(res: ResultStatus) -> int:
 
 
 def _validate_sampling_config(res: ResultSamplingConfig) -> SamplingConfigWrap:
-    if int(res.err_len) != 0:
-        err = bytes(bytearray(int(res.err_len)))
-        Base().get_err(res.err, err)
-        raise AUTDError(err)
-    return res.result
-
-
-def _validate_pulse_width(res: ResultPulseWidth) -> PulseWidth:
     if int(res.err_len) != 0:
         err = bytes(bytearray(int(res.err_len)))
         Base().get_err(res.err, err)

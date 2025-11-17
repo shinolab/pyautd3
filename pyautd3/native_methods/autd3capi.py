@@ -33,7 +33,6 @@ from pyautd3.native_methods.autd3capi_driver import (
     OptionDuration,
     ResultDuration,
     ResultF32,
-    ResultPulseWidth,
     ResultSamplingConfig,
     ResultStatus,
     ResultU16,
@@ -126,7 +125,7 @@ class ResultFirmwareVersionList(ctypes.Structure):
 
 
 class SenderOption(ctypes.Structure):
-    _fields_ = [("send_interval", Duration), ("receive_interval", Duration), ("timeout", OptionDuration)]
+    _fields_ = [("send_interval", OptionDuration), ("receive_interval", OptionDuration), ("timeout", OptionDuration)]
 
     def __eq__(self, other: object) -> bool:
         return isinstance(other, SenderOption) and self._fields_ == other._fields_  # pragma: no cover
@@ -367,17 +366,17 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDPhaseToRad.argtypes = [Phase]
         self.dll.AUTDPhaseToRad.restype = ctypes.c_float
 
-        self.dll.AUTDPulseWidth.argtypes = [ctypes.c_uint32]
+        self.dll.AUTDPulseWidth.argtypes = [ctypes.c_uint16]
         self.dll.AUTDPulseWidth.restype = PulseWidth
 
         self.dll.AUTDPulseWidthFromDuty.argtypes = [ctypes.c_float]
-        self.dll.AUTDPulseWidthFromDuty.restype = ResultPulseWidth
+        self.dll.AUTDPulseWidthFromDuty.restype = PulseWidth
 
         self.dll.AUTDPulseWidthPulseWidth.argtypes = [PulseWidth]
         self.dll.AUTDPulseWidthPulseWidth.restype = ResultU16
 
         self.dll.AUTDSamplingConfigFromDivide.argtypes = [ctypes.c_uint16]
-        self.dll.AUTDSamplingConfigFromDivide.restype = ResultSamplingConfig
+        self.dll.AUTDSamplingConfigFromDivide.restype = SamplingConfigWrap
 
         self.dll.AUTDSamplingConfigFromFreq.argtypes = [ctypes.c_float]
         self.dll.AUTDSamplingConfigFromFreq.restype = SamplingConfigWrap
@@ -601,13 +600,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDLinkAuditFpgaModulationCycle.argtypes = [LinkPtr, ctypes.c_uint8, ctypes.c_uint16]
         self.dll.AUTDLinkAuditFpgaModulationCycle.restype = ctypes.c_uint16
 
-        self.dll.AUTDLinkAuditFpgaModulationBuffer.argtypes = [
-            LinkPtr,
-            ctypes.c_uint8,
-            ctypes.c_uint16,
-            ctypes.POINTER(ctypes.c_uint8),
-            ctypes.c_uint32,
-        ]
+        self.dll.AUTDLinkAuditFpgaModulationBuffer.argtypes = [LinkPtr, ctypes.c_uint8, ctypes.c_uint16, ctypes.POINTER(ctypes.c_uint8)]
         self.dll.AUTDLinkAuditFpgaModulationBuffer.restype = None
 
         self.dll.AUTDLinkAuditFpgaModulationLoopCount.argtypes = [LinkPtr, ctypes.c_uint8, ctypes.c_uint16]
@@ -907,13 +900,13 @@ class NativeMethods(metaclass=Singleton):
     def pulse_width(self, value: int) -> PulseWidth:
         return self.dll.AUTDPulseWidth(value)
 
-    def pulse_width_from_duty(self, duty: float) -> ResultPulseWidth:
+    def pulse_width_from_duty(self, duty: float) -> PulseWidth:
         return self.dll.AUTDPulseWidthFromDuty(duty)
 
     def pulse_width_pulse_width(self, pulse_width: PulseWidth) -> ResultU16:
         return self.dll.AUTDPulseWidthPulseWidth(pulse_width)
 
-    def sampling_config_from_divide(self, div: int) -> ResultSamplingConfig:
+    def sampling_config_from_divide(self, div: int) -> SamplingConfigWrap:
         return self.dll.AUTDSamplingConfigFromDivide(div)
 
     def sampling_config_from_freq(self, f: float) -> SamplingConfigWrap:
@@ -973,8 +966,8 @@ class NativeMethods(metaclass=Singleton):
     def environment_wavenumber(self, env: EnvironmentPtr) -> ctypes.c_float:
         return self.dll.AUTDEnvironmentWavenumber(env)
 
-    def gain_bessel(self, pos: Point3, dir_: Vector3, theta: Angle, option: BesselOption) -> GainPtr:
-        return self.dll.AUTDGainBessel(pos, dir_, theta, option)
+    def gain_bessel(self, apex: Point3, dir_: Vector3, theta: Angle, option: BesselOption) -> GainPtr:
+        return self.dll.AUTDGainBessel(apex, dir_, theta, option)
 
     def gain_bessel_is_default(self, option: BesselOption) -> ctypes.c_bool:
         return self.dll.AUTDGainBesselIsDefault(option)
@@ -1138,8 +1131,8 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_modulation_cycle(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaModulationCycle(audit, segment, idx)
 
-    def link_audit_fpga_modulation_buffer(self, audit: LinkPtr, segment: Segment, idx: int, data: ctypes.Array[ctypes.c_uint8], size: int) -> None:
-        return self.dll.AUTDLinkAuditFpgaModulationBuffer(audit, segment, idx, data, size)
+    def link_audit_fpga_modulation_buffer(self, audit: LinkPtr, segment: Segment, idx: int, data: ctypes.Array[ctypes.c_uint8]) -> None:
+        return self.dll.AUTDLinkAuditFpgaModulationBuffer(audit, segment, idx, data)
 
     def link_audit_fpga_modulation_loop_count(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaModulationLoopCount(audit, segment, idx)
