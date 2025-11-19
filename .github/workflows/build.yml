@@ -18,11 +18,11 @@ jobs:
         python-version: ["3.12", "3.13", "3.14"]
         os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-make
-      - uses: astral-sh/setup-uv@v3
+      - uses: astral-sh/setup-uv@v7
       - run: uv venv --python ${{ matrix.python-version }}
       - run: cargo make check
         if: ${{ matrix.os != 'windows-latest' }}
