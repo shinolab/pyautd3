@@ -1,4 +1,4 @@
-from samples import runner  # type: ignore[import,import-not-found]
+from samples import runner
 
 from pyautd3 import AUTD3, Controller
 from pyautd3.link.twincat import TwinCAT

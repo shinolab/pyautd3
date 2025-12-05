@@ -33,4 +33,4 @@ def test_static_default():
 
 def test_static_error():
     with pytest.raises(TypeError):
-        _ = Static(intensity=1.0)  # type: ignore[arg-type]
+        _ = Static(intensity=1.0)

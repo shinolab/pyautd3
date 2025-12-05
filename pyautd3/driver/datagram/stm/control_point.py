@@ -139,7 +139,7 @@ class ControlPoints:
     def __init__(self, points: list[ControlPoint] | list[ArrayLike], intensity: Intensity | None = None) -> None:
         match points[0]:
             case ControlPoint():
-                self.points = points  # type: ignore[assignment]
+                self.points = points  # type: ignore[bad-assignment]
             case _:
                 self.points = [ControlPoint(point=p) for p in points]
         self.intensity = intensity or Intensity.MAX

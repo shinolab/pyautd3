@@ -21,4 +21,4 @@ def test_phase():
     assert phase.radian() == 0
 
     with pytest.raises(TypeError):
-        _ = Phase(0.0)  # type: ignore[arg-type]
+        _ = Phase(0.0)

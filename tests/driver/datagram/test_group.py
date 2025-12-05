@@ -37,7 +37,7 @@ def test_group():
         assert np.all(intensities == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            autd.send(Group(lambda dev: dev.idx(), {0: 0}))  # type: ignore[dict-item]
+            autd.send(Group(lambda dev: dev.idx(), {0: 0}))
 
 
 def test_group_check_only_for_enabled():

@@ -64,4 +64,4 @@ class GPIOOutputs(Datagram):
         )(f_native)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_gpio_outputs(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
+        return Base().datagram_gpio_outputs(self._f_native, ctypes.c_void_p(None), geometry._geometry_ptr)  # type: ignore[bad-argument-type]

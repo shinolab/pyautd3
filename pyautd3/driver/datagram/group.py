@@ -34,8 +34,8 @@ class Group[K](Datagram):
                 case Datagram():
                     ptr = d._datagram_ptr(geometry)
                     datagrams[k]["value"] = ptr.value
-                case (Datagram(), Datagram()):
-                    (d1, d2) = d
+                case tuple() if len(d) == 2 and all(isinstance(x, Datagram) for x in d):  # noqa: PLR2004
+                    d1, d2 = d
                     ptr = Base().datagram_tuple(
                         d1._datagram_ptr(geometry),
                         d2._datagram_ptr(geometry),
@@ -53,10 +53,10 @@ class Group[K](Datagram):
         self.f_native_ = ctypes.CFUNCTYPE(ctypes.c_int32, ctypes.c_void_p, GeometryPtr, ctypes.c_uint16)(f_native)
 
         return Base().datagram_group(
-            self.f_native_,  # type: ignore[arg-type]
+            self.f_native_,  # type: ignore[bad-argument-type]
             ctypes.c_void_p(0),
             geometry._geometry_ptr,
-            keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),  # type: ignore[arg-type]
-            datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),  # type: ignore[arg-type]
+            keys.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)),
+            datagrams.ctypes.data_as(ctypes.POINTER(DatagramPtr)),
             len(keys),
         )

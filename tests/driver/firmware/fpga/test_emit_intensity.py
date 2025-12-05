@@ -10,7 +10,7 @@ def test_emit_intensity():
         assert str(intensity) == f"Intensity({i})"
 
     with pytest.raises(TypeError):
-        _ = Intensity(0.0)  # type: ignore[arg-type]
+        _ = Intensity(0.0)
 
     with pytest.raises(ValueError):  # noqa: PT011
         _ = Intensity(-1)

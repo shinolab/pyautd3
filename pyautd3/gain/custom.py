@@ -23,4 +23,4 @@ class Custom(Gain):
         self._f_native = ctypes.CFUNCTYPE(None, ConstPtr, GeometryPtr, ctypes.c_uint16, ctypes.c_uint8, ctypes.POINTER(Drive_))(f_native)
 
     def _gain_ptr(self: Self, geometry: Geometry) -> GainPtr:
-        return Base().gain_custom(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
+        return Base().gain_custom(self._f_native, ctypes.c_void_p(None), geometry._geometry_ptr)  # type: ignore[bad-argument-type]

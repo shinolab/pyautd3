@@ -68,8 +68,8 @@ class Sender:
         match d:
             case Datagram():
                 result = Base().sender_send(self._ptr, d._datagram_ptr(self._geometry))
-            case (Datagram(), Datagram()):
-                (d1, d2) = d
+            case tuple() if len(d) == 2 and all(isinstance(x, Datagram) for x in d):  # noqa: PLR2004
+                d1, d2 = d
                 d_tuple = Base().datagram_tuple(d1._datagram_ptr(self._geometry), d2._datagram_ptr(self._geometry))
                 result = Base().sender_send(self._ptr, d_tuple)
             case _:
@@ -114,7 +114,7 @@ class Controller[L: Link](Geometry):
         self._dispose()
 
     def geometry(self: Self) -> Geometry:
-        return self  # type: ignore[return-value]
+        return self
 
     @property
     def environment(self: Self) -> Environment:
@@ -131,13 +131,13 @@ class Controller[L: Link](Geometry):
         option: SenderOption,
     ) -> "Controller[L]":
         devices = list(devices)
-        pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
-        rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+        pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[no-matching-overload]
+        rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[no-matching-overload]
 
         ptr = _validate_ptr(
             Base().controller_open(
-                pos.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
-                rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
+                pos.ctypes.data_as(ctypes.POINTER(Point3)),
+                rot.ctypes.data_as(ctypes.POINTER(Quaternion)),
                 len(devices),
                 link._resolve(),
                 option._inner(),

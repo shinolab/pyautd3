@@ -15,6 +15,7 @@ from pyautd3.native_methods.autd3capi_driver import DatagramPtr, GeometryPtr
 class PulseWidthEncoder(Datagram):
     _cache: dict[int, Callable[[Intensity], PulseWidth]]
     _lock: Lock
+    _f_native: Callable[[c_void_p, GeometryPtr, int, int], int] | None
 
     def __init__(self: Self, f: Callable[[Device], Callable[[Intensity], PulseWidth]] | None = None) -> None:
         super().__init__()
@@ -24,11 +25,12 @@ class PulseWidthEncoder(Datagram):
         if f is None:
             self._f_native = None
         else:
+            fn: Callable[[Device], Callable[[Intensity], PulseWidth]] = f
 
             def f_native(_context: c_void_p, geometry_ptr: GeometryPtr, dev_idx: int, idx: int) -> c_uint64:
                 if dev_idx not in self._cache:
                     with self._lock:
-                        self._cache[dev_idx] = f(Device(dev_idx, geometry_ptr))
+                        self._cache[dev_idx] = fn(Device(dev_idx, geometry_ptr))
                 return self._cache[dev_idx](Intensity(idx))._inner.value
 
             self._f_native = CFUNCTYPE(c_uint64, c_void_p, GeometryPtr, c_uint16, c_uint8)(f_native)
@@ -37,5 +39,5 @@ class PulseWidthEncoder(Datagram):
         return (
             Base().datagram_pulse_width_encoder_default()
             if self._f_native is None
-            else Base().datagram_pulse_width_encoder(self._f_native, None, geometry._geometry_ptr)  # type: ignore[arg-type]
+            else Base().datagram_pulse_width_encoder(self._f_native, c_void_p(None), geometry._geometry_ptr)  # type: ignore[bad-argument-type]
         )

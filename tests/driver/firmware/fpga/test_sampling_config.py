@@ -63,4 +63,4 @@ def test_sampl_config_from_period_nearest():
 
 def test_sampl_config_ctor():
     with pytest.raises(TypeError):
-        _ = SamplingConfig(0.0)  # type: ignore[arg-type]
+        _ = SamplingConfig(0.0)

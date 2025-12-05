@@ -12,7 +12,7 @@ class Drive:
         self.phase = phase
         self.intensity = intensity
 
-    NULL: "Drive" = None  # type: ignore[assignment]
+    NULL: "Drive"
 
 
 Drive.NULL = Drive(phase=Phase.ZERO, intensity=Intensity.MIN)

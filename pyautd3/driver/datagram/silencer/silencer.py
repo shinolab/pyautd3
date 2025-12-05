@@ -18,7 +18,7 @@ class Silencer[T: (FixedCompletionSteps, FixedCompletionTime, FixedUpdateRate)](
 
     def __init__(self: Self, config: T | None = None) -> None:
         super().__init__()
-        self.config = config or FixedCompletionSteps()  # type: ignore[assignment]
+        self.config = config or FixedCompletionSteps()  # type: ignore[bad-assignment]
 
     def _datagram_ptr(self: Self, _: Geometry) -> DatagramPtr:
         match self.config:
@@ -26,8 +26,10 @@ class Silencer[T: (FixedCompletionSteps, FixedCompletionTime, FixedUpdateRate)](
                 return Base().datagram_silencer_from_completion_steps(self.config._inner())
             case FixedCompletionTime():
                 return Base().datagram_silencer_from_completion_time(self.config._inner())
-            case FixedUpdateRate():  # pragma: no cover
+            case FixedUpdateRate():
                 return Base().datagram_silencer_from_update_rate(self.config._inner())
+            case _:
+                raise NotImplementedError
 
     @staticmethod
     def disable() -> "Silencer[FixedCompletionSteps]":

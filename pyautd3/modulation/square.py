@@ -75,8 +75,10 @@ class Square[T: (int, float)](Modulation):
     def _modulation_ptr(self) -> ModulationPtr:
         match self._mode:
             case SquareMode.Exact:
-                return Base().modulation_square_exact(int(self.freq.hz()), self.option._inner())  # type: ignore[arg-type]
+                return Base().modulation_square_exact(int(self.freq.hz()), self.option._inner())
             case SquareMode.ExactFloat:
                 return Base().modulation_square_exact_float(float(self.freq.hz()), self.option._inner())
-            case SquareMode.Nearest:  # pragma: no cover
+            case SquareMode.Nearest:
                 return Base().modulation_square_nearest(float(self.freq.hz()), self.option._inner())
+            case _:  # pragma: no cover
+                raise NotImplementedError  # pragma: no cover

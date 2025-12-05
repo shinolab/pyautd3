@@ -89,7 +89,7 @@ class Audit(Link):
             segment,
             idx,
             stm_idx,
-            drive.ctypes.data_as(ctypes.POINTER(Drive_)),  # type: ignore[arg-type]
+            drive.ctypes.data_as(ctypes.POINTER(Drive_)),
         )
         return np.array([int(d[1][0]) for d in drive]), np.array([int(d[0][0]) for d in drive])
 
@@ -119,6 +119,6 @@ class Audit(Link):
         LinkAudit().link_audit_fpga_pulse_width_encoder_table(
             self._ptr,
             idx,
-            raw.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),  # type: ignore[arg-type]
+            raw.ctypes.data_as(ctypes.POINTER(ctypes.c_uint64)),
         )
         return np.array([PulseWidth.__private_new__(_PulseWidth.from_buffer_copy(p)) for p in raw], dtype=PulseWidth)

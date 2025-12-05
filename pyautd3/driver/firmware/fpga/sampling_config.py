@@ -54,8 +54,8 @@ class SamplingConfig:
     def __hash__(self: Self) -> int:
         return self._inner.__hash__()  # pragma: no cover
 
-    FREQ_40K: "SamplingConfig" = None  # type: ignore[assignment]
-    FREQ_4K: "SamplingConfig" = None  # type: ignore[assignment]
+    FREQ_40K: "SamplingConfig"
+    FREQ_4K: "SamplingConfig"
 
 
 SamplingConfig.FREQ_40K = SamplingConfig(40000.0 * Hz)

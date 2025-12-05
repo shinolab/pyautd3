@@ -23,7 +23,7 @@ class Custom(Modulation):
 
     def _modulation_ptr(self: Self) -> ModulationPtr:
         return Base().modulation_custom(
-            self.buffer.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),  # type: ignore[arg-type]
+            self.buffer.ctypes.data_as(ctypes.POINTER(ctypes.c_uint8)),
             len(self.buffer),
             SamplingConfig(self.config)._inner,
         )

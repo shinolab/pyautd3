@@ -53,6 +53,6 @@ class Group[K](Gain):
         return Base().gain_group(
             gain_group_map,
             np.ctypeslib.as_ctypes(keys.astype(c_int32)),
-            values.ctypes.data_as(POINTER(GainPtr)),  # type: ignore[arg-type]
+            values.ctypes.data_as(POINTER(GainPtr)),
             len(keys),
         )

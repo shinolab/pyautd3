@@ -687,12 +687,7 @@ class NativeMethods(metaclass=Singleton):
         self.dll.AUTDGetErr.restype = None
 
     def controller_open(
-        self,
-        pos: ctypes.Array[Point3],
-        rot: ctypes.Array[Quaternion],
-        len_: int,
-        link: LinkPtr,
-        option: SenderOption,
+        self, pos: "ctypes._Pointer[Point3]", rot: "ctypes._Pointer[Quaternion]", len_: int, link: LinkPtr, option: SenderOption
     ) -> ResultController:
         return self.dll.AUTDControllerOpen(pos, rot, len_, link, option)
 
@@ -746,8 +741,8 @@ class NativeMethods(metaclass=Singleton):
         f: ctypes.c_void_p,
         context: ctypes.c_void_p,
         geometry: GeometryPtr,
-        keys: ctypes.Array[ctypes.c_int32],
-        d: ctypes.Array[DatagramPtr],
+        keys: "ctypes._Pointer[ctypes.c_int32]",
+        d: "ctypes._Pointer[DatagramPtr]",
         n: int,
     ) -> DatagramPtr:
         return self.dll.AUTDDatagramGroup(f, context, geometry, keys, d, n)
@@ -798,30 +793,21 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDSTMFociIntoDatagramWithSegment(stm, n, segment, transition_mode)
 
     def stm_foci_into_datagram_with_finite_loop(
-        self,
-        stm: FociSTMPtr,
-        n: int,
-        segment: Segment,
-        transition_mode: TransitionModeWrap,
-        loop_count: int,
+        self, stm: FociSTMPtr, n: int, segment: Segment, transition_mode: TransitionModeWrap, loop_count: int
     ) -> DatagramPtr:
         return self.dll.AUTDSTMFociIntoDatagramWithFiniteLoop(stm, n, segment, transition_mode, loop_count)
 
     def stm_foci_into_datagram(self, stm: FociSTMPtr, n: int) -> DatagramPtr:
         return self.dll.AUTDSTMFociIntoDatagram(stm, n)
 
-    def stm_gain(self, config: SamplingConfigWrap, gains: ctypes.Array[GainPtr], size: int, option: GainSTMOption) -> GainSTMPtr:
+    def stm_gain(self, config: SamplingConfigWrap, gains: "ctypes._Pointer[GainPtr]", size: int, option: GainSTMOption) -> GainSTMPtr:
         return self.dll.AUTDSTMGain(config, gains, size, option)
 
     def stm_gain_into_datagram_with_segment(self, stm: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
         return self.dll.AUTDSTMGainIntoDatagramWithSegment(stm, segment, transition_mode)
 
     def stm_gain_into_datagram_with_finite_loop(
-        self,
-        stm: GainSTMPtr,
-        segment: Segment,
-        transition_mode: TransitionModeWrap,
-        loop_count: int,
+        self, stm: GainSTMPtr, segment: Segment, transition_mode: TransitionModeWrap, loop_count: int
     ) -> DatagramPtr:
         return self.dll.AUTDSTMGainIntoDatagramWithFiniteLoop(stm, segment, transition_mode, loop_count)
 
@@ -981,13 +967,15 @@ class NativeMethods(metaclass=Singleton):
     def gain_focus_is_default(self, option: FocusOption) -> ctypes.c_bool:
         return self.dll.AUTDGainFocusIsDefault(option)
 
-    def gain_group_create_map(self, device_indices_ptr: ctypes.Array[ctypes.c_uint16], num_devices: int) -> GroupGainMapPtr:
+    def gain_group_create_map(self, device_indices_ptr: "ctypes._Pointer[ctypes.c_uint16]", num_devices: int) -> GroupGainMapPtr:
         return self.dll.AUTDGainGroupCreateMap(device_indices_ptr, num_devices)
 
-    def gain_group_map_set(self, map_: GroupGainMapPtr, dev_idx: int, map_data: ctypes.Array[ctypes.c_int32]) -> GroupGainMapPtr:
+    def gain_group_map_set(self, map_: GroupGainMapPtr, dev_idx: int, map_data: "ctypes._Pointer[ctypes.c_int32]") -> GroupGainMapPtr:
         return self.dll.AUTDGainGroupMapSet(map_, dev_idx, map_data)
 
-    def gain_group(self, map_: GroupGainMapPtr, keys_ptr: ctypes.Array[ctypes.c_int32], values_ptr: ctypes.Array[GainPtr], kv_len: int) -> GainPtr:
+    def gain_group(
+        self, map_: GroupGainMapPtr, keys_ptr: "ctypes._Pointer[ctypes.c_int32]", values_ptr: "ctypes._Pointer[GainPtr]", kv_len: int
+    ) -> GainPtr:
         return self.dll.AUTDGainGroup(map_, keys_ptr, values_ptr, kv_len)
 
     def gain_into_datagram_with_segment(self, gain: GainPtr, segment: Segment, transition_mode: TransitionModeWrap) -> DatagramPtr:
@@ -1041,7 +1029,7 @@ class NativeMethods(metaclass=Singleton):
     def geometry_center(self, geo: GeometryPtr) -> Point3:
         return self.dll.AUTDGeometryCenter(geo)
 
-    def geometry_reconfigure(self, geo: GeometryPtr, pos: ctypes.Array[Point3], rot: ctypes.Array[Quaternion]) -> None:
+    def geometry_reconfigure(self, geo: GeometryPtr, pos: "ctypes._Pointer[Point3]", rot: "ctypes._Pointer[Quaternion]") -> None:
         return self.dll.AUTDGeometryReconfigure(geo, pos, rot)
 
     def rotation_from_euler_xyz(self, x: float, y: float, z: float) -> Quaternion:
@@ -1107,10 +1095,10 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_silencer_fixed_completion_steps_mode(self, audit: LinkPtr, idx: int) -> ctypes.c_bool:
         return self.dll.AUTDLinkAuditFpgaSilencerFixedCompletionStepsMode(audit, idx)
 
-    def link_audit_fpga_gpio_output_types(self, audit: LinkPtr, idx: int, ty: ctypes.Array[ctypes.c_uint8]) -> None:
+    def link_audit_fpga_gpio_output_types(self, audit: LinkPtr, idx: int, ty: "ctypes._Pointer[ctypes.c_uint8]") -> None:
         return self.dll.AUTDLinkAuditFpgaGPIOOutputTypes(audit, idx, ty)
 
-    def link_audit_fpga_debug_values(self, audit: LinkPtr, idx: int, value: ctypes.Array[ctypes.c_uint64]) -> None:
+    def link_audit_fpga_debug_values(self, audit: LinkPtr, idx: int, value: "ctypes._Pointer[ctypes.c_uint64]") -> None:
         return self.dll.AUTDLinkAuditFpgaDebugValues(audit, idx, value)
 
     def link_audit_fpga_stm_freq_divide(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint16:
@@ -1131,16 +1119,16 @@ class NativeMethods(metaclass=Singleton):
     def link_audit_fpga_modulation_cycle(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaModulationCycle(audit, segment, idx)
 
-    def link_audit_fpga_modulation_buffer(self, audit: LinkPtr, segment: Segment, idx: int, data: ctypes.Array[ctypes.c_uint8]) -> None:
+    def link_audit_fpga_modulation_buffer(self, audit: LinkPtr, segment: Segment, idx: int, data: "ctypes._Pointer[ctypes.c_uint8]") -> None:
         return self.dll.AUTDLinkAuditFpgaModulationBuffer(audit, segment, idx, data)
 
     def link_audit_fpga_modulation_loop_count(self, audit: LinkPtr, segment: Segment, idx: int) -> ctypes.c_uint16:
         return self.dll.AUTDLinkAuditFpgaModulationLoopCount(audit, segment, idx)
 
-    def link_audit_fpga_drives_at(self, audit: LinkPtr, segment: Segment, idx: int, stm_idx: int, drive: ctypes.Array[Drive]) -> None:
+    def link_audit_fpga_drives_at(self, audit: LinkPtr, segment: Segment, idx: int, stm_idx: int, drive: "ctypes._Pointer[Drive]") -> None:
         return self.dll.AUTDLinkAuditFpgaDrivesAt(audit, segment, idx, stm_idx, drive)
 
-    def link_audit_fpga_pulse_width_encoder_table(self, audit: LinkPtr, idx: int, dst: ctypes.Array[ctypes.c_uint64]) -> None:
+    def link_audit_fpga_pulse_width_encoder_table(self, audit: LinkPtr, idx: int, dst: "ctypes._Pointer[ctypes.c_uint64]") -> None:
         return self.dll.AUTDLinkAuditFpgaPulseWidthEncoderTable(audit, idx, dst)
 
     def link_get(self, cnt: ControllerPtr) -> LinkPtr:
@@ -1149,36 +1137,24 @@ class NativeMethods(metaclass=Singleton):
     def link_nop(self) -> LinkPtr:
         return self.dll.AUTDLinkNop()
 
-    def modulation_custom(self, ptr: ctypes.Array[ctypes.c_uint8], len_: int, sampling_config: SamplingConfigWrap) -> ModulationPtr:
+    def modulation_custom(self, ptr: "ctypes._Pointer[ctypes.c_uint8]", len_: int, sampling_config: SamplingConfigWrap) -> ModulationPtr:
         return self.dll.AUTDModulationCustom(ptr, len_, sampling_config)
 
-    def modulation_with_fir(self, m: ModulationPtr, coef: ctypes.Array[ctypes.c_float], n_tap: int) -> ModulationPtr:
+    def modulation_with_fir(self, m: ModulationPtr, coef: "ctypes._Pointer[ctypes.c_float]", n_tap: int) -> ModulationPtr:
         return self.dll.AUTDModulationWithFir(m, coef, n_tap)
 
     def modulation_fourier_exact(
-        self,
-        sine_freq: ctypes.Array[ctypes.c_uint32],
-        sine_option: ctypes.Array[SineOption],
-        size: int,
-        option: FourierOption,
+        self, sine_freq: "ctypes._Pointer[ctypes.c_uint32]", sine_option: "ctypes._Pointer[SineOption]", size: int, option: FourierOption
     ) -> ModulationPtr:
         return self.dll.AUTDModulationFourierExact(sine_freq, sine_option, size, option)
 
     def modulation_fourier_exact_float(
-        self,
-        sine_freq: ctypes.Array[ctypes.c_float],
-        sine_option: ctypes.Array[SineOption],
-        size: int,
-        option: FourierOption,
+        self, sine_freq: "ctypes._Pointer[ctypes.c_float]", sine_option: "ctypes._Pointer[SineOption]", size: int, option: FourierOption
     ) -> ModulationPtr:
         return self.dll.AUTDModulationFourierExactFloat(sine_freq, sine_option, size, option)
 
     def modulation_fourier_nearest(
-        self,
-        sine_freq: ctypes.Array[ctypes.c_float],
-        sine_option: ctypes.Array[SineOption],
-        size: int,
-        option: FourierOption,
+        self, sine_freq: "ctypes._Pointer[ctypes.c_float]", sine_option: "ctypes._Pointer[SineOption]", size: int, option: FourierOption
     ) -> ModulationPtr:
         return self.dll.AUTDModulationFourierNearest(sine_freq, sine_option, size, option)
 
@@ -1189,11 +1165,7 @@ class NativeMethods(metaclass=Singleton):
         return self.dll.AUTDModulationIntoDatagramWithSegment(m, segment, transition_mode)
 
     def modulation_into_datagram_with_finite_loop(
-        self,
-        m: ModulationPtr,
-        segment: Segment,
-        transition_mode: TransitionModeWrap,
-        loop_count: int,
+        self, m: ModulationPtr, segment: Segment, transition_mode: TransitionModeWrap, loop_count: int
     ) -> DatagramPtr:
         return self.dll.AUTDModulationIntoDatagramWithFiniteLoop(m, segment, transition_mode, loop_count)
 

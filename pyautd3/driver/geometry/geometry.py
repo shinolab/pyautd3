@@ -37,11 +37,11 @@ class Geometry:
 
     def reconfigure(self: Self, f: Callable[[Device], AUTD3]) -> None:
         devices = [f(d) for d in self._devices]
-        pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[type-var,call-overload]
-        rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[type-var,call-overload]
+        pos = np.fromiter((np.void(Point3(d.pos)) for d in devices), dtype=Point3)  # type: ignore[no-matching-overload]
+        rot = np.fromiter((np.void(Quaternion(d.rot)) for d in devices), dtype=Quaternion)  # type: ignore[no-matching-overload]
         Base().geometry_reconfigure(
             self._geometry_ptr,
-            pos.ctypes.data_as(ctypes.POINTER(Point3)),  # type: ignore[arg-type]
-            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),  # type: ignore[arg-type]
+            pos.ctypes.data_as(ctypes.POINTER(Point3)),
+            rot.ctypes.data_as(ctypes.POINTER(Quaternion)),
         )
         self._devices = [Device(i, self._geometry_ptr) for i in range(int(Base().geometry_num_devices(self._geometry_ptr)))]

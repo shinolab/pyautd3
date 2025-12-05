@@ -82,6 +82,10 @@ def test_foci_stm():
             assert not np.all(intensities == 0)
             assert not np.all(phases == 0)
 
+        stm = FociSTM(foci=[center, center], config=1)
+        with pytest.raises(NotImplementedError):
+            autd.send(stm)
+
 
 def test_foci_stm_segment():
     autd: Controller[Audit]
