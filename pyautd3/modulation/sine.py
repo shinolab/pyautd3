@@ -80,8 +80,10 @@ class Sine[T: (int, float)](Modulation):
     def _modulation_ptr(self) -> ModulationPtr:
         match self._mode:
             case SineMode.Exact:
-                return Base().modulation_sine_exact(int(self.freq.hz()), self.option._inner())  # type: ignore[arg-type]
+                return Base().modulation_sine_exact(int(self.freq.hz()), self.option._inner())
             case SineMode.ExactFloat:
                 return Base().modulation_sine_exact_float(float(self.freq.hz()), self.option._inner())
-            case SineMode.Nearest:  # pragma: no cover
+            case SineMode.Nearest:
                 return Base().modulation_sine_nearest(float(self.freq.hz()), self.option._inner())
+            case _:  # pragma: no cover
+                raise NotImplementedError  # pragma: no cover

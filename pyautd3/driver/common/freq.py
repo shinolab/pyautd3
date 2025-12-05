@@ -46,7 +46,7 @@ class _UnitkHz:
         return super().__new__(cls)
 
     def __rmul__(self: Self, other: T) -> "Freq[T]":
-        return Freq.__private_new__(other * 1000)
+        return Freq.__private_new__(other * 1000)  # type: ignore[bad-argument-type]
 
 
 Hz: _UnitHz = _UnitHz.__private_new__()

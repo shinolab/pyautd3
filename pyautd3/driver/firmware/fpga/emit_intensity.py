@@ -28,8 +28,8 @@ class Intensity:
     def _inner(self: Self) -> Intensity_:
         return Intensity_(self.value)
 
-    MIN: "Intensity" = None  # type: ignore[assignment]
-    MAX: "Intensity" = None  # type: ignore[assignment]
+    MIN: "Intensity"
+    MAX: "Intensity"
 
 
 Intensity.MIN = Intensity(0x00)

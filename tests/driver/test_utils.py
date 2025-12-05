@@ -8,7 +8,7 @@ def test_validate_nonzero_u16():
     assert _validate_nonzero_u16(0xFFFF) == 0xFFFF
 
     with pytest.raises(TypeError):
-        _ = _validate_nonzero_u16(0.1)  # type: ignore[arg-type]
+        _ = _validate_nonzero_u16(0.1)
 
     with pytest.raises(ValueError):  # noqa: PT011
         _ = _validate_nonzero_u16(0)
@@ -22,7 +22,7 @@ def test_validate_nonzero_u32():
     assert _validate_nonzero_u32(0xFFFFFFFF) == 0xFFFFFFFF
 
     with pytest.raises(TypeError):
-        _ = _validate_nonzero_u32(0.1)  # type: ignore[arg-type]
+        _ = _validate_nonzero_u32(0.1)
 
     with pytest.raises(ValueError):  # noqa: PT011
         _ = _validate_nonzero_u32(0)

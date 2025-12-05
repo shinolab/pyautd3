@@ -50,29 +50,31 @@ class Fourier(Modulation):
         size = len(self.components)
         option = self.option._inner()
 
-        sine_option = np.fromiter((np.void(m.option._inner()) for m in self.components), dtype=SineOption_)  # type: ignore[type-var,call-overload]
+        sine_option = np.fromiter((np.void(m.option._inner()) for m in self.components), dtype=SineOption_)  # type: ignore[no-matching-overload]
         match self.components[0]._mode:
             case SineMode.Exact:
                 sine_freq = np.fromiter((m.freq.hz() for m in self.components), dtype=np.uint32)
                 return Base().modulation_fourier_exact(
-                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),  # type: ignore[arg-type]
-                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
+                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)),
+                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),
                     size,
                     option,
                 )
             case SineMode.ExactFloat:
                 sine_freq = np.fromiter((m.freq.hz() for m in self.components), dtype=np.float32)
                 return Base().modulation_fourier_exact_float(
-                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
-                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
+                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),
                     size,
                     option,
                 )
-            case SineMode.Nearest:  # pragma: no cover
+            case SineMode.Nearest:
                 sine_freq = np.fromiter((m.freq.hz() for m in self.components), dtype=np.float32)
                 return Base().modulation_fourier_nearest(
-                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
-                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),  # type: ignore[arg-type]
+                    sine_freq.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
+                    sine_option.ctypes.data_as(ctypes.POINTER(SineOption_)),
                     size,
                     option,
                 )
+            case _:  # pragma: no cover
+                raise NotImplementedError  # pragma: no cover

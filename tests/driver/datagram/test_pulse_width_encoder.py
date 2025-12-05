@@ -25,4 +25,4 @@ def test_pulse_width_encoder():
         autd.send(PulseWidthEncoder())
         for dev in autd.geometry():
             table = autd.link().pulse_width_encoder_table(dev.idx())
-            assert np.array_equal(table, buf_default)  # type: ignore[arg-type]
+            assert np.array_equal(table, buf_default)

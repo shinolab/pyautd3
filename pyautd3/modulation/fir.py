@@ -22,6 +22,6 @@ class Fir[M: Modulation](Modulation):
     def _modulation_ptr(self: Self) -> ModulationPtr:
         return Base().modulation_with_fir(
             self.target._modulation_ptr(),
-            self.coef.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),  # type: ignore[arg-type]
+            self.coef.ctypes.data_as(ctypes.POINTER(ctypes.c_float)),
             len(self.coef),
         )

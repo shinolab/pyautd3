@@ -52,11 +52,11 @@ class FociSTM(DatagramS[FociSTMPtr], DatagramL[FociSTMPtr], Datagram):
         foci_ = list(foci)
         match foci_[0]:
             case ControlPoints():
-                self.foci = foci_  # type: ignore[assignment]
+                self.foci = foci_  # type: ignore[bad-assignment]
             case ControlPoint():
-                self.foci = [ControlPoints(points=[p]) for p in foci_]  # type: ignore[list-item, arg-type]
+                self.foci = [ControlPoints(points=[p]) for p in foci_]
             case _:
-                self.foci = [ControlPoints(points=[ControlPoint(point=p)]) for p in foci_]  # type: ignore[arg-type]
+                self.foci = [ControlPoints(points=[ControlPoint(point=p)]) for p in foci_]
 
         self.config = config
 
@@ -70,9 +70,9 @@ class FociSTM(DatagramS[FociSTMPtr], DatagramL[FociSTMPtr], Datagram):
     def into_nearest(self: Self) -> "FociSTM":
         match self.config:
             case Freq() as freq:
-                return FociSTM.__private_new__(self.foci, FreqNearest(freq))  # type: ignore[arg-type]
+                return FociSTM.__private_new__(self.foci, FreqNearest(freq))
             case Duration() as period:
-                return FociSTM.__private_new__(self.foci, PeriodNearest(period))  # type: ignore[arg-type]
+                return FociSTM.__private_new__(self.foci, PeriodNearest(period))
             case _:
                 raise TypeError
 
@@ -82,26 +82,25 @@ class FociSTM(DatagramS[FociSTMPtr], DatagramL[FociSTMPtr], Datagram):
             case 1:
                 foci = (ControlPoints1(p.points[0], p.intensity.value) for p in self.foci)
             case 2:
-                foci = (ControlPoints2(p.points[0], p.points[1], p.intensity.value) for p in self.foci)  # type: ignore[misc]
+                foci = (ControlPoints2(p.points[0], p.points[1], p.intensity.value) for p in self.foci)
             case 3:
-                foci = (ControlPoints3(p.points[0], p.points[1], p.points[2], p.intensity.value) for p in self.foci)  # type: ignore[misc]
+                foci = (ControlPoints3(p.points[0], p.points[1], p.points[2], p.intensity.value) for p in self.foci)
             case 4:
-                foci = (ControlPoints4(p.points[0], p.points[1], p.points[2], p.points[3], p.intensity.value) for p in self.foci)  # type: ignore[misc]
+                foci = (ControlPoints4(p.points[0], p.points[1], p.points[2], p.points[3], p.intensity.value) for p in self.foci)
             case 5:
-                foci = (ControlPoints5(p.points[0], p.points[1], p.points[2], p.points[3], p.points[4], p.intensity.value) for p in self.foci)  # type: ignore[misc]
+                foci = (ControlPoints5(p.points[0], p.points[1], p.points[2], p.points[3], p.points[4], p.intensity.value) for p in self.foci)
             case 6:
                 foci = (
-                    ControlPoints6(p.points[0], p.points[1], p.points[2], p.points[3], p.points[4], p.points[5], p.intensity.value)  # type: ignore[misc]
-                    for p in self.foci
+                    ControlPoints6(p.points[0], p.points[1], p.points[2], p.points[3], p.points[4], p.points[5], p.intensity.value) for p in self.foci
                 )
             case 7:
                 foci = (
-                    ControlPoints7(p.points[0], p.points[1], p.points[2], p.points[3], p.points[4], p.points[5], p.points[6], p.intensity.value)  # type: ignore[misc]
+                    ControlPoints7(p.points[0], p.points[1], p.points[2], p.points[3], p.points[4], p.points[5], p.points[6], p.intensity.value)
                     for p in self.foci
                 )
             case _:
                 foci = (
-                    ControlPoints8(  # type: ignore[misc]
+                    ControlPoints8(
                         p.points[0],
                         p.points[1],
                         p.points[2],
@@ -114,10 +113,10 @@ class FociSTM(DatagramS[FociSTMPtr], DatagramL[FociSTMPtr], Datagram):
                     )
                     for p in self.foci
                 )
-        foci_ = np.fromiter((np.void(p) for p in foci), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[type-var,call-overload]
+        foci_ = np.fromiter((np.void(p) for p in foci), dtype=np.dtype((np.void, 4 + n * 16)))  # type: ignore[no-matching-overload]
         return Base().stm_foci(
             self.sampling_config()._inner,
-            foci_.ctypes.data_as(ctypes.c_void_p),  # type: ignore[arg-type]
+            foci_.ctypes.data_as(ctypes.c_void_p),
             len(self.foci),
             n,
         )

@@ -144,3 +144,4 @@ VERSION
 *.tar.gz
 
 *.pyi
+.python-version

@@ -37,8 +37,8 @@ class Phase:
     def _inner(self: Self) -> Phase_:
         return Phase_(self.value)
 
-    ZERO: "Phase" = None  # type: ignore[assignment]
-    PI: "Phase" = None  # type: ignore[assignment]
+    ZERO: "Phase"
+    PI: "Phase"
 
 
 Phase.ZERO = Phase(0x00)

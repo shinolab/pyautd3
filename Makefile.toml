@@ -21,7 +21,6 @@ rm -rf pyautd3/bin
 rm pyautd3/LICENSE.txt
 rm -rf htmlcov
 rm -rf .ruff_cache
-rm -rf .mypy_cache
 rm -rf .pytest_cache
 '''
 
@@ -42,16 +41,16 @@ for p in Path('.').rglob('__pycache__'):
 command = "uv"
 args = ["sync", "--all-extras", "--dev"]
 
-[tasks.mypy]
+[tasks.pyrefly]
 command = "uv"
-args = ["run", "mypy", ".", "--check-untyped-defs"]
+args = ["run", "pyrefly", "check", "."]
 
 [tasks.ruff]
 command = "uv"
 args = ["run", "ruff", "check", "."]
 
 [tasks.check]
-dependencies = ["sync", "format", "mypy", "ruff", "test", "build"]
+dependencies = ["sync", "format", "pyrefly", "ruff", "test", "build"]
 
 [tasks.test]
 dependencies = ["update-bin"]

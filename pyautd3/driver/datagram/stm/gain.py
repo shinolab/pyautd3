@@ -72,7 +72,7 @@ class GainSTM(DatagramS[GainSTMPtr], DatagramL[GainSTMPtr], Datagram):
             gains[i]["value"] = g._gain_ptr(geometry).value
         return Base().stm_gain(
             self.sampling_config()._inner,
-            gains.ctypes.data_as(ctypes.POINTER(GainPtr)),  # type: ignore[arg-type]
+            gains.ctypes.data_as(ctypes.POINTER(GainPtr)),
             len(gains),
             self.option._inner(),
         )

@@ -143,19 +143,23 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_constraint_clamp(self, min_v: Intensity, max_v: Intensity) -> EmissionConstraintWrap:
         return self.dll.AUTDGainHoloConstraintClamp(min_v, max_v)
 
-    def gain_holo_greedy_sphere(self, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GreedyOption) -> GainPtr:
+    def gain_holo_greedy_sphere(
+        self, points: "ctypes._Pointer[Point3]", amps: "ctypes._Pointer[ctypes.c_float]", size: int, option: GreedyOption
+    ) -> GainPtr:
         return self.dll.AUTDGainHoloGreedySphere(points, amps, size, option)
 
     def gain_greedy_is_default(self, option: GreedyOption) -> ctypes.c_bool:
         return self.dll.AUTDGainGreedyIsDefault(option)
 
-    def gain_holo_gs_sphere(self, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GSOption) -> GainPtr:
+    def gain_holo_gs_sphere(self, points: "ctypes._Pointer[Point3]", amps: "ctypes._Pointer[ctypes.c_float]", size: int, option: GSOption) -> GainPtr:
         return self.dll.AUTDGainHoloGSSphere(points, amps, size, option)
 
     def gain_gs_is_default(self, option: GSOption) -> ctypes.c_bool:
         return self.dll.AUTDGainGSIsDefault(option)
 
-    def gain_holo_gspat_sphere(self, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: GSPATOption) -> GainPtr:
+    def gain_holo_gspat_sphere(
+        self, points: "ctypes._Pointer[Point3]", amps: "ctypes._Pointer[ctypes.c_float]", size: int, option: GSPATOption
+    ) -> GainPtr:
         return self.dll.AUTDGainHoloGSPATSphere(points, amps, size, option)
 
     def gain_gspat_is_default(self, option: GSPATOption) -> ctypes.c_bool:
@@ -167,7 +171,9 @@ class NativeMethods(metaclass=Singleton):
     def gain_holo_pascal_to_spl(self, value: float) -> ctypes.c_float:
         return self.dll.AUTDGainHoloPascalToSPL(value)
 
-    def gain_holo_naive_sphere(self, points: ctypes.Array[Point3], amps: ctypes.Array[ctypes.c_float], size: int, option: NaiveOption) -> GainPtr:
+    def gain_holo_naive_sphere(
+        self, points: "ctypes._Pointer[Point3]", amps: "ctypes._Pointer[ctypes.c_float]", size: int, option: NaiveOption
+    ) -> GainPtr:
         return self.dll.AUTDGainHoloNaiveSphere(points, amps, size, option)
 
     def gain_naive_is_default(self, option: NaiveOption) -> ctypes.c_bool:

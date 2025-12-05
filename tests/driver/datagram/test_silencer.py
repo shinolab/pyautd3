@@ -69,7 +69,7 @@ def test_silencer_from_completion_time():
             silencer = Silencer()
             assert bool(
                 Base().datagram_silencer_fixed_completion_steps_is_default(
-                    silencer.config._inner(),  # type: ignore[arg-type]
+                    silencer.config._inner(),
                 ),
             )
 
@@ -92,6 +92,12 @@ def test_silencer_from_update_rate():
             assert autd.link().silencer_update_rate_intensity(dev.idx()) == 2
             assert autd.link().silencer_update_rate_phase(dev.idx()) == 3
             assert not autd.link().silencer_fixed_completion_steps_mode(dev.idx())
+
+
+def test_silencer_from_int():
+    autd: Controller[Audit]
+    with create_controller() as autd, pytest.raises(NotImplementedError):
+        autd.send(Silencer(config=1))
 
 
 def test_silencer_large_steps():

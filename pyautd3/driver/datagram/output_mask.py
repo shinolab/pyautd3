@@ -36,4 +36,4 @@ class OutputMask(Datagram):
         return OutputMask(f, segment)
 
     def _datagram_ptr(self: Self, geometry: Geometry) -> DatagramPtr:
-        return Base().datagram_output_mask_with_segment(self._f_native, None, geometry._geometry_ptr, self._segment)  # type: ignore[arg-type]
+        return Base().datagram_output_mask_with_segment(self._f_native, c_void_p(None), geometry._geometry_ptr, self._segment)  # type: ignore[bad-argument-type]

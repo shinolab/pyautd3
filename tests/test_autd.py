@@ -98,7 +98,7 @@ def test_send_tuple():
             assert np.all(phases == 0)
 
         with pytest.raises(InvalidDatagramTypeError):
-            autd.send(0)  # type: ignore[arg-type]
+            autd.send(0)
 
         autd.link().break_down()
         with pytest.raises(AUTDError) as e:
