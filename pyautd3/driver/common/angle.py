@@ -8,7 +8,7 @@ from pyautd3.native_methods.autd3 import Angle as Angle_
 class Angle:
     _value: float
 
-    def __new__(cls: type["Angle"]) -> "Angle":
+    def __new__(cls: type["Angle"]) -> Self:
         raise NotImplementedError
 
     @classmethod

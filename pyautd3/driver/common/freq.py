@@ -6,7 +6,7 @@ T = TypeVar("T", int, float)
 class Freq[T: (int, float)]:
     _freq: T
 
-    def __new__(cls: type["Freq"]) -> "Freq":
+    def __new__(cls: type["Freq"]) -> Self:
         raise NotImplementedError
 
     @classmethod
@@ -26,7 +26,7 @@ class Freq[T: (int, float)]:
 
 
 class _UnitHz:
-    def __new__(cls: type["_UnitHz"]) -> "_UnitHz":
+    def __new__(cls: type["_UnitHz"]) -> Self:
         raise NotImplementedError
 
     @classmethod
@@ -38,7 +38,7 @@ class _UnitHz:
 
 
 class _UnitkHz:
-    def __new__(cls: type["_UnitkHz"]) -> "_UnitkHz":
+    def __new__(cls: type["_UnitkHz"]) -> Self:
         raise NotImplementedError
 
     @classmethod
