@@ -97,7 +97,7 @@ def test_silencer_from_update_rate():
 def test_silencer_from_int():
     autd: Controller[Audit]
     with create_controller() as autd, pytest.raises(NotImplementedError):
-        autd.send(Silencer(config=1))
+        autd.send(Silencer(config=1))  # type: ignore[bad-specialization]
 
 
 def test_silencer_large_steps():
