@@ -6,7 +6,7 @@ from pyautd3.native_methods.autd3capi_gain_holo import NativeMethods as GainHolo
 class Amplitude:
     _value: float
 
-    def __new__(cls: type["Amplitude"]) -> "Amplitude":
+    def __new__(cls: type["Amplitude"]) -> Self:
         raise NotImplementedError
 
     @classmethod

@@ -12,7 +12,7 @@ from pyautd3.native_methods.structs import Point3
 
 
 class ControlPoint(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point", Point3),
         ("_offset", ctypes.c_uint8),
         ("_pad", ctypes.c_uint8 * 3),
@@ -41,7 +41,7 @@ class ControlPoint(ctypes.Structure):
 
 
 class ControlPoints1(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point", ControlPoint),
         ("_intensity", ctypes.c_uint8),
         ("_pad", ctypes.c_uint8 * 3),
@@ -49,7 +49,7 @@ class ControlPoints1(ctypes.Structure):
 
 
 class ControlPoints2(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_intensity", ctypes.c_uint8),
@@ -58,7 +58,7 @@ class ControlPoints2(ctypes.Structure):
 
 
 class ControlPoints3(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_point3", ControlPoint),
@@ -68,7 +68,7 @@ class ControlPoints3(ctypes.Structure):
 
 
 class ControlPoints4(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_point3", ControlPoint),
@@ -79,7 +79,7 @@ class ControlPoints4(ctypes.Structure):
 
 
 class ControlPoints5(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_point3", ControlPoint),
@@ -91,7 +91,7 @@ class ControlPoints5(ctypes.Structure):
 
 
 class ControlPoints6(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_point3", ControlPoint),
@@ -104,7 +104,7 @@ class ControlPoints6(ctypes.Structure):
 
 
 class ControlPoints7(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_point3", ControlPoint),
@@ -118,7 +118,7 @@ class ControlPoints7(ctypes.Structure):
 
 
 class ControlPoints8(ctypes.Structure):
-    _fields_ = [  # noqa: RUF012
+    _fields_ = [
         ("_point1", ControlPoint),
         ("_point2", ControlPoint),
         ("_point3", ControlPoint),

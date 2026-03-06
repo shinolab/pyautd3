@@ -1,3 +1,5 @@
+from typing import Self
+
 import numpy as np
 
 from pyautd3.driver.common.angle import Angle
@@ -5,7 +7,7 @@ from pyautd3.native_methods.autd3capi import NativeMethods as Base
 
 
 class EulerAngles:
-    def __new__(cls: type["EulerAngles"]) -> "EulerAngles":
+    def __new__(cls: type["EulerAngles"]) -> Self:
         raise NotImplementedError
 
     @staticmethod

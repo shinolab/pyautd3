@@ -12,7 +12,7 @@ from pyautd3.native_methods.utils import ConstantADT
 
 
 class GPIOOutputType(metaclass=ConstantADT):
-    def __new__(cls: type["GPIOOutputType"]) -> "GPIOOutputType":
+    def __new__(cls: type["GPIOOutputType"]) -> Self:
         raise NotImplementedError
 
     BaseSignal: GPIOOutputTypeWrap = Base().gpio_output_type_base_signal()

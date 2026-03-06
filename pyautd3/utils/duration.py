@@ -1,4 +1,5 @@
 import ctypes
+from typing import Self
 
 from pyautd3.native_methods.autd3capi_driver import Duration as _Duration
 from pyautd3.native_methods.autd3capi_driver import OptionDuration
@@ -7,7 +8,7 @@ from pyautd3.native_methods.autd3capi_driver import OptionDuration
 class Duration:
     _inner: _Duration
 
-    def __new__(cls: type["Duration"]) -> "Duration":
+    def __new__(cls: type["Duration"]) -> Self:
         raise NotImplementedError
 
     @classmethod
