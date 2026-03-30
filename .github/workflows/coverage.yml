@@ -26,7 +26,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
       - uses: astral-sh/setup-uv@v7
       - run: cargo make cov xml
-      - uses: codecov/codecov-action@v5
+      - uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: coverage.xml
