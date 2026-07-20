@@ -21,7 +21,7 @@ jobs:
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-make
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ env.PYTHON_VERSION }}
       - uses: astral-sh/setup-uv@v7
